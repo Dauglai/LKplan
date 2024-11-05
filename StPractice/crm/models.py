@@ -48,18 +48,18 @@ class Efficiency(models.Model):
         return f'{self.user}'
 
 
-
 class Project(models.Model):
     name = models.CharField(verbose_name="Название проекта", max_length=100)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE, primary_key=True)
-    supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True, related_name="supervisor")
-    curators = models.ManyToManyField(Profile, on_delete=models.CASCADE, null=True, blank=True, related_name="curators")
-    students = models.ManyToManyField(Profile, on_delete=models.CASCADE, null=True, blank=True, related_name="students")
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE,
+                               related_name="projects_authored")  # Уникальный related_name
+    supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True,
+                                   related_name="supervised_projects")
+    curators = models.ManyToManyField(Profile, related_name="curated_projects")
+    students = models.ManyToManyField(Profile, related_name="student_projects")
     link = models.CharField(verbose_name="Ссылка на организационный чат", max_length=100, null=True, blank=True)
     start = models.DateField(auto_now=True)
     end = models.DateField(verbose_name="Дата окончания", null=True, blank=True)
-
 
     def __str__(self):
         return f'{self.name}'
@@ -95,7 +95,7 @@ class Application(models.Model):
     def __str__(self):
         return f'{self.user}'
 
-class Review(models.Model):
+class App_review(models.Model):
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     is_approved = models.BooleanField(verbose_name="Заявка одобрена?", default=False)
     comment = models.CharField(verbose_name="Отзыв",max_length=1000)

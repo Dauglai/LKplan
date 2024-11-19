@@ -1,0 +1,44 @@
+{
+  "lint": {
+    "include": ["src/**/*.tsx"],
+    "exclude": [],
+    "rules": {
+      "tags": ["recommended"],
+      "include": [
+        "ban-untagged-todo",
+        "eqeqeq",
+        "explicit-function-return-type",
+        "no-eval",
+        "no-non-null-asserted-optional-chain"
+      ],
+      "exclude": ["no-unused-vars"]
+    }
+  },
+  "fmt": {
+    "useTabs": true,
+    "lineWidth": 80,
+    "indentWidth": 4,
+    "semiColons": true,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "include": ["src/**/*.tsx"],
+    "exclude": []
+  },
+  "compilerOptions": {
+    "checkJs": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "jsxImportSourceTypes": "@types/react",
+    "lib": [
+      "deno.window",
+      "deno.ns",
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable",
+      "webworker",
+      "vite/client"
+    ],
+    "types": ["vite/client", "npm:vite/client.d.ts"]
+  }
+}

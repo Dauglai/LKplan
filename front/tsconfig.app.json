@@ -20,7 +20,19 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    "baseUrl": "src",
+    "paths": {
+      "App/*": ["App/*"],
+      "assets/*": ["assets/*"],
+      "Features/*": ["Features/*"],
+      "Pages/*": ["Pages/*"],
+      "Shared/*": ["Shared/*"],
+      "Widgets/*": ["Widgets/*"],
+      "Styles/*": ["Styles/*"]
+    },
+    "types": ["vite-plugin-svgr/client"]
   },
   "include": ["src"]
 }

@@ -1,0 +1,50 @@
+@import 'variables';
+
+@mixin h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 2.5rem;
+  color: $black;
+}
+
+@mixin h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+  color: $black;
+}
+
+@mixin h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.125rem;
+  color: $black;
+}
+
+@mixin h4 {
+  font-size: 0, 9375rem;
+  font-weight: 700;
+  line-height: 0, 9375rem;
+  color: $black;
+}
+
+@mixin text1 {
+  font-size: 0, 9375rem;
+  font-weight: 400;
+  line-height: 1rem;
+  color: $black;
+}
+
+@mixin text2 {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 0, 9375rem;
+  color: $black;
+}
+
+@mixin text3 {
+  font-size: 0, 625rem;
+  font-weight: 400;
+  line-height: 0.75rem;
+  color: $black;
+}

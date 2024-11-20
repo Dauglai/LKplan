@@ -5,11 +5,13 @@ import { RootState } from 'App/model/store.ts';
 export interface AuthState {
   user: Object | null;
   token: string | null;
+  refresh: string | null;
 }
 
 const initialState: AuthState = {
   user: null,
   token: null,
+  refresh: null,
 };
 
 const authSlice = createSlice({
@@ -17,13 +19,16 @@ const authSlice = createSlice({
   initialState: initialState,
   reducers: {
     setCredentials: (state, action) => {
-      const { user, accessToken } = action.payload;
+      const { user, access, refresh } = action.payload;
       state.user = user;
-      state.token = accessToken;
+      state.token = access;
+      state.refresh = refresh;
     },
+
     logOut: (state) => {
       state.user = null;
       state.token = null;
+      state.refresh = null;
     },
   },
 });

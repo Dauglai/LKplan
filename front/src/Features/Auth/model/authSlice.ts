@@ -1,5 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { RootState } from "../../../App/model/store.ts";
+import { createSlice } from '@reduxjs/toolkit';
+import { RootState } from 'App/model/store.ts';
 
 export interface AuthState {
   user: Object | null;
@@ -12,7 +12,7 @@ const initialState: AuthState = {
 };
 
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState: initialState,
   reducers: {
     setCredentials: (state, action) => {

@@ -1,8 +1,8 @@
-import { useAppSelector } from "../../../App/model/hooks.ts";
+import { useAppSelector } from 'App/model/hooks.ts';
 import {
   selectCurrentUser,
   selectCurrentToken,
-} from "../../../Features/Auth/model/authSlice.ts";
+} from 'Features/Auth/model/authSlice.ts';
 
 export default function Profile(): JSX.Element {
   const user = useAppSelector(selectCurrentUser);

@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'crm.apps.CrmConfig',
     'canban.apps.CanbanConfig',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 
 ]
 
@@ -55,11 +57,20 @@ MIDDLEWARE = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Срок действия access-токена
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Срок действия refresh-токена
+    'ROTATE_REFRESH_TOKENS': True,                 # Обновление refresh-токена при его использовании
+    'BLACKLIST_AFTER_ROTATION': True,              # Отзыв старого refresh-токена
 }
 
 ROOT_URLCONF = 'StPractice.urls'

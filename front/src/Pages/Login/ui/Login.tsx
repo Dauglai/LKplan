@@ -1,7 +1,10 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import './Login.scss';
+import { useLoginMutation } from 'Features/Auth/api/authApiSlice';
+import { useAppDispatch } from 'App/model/hooks';
+import { setCredentials } from 'Features/Auth/model/authSlice';
 
 type Inputs = {
   login: string;
@@ -9,13 +12,36 @@ type Inputs = {
 };
 
 export default function Login(): JSX.Element {
+  const [login, { isLoading }] = useLoginMutation();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    try {
+      
+
+      const userData = await login({
+        username: data.login,
+        password: data.password,
+      }).unwrap();
+      console.log(userData);
+      dispatch(
+        setCredentials({
+          access: userData.access,
+          user: userData.user,
+          refresh: userData.refresh,
+        })
+      );
+      navigate('/profile');
+    } catch (err) {
+      console.log(err.data);
+    }
+  };
   return (
     <>
       <main className="Login">
@@ -35,7 +61,7 @@ export default function Login(): JSX.Element {
             {...register('password', { required: true })}
             className="Login-Form-Input"
           />
-          <a className="Login-Form-FogotPass">Не помню пароль</a>
+          <a className="Login-Form-ForgotPass">Не помню пароль</a>
           <button type="submit" className="Login-Form-Submit">
             Войти
           </button>

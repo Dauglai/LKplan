@@ -40,15 +40,31 @@ class Role(models.Model):
 
 
 class Efficiency(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    owner = models.OneToOneField(Profile, on_delete=models.CASCADE, primary_key=True)
     count = models.IntegerField(default=0, verbose_name="Количество задач,выполненных в срок")
     rating = models.FloatField(verbose_name="Средний рейтинг")
 
     def __str__(self):
         return f'{self.user}'
 
+class Event(models.Model):
+    name = models.CharField(verbose_name="Название проекта", max_length=100)
+    description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
+    link = models.CharField(verbose_name="Ссылка на мероприятие", max_length=100, null=True, blank=True)
+    start = models.DateField(auto_now=True)
+    end = models.DateField(verbose_name="Дата окончания", null=True, blank=True)
+
+class Direction(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    name = models.CharField(verbose_name="Название проекта", max_length=100)
+    description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
+    link = models.CharField(verbose_name="Ссылка на организационный чат", max_length=1000, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.name}'
 
 class Project(models.Model):
+    direction = models.ForeignKey(Direction, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Название проекта", max_length=100)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
     author = models.ForeignKey(Profile, on_delete=models.CASCADE,
@@ -58,18 +74,6 @@ class Project(models.Model):
     curators = models.ManyToManyField(Profile, related_name="curated_projects")
     students = models.ManyToManyField(Profile, related_name="student_projects")
     link = models.CharField(verbose_name="Ссылка на организационный чат", max_length=100, null=True, blank=True)
-    start = models.DateField(auto_now=True)
-    end = models.DateField(verbose_name="Дата окончания", null=True, blank=True)
-
-    def __str__(self):
-        return f'{self.name}'
-
-
-class Direction(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    name = models.CharField(verbose_name="Название проекта", max_length=100)
-    description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
-    link = models.CharField(verbose_name="Ссылка на организационный чат", max_length=1000, null=True, blank=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -77,9 +81,8 @@ class Direction(models.Model):
 
 class Team(models.Model):
     name = models.CharField(verbose_name="Название", max_length=100)
-    direction = models.ForeignKey(Direction, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     students = models.ManyToManyField(Profile)
-    curator = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True, related_name="curator")
 
     def __str__(self):
         return f'{self.name}'
@@ -90,7 +93,6 @@ class Application(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     dateTime = models.DateTimeField(auto_now=True)
     message = models.TextField(verbose_name="Ваш текст", max_length=1000)
-
 
     def __str__(self):
         return f'{self.user}'
@@ -137,3 +139,4 @@ class Answer(models.Model):
 
     def __str__(self):
         return f'{self.user}'
+

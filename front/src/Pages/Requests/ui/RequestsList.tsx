@@ -1,50 +1,42 @@
-import RequestsHeaderPanel from './RequestsHeaderPanel';
 import RequestItem from './RequestItem';
+import { Request } from 'Pages/Requests/typeRequests';
 
 import './RequestsList.scss';
 
-type Status = 'new' | 'joined_chat' | 'accepted';
+const statuses: Request['status'][] = [
+  'Новые заявки',
+  'Вступившие в орг. чат',
+  'Приступившие к работе',
+];
 
-type Request = {
-  id: number;
-  name: string;
-  status: Status;
-  direction: string;
+type RequestsListProps = {
+  requests: Request[];
 };
 
-export default function RequestsList(): JSX.Element {
-    const requests: Request[] = [
-      { id: 1, name: 'Тони Старк Отчество', status: 'new', direction: 'Веб' },
-      { id: 2, name: 'Тони Старк Отчество', status: 'joined_chat', direction: '1C' },
-      { id: 3, name: 'Тони Старк Отчество', status: 'accepted', direction: 'Игры' },
-      { id: 4, name: 'Тони Старк Отчество', status: 'new', direction: 'Веб' },
-    ];
-  
-    const statuses: { [key: string]: string } = {
-      "Новые заявки": "new",
-      "Вступившие в орг. чат": "joined_chat",
-      "Приступившие к работе": "accepted"
-    };
-  
-    return (
-        <>
-            <RequestsHeaderPanel />
-            <div className="RequestsList">
-                {Object.entries(statuses).map(([label, status]) => (
-                <div className="RequestsListColumn" key={status}>
-                    <div className="RequestStatusName">{label}</div>
-                    {requests
-                    .filter((request) => request.status === status)
-                    .map((request) => (
-                        <RequestItem
-                        key={request.id}
-                        name={request.name}
-                        direction={request.direction}
-                        />
-                    ))}
-                </div>
-                ))}
-            </div>
-        </>
-    );
+export default function RequestsList({ requests }: RequestsListProps): JSX.Element {
+  return (
+    <div className="RequestsList">
+      {statuses.map((status) => {
+        const filteredRequests = requests.filter((request) => request.status === status);
+
+        return (
+          <div className="RequestsListColumn" key={status}>
+            <div className="RequestStatusName">{status}</div>
+            {filteredRequests.length > 0 ? (
+              filteredRequests.map((request) => (
+                <RequestItem
+                  key={request.id}
+                  name={request.name}
+                  direction={request.direction}
+                />
+              ))
+            ) : (
+              <div className="NoRequestsMessage">Заявки не найдены</div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
+

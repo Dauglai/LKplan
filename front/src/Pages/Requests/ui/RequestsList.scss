@@ -9,6 +9,7 @@
 
     .RequestsListColumn {
         min-width: 370px;
+        max-width: 380px;
 
         .RequestStatusName {
             @include h2;

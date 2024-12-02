@@ -14,6 +14,7 @@ import RequireAuth from 'Shared/ui/requireAuth.tsx';
 import Login from 'Pages/Login/ui/Login.tsx';
 import Register from 'Pages/Register/ui/Register.tsx';
 import Profile from 'Pages/Profile/ui/Profile.tsx';
+import RequestsList from 'Pages/Requests/ui/RequestsList.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/" element={<RequireAuth />}>
               <Route path="/profile" element={<Profile />} />
             </Route>
+            <Route path="/requests-list" element={<RequestsList />} />
           </Route>
         </Routes>
       </BrowserRouter>

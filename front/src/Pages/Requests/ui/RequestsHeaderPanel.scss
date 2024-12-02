@@ -1,0 +1,116 @@
+@import '../../../Styles/mixins';
+@import '../../../Styles/variables';
+
+.HeaderPanel {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 56px;
+    width: 1160px;
+    margin: 0 auto 52px auto;
+
+    .LeftHeaderPanel {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 12px;
+
+        .lfp-btn {
+            border: none;
+            display: flex;
+            align-items: center;
+    
+            background: none;
+    
+            cursor: pointer;
+
+            &:hover {
+                opacity: 0.8;
+            }
+
+            &.BackButton svg{
+                width: 32px;
+                height: 32px;
+            }
+
+            &.AddButton svg{
+                width: 28px;
+                height: 28px;
+            }
+
+            &.DeleteButton svg{
+                width: 20px;
+                height: 20px;
+            }
+        }
+    
+        .RequestsTitle {
+            @include h2;
+            margin-right: 12px;
+        }
+    }
+
+    .SearchInputWrapper {
+        position: relative;
+
+        .SearchInput {
+            @include text1;
+            width: 240px;
+            height: 32px;
+            padding: 8px 12px;
+
+            border-radius: 8px;
+            border: 1px solid $grey2;
+
+            &:focus {
+                outline: none;
+                border-color: $grey2;
+            }
+        }
+
+        .SearchInputIcon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .SearchInputText {
+            @include text2;
+            position: absolute;
+            top: -14px;
+            left: 4px;
+        }
+    }
+
+    .ManageButton {
+        @include text2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+
+        border: none;
+        border-radius: 8px;
+        background-color: $white;
+
+        backdrop-filter: blur(4px);
+        box-shadow: 0px 4px 4px 0px #00000040;
+
+        cursor: pointer;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        &:hover {
+            background-color: $grey;
+        }
+    }
+}

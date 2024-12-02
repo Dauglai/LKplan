@@ -1,0 +1,55 @@
+@import '../../../Styles/mixins';
+@import '../../../Styles/variables';
+
+.RequestsList {
+    display: flex;
+    justify-content: space-between;
+    width: 1160px;
+    margin: 0 auto;
+
+    .RequestsListColumn {
+        min-width: 370px;
+
+        .RequestStatusName {
+            @include h2;
+            margin-bottom: 24px;
+        }
+
+        .RequestItem {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 55px;
+            margin-bottom: 24px;
+            padding: 26px 25px;
+            
+            border-radius: 10px;
+            background-color: $white;
+
+            backdrop-filter: blur(4px);
+            box-shadow: 0px 4px 4px 0px #00000040;
+
+
+            transition: background-color 0.3s;
+            cursor: pointer;
+
+            &:hover {
+                background-color: $grey;
+            }
+
+            .RequestName {
+                @include h3;
+            }
+
+            .RequestDirection {
+                @include text2;
+
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 8px;
+
+                background-color: $blue;
+            }
+        }
+    }
+}

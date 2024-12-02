@@ -1,14 +1,14 @@
 from django.db import models
 from django.utils.termcolors import RESET
 
-from crm.models import Profile, Direction
+from crm.models import Profile, Project
 
 
 class Task(models.Model):
     name = models.CharField(verbose_name="Название", max_length=256)
     description = models.TextField(verbose_name="Название", max_length=10000)
     author = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="tasks_authored")
-    direction = models.ForeignKey(Direction, on_delete=models.CASCADE)
+    direction = models.ForeignKey(Project, on_delete=models.CASCADE)
     responsible_users = models.ManyToManyField(Profile, related_name='responsible_users')
     datetime = models.DateTimeField(auto_now_add=True)
     deadline = models.DateTimeField(verbose_name="Крайний срок выполнения", blank=True, null=True)
@@ -31,7 +31,7 @@ class Customization(models.Model):
     photo = models.ImageField()
 
 class Status(models.Model):
-    direction = models.ForeignKey(Direction, on_delete=models.CASCADE)
+    direction = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Название этапа", max_length=256)
 
     def __str__(self):

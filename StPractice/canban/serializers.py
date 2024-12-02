@@ -35,3 +35,9 @@ class ResultSerializer(serializers.ModelSerializer):
         model = Result
         fields = '__all__'
 
+
+class GradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Result
+        fields = '__all__'
+

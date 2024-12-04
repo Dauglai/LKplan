@@ -1,4 +1,3 @@
-import RequestItem from './RequestItem';
 import { Request } from 'Pages/Requests/typeRequests';
 
 import './RequestsList.scss';
@@ -11,9 +10,13 @@ const statuses: Request['status'][] = [
 
 type RequestsListProps = {
   requests: Request[];
+  onRequestSelect: (request: Request) => void;
 };
 
-export default function RequestsList({ requests }: RequestsListProps): JSX.Element {
+export default function RequestsList({ 
+  requests,
+  onRequestSelect 
+}: RequestsListProps): JSX.Element {
   return (
     <div className="RequestsList">
       {statuses.map((status) => {
@@ -24,11 +27,14 @@ export default function RequestsList({ requests }: RequestsListProps): JSX.Eleme
             <div className="RequestStatusName">{status}</div>
             {filteredRequests.length > 0 ? (
               filteredRequests.map((request) => (
-                <RequestItem
+                <div
                   key={request.id}
-                  name={request.name}
-                  direction={request.direction}
-                />
+                  className="RequestItem"
+                  onClick={() => onRequestSelect(request)}
+                >
+                  <h3 className="RequestName">{request.name}</h3>
+                  <span className="RequestDirection">#{request.direction}</span>
+                </div>
               ))
             ) : (
               <div className="NoRequestsMessage">Заявки не найдены</div>
@@ -39,4 +45,5 @@ export default function RequestsList({ requests }: RequestsListProps): JSX.Eleme
     </div>
   );
 }
+
 

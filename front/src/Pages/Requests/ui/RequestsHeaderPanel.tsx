@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import RequestsManagementModal from './modal/RequestsManagementModal';
-import { Request } from 'Pages/Requests/typeRequests';
 
 import ChevronLeftIcon from 'assets/icons/chevron-left.svg?react';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
@@ -12,24 +10,21 @@ import './RequestsHeaderPanel.scss';
 type RequestsHeaderPanelProps = {
   searchTerm: string;
   onSearch: (term: string) => void;
-  requests: Request[];
+  onOpenModal: () => void;
 };
 
 
 export default function RequestsHeaderPanel({
     searchTerm,
     onSearch,
-    requests
+    onOpenModal,
     }: RequestsHeaderPanelProps): JSX.Element {
 
     const [isFocused, setIsFocused] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleFocus = () => setIsFocused(true);
     const handleBlur = () => setIsFocused(false);
 
-    const handleOpenModal = () => setIsModalOpen(true);
-    const handleCloseModal = () => setIsModalOpen(false);
 
     return (
         <div className="HeaderPanel">
@@ -62,14 +57,10 @@ export default function RequestsHeaderPanel({
                     <div className="SearchInputText">Поиск заявок</div>
                 )}
               </div>
-            <button className="ManageButton" onClick={handleOpenModal}> {/* Открытие модального окна */}
+            <button className="ManageButton" onClick={onOpenModal}>
               Ручное управление заявками
               <ChevronRightIcon width="16" height="16"/>
             </button>
-
-            {isModalOpen && (
-              <RequestsManagementModal onClose={handleCloseModal} requests={requests}/>
-            )}
         </div>
     );
 }

@@ -1,0 +1,43 @@
+@import '../../../../Styles/mixins';
+@import '../../../../Styles/variables';
+
+.RequestSearchBar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 12px 8px 12px;
+
+    .SearchIcon {
+        margin-left: 8px;
+    }
+
+    .SearchInput {
+        @include text2;
+        border: none;
+        width: 120px;
+
+        &:focus {
+          outline: none;
+      }
+    }
+
+    .RequestCount {
+        display: flex;
+        font-size: 12px;
+        color: #666;
+        gap: 4px;
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 36px;
+        width: 100%;
+        height: 0.1px;
+        background-color: $black;
+        opacity: 0.5;
+        z-index: 1001;
+    }
+}

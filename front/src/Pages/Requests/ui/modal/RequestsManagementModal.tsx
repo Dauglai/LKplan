@@ -32,9 +32,11 @@ export default function RequestsManagementModal({
 
   useEffect(() => {
     modalRoot.appendChild(modalContainer);
+    document.body.classList.add('no-scroll');
 
     return () => {
       modalRoot.removeChild(modalContainer);
+      document.body.classList.remove('no-scroll');
     };
   }, [modalContainer, modalRoot]);
 
@@ -68,17 +70,23 @@ export default function RequestsManagementModal({
           <div className="ModalHeader">
             <h2 className="ModalTitle">Управление заявками</h2>
             <button className="ModalCloseButton" onClick={onClose}>
-              <CloseIcon width="24" height="24" />
+              <CloseIcon width="24" height="24" strokeWidth="0.5"/>
             </button>
           </div>
           {localSelectedRequest ? (
             <RequestDetails
               selectedRequest={localSelectedRequest}
-              onClose={onClose}
             />
           ) : (
             <p>Выберите заявку для управления</p>
           )}
+
+          <div className="ModalActions">
+              <button className="CancelButton modal-btn" onClick={onClose}>
+                  Отмена
+              </button>
+              <button className="SaveButton modal-btn">Сохранить</button>
+          </div>
         </div>
       </div>
     </div>,

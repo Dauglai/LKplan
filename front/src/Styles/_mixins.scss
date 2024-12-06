@@ -48,3 +48,12 @@
   line-height: 0.75rem;
   color: $black;
 }
+
+@mixin no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

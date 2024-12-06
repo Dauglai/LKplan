@@ -8,8 +8,7 @@
     margin: 0 auto;
 
     .RequestsListColumn {
-        min-width: 370px;
-        max-width: 380px;
+        width: 360px;
 
         .RequestStatusName {
             @include h2;
@@ -47,7 +46,7 @@
 
                 display: inline-block;
                 padding: 4px 8px;
-                border-radius: 8px;
+                border-radius: $border-radius;
 
                 background-color: $blue;
             }

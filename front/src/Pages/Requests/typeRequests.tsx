@@ -1,14 +1,15 @@
 export type Request = {
     id: number;
     name: string;
-    status: 'Новые заявки' | 'Вступившие в орг. чат' | 'Приступившие к работе';
+    status: string;
     eventName: string;
-    direction: 'Игры' | 'Веб-разработка' | '1С';
+    direction: string;
     project: string;
-    specialization: 'Дизайн' | 'Аналитика' | 'Фронтенд';
+    specialization: string;
     testScore: number;
     institution: string;
     course: number;
+    description: string;
 };
   
   

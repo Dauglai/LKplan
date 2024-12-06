@@ -40,7 +40,7 @@
             height: 32px;
             padding: 8px 12px;
 
-            border-radius: 8px;
+            border-radius: $border-radius;
             border: 1px solid $grey2;
 
             &:focus {
@@ -75,7 +75,7 @@
         padding: 8px;
 
         border: none;
-        border-radius: 8px;
+        border-radius: $border-radius;
         background-color: $white;
 
         backdrop-filter: blur(4px);

@@ -6,13 +6,19 @@
     justify-content: space-between;
     width: 1160px;
     margin: 0 auto;
+    position: relative;
 
     .RequestsListColumn {
+        position: relative;
         width: 360px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        z-index: 1;
 
         .RequestStatusName {
             @include h2;
             margin-bottom: 24px;
+            z-index: 2;
         }
 
         .RequestItem {
@@ -28,7 +34,6 @@
 
             backdrop-filter: blur(4px);
             box-shadow: 0px 4px 4px 0px #00000040;
-
 
             transition: background-color 0.3s;
             cursor: pointer;
@@ -50,6 +55,24 @@
 
                 background-color: $blue;
             }
+        }
+
+        .NoRequestsMessage {
+            color: #999;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        &.column-1 {
+            @include backgroundWithBefore(-48px, -32px, 24px, 436px, 728px);
+        }
+
+        &.column-2 {
+            @include backgroundWithBefore(-40px, -32px, 24px, 436px, 728px);
+        }
+
+        &.column-3 {
+            @include backgroundWithBefore(-32px, -32px, 24px, 436px, 728px);
         }
     }
 }

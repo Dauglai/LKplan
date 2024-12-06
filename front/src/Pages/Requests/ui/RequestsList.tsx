@@ -8,22 +8,22 @@ const statuses: Request['status'][] = [
   'Приступившие к работе',
 ];
 
-type RequestsListProps = {
-  requests: Request[];
-  onRequestSelect: (request: Request) => void;
-};
 
 export default function RequestsList({ 
   requests,
   onRequestSelect 
-}: RequestsListProps): JSX.Element {
+}: {
+  requests: Request[];
+  onRequestSelect: (request: Request) => void;
+}): JSX.Element {
   return (
     <div className="RequestsList">
-      {statuses.map((status) => {
+      {statuses.map((status, index) => {
         const filteredRequests = requests.filter((request) => request.status === status);
+        const columnClass = `column-${index + 1}`;
 
         return (
-          <div className="RequestsListColumn" key={status}>
+          <div className={`RequestsListColumn ${columnClass}`} key={status}>
             <div className="RequestStatusName">{status}</div>
             {filteredRequests.length > 0 ? (
               filteredRequests.map((request) => (

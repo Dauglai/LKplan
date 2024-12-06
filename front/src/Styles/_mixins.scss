@@ -57,3 +57,26 @@
     display: none;
   }
 }
+
+// Миксин для создания контейнеров с накладывающимся фоном
+@mixin backgroundWithBefore($top, $left, $offset, $width, $min-height) {
+  position: relative;
+  
+  &::before {
+      content: '';
+      position: absolute;
+      top: $top;
+      left: $left;
+      width: $width;
+      min-height: $min-height;
+      height: calc(100% + #{$offset * 2});
+
+      background-color: $white;
+      border-radius: $border-radius;
+      z-index: -1;
+
+      box-shadow: 0px 0px 11.5px 6px #A7A7A740;
+  }
+}
+
+

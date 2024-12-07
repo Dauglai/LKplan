@@ -8,17 +8,16 @@ import { RequestDetails } from './RequestDetails';
 import CloseIcon from 'assets/icons/x-circle.svg?react';
 import './RequestsManagementModal.scss';
 
-type RequestsManagementModalProps = {
-  onClose: () => void;
-  requests: Request[];
-  selectedRequest: Request | null;
-};
 
 export default function RequestsManagementModal({
   onClose,
   requests,
   selectedRequest,
-}: RequestsManagementModalProps): JSX.Element | null {
+}: {
+  onClose: () => void;
+  requests: Request[];
+  selectedRequest: Request | null;
+}): JSX.Element | null {
   const [searchTerm, setSearchTerm] = useState('');
   const [localSelectedRequest, setLocalSelectedRequest] = useState<Request | null>(selectedRequest);
 

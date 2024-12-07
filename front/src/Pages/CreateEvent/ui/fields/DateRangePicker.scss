@@ -1,0 +1,17 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.DataField {
+    .DateInput {
+      @include text2;
+      width: 42px; 
+
+      border: none;
+      border-bottom: 1px solid $grey;
+      background: none;
+      color: $black;
+      text-align: center;
+
+    }
+}
+

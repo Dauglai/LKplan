@@ -19,3 +19,11 @@ ul {
 body.no-scroll {
   overflow: hidden;
 }
+
+.ChevronLeft {
+  transform: rotate(180deg);
+}
+
+.ChevronDown {
+  transform: rotate(90deg);
+}

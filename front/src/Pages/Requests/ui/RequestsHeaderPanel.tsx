@@ -1,24 +1,21 @@
 import { useState } from 'react';
 
-import ChevronLeftIcon from 'assets/icons/chevron-left.svg?react';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import PlusIcon from 'assets/icons/plus.svg?react';
 import TrashIcon from 'assets/icons/trash-2.svg?react';
 import SearchIcon from 'assets/icons/search.svg?react';
 import './RequestsHeaderPanel.scss';
 
-type RequestsHeaderPanelProps = {
-  searchTerm: string;
-  onSearch: (term: string) => void;
-  onOpenModal: () => void;
-};
-
 
 export default function RequestsHeaderPanel({
     searchTerm,
     onSearch,
     onOpenModal,
-    }: RequestsHeaderPanelProps): JSX.Element {
+    }: {
+        searchTerm: string;
+        onSearch: (term: string) => void;
+        onOpenModal: () => void;
+    }): JSX.Element {
 
     const [isFocused, setIsFocused] = useState(false);
 
@@ -27,17 +24,17 @@ export default function RequestsHeaderPanel({
 
 
     return (
-        <div className="HeaderPanel">
+        <div className="RequestHeaderPanel">
             <div className="LeftHeaderPanel">
                 <button className="BackButton lfp-btn">
-                    <ChevronLeftIcon width="32" height="32"/>
+                    <ChevronRightIcon width="32" height="32" strokeWidth="2" className="ChevronLeft"/>
                 </button>
                 <h2 className="RequestsTitle">Список заявок</h2>
                 <button className="AddButton lfp-btn">
-                    <PlusIcon width="28" height="28"/>
+                    <PlusIcon width="28" height="28" strokeWidth="2"/>
                 </button>
                 <button className="DeleteButton lfp-btn">
-                    <TrashIcon width="20" height="20"/>
+                    <TrashIcon width="20" height="20" strokeWidth="2"/>
                 </button>
             </div>
             <div className="SearchInputWrapper">
@@ -51,7 +48,7 @@ export default function RequestsHeaderPanel({
                     onBlur={handleBlur}
                 />
                 {!isFocused && !searchTerm && (
-                    <SearchIcon className="SearchInputIcon" width="20" height="20"/>
+                    <SearchIcon className="SearchInputIcon" width="20" height="20" strokeWidth="2"/>
                 )}
                 {(isFocused || searchTerm) && (
                     <div className="SearchInputText">Поиск заявок</div>
@@ -59,7 +56,7 @@ export default function RequestsHeaderPanel({
               </div>
             <button className="ManageButton" onClick={onOpenModal}>
               Ручное управление заявками
-              <ChevronRightIcon width="16" height="16"/>
+              <ChevronRightIcon width="16" height="16" strokeWidth="2"/>
             </button>
         </div>
     );

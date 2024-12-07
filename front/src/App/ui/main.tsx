@@ -15,6 +15,7 @@ import Login from 'Pages/Login/ui/Login.tsx';
 import Register from 'Pages/Register/ui/Register.tsx';
 import Profile from 'Pages/Profile/ui/Profile.tsx';
 import RequestsManagement from 'Pages/Requests/ui/RequestsManagement.tsx';
+import CreateEventForm from 'Pages/CreateEvent/ui/CreateEventForm.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -29,6 +30,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/profile" element={<Profile />} />
             </Route>
             <Route path="/requests-list" element={<RequestsManagement />} />
+            <Route path="/create-new-event" element={<CreateEventForm />} />
           </Route>
         </Routes>
       </BrowserRouter>

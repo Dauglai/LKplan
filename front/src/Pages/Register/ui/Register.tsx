@@ -1,20 +1,38 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import './Register.scss';
+import { useRegisterMutation } from 'Features/Auth/api/authApiSlice';
 
 type Inputs = {
-  login: string;
+  email: string;
   password: string;
 };
 export default function Register(): JSX.Element {
+  const [register, { isLoading }] = useRegisterMutation();
+  const navigate = useNavigate();
   const {
-    register,
+    register: reg,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    console.log(data);
+    
+    const userData = await register({
+      username: data.email.split('@')[0].replace('.', ''),
+      email: data.email,
+      password: data.password,
+    }).unwrap();
+    try {
+      userData.message
+      navigate('/profile');
+    } catch (error) {
+      console.log(error)
+    }
+    
+  };
   return (
     <>
       <main className="Register">
@@ -45,14 +63,14 @@ export default function Register(): JSX.Element {
               autoComplete="off"
               placeholder="E-mail"
               className="Register-Container-Form-Input"
-              {...register('login', { required: true })}
+              {...reg('email', { required: true })}
             />
             <input
               type="password"
               autoComplete="off"
               placeholder="Password"
               className="Register-Container-Form-Input"
-              {...register('password', { required: true })}
+              {...reg('password', { required: true })}
             />
             <button className="Register-Container-Form-Submit" type="submit">
               {' '}

@@ -16,6 +16,7 @@ import Register from 'Pages/Register/ui/Register.tsx';
 import Profile from 'Pages/Profile/ui/Profile.tsx';
 import RequestsManagement from 'Pages/Requests/ui/RequestsManagement.tsx';
 import CreateEventForm from 'Pages/CreateEvent/ui/CreateEventForm.tsx';
+import { StudentReq } from 'Pages/StudentReq/index.ts';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -26,6 +27,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/" element={<App />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path='/StudReq/:uId' element={<StudentReq/>}/>
             <Route path="/" element={<RequireAuth />}>
               <Route path="/profile" element={<Profile />} />
             </Route>

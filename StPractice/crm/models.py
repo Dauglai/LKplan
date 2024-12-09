@@ -15,7 +15,7 @@ class Profile(models.Model):
     name = models.CharField(verbose_name="Имя", max_length=100)
     patronymic = models.CharField(verbose_name="Отчество", max_length=100, null=True, blank=True)
     course = models.IntegerField(verbose_name="Курс")
-    university = models.CharField(verbose_name="Название универститета", max_length=100, null=True, blank=True)
+    university = models.CharField(verbose_name="Название университета", max_length=100, null=True, blank=True)
     skills = models.ManyToManyField(Skill)
 
     def __str__(self):
@@ -45,10 +45,16 @@ class Efficiency(models.Model):
     rating = models.FloatField(verbose_name="Средний рейтинг")
 
     def __str__(self):
-        return f'{self.user}'
+        return f'{self.owner}'
+
+class Specialization(models.Model):
+    name = models.CharField(verbose_name="Название", max_length=100)
+    description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
+    #test = models.ForeignKey(Test, on_delete=models.CASCADE, null=True, blank=True)
 
 class Event(models.Model):
     name = models.CharField(verbose_name="Название проекта", max_length=100)
+    supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
     link = models.CharField(verbose_name="Ссылка на мероприятие", max_length=100, null=True, blank=True)
     start = models.DateField(auto_now=True)
@@ -81,7 +87,7 @@ class Project(models.Model):
 
 class Team(models.Model):
     name = models.CharField(verbose_name="Название", max_length=100)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     students = models.ManyToManyField(Profile)
 
     def __str__(self):
@@ -91,8 +97,13 @@ class Team(models.Model):
 class Application(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    dateTime = models.DateTimeField(auto_now=True)
+    specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE, null=True, blank=True)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)
     message = models.TextField(verbose_name="Ваш текст", max_length=1000)
+    dateTime = models.DateTimeField(auto_now=True)
+
+
+
 
     def __str__(self):
         return f'{self.user}'
@@ -113,6 +124,8 @@ class Test(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
+
 
 
 class Question(models.Model):

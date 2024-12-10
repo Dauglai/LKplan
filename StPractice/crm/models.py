@@ -1,22 +1,16 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-class Skill(models.Model):
-    name = models.CharField(max_length=100, unique=True, verbose_name="Навык")
-    def __str__(self):
-        return self.name
-
 class Profile(models.Model):
     author = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     photo = models.ImageField(blank=True, null=True)
     telegram = models.CharField(verbose_name="Telegram", max_length=100, null=True, blank=True)
     email = models.EmailField(verbose_name="Email", max_length=100, null=True, blank=True)
-    surname = models.CharField(verbose_name="Фамилия", max_length=100)
-    name = models.CharField(verbose_name="Имя", max_length=100)
+    surname = models.CharField(verbose_name="Фамилия", max_length=100, null=True, blank=True)
+    name = models.CharField(verbose_name="Имя", max_length=100, null=True, blank=True)
     patronymic = models.CharField(verbose_name="Отчество", max_length=100, null=True, blank=True)
-    course = models.IntegerField(verbose_name="Курс")
+    course = models.IntegerField(verbose_name="Курс", null=True, blank=True)
     university = models.CharField(verbose_name="Название университета", max_length=100, null=True, blank=True)
-    skills = models.ManyToManyField(Skill)
 
     def __str__(self):
         return f'{self.surname} {self.name} {self.patronymic}'

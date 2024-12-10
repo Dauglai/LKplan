@@ -11,7 +11,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
 class CheckListSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CheckList
+        model = ChecklistItem
         fields = '__all__'
 
 class CustomizationSerializer(serializers.ModelSerializer):

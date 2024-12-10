@@ -16,9 +16,9 @@ urlpatterns = [
     path('tasks/create/', TaskAPICreate.as_view()),
 
     path('tasks/', TaskAPIList.as_view()),
-    path('tasks/create', TaskAPICreate.as_view()),
-    path('tasks/<int:id>', TaskAPIUpdate.as_view()),
-    path('tasks_delete/<int:id>', TaskAPIDestroy.as_view()),
+    path('tasks/create/', TaskAPICreate.as_view()),
+    path('tasks/<int:pk>/', TaskAPIUpdate.as_view()),
+    path('tasks_delete/<int:id>/', TaskAPIDestroy.as_view()),
     path('tasks/<int:id>/results/', ResultAPIListCreate.as_view()),
     path('tasks/<int:id>/grades/', GradeAPIListCreate.as_view()),
     path('tasks/<int:id>/comments/', GradeAPIListCreate.as_view()),

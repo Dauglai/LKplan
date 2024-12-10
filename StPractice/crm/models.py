@@ -47,7 +47,7 @@ class Specialization(models.Model):
     #test = models.ForeignKey(Test, on_delete=models.CASCADE, null=True, blank=True)
 
 class Event(models.Model):
-    name = models.CharField(verbose_name="Название проекта", max_length=100)
+    name = models.CharField(verbose_name="Название мероприятия", max_length=100)
     supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
     link = models.CharField(verbose_name="Ссылка на мероприятие", max_length=100, null=True, blank=True)
@@ -56,7 +56,7 @@ class Event(models.Model):
 
 class Direction(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    name = models.CharField(verbose_name="Название проекта", max_length=100)
+    name = models.CharField(verbose_name="Название направления", max_length=100)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
     link = models.CharField(verbose_name="Ссылка на организационный чат", max_length=1000, null=True, blank=True)
 

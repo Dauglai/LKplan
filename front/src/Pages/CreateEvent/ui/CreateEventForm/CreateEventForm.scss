@@ -1,0 +1,35 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.CreateEventForm {
+    @include backgroundWithBefore(-16px, -54px, 16px, 720px, 720px);
+
+    .LinkField {
+      .LinkInput {
+        max-width: 120px;
+
+        border: none;
+        font: inherit;
+
+        outline: none;
+      }
+    }
+
+    .CountField {
+      width: 50%;
+
+      .CountInput {
+        flex: 1;
+        border: none;
+        font: inherit;
+
+        outline: none;
+
+        &::-webkit-inner-spin-button,
+        &::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+      }
+    }
+} 

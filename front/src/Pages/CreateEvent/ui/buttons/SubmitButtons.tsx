@@ -4,11 +4,11 @@ import './SubmitButtons.scss';
 import 'Styles/_buttons.scss';
 
 
-export default function SubmitButtons(): JSX.Element {
+export default function SubmitButtons({label} : {label: string}): JSX.Element {
   return (
     <div className="SubmitButtons">
       <button className="primary-button">
-        Добавить мероприятие
+        {label}
         <ChevronRightIcon width="24" height="24" strokeWidth="1"/>
       </button>
     </div>

@@ -26,4 +26,10 @@ body.no-scroll {
 
 .ChevronDown {
   transform: rotate(90deg);
+
+  transition: ease 0.3s;
+
+  &.open {
+    transform: rotate(-90deg);
+  }
 }

@@ -31,7 +31,7 @@ class Customization(models.Model):
     photo = models.ImageField()
 
 class Status(models.Model):
-    direction = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Название этапа", max_length=256)
 
     def __str__(self):

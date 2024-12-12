@@ -2,6 +2,8 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 
 import './Register.scss';
+import { Button } from 'antd';
+import Title from 'antd/es/skeleton/Title';
 
 type Inputs = {
   login: string;
@@ -54,10 +56,10 @@ export default function Register(): JSX.Element {
               className="Register-Container-Form-Input"
               {...register('password', { required: true })}
             />
-            <button className="Register-Container-Form-Submit" type="submit">
+            <Button type="primary" size="large">
               {' '}
               Зарегистрироваться
-            </button>
+            </Button>
             <p className="Register-Container-Form-Text">
               Нажимая «Зарегистрироваться», ты принимаешь условия
               Пользовательского соглашения Согласие на обработку персональных

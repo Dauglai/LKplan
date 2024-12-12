@@ -55,10 +55,14 @@
       &-Submit {
         padding: 13.5px 0;
         @include h2;
+        height: fit-content;
         font-weight: 400;
         background: $yellow;
         border-radius: 8px;
         border: none;
+        &:hover {
+          background: $yellow;
+        }
       }
       &-Text {
         @include text1;

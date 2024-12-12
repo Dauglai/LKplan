@@ -3,13 +3,15 @@
 
 .Login {
   width: 600px;
-  height: 395px;
   border-radius: 8px;
   box-shadow: 0px 4px 11.5px 0px #d4d4d4;
-  padding: 16px;
+  padding: 16px 16px 0 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  @media (max-width: 630px) {
+    width: 95%;
+  }
   &-Heading {
     @include h1;
   }
@@ -17,7 +19,6 @@
     margin-top: 18px;
     display: flex;
     flex-direction: column;
-    gap: 32px;
     width: 100%;
     &-Input {
       width: 100%;

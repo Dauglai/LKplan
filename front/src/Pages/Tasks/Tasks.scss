@@ -1,0 +1,55 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.Tasks {
+  margin-top: 112px;
+  width: 100%;
+  align-self: center;
+  justify-self: flex-start;
+  width: 1160px;
+  @media (max-width: 1200px) {
+    width: 95%;
+  }
+  &-Header {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    padding-bottom: 20px;
+    &-Heading {
+      width: 22.4%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      div {
+        h2 {
+          @include h2;
+        }
+        p {
+          @include text2;
+        }
+      }
+    }
+    &-Status {
+      width: 13%;
+    }
+    &-Search {
+      width: 34%;
+    }
+    &-Buttons {
+      width: 21.6%;
+    }
+  }
+  .ant-table-wrapper {
+    background: $grey3;
+    padding: 8px;
+    border-radius: 8px;
+    .ant-table-content {
+      .ant-table-thead {
+        background: transparent !important;
+      }
+      .ant-table-row {
+        border: 1px solid yellow !important;
+      }
+    }
+  }
+}

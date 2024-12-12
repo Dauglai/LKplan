@@ -4,13 +4,13 @@ import Header from 'Widgets/Header/ui/Header.tsx';
 
 import './layout.scss';
 
-const Layout = () => {
+const AuthLayout = () => {
   return (
-    <div className="GlobalContainer">
+    <div className="AuthContainer">
       <Header />
       <Outlet />
     </div>
   );
 };
 
-export default Layout;
+export default AuthLayout;

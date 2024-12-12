@@ -9,4 +9,7 @@
   backdrop-filter: blur(4px);
   position: absolute;
   top: 16px;
+  @media (max-width: 1200px) {
+    width: 95%;
+  }
 }

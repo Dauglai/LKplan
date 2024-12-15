@@ -16,18 +16,23 @@ class Profile(models.Model):
         return f'{self.surname} {self.name} {self.patronymic}'
 
 
+class Subsystem(models.Model):
+    name = models.CharField(verbose_name="Название роли", default='На согласовании', max_length=50)
+    description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.name}'
+
+
 class Role(models.Model):
     ROLE_CHOISES = (
         ("Организатор", "Организатор"),
         ("Руководитель", "Руководитель"),
         ("Куратор", "Куратор"),
-        ("Тимлид", "Тимлид"),
-        ("Разработчик", "Разработчик"),
-        ("Аналитик", "Аналитик"),
-        ("Дизайнер", "Дизайнер"),
     )
     name = models.CharField(verbose_name="Название роли", choices=ROLE_CHOISES, default='На согласовании', max_length=50)
     users = models.ManyToManyField(Profile, related_name="users")
+    subsystems = models.ManyToManyField(Subsystem, related_name="subsystems")
 
     def __str__(self):
         return f'{self.name}'
@@ -45,14 +50,31 @@ class Specialization(models.Model):
     name = models.CharField(verbose_name="Название", max_length=100)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
     #test = models.ForeignKey(Test, on_delete=models.CASCADE, null=True, blank=True)
+    def __str__(self):
+        return f'{self.name}'
+
+class Status_App(models.Model):
+    name = models.CharField(verbose_name="Название", max_length=100)
+    description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.name}'
+
 
 class Event(models.Model):
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE,
+                               related_name="projects_authored")
     name = models.CharField(verbose_name="Название мероприятия", max_length=100)
     supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    specializations = models.ManyToManyField(Specialization, related_name="specializations")
+    statuses = models.ManyToManyField(Status_App, related_name="statuses")
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
     link = models.CharField(verbose_name="Ссылка на мероприятие", max_length=100, null=True, blank=True)
     start = models.DateField(auto_now=True)
     end = models.DateField(verbose_name="Дата окончания", null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.name}'
 
 class Direction(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
@@ -67,12 +89,9 @@ class Project(models.Model):
     direction = models.ForeignKey(Direction, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Название проекта", max_length=100)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE,
-                               related_name="projects_authored")  # Уникальный related_name
     supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True,
                                    related_name="supervised_projects")
     curators = models.ManyToManyField(Profile, related_name="curated_projects")
-    students = models.ManyToManyField(Profile, related_name="student_projects")
     link = models.CharField(verbose_name="Ссылка на организационный чат", max_length=100, null=True, blank=True)
 
     def __str__(self):
@@ -93,19 +112,19 @@ class Application(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE, null=True, blank=True)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)
-    message = models.TextField(verbose_name="Ваш текст", max_length=1000)
+    message = models.TextField(verbose_name="Ваш текст", max_length=1000, null=True, blank=True)
     dateTime = models.DateTimeField(auto_now=True)
-
-
-
 
     def __str__(self):
         return f'{self.user}'
 
+
 class App_review(models.Model):
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    status = models.ForeignKey(Status_App, on_delete=models.CASCADE)
+    is_link = models.BooleanField(verbose_name="Состоит в чате?", default=False)
     is_approved = models.BooleanField(verbose_name="Заявка одобрена?", default=False)
-    comment = models.CharField(verbose_name="Отзыв",max_length=1000)
+    comment = models.CharField(verbose_name="Отзыв",max_length=1000, null=True, blank=True)
     test_count = models.IntegerField(default=0)
     dateTime = models.DateTimeField(auto_now=True)
 
@@ -118,8 +137,6 @@ class Test(models.Model):
 
     def __str__(self):
         return f'{self.name}'
-
-
 
 
 class Question(models.Model):

@@ -8,6 +8,38 @@ from crm.serializers import ProfileSerializer, Profile
 from .models import *
 from .permissions import IsAuthorOrReadOnly
 from .serializers import *
+from django.db.models import Q
+from django_filters import rest_framework as filters
+from rest_framework.filters import SearchFilter
+
+class ProfileSearchAPIView(generics.ListAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [SearchFilter]
+    search_fields = ['name', 'surname']
+
+
+class TaskFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    status = filters.CharFilter(field_name='status', lookup_expr='iexact')
+    deadline = filters.DateFilter(field_name='deadline')
+    author = filters.NumberFilter(field_name='author__id')  # фильтр по автору
+    addressee = filters.NumberFilter(field_name='addressee__id')  # фильтр по ответственному
+    created_after = filters.DateFilter(field_name='datetime', lookup_expr='gte')  # начальная дата
+    created_before = filters.DateFilter(field_name='datetime', lookup_expr='lte')  # конечная дата
+    task_id = filters.NumberFilter(field_name='id')  # фильтр по ID задачи
+
+    class Meta:
+        model = Task
+        fields = ['name', 'status', 'deadline', 'author', 'addressee', 'created_after', 'created_before', 'task_id']
+
+
+
+#class TaskAPIListPagination(pagination.PageNumberPagination):
+#    page_size = 10
+#    page_size_query_param = 'page_size'
+#    max_page_size = 100
 
 class TaskAPIList(generics.ListAPIView):
     queryset = Task.objects.all()

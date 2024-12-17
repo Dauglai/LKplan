@@ -19,3 +19,10 @@ ul {
 body.no-scroll {
   overflow: hidden;
 }
+
+.ant-form-item-label {
+  padding: 0 !important; /* Убираем внутренние отступы у лейбла */
+}
+.ant-form-item-control {
+  padding: 0 !important; /* Убираем внутренние отступы у инпута */
+}

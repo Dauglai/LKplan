@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import './StudentReq.scss';
-import Chevron from 'assets/chevron-right.svg?react';
+import Chevron from 'assets/icons/chevron-right.svg?react';
 interface Inputs {
   fullName: string;
   bearings: string;
@@ -61,7 +61,7 @@ export default function StudentReq() {
               </option>
               <option value="Информатика и вычислительная техника">
                 Информатика и вычислительная техника
-              </option> 
+              </option>
             </select>
           </span>
           <label>

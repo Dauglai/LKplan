@@ -16,24 +16,39 @@ import Register from 'Pages/Register/ui/Register.tsx';
 import Profile from 'Pages/Profile/ui/Profile.tsx';
 import RequestsManagement from 'Pages/Requests/ui/RequestsManagement.tsx';
 import { StudentReq } from 'Pages/StudentReq/index.ts';
+import Tasks from 'Pages/Tasks/Tasks.tsx';
+import { ConfigProvider } from 'antd';
+
+const theme = {
+  token: {
+    colorPrimary: '#FED201',
+    colorTextBase: '#424242',
+    colorTextLightSolid: '#424242',
+    controlHeightLG: '51px',
+    fontSizeLG: '24px',
+  },
+};
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Provider store={store}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route path="/" element={<App />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path='/StudReq/:uId' element={<StudentReq/>}/>
-            <Route path="/" element={<RequireAuth />}>
-              <Route path="/profile" element={<Profile />} />
+    <ConfigProvider theme={theme}>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route path="/" element={<App />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/StudReq/:uId" element={<StudentReq />} />
+              <Route path="/" element={<RequireAuth />}>
+                <Route path="/profile" element={<Profile />} />
+              </Route>
+              <Route path="/requests-list" element={<RequestsManagement />} />
+              <Route path="/tasks" element={<Tasks />} />
             </Route>
-            <Route path="/requests-list" element={<RequestsManagement />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </Provider>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    </ConfigProvider>
   </StrictMode>
 );

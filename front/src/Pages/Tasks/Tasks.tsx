@@ -10,6 +10,7 @@ import {
   Space,
   message,
   Modal,
+  Descriptions,
 } from 'antd';
 import { LeftOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
 import './Tasks.scss';
@@ -61,6 +62,8 @@ const Tasks = () => {
   const [dataSource, setDataSource] = useState(initialDataSource);
   const [filterDirection, setFilterDirection] = useState('asc');
   const [isModalVisible, setIsModalVisible] = useState(false); // Статус модального окна
+  const [isModalTaskVisible, setIsModalTaskVisible] = useState(false); // Статус модального окна задачи
+  const [selectedTask, setSelectedTask] = useState(null); // Данные выбранной задачи
   const [selectedTaskKey, setSelectedTaskKey] = useState(null);
   const [parentTaskKey, setParentTaskKey] = useState(null); // Родительская задача
 
@@ -210,6 +213,18 @@ const Tasks = () => {
     setFilterDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
+  // Открытие модального окна с информацией о задаче
+  const handleRowClick = (record) => {
+    setSelectedTask(record); // Устанавливаем выбранную задачу
+    setIsModalTaskVisible(true);
+  };
+
+  // Закрытие модального окна
+  const handleCloseModal = () => {
+    setIsModalTaskVisible(false);
+    setSelectedTask(null);
+  };
+
   const columns = [
     {
       title: 'Название',
@@ -308,6 +323,9 @@ const Tasks = () => {
         columns={columns}
         dataSource={dataSource}
         rowKey="key"
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record),
+        })}
         expandable={{
           childrenColumnName: 'children',
           rowExpandable: (record) => !!record.children,
@@ -335,6 +353,39 @@ const Tasks = () => {
               </Option>
             ))}
         </Select>
+      </Modal>
+      <Modal
+        title="Информация о задаче"
+        visible={isModalTaskVisible}
+        onCancel={handleCloseModal}
+        footer={null}
+      >
+        {selectedTask && (
+          <Descriptions column={1}>
+            <Descriptions.Item label="Название">
+              {selectedTask.name}
+            </Descriptions.Item>
+            <Descriptions.Item label="Спринт">
+              {selectedTask.sprint}
+            </Descriptions.Item>
+            <Descriptions.Item label="Статус">
+              {selectedTask.status}
+            </Descriptions.Item>
+            <Descriptions.Item label="Дедлайн">
+              {selectedTask.deadline}
+            </Descriptions.Item>
+            <Descriptions.Item label="Исполнитель">
+              {selectedTask.assignee}
+            </Descriptions.Item>
+            <Descriptions.Item label="Тэги">
+              {selectedTask.tags.map((tag) => (
+                <Tag color="blue" key={tag}>
+                  {tag}
+                </Tag>
+              ))}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
       </Modal>
     </div>
   );

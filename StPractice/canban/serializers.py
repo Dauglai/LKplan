@@ -1,6 +1,6 @@
-from tkinter.tix import CheckList
+# from tkinter.tix import CheckList
 
-from Tools.scripts.generate_token import update_file
+# from Tools.scripts.generate_token import update_file
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from crm.models import Profile

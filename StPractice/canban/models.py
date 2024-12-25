@@ -3,13 +3,27 @@ from django.utils.termcolors import RESET
 
 from crm.models import Profile, Project
 
+class Tag(models.Model):
+    name = models.CharField(verbose_name="Название тэга", max_length=256)
+    def __str__(self):
+        return self.name
+
+class Status(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    name = models.CharField(verbose_name="Название этапа", max_length=256)
+
+    def __str__(self):
+        return self.name
+
 
 class Task(models.Model):
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="tasks_authored")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    status = models.ForeignKey(Status, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Название", max_length=256)
     description = models.TextField(verbose_name="Название", max_length=10000)
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="tasks_authored")
-    direction = models.ForeignKey(Project, on_delete=models.CASCADE)
     responsible_users = models.ManyToManyField(Profile, related_name='responsible_users')
+    tags = models.ManyToManyField(Tag, related_name='tags')
     datetime = models.DateTimeField(auto_now_add=True)
     deadline = models.DateTimeField(verbose_name="Крайний срок выполнения", blank=True, null=True)
 
@@ -29,19 +43,6 @@ class ChecklistItem(models.Model):
 class Customization(models.Model):
     task = models.ForeignKey(Task, related_name="customization", on_delete=models.CASCADE)
     photo = models.ImageField()
-
-class Status(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    name = models.CharField(verbose_name="Название этапа", max_length=256)
-
-    def __str__(self):
-        return self.name
-
-class Tag(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    name = models.CharField(verbose_name="Название тэга", max_length=256)
-    def __str__(self):
-        return self.name
 
 
 

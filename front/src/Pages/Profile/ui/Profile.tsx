@@ -12,7 +12,7 @@ export default function Profile(): JSX.Element {
   return (
     <>
       <h1>{JSON.stringify(user)}</h1>
-      <h1>{token}</h1>
+      <h1>Token: {token?.slice(0, 10)}...</h1>
     </>
   );
 }

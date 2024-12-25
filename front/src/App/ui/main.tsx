@@ -18,26 +18,41 @@ import RequestsManagement from 'Pages/Requests/ui/RequestsManagement.tsx';
 import CreateEventForm from 'Pages/CreateEvent/ui/CreateEventForm/CreateEventForm.tsx';
 import CreateProjectForm from 'Pages/CreateEvent/ui/CreateProjectForm/CreateProjectForm.tsx'
 import { StudentReq } from 'Pages/StudentReq/index.ts';
+import Tasks from 'Pages/Tasks/Tasks.tsx';
+import { ConfigProvider } from 'antd';
+
+const theme = {
+  token: {
+    colorPrimary: '#FED201',
+    colorTextBase: '#424242',
+    colorTextLightSolid: '#424242',
+    controlHeightLG: '51px',
+    fontSizeLG: '24px',
+  },
+};
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Provider store={store}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route path="/" element={<App />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path='/StudReq/:uId' element={<StudentReq/>}/>
-            <Route path="/" element={<RequireAuth />}>
-              <Route path="/profile" element={<Profile />} />
-            </Route>
-            <Route path="/requests-list" element={<RequestsManagement />} />
-            <Route path="/create-new-event" element={<CreateEventForm />} />
+    <ConfigProvider theme={theme}>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route path="/" element={<App />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/StudReq/:uId" element={<StudentReq />} />
+              <Route path="/" element={<RequireAuth />}>
+                <Route path="/profile" element={<Profile />} />
+              </Route>
+              <Route path="/requests-list" element={<RequestsManagement />} />
+              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/create-new-event" element={<CreateEventForm />} />
             <Route path="/create-new-project" element={<CreateProjectForm />} />
           </Route>
-        </Routes>
-      </BrowserRouter>
-    </Provider>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    </ConfigProvider>
   </StrictMode>
 );

@@ -61,7 +61,7 @@ export default function StudentReq() {
               </option>
               <option value="Информатика и вычислительная техника">
                 Информатика и вычислительная техника
-              </option> 
+              </option>
             </select>
           </span>
           <label>

@@ -1,5 +1,5 @@
 export type User = {
-    id: string;
+    id: number;
     lastName: string;
     firstName: string;
     patronymic: string;
@@ -8,42 +8,42 @@ export type User = {
   
 export const mockUsers: User[] = [
     {
-      id: '1',
+      id: 1,
       lastName: 'Иванов',
       firstName: 'Иван',
       patronymic: 'Иванович',
       role: 'Руководитель',
     },
     {
-      id: '2',
+      id: 2,
       lastName: 'Петров',
       firstName: 'Петр',
       patronymic: 'Петрович',
       role: 'Куратор',
     },
     {
-      id: '3',
+      id: 3,
       lastName: 'Сидоров',
       firstName: 'Сидор',
       patronymic: 'Сидорович',
       role: 'Проектант',
     },
     {
-      id: '4',
+      id: 4,
       lastName: 'Иванов',
       firstName: 'Иван',
       patronymic: 'Иванович',
       role: 'Руководитель',
     },
     {
-      id: '5',
+      id: 5,
       lastName: 'Петров',
       firstName: 'Петр',
       patronymic: 'Петрович',
       role: 'Куратор',
     },
     {
-      id: '6',
+      id: 6,
       lastName: 'Сидоров',
       firstName: 'Сидор',
       patronymic: 'Сидорович',

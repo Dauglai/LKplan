@@ -6,8 +6,10 @@ import './RoleSelector.scss'
 
 
 export default function RoleSelector({
-    role }: {
+    role,
+    onChange }: {
     role: 'Руководитель' | 'Куратор' | 'Проектант';
+    onChange: (id: number) => void;
     }): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const [users, setUsers] = useState(mockUsers)
@@ -15,7 +17,7 @@ export default function RoleSelector({
 
   const handleSelectUser = (user: User) => {
     setSelectedUser(user);
-    setIsOpen(false);
+    onChange(user.id);
   };
 
   const filteredUsers = users.filter(user => user.role === role);

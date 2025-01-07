@@ -22,7 +22,7 @@ class Task(models.Model):
     status = models.ForeignKey(Status,on_delete=models.CASCADE,verbose_name="Статус" )
     name = models.CharField(verbose_name="Название",max_length=256)
     description = models.TextField(verbose_name="Описание", max_length=10000)
-    responsible_users = models.ManyToManyField( Profile,related_name="responsible_tasks",verbose_name="Ответственные")
+    responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
     tags = models.ManyToManyField(Tag,related_name="tasks",verbose_name="Теги")
     datetime = models.DateTimeField(auto_now_add=True,verbose_name="Дата создания")
     deadline = models.DateTimeField(verbose_name="Крайний срок выполнения",blank=True,null=True)
@@ -32,7 +32,7 @@ class Task(models.Model):
         related_name="subtasks",  # Связь для доступа к подзадачам
         blank=True,
         null=True,
-        verbose_name="Родительская задача"
+        verbose_name="Родительская задача",
     )
 
     def __str__(self):

@@ -15,15 +15,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    author = UserSerializer(read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
 
     class Meta:
         model = Profile
         fields = [
             'name', 'surname', 'patronymic', 'course',
-            'university', 'telegram', 'email',
-            'photo', 'user', 'user_id',
+            'university', 'telegram', 'email', 'author', 'user_id',
         ]
 
 class CheckListSerializer(serializers.ModelSerializer):
@@ -77,7 +76,7 @@ class TaskSerializer(serializers.ModelSerializer):
         required=False,
         allow_empty=True
     )
-    responsible_users = serializers.PrimaryKeyRelatedField(
+    responsible_user = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Profile.objects.all(), required=False
     )
     grade_set = GradeSerializer(many=True, read_only=True)
@@ -86,8 +85,8 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = [
-            'id', 'project', 'name', 'datetime', 'deadline', 'description', 'author', 'status', 'comment_set',
-            'result_set', 'responsible_users', 'tags', 'deadline',
+            'id', 'team', 'name', 'datetime', 'description', 'author', 'status', 'comment_set',
+            'result_set', 'responsible_user', 'tags', 'dateCloseTask',
             'responsible_users_set', 'tag_set', 'grade_set', 'custom_set', 'checklist'
         ]
 

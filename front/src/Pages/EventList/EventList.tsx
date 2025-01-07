@@ -22,7 +22,9 @@ export default function EventListPage() {
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const response = await axios.get(`${baseURL}/api/events`);
+        const response = await axios.get(`${baseURL}/api/events`, {
+          withCredentials: true,
+        });
         setEvents(response.data);
       } catch (error) {
         console.error('Ошибка при получении мероприятий:', error);

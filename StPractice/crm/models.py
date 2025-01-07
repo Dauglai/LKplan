@@ -2,8 +2,10 @@ from django.contrib.auth.models import User
 from django.db import models
 
 class Profile(models.Model):
+    #TODO// add VK account, work place
     author = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    photo = models.ImageField(blank=True, null=True)
+    #TODO// remove photo
+    # photo = models.ImageField(blank=True, null=True)
     telegram = models.CharField(verbose_name="Telegram", max_length=100, null=True, blank=True)
     email = models.EmailField(verbose_name="Email", max_length=100, null=True, blank=True)
     surname = models.CharField(verbose_name="Фамилия", max_length=100, null=True, blank=True)
@@ -11,6 +13,8 @@ class Profile(models.Model):
     patronymic = models.CharField(verbose_name="Отчество", max_length=100, null=True, blank=True)
     course = models.IntegerField(verbose_name="Курс", null=True, blank=True)
     university = models.CharField(verbose_name="Название университета", max_length=100, null=True, blank=True)
+    vk = models.CharField(verbose_name="Ссылка VK", max_length=100, null=True, blank=True)
+    job = models.CharField(verbose_name="Место работы", max_length=100, null=True, blank=True)
 
     def __str__(self):
         return f'{self.surname} {self.name} {self.patronymic}'
@@ -54,6 +58,7 @@ class Specialization(models.Model):
         return f'{self.name}'
 
 class Status_App(models.Model):
+    #TODO// Make like drawio
     name = models.CharField(verbose_name="Название", max_length=100)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
 
@@ -80,7 +85,7 @@ class Direction(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Название направления", max_length=100)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
-    link = models.CharField(verbose_name="Ссылка на организационный чат", max_length=1000, null=True, blank=True)
+    #TODO// remove link
 
     def __str__(self):
         return f'{self.name}'
@@ -92,7 +97,6 @@ class Project(models.Model):
     supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True,
                                    related_name="supervised_projects")
     curators = models.ManyToManyField(Profile, related_name="curated_projects")
-    link = models.CharField(verbose_name="Ссылка на организационный чат", max_length=100, null=True, blank=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -110,6 +114,9 @@ class Team(models.Model):
 class Application(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    #TODO// add event, direction
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
+    direction = models.ForeignKey(Direction, on_delete=models.CASCADE, null=True, blank=True)
     specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE, null=True, blank=True)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)
     message = models.TextField(verbose_name="Ваш текст", max_length=1000, null=True, blank=True)
@@ -125,8 +132,10 @@ class App_review(models.Model):
     is_link = models.BooleanField(verbose_name="Состоит в чате?", default=False)
     is_approved = models.BooleanField(verbose_name="Заявка одобрена?", default=False)
     comment = models.CharField(verbose_name="Отзыв",max_length=1000, null=True, blank=True)
-    test_count = models.IntegerField(default=0)
+    #TODO// remove test_count
+    # test_count = models.IntegerField(default=0)
     dateTime = models.DateTimeField(auto_now=True)
+    
 
 class Test(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)

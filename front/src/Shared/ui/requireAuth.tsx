@@ -5,7 +5,14 @@ import { useAppSelector } from 'App/model/hooks.ts';
 import { selectCurrentToken } from 'Features/Auth/model/authSlice.ts';
 
 const RequireAuth = () => {
-  const token = useAppSelector(selectCurrentToken);
+  function getCSRFToken() {
+    const csrfToken = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('csrftoken'))
+      ?.split('=')[1];
+    return csrfToken;
+  }
+  const token = getCSRFToken();
   const location = useLocation();
   return token ? (
     <Outlet />

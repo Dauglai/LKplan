@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.termcolors import RESET
 
-from crm.models import Profile, Project
+from crm.models import Profile, Project, Team
 
 class Tag(models.Model):
     name = models.CharField(verbose_name="Название тэга", max_length=256)
@@ -18,14 +18,14 @@ class Status(models.Model):
 
 class Task(models.Model):
     author = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name="tasks_authored",verbose_name="Автор")
-    project = models.ForeignKey(Project,on_delete=models.CASCADE,verbose_name="Проект")
+    team = models.ForeignKey(Team, on_delete=models.CASCADE,verbose_name="Команда")
     status = models.ForeignKey(Status,on_delete=models.CASCADE,verbose_name="Статус" )
     name = models.CharField(verbose_name="Название",max_length=256)
     description = models.TextField(verbose_name="Описание", max_length=10000)
-    responsible_users = models.ManyToManyField( Profile,related_name="responsible_tasks",verbose_name="Ответственные")
+    responsible_user = models.ForeignKey(Profile, related_name='responsible_tasks', on_delete=models.CASCADE, verbose_name="Ответственный")
     tags = models.ManyToManyField(Tag,related_name="tasks",verbose_name="Теги")
     datetime = models.DateTimeField(auto_now_add=True,verbose_name="Дата создания")
-    deadline = models.DateTimeField(verbose_name="Крайний срок выполнения",blank=True,null=True)
+    deadline = models.DateTimeField(verbose_name="Время закрытия задачи",blank=True,null=True)
     parent_task = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,
@@ -34,6 +34,7 @@ class Task(models.Model):
         null=True,
         verbose_name="Родительская задача"
     )
+    
 
     def __str__(self):
         return self.name

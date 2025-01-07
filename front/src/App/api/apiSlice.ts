@@ -3,17 +3,22 @@ import { baseURL } from '../config/api.ts';
 import { RootState } from '../model/store.ts';
 
 import { setCredentials, logOut } from 'Features/Auth/model/authSlice.ts';
-// TODO: save tokens in cookies 
+
+
+function getCSRFToken() {
+  const csrfToken = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('csrftoken'))
+    ?.split('=')[1];
+  return csrfToken;
+}
 const baseQuery = fetchBaseQuery({
   baseUrl: baseURL,
   credentials: 'include',
 
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
-    const token = state.auth.token;
-    if (token) {
-      headers.set('authorization', `Bearer ${token}`);
-    }
+      headers.set('X-CSRFToken', getCSRFToken() || '');
     return headers;
   },
 });

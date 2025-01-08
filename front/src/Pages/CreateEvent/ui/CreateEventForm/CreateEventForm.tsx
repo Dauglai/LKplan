@@ -30,7 +30,7 @@ export default function CreateEventForm(): JSX.Element {
     supervisorId: null,
     startDate: '',
     endDate: '',
-    chatlink: '',
+    link: '',
     directions: [],
   });
 
@@ -68,15 +68,20 @@ export default function CreateEventForm(): JSX.Element {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // const responseProfile = await axios.get(`${baseURL}/api/profile/`, {
-      //   withCredentials: true,
-      // });
-      // alert(responseProfile.data.results[0].author.id);
+      const sendData = {
+        name: formData.name,
+        description: formData.description,
+        supervisor: formData.supervisorId,
+        start: formData.startDate,
+        end: formData.endDate,
+        link: formData.link,
+        directions: formData.directions,
+      };
       const response = await axios.post(
         `${baseURL}/api/events/`,
         {
-          ...formData,
-          author: JSON.parse(localStorage.getItem('user')!).author,
+          ...sendData,
+          author: JSON.parse(localStorage.getItem('user')!).author.id,
         },
         {
           headers: {
@@ -144,8 +149,8 @@ export default function CreateEventForm(): JSX.Element {
             type="text"
             placeholder="Ссылка на орг. чат"
             className="LinkInput"
-            name="chatlink"
-            value={formData.chatlink}
+            name="link"
+            value={formData.link}
             onChange={handleChange}
           />
           <LinkIcon width="16" height="16" strokeWidth="1" />

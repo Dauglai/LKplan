@@ -5,7 +5,7 @@ import { RootState } from '../model/store.ts';
 import { setCredentials, logOut } from 'Features/Auth/model/authSlice.ts';
 
 
-function getCSRFToken() {
+export function getCSRFToken() {
   const csrfToken = document.cookie
     .split('; ')
     .find((row) => row.startsWith('csrftoken'))

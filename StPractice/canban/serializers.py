@@ -74,8 +74,9 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = [
-            'id', 'project', 'name', 'datetime', 'deadline', 'description', 'author', 'status', 'comment_set',
-            'result_set',  'deadline', 'parent_task', 'responsible_user', 'checklist'
+            'id', 'project', 'name', 'datetime', 'dateCloseTask', 'description', 'author', 'status', 'comment_set',
+            'result_set', 'responsible_users', 'tags', 'parent_task',
+            'responsible_user', 'tag_set', 'grade_set', 'custom_set', 'checklist'
         ]
 
     def create(self, validated_data):

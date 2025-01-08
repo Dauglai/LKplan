@@ -1,36 +1,49 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {baseURL} from 'App/config/api';
-import { mockUsers } from 'Pages/CreateEvent/ui/mockUsers'
+import { baseURL } from 'App/config/api';
+import { mockUsers } from 'Pages/CreateEvent/ui/mockUsers';
 import { allDirections } from 'Pages/CreateEvent/ui/fields/DirectionSelector';
 
 interface Event {
   id: number;
   name: string;
   description: string;
-  startDate: string;
-  endDate: string;
-  supervisorId: number;
-  chatlink:string;
-  directions: number[];
+  start: string;
+  end: string;
+  supervisor: number;
+  link: string;
+  directions: { id: number; name: string }[];
 }
 
 export default function EventListPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-
+  const [users, setUsers] = useState([]);
   useEffect(() => {
     async function fetchEvents() {
       try {
         const response = await axios.get(`${baseURL}/api/events`, {
           withCredentials: true,
         });
-        setEvents(response.data);
+        setEvents(response.data.results);
+        console.log(response.data);
       } catch (error) {
         console.error('Ошибка при получении мероприятий:', error);
       }
     }
+    async function fetchUsers() {
+      try {
+        const response = await axios.get(`${baseURL}/api/profile`, {
+          withCredentials: true,
+        });
+        setUsers(response.data.results);
+        console.log(response.data);
+      } catch (error) {
+        console.error('Ошибка при получении профилей:', error);
+      }
+    }
     fetchEvents();
+    fetchUsers();
   }, []);
 
   const handleEventClick = (event: Event) => {
@@ -42,14 +55,16 @@ export default function EventListPage() {
       <h1>Список мероприятий</h1>
 
       <div className="EventList">
-        {events.map(event => (
+        {events.map((event) => (
           <div
             key={event.id}
             className="EventItem"
             onClick={() => handleEventClick(event)}
           >
             <h2>{event.name}</h2>
-            <p>{event.startDate} - {event.endDate}</p>
+            <p>
+              {event.start} - {event.end}
+            </p>
           </div>
         ))}
       </div>
@@ -58,16 +73,32 @@ export default function EventListPage() {
         <div className="EventDetails">
           <h2>Детали мероприятия: {selectedEvent.name}</h2>
           <p>{selectedEvent.description}</p>
-          <p><strong>Дата начала:</strong> {selectedEvent.startDate}</p>
-          <p><strong>Дата окончания:</strong> {selectedEvent.endDate}</p>
-          <p><strong>Руководитель:</strong> {mockUsers.find(user => user.id === selectedEvent.supervisorId)?.firstName} {mockUsers.find(user => user.id === selectedEvent.supervisorId)?.lastName}</p>
-          <p><strong>Ссылка на орг.чат:</strong> {selectedEvent.chatlink}</p>
-          <p><strong>Направления:</strong> 
-            {selectedEvent.directions?.map(directionId => {
-                const direction = allDirections.find(d => d.id === directionId);
-                return direction ? `${direction.name}, ` : null;
+          <p>
+            <strong>Дата начала:</strong> {selectedEvent.start}
+          </p>
+          <p>
+            <strong>Дата окончания:</strong> {selectedEvent.end}
+          </p>
+          <p>
+            <strong>Руководитель:</strong>{' '}
+            {
+              users.find((user) => user.author.id === selectedEvent.supervisor)
+                ?.name
+            }{' '}
+            {
+              users.find((user) => user.author.id === selectedEvent.supervisor)
+                ?.surname
+            }
+          </p>
+          <p>
+            <strong>Ссылка на орг.чат:</strong> {selectedEvent.link}
+          </p>
+          <p>
+            <strong>Направления:</strong>
+            {selectedEvent.directions?.map((direction) => {
+              return direction ? `${direction.name}, ` : null;
             })}
-            </p>
+          </p>
         </div>
       )}
     </div>

@@ -19,13 +19,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    
     class Meta:
         ref_name = "crmUser"
         model = User
         fields = ['id', 'email']
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    author = UserSerializer(read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
 
     class Meta:
@@ -33,7 +34,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = [
             'name', 'surname', 'patronymic', 'course',
-            'university', 'telegram', 'email', 'user', 'user_id',
+            'university', 'telegram', 'email', 'author', 'user_id',
         ]
 
 
@@ -42,10 +43,10 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Role
         fields = '__all__'
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = '__all__'
 
 
 # class EfficiencySerializer(serializers.ModelSerializer):
@@ -63,11 +64,18 @@ class Status_AppSerializer(serializers.ModelSerializer):
         model = Status_App
         fields = '__all__'
 
+class SupervisorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
 class EventSerializer(serializers.ModelSerializer):
-    author = ProfileSerializer(read_only=True)
-    supervisor = ProfileSerializer(read_only=True)
+    user = ProfileSerializer(read_only=True)
+    # supervisor = ProfileSerializer(read_only=True)
     specializations = SpecializationSerializer(read_only=True, many=True)
     statuses = Status_AppSerializer(read_only=True, many=True)
+    
     class Meta:
         model = Event
         fields = '__all__'
@@ -75,6 +83,7 @@ class EventSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         specializations_data = validated_data.pop('specializations', [])
         statuses_data = validated_data.pop('statuses', [])
+        print(validated_data)
         event = Event.objects.create(**validated_data)
         for specialization_data in specializations_data:
             Specialization.objects.create(event=event, **specialization_data)
@@ -101,17 +110,31 @@ class DirectionSerializer(serializers.ModelSerializer):
         model = Direction
         fields = '__all__'
 
+
+
 class ProjectSerializer(serializers.ModelSerializer):
-    curators = ProfileSerializer(many=True)
+    # curators = ProfileSerializer(many=True,read_only=True)
     class Meta:
         model = Project
         fields = '__all__'
-
+    # def create(self, validated_data):
+    #     curators_data = validated_data.pop('curators', [])
+    #     project = Project.objects.create(**validated_data)
+    #     for curator_data in curators_data:
+    #         Profile.objects.create(**curator_data)
+    #     return project
 
 class TeamSerializer(serializers.ModelSerializer):
+    # students = ProfileSerializer(many=True,read_only=True)
     class Meta:
         model = Team
         fields = '__all__'
+    # def create(self, validated_data):
+    #     students_data = validated_data.pop('students', [])
+
+    #     team = Team.objects.create(**validated_data)
+    #     # team.students.set(students_data)
+    #     return team
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
@@ -145,3 +168,19 @@ class TrueAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = True_Answer
         fields = '__all__'
+
+class ProjectCreateSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    class Meta:
+        model = Project
+        fields = '__all__'
+       
+class TeamCreateSerializer(serializers.ModelSerializer):
+    # author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    class Meta:
+        model = Team
+        fields = '__all__'
+# class App_reviewSerializer(serializers.ModelSerializer):
+#         class Meta:
+#             model = App_review
+#             fields = '__all__'

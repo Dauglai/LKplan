@@ -24,7 +24,7 @@ class Task(models.Model):
     description = models.TextField(verbose_name="Описание", max_length=10000)
     responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
     datetime = models.DateTimeField(auto_now_add=True,verbose_name="Дата создания")
-    deadline = models.DateTimeField(verbose_name="Крайний срок выполнения",blank=True,null=True)
+    dateCloseTask = models.DateTimeField(verbose_name="Время закрытия задачи",blank=True,null=True)
     parent_task = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,

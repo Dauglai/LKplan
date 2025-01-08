@@ -35,11 +35,6 @@ export const authApiSlice = apiSlice.injectEndpoints({
           email: credentials.email,
           password: credentials.password,
         },
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-CSRFToken': getCSRFToken(), // Передача CSRF-токена
-        },
-        credentials: 'include',
       }),
     }),
     // refreshAccessToken: builder.mutation({

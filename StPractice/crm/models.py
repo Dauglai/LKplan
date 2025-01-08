@@ -15,6 +15,7 @@ class Profile(models.Model):
     university = models.CharField(verbose_name="Название университета", max_length=100, null=True, blank=True)
     vk = models.CharField(verbose_name="Ссылка VK", max_length=100, null=True, blank=True)
     job = models.CharField(verbose_name="Место работы", max_length=100, null=True, blank=True)
+    
 
     def __str__(self):
         return f'{self.surname} {self.name} {self.patronymic}'
@@ -68,14 +69,14 @@ class Status_App(models.Model):
 
 class Event(models.Model):
     author = models.ForeignKey(Profile, on_delete=models.CASCADE,
-                               related_name="projects_authored")
+                               related_name="events_authored", verbose_name="Автор")
     name = models.CharField(verbose_name="Название мероприятия", max_length=100)
-    supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    specializations = models.ManyToManyField(Specialization, related_name="specializations")
-    statuses = models.ManyToManyField(Status_App, related_name="statuses")
+    supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="supervisors_events", verbose_name="Руководитель")
+    specializations = models.ManyToManyField(Specialization, related_name="specializations", verbose_name="Специализации")
+    statuses = models.ManyToManyField(Status_App, related_name="statuses", verbose_name="Статусы")
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
     link = models.CharField(verbose_name="Ссылка на мероприятие", max_length=100, null=True, blank=True)
-    start = models.DateField(auto_now=True)
+    start = models.DateField(null=True, blank=True,verbose_name="Дата начала")
     end = models.DateField(verbose_name="Дата окончания", null=True, blank=True)
 
     def __str__(self):
@@ -97,6 +98,8 @@ class Project(models.Model):
     supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True,
                                    related_name="supervised_projects")
     curators = models.ManyToManyField(Profile, related_name="curated_projects")
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE,
+                               related_name="projects_authored", verbose_name="Создатель проекта")
 
     def __str__(self):
         return f'{self.name}'
@@ -105,8 +108,8 @@ class Project(models.Model):
 class Team(models.Model):
     name = models.CharField(verbose_name="Название", max_length=100)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
-    students = models.ManyToManyField(Profile)
-
+    students = models.ManyToManyField(Profile,blank=True, null=True, related_name="teams")
+    
     def __str__(self):
         return f'{self.name}'
 

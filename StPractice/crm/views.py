@@ -66,15 +66,61 @@ class DirectionAPIViews(viewsets.ModelViewSet):
     serializer_class = DirectionSerializer
     permission_classes = (IsAuthenticated,)
 
-class ProjectAPIViews(viewsets.ModelViewSet):
+class ApplicationAPIViews(viewsets.ModelViewSet):
+    queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer
+    permission_classes = (IsAuthenticated,)
+
+class App_reviewAPIViews(viewsets.ModelViewSet):
+    queryset = App_review.objects.all()
+    serializer_class = App_reviewSerializer
+    permission_classes = (IsAuthenticated,)
+
+class status_AppAPIViews(viewsets.ModelViewSet):
+    queryset = Status_App.objects.all()
+    serializer_class = Status_AppSerializer
+    permission_classes = (IsAuthenticated,)
+class SpecializationAPIViews(viewsets.ModelViewSet):
+    queryset = Specialization.objects.all()
+    serializer_class = SpecializationSerializer
+    permission_classes = (IsAuthenticated,)
+class RoleAPIViews(viewsets.ModelViewSet):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = (IsAuthenticated,)
+
+# class ProjectAPIViews(viewsets.ModelViewSet):
+#     queryset = Project.objects.all()
+#     serializer_class = ProjectSerializer
+#     permission_classes = (IsAuthenticated,)    
+
+class ProjectAPICreate(generics.CreateAPIView):
     queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = (IsAuthenticated,)    
+    serializer_class = ProjectCreateSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user.profile)
 
 class ProfileAPIViews(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = (IsAuthenticated,)  
+
+class ProjectAPIUpdate(generics.RetrieveUpdateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = (IsAuthorOrReadOnly,)
+
+class ProjectAPIDestroy(generics.RetrieveDestroyAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = (IsAuthorOrReadOnly,)
+
+class ProjectAPIList(generics.ListAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = (IsAuthenticated,)
 
 class TeamAPIList(generics.ListAPIView):
     queryset = Team.objects.all()
@@ -83,11 +129,11 @@ class TeamAPIList(generics.ListAPIView):
 
 class TeamAPICreate(generics.CreateAPIView):
     queryset = Team.objects.all()
-    serializer_class = TeamSerializer
+    serializer_class = TeamCreateSerializer
     permission_classes = (IsAuthenticated,)
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user.profile)
+
+
 
 class TeamAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Team.objects.all()

@@ -22,14 +22,14 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = [
             'name', 'surname', 'patronymic', 'course',
-            'university', 'telegram', 'email',
-            'photo', 'user', 'user_id',
+            'university', 'telegram', 'email', 'user', 'user_id',
         ]
 
 class CheckListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChecklistItem
         fields = ['id', 'description', 'is_completed']
+
 
 class CustomizationSerializer(serializers.ModelSerializer):
     class Meta:

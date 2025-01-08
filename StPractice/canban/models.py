@@ -23,7 +23,6 @@ class Task(models.Model):
     name = models.CharField(verbose_name="Название",max_length=256)
     description = models.TextField(verbose_name="Описание", max_length=10000)
     responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
-    tags = models.ManyToManyField(Tag,related_name="tasks",verbose_name="Теги")
     datetime = models.DateTimeField(auto_now_add=True,verbose_name="Дата создания")
     deadline = models.DateTimeField(verbose_name="Крайний срок выполнения",blank=True,null=True)
     parent_task = models.ForeignKey(

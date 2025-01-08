@@ -70,25 +70,12 @@ class TaskSerializer(serializers.ModelSerializer):
     comment_set = CommentSerializer(many=True, read_only=True)
     result_set = ResultSerializer(many=True, read_only=True)
     responsible_user = ProfileSerializer(read_only=True)
-    tag_set = TagSerializer(many=True, read_only=True)
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Tag.objects.all(),
-        required=False,
-        allow_empty=True
-    )
-    responsible_users = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Profile.objects.all(), required=False
-    )
-    grade_set = GradeSerializer(many=True, read_only=True)
-    custom_set = CustomizationSerializer(many=True, read_only=True)
 
     class Meta:
         model = Task
         fields = [
             'id', 'project', 'name', 'datetime', 'deadline', 'description', 'author', 'status', 'comment_set',
-            'result_set', 'responsible_users', 'tags', 'deadline', 'parent_task',
-            'responsible_user', 'tag_set', 'grade_set', 'custom_set', 'checklist'
+            'result_set',  'deadline', 'parent_task', 'responsible_user', 'checklist'
         ]
 
     def create(self, validated_data):

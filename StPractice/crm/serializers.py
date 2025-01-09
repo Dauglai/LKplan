@@ -21,20 +21,27 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
-        ref_name = "crmUser"
         model = User
         fields = ['id', 'email']
 
 class ProfileSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True)
+    # user = UserSerializer(read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
 
     class Meta:
-        ref_name = "crmProfile"
         model = Profile
         fields = [
-            'name', 'surname', 'patronymic', 'course',
-            'university', 'telegram', 'email', 'author', 'user_id',
+            'telegram',
+            'email',
+            'surname',
+            'name',
+            'patronymic',
+            'course',
+            'university',
+            'vk',
+            'job',
+            'specializations',
+            'user_id',
         ]
 
 
@@ -143,10 +150,10 @@ class ApplicationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class App_reviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = App_review
-        fields = '__all__'
+# class App_reviewSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = App_review
+#         fields = '__all__'
 
 
 class TestSerializer(serializers.ModelSerializer):

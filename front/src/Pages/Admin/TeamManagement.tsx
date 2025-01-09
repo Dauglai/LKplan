@@ -7,6 +7,8 @@ import {
 export default function TeamManagement(): JSX.Element {
   const { data: teams, isLoading, isError } = useGetTeamsQuery();
   const [createTeam, { isLoading: isCreating, isError: isCreateError }] = useCreateTeamMutation();
+
+  console.log(teams)
   
   const [newTeamData, setNewTeamData] = useState({
     name: '',

@@ -10,6 +10,8 @@ export default function SpecializationManagement () : JSX.Element {
   const [createSpecialization, { isLoading: isCreating }] = useCreateSpecializationMutation();
   const { data: specializations, isLoading, isError } = useGetSpecializationsQuery();
   const [deleteSpecialization] = useDeleteSpecializationMutation();
+
+  console.log(specializations)
   
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

@@ -1,4 +1,4 @@
-import { apiSlice } from 'App/api/apiSlice.ts';
+import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
 
 export interface Review {
   id: number;
@@ -13,7 +13,10 @@ export interface Review {
 const reviewApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getReviews: builder.query<Review[], void>({
-      query: () => '/api/app_review/', // Получение списка отзывов
+      query: () => ({
+        url:'/api/app_review/',   //получение списка отзывов
+        withCredentials: true,} 
+      ), 
       providesTags: ['AppReview'],
       transformResponse: (response: Review[]) => {
         return response.map((review: Review) => ({
@@ -23,7 +26,10 @@ const reviewApi = apiSlice.injectEndpoints({
       },
     }),
     getReviewById: builder.query<Review, number>({
-      query: (id) => `/api/app_review/${id}/`, // Получение отзыва по ID
+      query: (id) => ({
+        url: `/api/app_review/${id}/`,    //Получение отзыва по id
+        withCredentials: true,}
+      ),
       providesTags: ['AppReview'],
       transformResponse: (response: Review) => ({
         ...response,
@@ -35,6 +41,11 @@ const reviewApi = apiSlice.injectEndpoints({
         url: '/api/app_review/',
         method: 'POST',
         body: newReview,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['AppReview'],
     }),
@@ -43,6 +54,11 @@ const reviewApi = apiSlice.injectEndpoints({
         url: `/api/app_review/${id}/`,
         method: 'PUT',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['AppReview'],
     }),
@@ -51,6 +67,11 @@ const reviewApi = apiSlice.injectEndpoints({
         url: `/api/app_review/${id}/`,
         method: 'PATCH',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['AppReview'],
     }),
@@ -58,6 +79,10 @@ const reviewApi = apiSlice.injectEndpoints({
       query: (id) => ({
         url: `/api/app_review/${id}/`,
         method: 'DELETE',
+        headers: {
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['AppReview'],
     }),

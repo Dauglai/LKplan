@@ -1,4 +1,4 @@
-import { apiSlice } from 'App/api/apiSlice.ts';
+import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
 
 export interface Application {
   id: number;
@@ -16,7 +16,10 @@ export interface Application {
 const applicationApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getApplications: builder.query<Application[], void>({
-      query: () => '/api/application/',  // Получение списка заявок
+      query: () => ({
+        url:'/api/application/',   // Получение списка заявок
+        withCredentials: true,} 
+      ),
       providesTags: ['Application'],
       transformResponse: (response: Application[]) => {
         return response.map((application: Application) => ({
@@ -26,7 +29,10 @@ const applicationApi = apiSlice.injectEndpoints({
       },
     }),
     getApplicationById: builder.query<Application, number>({
-        query: (id) => `/api/application/${id}/`,  // Получение заявки по id
+        query: (id) => ({
+          url: `/api/application/${id}/`,  // Получение заявки по id
+          withCredentials: true,}
+        ),
         providesTags: ['Application'],
         transformResponse: (response: Application) => ({
             ...response,
@@ -41,6 +47,11 @@ const applicationApi = apiSlice.injectEndpoints({
             ...newApplication,
             dateTime: newApplication.dateTime.toISOString(),
           },
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+          },
+        withCredentials: true,
       }),
       invalidatesTags: ['Application'],
     }),
@@ -49,6 +60,11 @@ const applicationApi = apiSlice.injectEndpoints({
         url: `/api/application/${id}/`,
         method: 'PUT',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+      withCredentials: true,
       }),
       invalidatesTags: ['Application'],
     }),
@@ -57,6 +73,11 @@ const applicationApi = apiSlice.injectEndpoints({
         url: `/api/application/${id}/`, // Обновление заявки
         method: 'PATCH',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+      withCredentials: true,
       }),
       invalidatesTags: ['Application'],
     }),      
@@ -64,6 +85,10 @@ const applicationApi = apiSlice.injectEndpoints({
       query: (id) => ({   // Удаление заявки
         url: `/api/application/${id}/`,
         method: 'DELETE',
+        headers: {
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Application'],
     }),

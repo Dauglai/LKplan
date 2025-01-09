@@ -1,4 +1,4 @@
-import { apiSlice } from 'App/api/apiSlice.ts';
+import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
 
 export interface StatusApp {
   id: number;
@@ -9,11 +9,17 @@ export interface StatusApp {
 const statusAppApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getStatusesApp: builder.query<StatusApp[], void>({
-      query: () => '/api/status_app/',  // Получаем список статусов
+      query: () => ({
+        url:'/api/status_app/',  //получение списка статусов 
+        withCredentials: true,} 
+      ), 
       providesTags: ['StatusApp'],
     }),
     getStatusAppById: builder.query<StatusApp, number>({
-      query: (id) => `/api/status_app/${id}/`, //Получаем статус по id
+      query: (id) => ({
+        url: `/api/status_app/${id}/`,    //Получение статуса по id
+        withCredentials: true,}
+      ),
       providesTags: ['StatusApp'],
     }),
     createStatusApp: builder.mutation<StatusApp, Omit<StatusApp, 'id'>>({
@@ -21,6 +27,11 @@ const statusAppApi = apiSlice.injectEndpoints({
         url: '/api/status_app/',
         method: 'POST',
         body: newStatus,  
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['StatusApp'],
     }),
@@ -29,6 +40,11 @@ const statusAppApi = apiSlice.injectEndpoints({
         url: `/api/status_app/${id}/`,
         method: 'PUT',
         body: data, 
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['StatusApp'],
     }),
@@ -37,6 +53,11 @@ const statusAppApi = apiSlice.injectEndpoints({
         url: `/api/status_app/${id}/`,
         method: 'PATCH',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['StatusApp'],
     }),
@@ -44,6 +65,10 @@ const statusAppApi = apiSlice.injectEndpoints({
       query: (id) => ({  // Удаляем статус
         url: `/api/status_app/${id}/`,
         method: 'DELETE', 
+        headers: {
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['StatusApp'],
     }),

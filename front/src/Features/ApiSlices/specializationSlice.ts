@@ -1,4 +1,4 @@
-import { apiSlice } from 'App/api/apiSlice.ts';
+import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
 
 export interface Specialization {
     id: number;
@@ -6,21 +6,33 @@ export interface Specialization {
     description: string;
 }
 
+
 const specializationApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getSpecializations: builder.query<Specialization[], void>({
-      query: () => '/api/specialization/', //получение списка специализаций
+      query: () => ({
+        url:'/api/specialization/',   //получение списка специализаций
+        withCredentials: true,} 
+      ), 
       providesTags: ['Specialization'],
     }),
     getSpecializationById: builder.query<Specialization, number>({
-      query: (id) => `/api/specialization/${id}/`, //Получение специализации по id
+      query: (id) => ({
+        url: `/api/specialization/${id}/`,    //Получение специализации по id
+        withCredentials: true,}
+      ),
       providesTags: ['Specialization'],
     }),
     createSpecialization: builder.mutation<Specialization, Omit<Specialization, 'id'>>({
       query: (newSpecialization) => ({
-        url: '/api/specialization/create', //создание специализации
+        url: '/api/specialization/', // Создание специализации
         method: 'POST',
         body: newSpecialization,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Specialization'],
     }),
@@ -29,6 +41,11 @@ const specializationApi = apiSlice.injectEndpoints({
         url: `/api/specialization/${id}/`, //обновление специализации
         method: 'PUT',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Specialization'],
     }),
@@ -37,6 +54,11 @@ const specializationApi = apiSlice.injectEndpoints({
         url: `/api/specialization/${id}/`,
         method: 'PATCH',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Specialization'],
     }),
@@ -44,6 +66,10 @@ const specializationApi = apiSlice.injectEndpoints({
       query: (id) => ({
         url: `/api/specialization/${id}/`, // Удаление специализации
         method: 'DELETE',
+        headers: {
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Specialization'],
     }),

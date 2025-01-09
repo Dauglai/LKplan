@@ -1,4 +1,4 @@
-import { apiSlice } from 'App/api/apiSlice.ts';
+import { apiSlice, getCSRFToken  } from 'App/api/apiSlice.ts';
 
 export interface Event {
   id: number;
@@ -16,7 +16,10 @@ export interface Event {
 const eventApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getEvents: builder.query<Event[], void>({
-      query: () => '/api/events/',  // Получаем список мероприятий
+      query: () => ({
+        url:'/api/events/',   //получение списка мероприятий
+        withCredentials: true,} 
+      ), 
       providesTags: ['Event'],
       transformResponse: (response: Event[]) => {
         return response.map(event => ({
@@ -27,7 +30,10 @@ const eventApi = apiSlice.injectEndpoints({
       },
     }),
     getEventById: builder.query<Event, number>({
-      query: (id) => `/api/events/${id}/`,  // Получаем мероприятие по ID
+      query: (id) => ({
+        url: `/api/events/${id}/`,    //Получение мероприятия по id
+        withCredentials: true,}
+      ),
       providesTags: (result, error, id) => [{ type: 'Event', id }],
       transformResponse: (response: Event) => ({
         ...response,
@@ -43,7 +49,12 @@ const eventApi = apiSlice.injectEndpoints({
             ...newEvent,
             start: newEvent.start ? newEvent.start.toISOString() : null,
             end: newEvent.end ? newEvent.end.toISOString() : null,
-        },  
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,  
       }),
       invalidatesTags: ['Event'],
     }),
@@ -56,6 +67,11 @@ const eventApi = apiSlice.injectEndpoints({
           start: data.start ? data.start.toISOString() : null,
           end: data.end ? data.end.toISOString() : null,
         },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Event'],
     }),
@@ -68,6 +84,11 @@ const eventApi = apiSlice.injectEndpoints({
           start: data.start ? data.start.toISOString() : null,
           end: data.end ? data.end.toISOString() : null,
         },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Event'],
     }),
@@ -75,6 +96,10 @@ const eventApi = apiSlice.injectEndpoints({
       query: (id) => ({  // Удаляем мероприятие
         url: `/api/events/${id}/`,
         method: 'DELETE', 
+        headers: {
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Event'],
     }),

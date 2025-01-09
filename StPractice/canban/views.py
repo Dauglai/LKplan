@@ -150,6 +150,11 @@ class ProfileAPIList(generics.ListAPIView):
         # Возвращает профиль текущего пользователя
         return Profile.objects.filter(author=self.request.user)
 
+class ProfilesAPIList(generics.ListAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = (IsAuthenticated,)
+
+
 
 class ProfileAPIUpdate(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer

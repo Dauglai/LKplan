@@ -1,3 +1,4 @@
+import json
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,7 +10,9 @@ from django_filters import BaseInFilter
 from django_filters import rest_framework as filters
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework.backends import DjangoFilterBackend
-
+from django.contrib.auth import logout, authenticate, login
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 class NumberInFilter(BaseInFilter, filters.NumberFilter):
     pass
@@ -30,6 +33,25 @@ class RegisterView(APIView):
             return Response({"message": "Пользователь успешно зарегистрирован"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@csrf_exempt
+def login_view(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return JsonResponse({'message': 'Login successful'}, status=200)
+        return JsonResponse({'error': 'Invalid credentials'}, status=401)
+    return JsonResponse({'error': 'пост'}, status=405)
+
+@csrf_exempt
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        return JsonResponse({'message': 'Logout successful'}, status=200)
+    return JsonResponse({'error': 'Only POST'}, status=405)
 
 class EventAPIViews(viewsets.ModelViewSet):
     queryset = Event.objects.all()
@@ -49,7 +71,7 @@ class EventAPICreate(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user.profile)
+        serializer.save(creator=self.request.user.profile)
 
 class EventAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Event.objects.all()
@@ -71,10 +93,10 @@ class ApplicationAPIViews(viewsets.ModelViewSet):
     serializer_class = ApplicationSerializer
     permission_classes = (IsAuthenticated,)
 
-class App_reviewAPIViews(viewsets.ModelViewSet):
-    queryset = App_review.objects.all()
-    serializer_class = App_reviewSerializer
-    permission_classes = (IsAuthenticated,)
+# class App_reviewAPIViews(viewsets.ModelViewSet):
+#     queryset = App_review.objects.all()
+#     serializer_class = App_reviewSerializer
+#     permission_classes = (IsAuthenticated,)
 
 class status_AppAPIViews(viewsets.ModelViewSet):
     queryset = Status_App.objects.all()
@@ -100,7 +122,7 @@ class ProjectAPICreate(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user.profile)
+        serializer.save(creator=self.request.user.profile)
 
 class ProfileAPIViews(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
@@ -151,7 +173,7 @@ class ProfileAPIList(generics.ListAPIView):
 
     def get_queryset(self):
         # Возвращает профиль текущего пользователя
-        return Profile.objects.filter(author=self.request.user)
+        return Profile.objects.filter(user=self.request.user)
 
 
 class ProfileAPIUpdate(generics.RetrieveUpdateAPIView):
@@ -160,4 +182,4 @@ class ProfileAPIUpdate(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         # Возвращает профиль текущего пользователя
-        return Profile.objects.get(author=self.request.user)
+        return Profile.objects.get(user=self.request.user)

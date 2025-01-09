@@ -1,9 +1,16 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+class Specialization(models.Model):
+    name = models.CharField(verbose_name="Название", max_length=100)
+    description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
+    #test = models.ForeignKey(Test, on_delete=models.CASCADE, null=True, blank=True)
+    def __str__(self):
+        return f'{self.name}'
+
 class Profile(models.Model):
     #TODO// add VK account, work place
-    author = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     #TODO// remove photo
     # photo = models.ImageField(blank=True, null=True)
     telegram = models.CharField(verbose_name="Telegram", max_length=100, null=True, blank=True)
@@ -15,7 +22,7 @@ class Profile(models.Model):
     university = models.CharField(verbose_name="Название университета", max_length=100, null=True, blank=True)
     vk = models.CharField(verbose_name="Ссылка VK", max_length=100, null=True, blank=True)
     job = models.CharField(verbose_name="Место работы", max_length=100, null=True, blank=True)
-    
+    specializations = models.ManyToManyField(Specialization, related_name='users_specializations', blank=True, verbose_name="Специализации")
 
     def __str__(self):
         return f'{self.surname} {self.name} {self.patronymic}'
@@ -51,12 +58,7 @@ class Efficiency(models.Model):
     def __str__(self):
         return f'{self.owner}'
 
-class Specialization(models.Model):
-    name = models.CharField(verbose_name="Название", max_length=100)
-    description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
-    #test = models.ForeignKey(Test, on_delete=models.CASCADE, null=True, blank=True)
-    def __str__(self):
-        return f'{self.name}'
+
 
 class Status_App(models.Model):
     #TODO// Make like drawio
@@ -68,14 +70,22 @@ class Status_App(models.Model):
 
 
 class Event(models.Model):
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE,
-                               related_name="events_authored", verbose_name="Автор")
+    STAGES = (
+        ("Редактирование", "Редактирование"),
+        ("Набор участников", "Набор участников"),
+        ("Формирование команд","Формирование команд"),
+        ("Проведение мероприятия","Проведение мероприятия"),
+        ("Мероприятие завершено","Мероприятие завершено"),)
+    
+    creator = models.ForeignKey(Profile, on_delete=models.CASCADE,
+                               related_name="events_creators", verbose_name="Автор")
     name = models.CharField(verbose_name="Название мероприятия", max_length=100)
     supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="supervisors_events", verbose_name="Руководитель")
     specializations = models.ManyToManyField(Specialization, related_name="specializations", verbose_name="Специализации")
     statuses = models.ManyToManyField(Status_App, related_name="statuses", verbose_name="Статусы")
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
     link = models.CharField(verbose_name="Ссылка на мероприятие", max_length=100, null=True, blank=True)
+    stage = models.CharField(verbose_name="Этап", choices=STAGES, default='Редактирование', max_length=50)
     start = models.DateField(null=True, blank=True,verbose_name="Дата начала")
     end = models.DateField(verbose_name="Дата окончания", null=True, blank=True)
 
@@ -98,8 +108,8 @@ class Project(models.Model):
     supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True,
                                    related_name="supervised_projects")
     curators = models.ManyToManyField(Profile, related_name="curated_projects")
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE,
-                               related_name="projects_authored", verbose_name="Создатель проекта")
+    creator = models.ForeignKey(Profile, on_delete=models.CASCADE,
+                               related_name="projects_creators", verbose_name="Создатель проекта")
 
     def __str__(self):
         return f'{self.name}'
@@ -108,7 +118,7 @@ class Project(models.Model):
 class Team(models.Model):
     name = models.CharField(verbose_name="Название", max_length=100)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
-    students = models.ManyToManyField(Profile,blank=True, null=True, related_name="teams")
+    students = models.ManyToManyField(Profile,blank=True, related_name="teams")
     
     def __str__(self):
         return f'{self.name}'
@@ -123,21 +133,25 @@ class Application(models.Model):
     specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE, null=True, blank=True)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)
     message = models.TextField(verbose_name="Ваш текст", max_length=1000, null=True, blank=True)
+    status = models.ForeignKey(Status_App, on_delete=models.CASCADE)
+    is_link = models.BooleanField(verbose_name="Состоит в чате?", default=False)
+    is_approved = models.BooleanField(verbose_name="Заявка одобрена?", default=False)
+    comment = models.CharField(verbose_name="Отзыв",max_length=1000, null=True, blank=True)
     dateTime = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.user}'
 
 
-class App_review(models.Model):
-    application = models.ForeignKey(Application, on_delete=models.CASCADE)
-    status = models.ForeignKey(Status_App, on_delete=models.CASCADE)
-    is_link = models.BooleanField(verbose_name="Состоит в чате?", default=False)
-    is_approved = models.BooleanField(verbose_name="Заявка одобрена?", default=False)
-    comment = models.CharField(verbose_name="Отзыв",max_length=1000, null=True, blank=True)
-    #TODO// remove test_count
-    # test_count = models.IntegerField(default=0)
-    dateTime = models.DateTimeField(auto_now=True)
+# class App_review(models.Model):
+#     application = models.ForeignKey(Application, on_delete=models.CASCADE)
+#     status = models.ForeignKey(Status_App, on_delete=models.CASCADE)
+#     is_link = models.BooleanField(verbose_name="Состоит в чате?", default=False)
+#     is_approved = models.BooleanField(verbose_name="Заявка одобрена?", default=False)
+#     comment = models.CharField(verbose_name="Отзыв",max_length=1000, null=True, blank=True)
+#     #TODO// remove test_count
+#     # test_count = models.IntegerField(default=0)
+#     dateTime = models.DateTimeField(auto_now=True)
     
 
 class Test(models.Model):

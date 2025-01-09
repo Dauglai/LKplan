@@ -17,7 +17,7 @@ class Status(models.Model):
 
 
 class Task(models.Model):
-    author = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name="tasks_authored",verbose_name="Автор")
+    creator = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name="tasks_creators",verbose_name="Создатель задачи")
     project = models.ForeignKey(Project,on_delete=models.CASCADE,verbose_name="Проект")
     status = models.ForeignKey(Status,on_delete=models.CASCADE,verbose_name="Статус" )
     name = models.CharField(verbose_name="Название",max_length=256)

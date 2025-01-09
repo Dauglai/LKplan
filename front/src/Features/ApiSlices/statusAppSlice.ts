@@ -14,6 +14,9 @@ const statusAppApi = apiSlice.injectEndpoints({
         withCredentials: true,} 
       ), 
       providesTags: ['StatusApp'],
+      transformResponse: (response: { count: number; next: string | null; previous: string | null; results: StatusApp[] }) => {
+        return response.results;
+      },
     }),
     getStatusAppById: builder.query<StatusApp, number>({
       query: (id) => ({

@@ -22,8 +22,8 @@ const eventApi = apiSlice.injectEndpoints({
         withCredentials: true,} 
       ), 
       providesTags: ['Event'],
-      transformResponse: (response: Event[]) => {
-        return response.map(event => ({
+      transformResponse: (response: { count: number; next: string | null; previous: string | null; results: Event[] }) => {
+        return response.results.map(event => ({
           ...event,
           start: event.start ? new Date(event.start) : null,
           end: event.end ? new Date(event.end) : null,

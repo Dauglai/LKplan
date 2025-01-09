@@ -155,4 +155,22 @@ export default function EventManagement(): JSX.Element {
               <p>Статусы: {event.statuses.join(', ') || 'Нет'}</p>
               <p>Ссылка: {event.link || 'Нет ссылки'}</p>
               <p>Начало: {event.start ? event.start.toLocaleString() : 'Не указано'}</p>
+              <p>Окончание: {event.end ? event.end.toLocaleString() : 'Не указано'}</p>
+              <p>Руководитель: {event.supervisor}</p>
+              <p>Создатель: {event.creator}</p>
+              <p>Этап: {event.stage}</p>
+              <button
+                onClick={() => handleDeleteEvent(event.id)}
+                disabled={isDeleting}
+              >
+                Удалить
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
     

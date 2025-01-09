@@ -44,13 +44,13 @@ const projectApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Project'],
     }),
-    deleteProject: builder.mutation<void, number>({
+    /* deleteProject: builder.mutation<void, number>({
       query: (id) => ({  // Удаление проекта
         url: `/api/project/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Project'],
-    }),
+    }), */
     
   }),
 });
@@ -61,5 +61,5 @@ export const {
   useCreateProjectMutation,
   useUpdateProjectMutation,
   usePartialUpdateProjectMutation,
-  useDeleteProjectMutation,
+  //useDeleteProjectMutation,
 } = projectApi;

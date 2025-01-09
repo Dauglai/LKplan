@@ -17,15 +17,22 @@ class Status(models.Model):
 
 
 class Task(models.Model):
-    author = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="tasks_authored")
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    status = models.ForeignKey(Status, on_delete=models.CASCADE)
-    name = models.CharField(verbose_name="Название", max_length=256)
-    description = models.TextField(verbose_name="Название", max_length=10000)
-    responsible_users = models.ManyToManyField(Profile, related_name='responsible_users')
-    tags = models.ManyToManyField(Tag, related_name='tags')
-    datetime = models.DateTimeField(auto_now_add=True)
-    deadline = models.DateTimeField(verbose_name="Крайний срок выполнения", blank=True, null=True)
+    author = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name="tasks_authored",verbose_name="Автор")
+    project = models.ForeignKey(Project,on_delete=models.CASCADE,verbose_name="Проект")
+    status = models.ForeignKey(Status,on_delete=models.CASCADE,verbose_name="Статус" )
+    name = models.CharField(verbose_name="Название",max_length=256)
+    description = models.TextField(verbose_name="Описание", max_length=10000)
+    responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
+    datetime = models.DateTimeField(auto_now_add=True,verbose_name="Дата создания")
+    dateCloseTask = models.DateTimeField(verbose_name="Время закрытия задачи",blank=True,null=True)
+    parent_task = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        related_name="subtasks",  # Связь для доступа к подзадачам
+        blank=True,
+        null=True,
+        verbose_name="Родительская задача",
+    )
 
     def __str__(self):
         return self.name

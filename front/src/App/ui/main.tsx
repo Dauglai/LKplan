@@ -15,9 +15,12 @@ import Login from 'Pages/Login/ui/Login.tsx';
 import Register from 'Pages/Register/ui/Register.tsx';
 import Profile from 'Pages/Profile/ui/Profile.tsx';
 import RequestsManagement from 'Pages/Requests/ui/RequestsManagement.tsx';
+import CreateEventForm from 'Pages/CreateEvent/ui/CreateEventForm/CreateEventForm.tsx';
+import CreateProjectForm from 'Pages/CreateEvent/ui/CreateProjectForm/CreateProjectForm.tsx'
 import { StudentReq } from 'Pages/StudentReq/index.ts';
 import Tasks from 'Pages/Tasks/Tasks.tsx';
 import { ConfigProvider } from 'antd';
+import EventListPage from 'Pages/EventList/EventList.tsx';
 
 const theme = {
   token: {
@@ -45,7 +48,10 @@ createRoot(document.getElementById('root')!).render(
               </Route>
               <Route path="/requests-list" element={<RequestsManagement />} />
               <Route path="/tasks" element={<Tasks />} />
-            </Route>
+              <Route path="/create-new-event" element={<CreateEventForm />} />
+              <Route path="/events-list" element={<EventListPage />} />
+              <Route path="/create-new-project" element={<CreateProjectForm />} />
+          </Route>
           </Routes>
         </BrowserRouter>
       </Provider>

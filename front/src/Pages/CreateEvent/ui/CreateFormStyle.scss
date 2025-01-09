@@ -1,0 +1,82 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.CreateFormContainer {
+    width: 1160px;
+    display: relative;
+}
+
+.CreateForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 596px;
+
+    .EventFormField {
+      @include text2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 40px;
+      padding: 12px;
+
+      border-radius: $border-radius;
+      border: 1px solid $grey;
+
+      outline: none;
+
+      svg {
+        color: $black;
+      }
+    }
+
+    .CreateNameContainer {
+      width: 100%;
+
+      .CreateName {
+        width: 100%;
+        border-radius: $border-radius $border-radius 0 0;
+        border-bottom: none;
+      }
+
+      .CreateDescription {
+        width: 100%;
+        min-height: 120px;
+        display: block;
+        resize: none;
+        overflow: hidden;
+
+        border-radius: 0 0 $border-radius $border-radius;
+      }
+    }
+
+    .ListField {
+      position: relative;
+
+      cursor: pointer;
+    
+      .DropdownList {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+
+        border: 1px solid #ccc;
+        border-radius: $border-radius;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        z-index: 10;
+        overflow: hidden;
+    
+        .DropdownItem {
+          padding: 8px;
+          cursor: pointer;
+    
+          &:hover {
+            background-color: $grey;
+          }
+        }
+      }
+
+    }
+} 

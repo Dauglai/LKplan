@@ -16,6 +16,20 @@ body.no-scroll {
   overflow: hidden;
 }
 
+.ChevronLeft {
+  transform: rotate(180deg);
+}
+
+.ChevronDown {
+  transform: rotate(90deg);
+
+  transition: ease 0.3s;
+
+  &.open {
+    transform: rotate(-90deg);
+  }
+}
+
 .ant-form-item-label {
   padding: 0 !important; /* Убираем внутренние отступы у лейбла */
 }

@@ -1,5 +1,5 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, redirect, useNavigate } from 'react-router-dom';
 
 import './Login.scss';
 import { useLoginMutation } from 'Features/Auth/api/authApiSlice';
@@ -22,25 +22,13 @@ export default function Login(): JSX.Element {
     formState: { errors },
   } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    try {
-      
-
-      const userData = await login({
-        username: data.login,
-        password: data.password,
-      }).unwrap();
-      console.log(userData);
-      dispatch(
-        setCredentials({
-          access: userData.access,
-          user: userData.user,
-          refresh: userData.refresh,
-        })
-      );
-      navigate('/profile');
-    } catch (err) {
-      console.log(err.data);
-    }
+    const userData = await login({
+      username: data.login,
+      password: data.password,
+    }).unwrap();
+    console.log(userData);
+    localStorage.setItem('user', JSON.stringify(userData.results[0]));
+    navigate('/profile');
   };
   return (
     <>

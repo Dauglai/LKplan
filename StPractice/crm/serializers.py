@@ -18,10 +18,24 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    
     class Meta:
+        ref_name = "crmUser"
+        model = User
+        fields = ['id', 'email']
+
+class ProfileSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+
+    class Meta:
+        ref_name = "crmProfile"
         model = Profile
-        fields = '__all__'
+        fields = [
+            'name', 'surname', 'patronymic', 'course',
+            'university', 'telegram', 'email', 'author', 'user_id',
+        ]
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -29,38 +43,98 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Role
         fields = '__all__'
 
-class UserSerializer(serializers.ModelSerializer):
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = '__all__'
+
+
+# class EfficiencySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Efficiency
+#         fields = '__all__'
+
+class SpecializationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = Specialization
         fields = '__all__'
 
-
-class EfficiencySerializer(serializers.ModelSerializer):
+class Status_AppSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Efficiency
+        model = Status_App
         fields = '__all__'
 
+class SupervisorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Profile
+        fields = '__all__'
 
 class EventSerializer(serializers.ModelSerializer):
+    user = ProfileSerializer(read_only=True)
+    # supervisor = ProfileSerializer(read_only=True)
+    specializations = SpecializationSerializer(read_only=True, many=True)
+    statuses = Status_AppSerializer(read_only=True, many=True)
+    
     class Meta:
         model = Event
         fields = '__all__'
+
+    def create(self, validated_data):
+        specializations_data = validated_data.pop('specializations', [])
+        statuses_data = validated_data.pop('statuses', [])
+        print(validated_data)
+        event = Event.objects.create(**validated_data)
+        for specialization_data in specializations_data:
+            Specialization.objects.create(event=event, **specialization_data)
+        for status_data in statuses_data:
+            Status_App.objects.create(event=event, **status_data)
+        return event
+    def update(self, instance, validated_data):
+        specializations_data = validated_data.pop('specializations', [])
+        statuses_data = validated_data.pop('statuses', [])
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        if specializations_data is not None:
+            instance.specializations.set(specializations_data)
+        if statuses_data is not None:
+            instance.statuses.set(statuses_data)
+        return instance
+    def delete(self, instance):
+        instance.delete()
+
 
 class DirectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Direction
         fields = '__all__'
 
+
+
 class ProjectSerializer(serializers.ModelSerializer):
+    # curators = ProfileSerializer(many=True,read_only=True)
     class Meta:
         model = Project
         fields = '__all__'
-
+    # def create(self, validated_data):
+    #     curators_data = validated_data.pop('curators', [])
+    #     project = Project.objects.create(**validated_data)
+    #     for curator_data in curators_data:
+    #         Profile.objects.create(**curator_data)
+    #     return project
 
 class TeamSerializer(serializers.ModelSerializer):
+    # students = ProfileSerializer(many=True,read_only=True)
     class Meta:
         model = Team
         fields = '__all__'
+    # def create(self, validated_data):
+    #     students_data = validated_data.pop('students', [])
+
+    #     team = Team.objects.create(**validated_data)
+    #     # team.students.set(students_data)
+    #     return team
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
@@ -94,3 +168,19 @@ class TrueAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = True_Answer
         fields = '__all__'
+
+class ProjectCreateSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    class Meta:
+        model = Project
+        fields = '__all__'
+       
+class TeamCreateSerializer(serializers.ModelSerializer):
+    # author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    class Meta:
+        model = Team
+        fields = '__all__'
+# class App_reviewSerializer(serializers.ModelSerializer):
+#         class Meta:
+#             model = App_review
+#             fields = '__all__'

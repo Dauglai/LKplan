@@ -1,0 +1,36 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.CheckboxField {
+
+  .CheckboxInput {
+    display: none;
+  }
+
+  .CheckboxLabel {
+    @include text2;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 16px;
+
+    .CheckboxIcon {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      
+      transition: all 0.3s ease;
+    }
+  }
+
+  .CheckboxInput:checked + .CheckboxLabel .CheckboxIcon {
+    background-image: url('assets/icons/square.svg');
+    background-size: cover;
+  }
+
+  .CheckboxInput:not(:checked) + .CheckboxLabel .CheckboxIcon {
+    background-image: url('assets/icons/check-square.svg');
+    background-size: cover;
+  }
+}
+

@@ -29,7 +29,7 @@ export default function Register(): JSX.Element {
       userData.message
       navigate('/profile');
     } catch (error) {
-      console.log(error)
+      console.log(error.data)
     }
     
   };
@@ -54,6 +54,7 @@ export default function Register(): JSX.Element {
               placeholder="Password"
               className="Register-Form-Input"
               {...reg('password', { required: true })}
+              minLength={8}
             />
             <button className="Register-Form-Submit" type="submit">
               {' '}

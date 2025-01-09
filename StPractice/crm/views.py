@@ -49,7 +49,7 @@ class EventAPICreate(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user.profile)
+        serializer.save(creator=self.request.user.profile)
 
 class EventAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Event.objects.all()
@@ -71,10 +71,10 @@ class ApplicationAPIViews(viewsets.ModelViewSet):
     serializer_class = ApplicationSerializer
     permission_classes = (IsAuthenticated,)
 
-class App_reviewAPIViews(viewsets.ModelViewSet):
-    queryset = App_review.objects.all()
-    serializer_class = App_reviewSerializer
-    permission_classes = (IsAuthenticated,)
+# class App_reviewAPIViews(viewsets.ModelViewSet):
+#     queryset = App_review.objects.all()
+#     serializer_class = App_reviewSerializer
+#     permission_classes = (IsAuthenticated,)
 
 class status_AppAPIViews(viewsets.ModelViewSet):
     queryset = Status_App.objects.all()
@@ -100,7 +100,7 @@ class ProjectAPICreate(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user.profile)
+        serializer.save(creator=self.request.user.profile)
 
 class ProfileAPIViews(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
@@ -151,7 +151,7 @@ class ProfileAPIList(generics.ListAPIView):
 
     def get_queryset(self):
         # Возвращает профиль текущего пользователя
-        return Profile.objects.filter(author=self.request.user)
+        return Profile.objects.filter(user=self.request.user)
 
 
 class ProfileAPIUpdate(generics.RetrieveUpdateAPIView):
@@ -160,4 +160,4 @@ class ProfileAPIUpdate(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         # Возвращает профиль текущего пользователя
-        return Profile.objects.get(author=self.request.user)
+        return Profile.objects.get(user=self.request.user)

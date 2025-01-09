@@ -12,13 +12,16 @@ export function getCSRFToken() {
     ?.split('=')[1];
   return csrfToken;
 }
+
 const baseQuery = fetchBaseQuery({
   baseUrl: baseURL,
-  credentials: 'include',
-
+  credentials: 'include',  // Для включения отправки cookies
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
-      headers.set('X-CSRFToken', getCSRFToken() || '');
+    const csrfToken = getCSRFToken();  // Получаем CSRF токен из cookies
+    if (csrfToken) {
+      headers.set('X-CSRFToken', csrfToken);  // Добавляем CSRF токен в заголовки
+    }
     return headers;
   },
 });
@@ -55,5 +58,15 @@ const baseQueryWithReauth: typeof baseQuery = async (
 
 export const apiSlice = createApi({
   baseQuery: baseQueryWithReauth,
+  tagTypes: [
+    'Specialization',
+    'Direction',
+    'Project',
+    'User',
+    'StatusApp',
+    'Event',
+    'Application',
+    'AppReview',
+    'Team'],
   endpoints: (builder) => ({}),
 });

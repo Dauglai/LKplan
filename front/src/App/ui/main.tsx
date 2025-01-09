@@ -21,6 +21,7 @@ import { StudentReq } from 'Pages/StudentReq/index.ts';
 import Tasks from 'Pages/Tasks/Tasks.tsx';
 import { ConfigProvider } from 'antd';
 import EventListPage from 'Pages/EventList/EventList.tsx';
+import AdminPage from 'Pages/Admin/AdminPage.tsx';
 
 const theme = {
   token: {
@@ -51,6 +52,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/create-new-event" element={<CreateEventForm />} />
               <Route path="/events-list" element={<EventListPage />} />
               <Route path="/create-new-project" element={<CreateProjectForm />} />
+              <Route path="/admin" element={<AdminPage />} />
           </Route>
           </Routes>
         </BrowserRouter>

@@ -15,6 +15,7 @@ urlpatterns = [
     path('tasks/<int:pk>/', include(task_router.urls)),
     path('profile/', ProfileAPIList.as_view()),
     path('profile/update/', ProfileAPIUpdate.as_view()),
+    path('profiles/', ProfilesAPIList.as_view()),
     path('tasks/create/', TaskAPICreate.as_view()),
 
     path('tasks/', TaskAPIList.as_view()),

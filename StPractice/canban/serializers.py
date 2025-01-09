@@ -4,26 +4,23 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from crm.models import Profile
-from crm.serializers import ProjectSerializer
+from crm.serializers import ProjectSerializer,ProfileSerializer
 from .models import *
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'email']
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    user_id = serializers.IntegerField(source='user.id', read_only=True)
 
-    class Meta:
-        model = Profile
-        fields = [
-            'name', 'surname', 'patronymic', 'course',
-            'university', 'telegram', 'email', 'user', 'user_id',
-        ]
+# class ProfileSerializer(serializers.ModelSerializer):
+#     user = UserSerializer(read_only=True)
+#     user_id = serializers.IntegerField(source='user.id', read_only=True)
+
+#     class Meta:
+#         model = Profile
+#         fields = [
+#             'name', 'surname', 'patronymic', 'course',
+#             'university', 'telegram', 'email', 'user', 'user_id',
+#         ]
 
 class CheckListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -75,8 +72,8 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id', 'project', 'name', 'datetime', 'dateCloseTask', 'description', 'author', 'status', 'comment_set',
-            'result_set', 'responsible_users', 'tags', 'parent_task',
-            'responsible_user', 'tag_set', 'grade_set', 'custom_set', 'checklist'
+            'result_set', 'parent_task',
+            'responsible_user', 'checklist'
         ]
 
     def create(self, validated_data):

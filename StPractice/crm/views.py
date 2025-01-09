@@ -1,3 +1,4 @@
+import json
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,7 +10,9 @@ from django_filters import BaseInFilter
 from django_filters import rest_framework as filters
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework.backends import DjangoFilterBackend
-
+from django.contrib.auth import logout, authenticate, login
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 class NumberInFilter(BaseInFilter, filters.NumberFilter):
     pass
@@ -30,6 +33,25 @@ class RegisterView(APIView):
             return Response({"message": "Пользователь успешно зарегистрирован"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@csrf_exempt
+def login_view(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return JsonResponse({'message': 'Login successful'}, status=200)
+        return JsonResponse({'error': 'Invalid credentials'}, status=401)
+    return JsonResponse({'error': 'пост'}, status=405)
+
+@csrf_exempt
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        return JsonResponse({'message': 'Logout successful'}, status=200)
+    return JsonResponse({'error': 'Only POST'}, status=405)
 
 class EventAPIViews(viewsets.ModelViewSet):
     queryset = Event.objects.all()

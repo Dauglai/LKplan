@@ -4,7 +4,6 @@ import { RootState } from '../model/store.ts';
 
 import { setCredentials, logOut } from 'Features/Auth/model/authSlice.ts';
 
-
 export function getCSRFToken() {
   const csrfToken = document.cookie
     .split('; ')
@@ -15,12 +14,12 @@ export function getCSRFToken() {
 
 const baseQuery = fetchBaseQuery({
   baseUrl: baseURL,
-  credentials: 'include',  // Для включения отправки cookies
+  credentials: 'include',
+
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
-    const csrfToken = getCSRFToken();  // Получаем CSRF токен из cookies
-    if (csrfToken) {
-      headers.set('X-CSRFToken', csrfToken);  // Добавляем CSRF токен в заголовки
+    if (getCSRFToken()) {
+      headers.set('X-CSRFToken', getCSRFToken() || "");
     }
     return headers;
   },
@@ -34,20 +33,24 @@ const baseQueryWithReauth: typeof baseQuery = async (
   let result = await baseQuery(args, api, extraOptions);
   if (result.error && result.error.status === 403) {
     const refreshToken = (api.getState() as RootState).auth.refresh;
-    // try to get a new token
+    if (!refreshToken) {
+      api.dispatch(logOut());
+      return result;
+    }
+
     const refreshResult = await baseQuery(
       {
         url: '/api/token/refresh/',
+        method: 'POST',
         body: { refresh: refreshToken },
       },
       api,
       extraOptions
     );
+
     if (refreshResult?.data) {
       const user = (api.getState() as RootState).auth.user;
-      // store the new token
       api.dispatch(setCredentials({ ...refreshResult.data, user }));
-      // retry the initial query
       result = await baseQuery(args, api, extraOptions);
     } else {
       api.dispatch(logOut());
@@ -67,6 +70,7 @@ export const apiSlice = createApi({
     'Event',
     'Application',
     'AppReview',
-    'Team'],
+    'Team',
+  ],
   endpoints: (builder) => ({}),
 });

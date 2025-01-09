@@ -1,4 +1,4 @@
-import { apiSlice } from 'App/api/apiSlice.ts';
+import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
 
 export interface Team {
   id: number;
@@ -10,11 +10,17 @@ export interface Team {
 const teamApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getTeams: builder.query<Team[], void>({
-      query: () => '/api/teams/', // Получение списка команд
+      query: () => ({
+        url:'/api/teams/',   //получение списка команд
+        withCredentials: true,} 
+      ), 
       providesTags: ['Team'],
     }),
     getTeamById: builder.query<Team, number>({
-      query: (id) => `/api/teams/${id}`, // Получение команды по ID
+      query: (id) => ({
+        url: `/api/teams/${id}`,    //Получение команды по id
+        withCredentials: true,}
+      ),
       providesTags: ['Team'],
     }),
     createTeam: builder.mutation<Team, Omit<Team, 'id'>>({
@@ -22,6 +28,11 @@ const teamApi = apiSlice.injectEndpoints({
         url: '/api/teams/create',
         method: 'POST',
         body: newTeam,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Team'],
     }),
@@ -30,6 +41,11 @@ const teamApi = apiSlice.injectEndpoints({
         url: `/api/teams/${id}`,
         method: 'PUT',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Team'],
     }),
@@ -38,6 +54,11 @@ const teamApi = apiSlice.injectEndpoints({
         url: `/api/teams/${id}`,
         method: 'PATCH',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Team'],
     }),
@@ -45,6 +66,10 @@ const teamApi = apiSlice.injectEndpoints({
       query: (id) => ({
         url: `/api/teams/${id}`,
         method: 'DELETE',
+        headers: {
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Team'],
     }), */

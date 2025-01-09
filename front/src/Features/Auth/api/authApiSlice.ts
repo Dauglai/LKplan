@@ -13,15 +13,15 @@ export const authApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials: { username: string; password: string }) => ({
-        url: '/api-auth/login/',
+        url: '/api/login/',
         method: 'POST',
-        body: new URLSearchParams({
+        body: {
           username: credentials.username,
           password: credentials.password,
-        }),
+        },
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-CSRFToken': getCSRFToken(), // Передача CSRF-токена
+          'Content-Type': 'application/json',
+          
         },
         credentials: 'include',
       }),

@@ -1,0 +1,27 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.adminPage {
+    @include text1;
+    display: flex;
+    width: 1060px;
+    justify-content: space-between;
+    gap: 20px;
+
+    div {
+        padding: 20px;
+        border-radius: $border-radius;
+        border: 1px solid $black;
+
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        gap: 20px;
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+    }
+}

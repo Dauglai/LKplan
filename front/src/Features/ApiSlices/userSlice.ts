@@ -1,4 +1,4 @@
-import { apiSlice } from 'App/api/apiSlice.ts';
+import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
 
 export interface User {
   id: number;
@@ -9,15 +9,18 @@ export interface User {
   patronymic?: string; 
   course: string;
   university: string;
-  //vk: string;
-  //job: string;
-  //specialization: number;
+  vk: string;
+  job: string;
+  specialization: number;
 }
 
 const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getUsers: builder.query<User[], void>({
-      query: () => '/api/profile/', // Получение списка пользователей
+      query: () => ({
+        url:'/api/profile/',   //получение списка пользователей
+        withCredentials: true,} 
+      ), 
       providesTags: ['User'],
     }),
     /* getUserById: builder.query<User, number>({
@@ -28,7 +31,12 @@ const userApi = apiSlice.injectEndpoints({
       query: ({ id, ...data }) => ({
         url: `/api/users/${id}/`, //////// Обновляем данные пользователя
         method: 'PUT',
-        body: data,  
+        body: data, 
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true, 
       }),
       invalidatesTags: ['User'],
     }),
@@ -37,6 +45,11 @@ const userApi = apiSlice.injectEndpoints({
         url: `/api/users/${id}`,  //////// Обновляем данные пользователя
         method: 'PATCH',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['User'],
     }),
@@ -44,6 +57,10 @@ const userApi = apiSlice.injectEndpoints({
       query: (id) => ({
         url: `/api/users/${id}/`,
         method: 'DELETE',  // Удаляем пользователя
+        headers: {
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['User'],
     }), */

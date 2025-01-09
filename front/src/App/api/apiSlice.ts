@@ -4,7 +4,6 @@ import { RootState } from '../model/store.ts';
 
 import { setCredentials, logOut } from 'Features/Auth/model/authSlice.ts';
 
-
 export function getCSRFToken() {
   const csrfToken = document.cookie
     .split('; ')
@@ -19,7 +18,9 @@ const baseQuery = fetchBaseQuery({
 
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
-      headers.set('X-CSRFToken', getCSRFToken() || '');
+    if (getCSRFToken()) {
+      headers.set('X-CSRFToken', getCSRFToken() || "");
+    }
     return headers;
   },
 });
@@ -58,7 +59,6 @@ const baseQueryWithReauth: typeof baseQuery = async (
   return result;
 };
 
-
 export const apiSlice = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: [
@@ -70,6 +70,7 @@ export const apiSlice = createApi({
     'Event',
     'Application',
     'AppReview',
-    'Team'],
+    'Team',
+  ],
   endpoints: (builder) => ({}),
 });

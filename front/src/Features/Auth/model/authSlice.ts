@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-
+import { User } from 'Features/ApiSlices/userSlice';
 import { RootState } from 'App/model/store.ts';
 
 export interface AuthState {
-  user: Object | null;
+  user: User | null;
   token: string | null;
   refresh: string | null;
 }

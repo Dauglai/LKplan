@@ -9,9 +9,9 @@ export interface User {
   patronymic?: string; 
   course: string;
   university: string;
-  //vk: string;
-  //job: string;
-  //specialization: number;
+  vk: string;
+  job: string;
+  specialization: number;
 }
 
 const userApi = apiSlice.injectEndpoints({

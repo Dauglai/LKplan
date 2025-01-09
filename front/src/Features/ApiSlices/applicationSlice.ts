@@ -10,7 +10,10 @@ export interface Application {
   team: number | null;
   message: string | null;
   dateTime: Date;
-  //status: number;
+  status: number;
+  is_link: boolean;
+  is_approved: boolean;
+  comment: string | null;
 }
 
 const applicationApi = apiSlice.injectEndpoints({

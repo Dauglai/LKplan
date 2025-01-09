@@ -7,7 +7,7 @@ export interface Project {
   description: string | null;
   supervisor: number | null;
   curators: number[];
-  author: number;
+  creator: number;
 }
 
 const projectApi = apiSlice.injectEndpoints({

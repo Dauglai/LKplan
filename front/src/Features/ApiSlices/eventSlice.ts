@@ -10,7 +10,8 @@ export interface Event {
   start: Date | null;
   end: Date | null;
   supervisor: number;
-  author: number;
+  creator: number;
+  stage: string;
 }
 
 const eventApi = apiSlice.injectEndpoints({

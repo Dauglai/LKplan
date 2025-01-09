@@ -1,9 +1,9 @@
 import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
 
 export interface Specialization {
-    id: number;
-    name: string;
-    description: string;
+  id: number;
+  name: string;
+  description: string;
 }
 
 

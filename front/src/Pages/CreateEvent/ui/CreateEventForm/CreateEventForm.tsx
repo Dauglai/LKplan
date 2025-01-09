@@ -27,7 +27,7 @@ export default function CreateEventForm(): JSX.Element {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    supervisorId: null,
+    supervisor: null,
     startDate: '',
     endDate: '',
     link: '',
@@ -46,7 +46,7 @@ export default function CreateEventForm(): JSX.Element {
   const handleSupervisorChange = (id: number) => {
     setFormData({
       ...formData,
-      supervisorId: id,
+      supervisor: id,
     });
   };
 
@@ -71,7 +71,7 @@ export default function CreateEventForm(): JSX.Element {
       const sendData = {
         name: formData.name,
         description: formData.description,
-        supervisor: formData.supervisorId,
+        supervisor: formData.supervisor,
         start: formData.startDate,
         end: formData.endDate,
         link: formData.link,
@@ -81,7 +81,7 @@ export default function CreateEventForm(): JSX.Element {
         `${baseURL}/api/events/`,
         {
           ...sendData,
-          author: JSON.parse(localStorage.getItem('user')!).author.id,
+          creator: 1,
         },
         {
           headers: {

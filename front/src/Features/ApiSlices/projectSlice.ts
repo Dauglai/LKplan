@@ -18,6 +18,9 @@ const projectApi = apiSlice.injectEndpoints({
         withCredentials: true,} 
       ), 
       providesTags: ['Project'],
+      transformResponse: (response: { count: number; next: string | null; previous: string | null; results: Project[] }) => {
+        return response.results;
+      },
     }),
     getProjectById: builder.query<Project, number>({
       query: (id) => ({

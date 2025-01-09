@@ -22,6 +22,9 @@ const userApi = apiSlice.injectEndpoints({
         withCredentials: true,} 
       ), 
       providesTags: ['User'],
+      transformResponse: (response: { count: number; next: string | null; previous: string | null; results: User[] }) => {
+        return response.results;
+      },
     }),
     /* getUserById: builder.query<User, number>({
       query: (id) => `/api/users/${id}/`,

@@ -15,7 +15,9 @@ const directionApi = apiSlice.injectEndpoints({
         withCredentials: true,} 
       ), 
       providesTags: ['Direction'],
-      transformResponse: (response: Direction[]) => response,
+      transformResponse: (response: { count: number; next: string | null; previous: string | null; results: Direction[] }) => {
+        return response.results;
+      },
     }),
     getDirectionById: builder.query<Direction, number>({
       query: (id) => ({

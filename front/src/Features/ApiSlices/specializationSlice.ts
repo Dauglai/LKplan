@@ -15,6 +15,9 @@ const specializationApi = apiSlice.injectEndpoints({
         withCredentials: true,} 
       ), 
       providesTags: ['Specialization'],
+      transformResponse: (response: { count: number; next: string | null; previous: string | null; results: Specialization[] }) => {
+        return response.results;
+      },
     }),
     getSpecializationById: builder.query<Specialization, number>({
       query: (id) => ({

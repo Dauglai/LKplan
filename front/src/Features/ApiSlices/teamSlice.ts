@@ -15,6 +15,9 @@ const teamApi = apiSlice.injectEndpoints({
         withCredentials: true,} 
       ), 
       providesTags: ['Team'],
+      transformResponse: (response: { count: number; next: string | null; previous: string | null; results: Team[] }) => {
+        return response.results;
+      },
     }),
     getTeamById: builder.query<Team, number>({
       query: (id) => ({

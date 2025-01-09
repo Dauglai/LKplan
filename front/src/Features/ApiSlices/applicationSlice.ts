@@ -24,8 +24,8 @@ const applicationApi = apiSlice.injectEndpoints({
         withCredentials: true,} 
       ),
       providesTags: ['Application'],
-      transformResponse: (response: Application[]) => {
-        return response.map((application: Application) => ({
+      transformResponse: (response: { count: number; next: string | null; previous: string | null; results: Application[] }) => {
+        return response.results.map((application: Application) => ({
           ...application,
           dateTime: new Date(application.dateTime),
         }));

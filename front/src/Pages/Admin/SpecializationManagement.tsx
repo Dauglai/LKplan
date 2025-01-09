@@ -3,14 +3,14 @@ import {
   useCreateSpecializationMutation,
   useGetSpecializationsQuery,
   useDeleteSpecializationMutation
-} from 'Features/ApiSlices/specializationSlice'; // Путь может быть другим, проверь его
+} from 'Features/ApiSlices/specializationSlice';
+
 
 export default function SpecializationManagement () : JSX.Element {
   const [createSpecialization, { isLoading: isCreating }] = useCreateSpecializationMutation();
   const { data: specializations, isLoading, isError } = useGetSpecializationsQuery();
   const [deleteSpecialization] = useDeleteSpecializationMutation();
   
-  // State для формы создания новой специализации
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   
@@ -30,7 +30,6 @@ export default function SpecializationManagement () : JSX.Element {
 
   return (
     <div>
-      {/* Форма для создания специализации */}
       <form onSubmit={handleCreateSpecialization}>
         <h3>Создать новую специализацию</h3>
         <input
@@ -49,7 +48,6 @@ export default function SpecializationManagement () : JSX.Element {
         <button type="submit" disabled={isCreating}>Создать</button>
       </form>
       
-      {/* Список существующих специализаций */}
       <h3>Существующие специализации</h3>
       {isLoading ? (
         <p>Загрузка...</p>

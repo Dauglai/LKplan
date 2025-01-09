@@ -1,4 +1,4 @@
-import { apiSlice } from 'App/api/apiSlice.ts';
+import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
 
 export interface Direction {
   id: number;
@@ -10,12 +10,18 @@ export interface Direction {
 const directionApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getDirections: builder.query<Direction[], void>({
-      query: () => '/api/direction/', // Получение списка направлений
+      query: () => ({
+        url:'/api/direction/',   // Получение списка направлений
+        withCredentials: true,} 
+      ), 
       providesTags: ['Direction'],
       transformResponse: (response: Direction[]) => response,
     }),
     getDirectionById: builder.query<Direction, number>({
-      query: (id) => `/api/direction/${id}/`, //Получение направления по id
+      query: (id) => ({
+        url: `/api/direction/${id}/`,    //Получение направления по id
+        withCredentials: true,}
+      ),
       providesTags: ['Direction'],
     }),
     createDirection: builder.mutation<Direction, Omit<Direction, 'id'>>({
@@ -23,6 +29,11 @@ const directionApi = apiSlice.injectEndpoints({
         url: '/api/direction/',
         method: 'POST',
         body: newDirection,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
+          },
+        withCredentials: true,
       }),
       invalidatesTags: ['Direction'],
     }),
@@ -31,6 +42,11 @@ const directionApi = apiSlice.injectEndpoints({
         url: `/api/direction/${id}/`,
         method: 'PUT',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Direction'],
     }),
@@ -39,6 +55,11 @@ const directionApi = apiSlice.injectEndpoints({
         url: `/api/direction/${id}/`,
         method: 'PATCH',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Direction'],
     }),
@@ -46,6 +67,10 @@ const directionApi = apiSlice.injectEndpoints({
       query: (id) => ({ // Удаление направления
         url: `/api/direction/${id}/`,
         method: 'DELETE',
+        headers: {
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Direction'],
     }),

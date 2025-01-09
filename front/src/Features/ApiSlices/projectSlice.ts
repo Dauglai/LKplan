@@ -1,4 +1,4 @@
-import { apiSlice } from 'App/api/apiSlice.ts';
+import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
 
 export interface Project {
   id: number;
@@ -7,17 +7,23 @@ export interface Project {
   description: string | null;
   supervisor: number | null;
   curators: number[];
-  author: number;
+  creator: number;
 }
 
 const projectApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getProjects: builder.query<Project[], void>({
-      query: () => '/api/project/',  // Получение списка проектов
+      query: () => ({
+        url:'/api/project/',   //получение списка проектов
+        withCredentials: true,} 
+      ), 
       providesTags: ['Project'],
     }),
     getProjectById: builder.query<Project, number>({
-      query: (id) => `/api/project/${id}`, // Получение проекта по id
+      query: (id) => ({
+        url: `/api/project/${id}/`,    //Получение проекта по id
+        withCredentials: true,}
+      ),
       providesTags: ['Project'],
     }),
     createProject: builder.mutation<Project, Omit<Project, 'id'>>({
@@ -25,6 +31,11 @@ const projectApi = apiSlice.injectEndpoints({
         url: '/api/project/create',
         method: 'POST',
         body: newProject,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Project'],
     }),
@@ -33,6 +44,11 @@ const projectApi = apiSlice.injectEndpoints({
         url: `/api/project/${id}`,
         method: 'PUT',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Project'],
     }),
@@ -41,6 +57,11 @@ const projectApi = apiSlice.injectEndpoints({
         url: `/api/project/${id}`,
         method: 'PATCH',
         body: data,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Project'],
     }),
@@ -48,6 +69,10 @@ const projectApi = apiSlice.injectEndpoints({
       query: (id) => ({  // Удаление проекта
         url: `/api/project/${id}`,
         method: 'DELETE',
+        headers: {
+          'X-CSRFToken': getCSRFToken(),
+        },
+        withCredentials: true,
       }),
       invalidatesTags: ['Project'],
     }), */

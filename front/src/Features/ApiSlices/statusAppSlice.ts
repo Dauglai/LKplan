@@ -1,4 +1,4 @@
-import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
+import { apiSlice } from 'App/api/apiSlice.ts';
 
 export interface StatusApp {
   id: number;
@@ -32,7 +32,7 @@ const statusAppApi = apiSlice.injectEndpoints({
         body: newStatus,  
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),
@@ -45,7 +45,7 @@ const statusAppApi = apiSlice.injectEndpoints({
         body: data, 
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),
@@ -58,7 +58,7 @@ const statusAppApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),
@@ -69,7 +69,7 @@ const statusAppApi = apiSlice.injectEndpoints({
         url: `/api/status_app/${id}/`,
         method: 'DELETE', 
         headers: {
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),

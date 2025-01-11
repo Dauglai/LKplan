@@ -1,4 +1,4 @@
-import { apiSlice, getCSRFToken  } from 'App/api/apiSlice.ts';
+import { apiSlice  } from 'App/api/apiSlice.ts';
 
 export interface Event {
   id: number;
@@ -53,7 +53,7 @@ const eventApi = apiSlice.injectEndpoints({
         },
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+          
         },
         withCredentials: true,  
       }),
@@ -70,7 +70,7 @@ const eventApi = apiSlice.injectEndpoints({
         },
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+          
         },
         withCredentials: true,
       }),
@@ -87,7 +87,7 @@ const eventApi = apiSlice.injectEndpoints({
         },
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+          
         },
         withCredentials: true,
       }),
@@ -97,9 +97,7 @@ const eventApi = apiSlice.injectEndpoints({
       query: (id) => ({  // Удаляем мероприятие
         url: `/api/events/${id}/`,
         method: 'DELETE', 
-        headers: {
-          'X-CSRFToken': getCSRFToken(),
-        },
+
         withCredentials: true,
       }),
       invalidatesTags: ['Event'],

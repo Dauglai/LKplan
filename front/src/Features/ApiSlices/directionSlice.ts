@@ -1,4 +1,4 @@
-import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
+import { apiSlice } from 'App/api/apiSlice.ts';
 
 export interface Direction {
   id: number;
@@ -33,7 +33,7 @@ const directionApi = apiSlice.injectEndpoints({
         body: newDirection,
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken(),
+
           },
         withCredentials: true,
       }),
@@ -46,7 +46,7 @@ const directionApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),
@@ -59,7 +59,7 @@ const directionApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),
@@ -69,9 +69,7 @@ const directionApi = apiSlice.injectEndpoints({
       query: (id) => ({ // Удаление направления
         url: `/api/direction/${id}/`,
         method: 'DELETE',
-        headers: {
-          'X-CSRFToken': getCSRFToken(),
-        },
+
         withCredentials: true,
       }),
       invalidatesTags: ['Direction'],

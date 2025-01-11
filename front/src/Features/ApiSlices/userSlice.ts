@@ -1,4 +1,4 @@
-import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
+import { apiSlice} from 'App/api/apiSlice.ts';
 
 export interface User {
   id: number;
@@ -37,7 +37,7 @@ const userApi = apiSlice.injectEndpoints({
         body: data, 
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true, 
       }),
@@ -50,7 +50,7 @@ const userApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),

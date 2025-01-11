@@ -27,6 +27,7 @@ export default function Login(): JSX.Element {
       password: data.password,
     }).unwrap();
     console.log(userData);
+    dispatch(setCredentials({...userData}));
     localStorage.setItem('user', JSON.stringify(userData.results[0]));
     navigate('/profile');
   };

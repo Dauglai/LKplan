@@ -1,4 +1,4 @@
-import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
+import { apiSlice} from 'App/api/apiSlice.ts';
 
 export interface Specialization {
   id: number;
@@ -33,7 +33,7 @@ const specializationApi = apiSlice.injectEndpoints({
         body: newSpecialization,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),
@@ -46,7 +46,7 @@ const specializationApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),
@@ -59,7 +59,7 @@ const specializationApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),
@@ -70,7 +70,7 @@ const specializationApi = apiSlice.injectEndpoints({
         url: `/api/specialization/${id}/`, // Удаление специализации
         method: 'DELETE',
         headers: {
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),

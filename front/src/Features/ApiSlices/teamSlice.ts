@@ -1,4 +1,4 @@
-import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
+import { apiSlice } from 'App/api/apiSlice.ts';
 
 export interface Team {
   id: number;
@@ -33,7 +33,7 @@ const teamApi = apiSlice.injectEndpoints({
         body: newTeam,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),
@@ -46,7 +46,7 @@ const teamApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),
@@ -59,7 +59,7 @@ const teamApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+
         },
         withCredentials: true,
       }),

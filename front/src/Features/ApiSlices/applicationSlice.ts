@@ -1,4 +1,4 @@
-import { apiSlice, getCSRFToken } from 'App/api/apiSlice.ts';
+import { apiSlice } from 'App/api/apiSlice.ts';
 
 export interface Application {
   id: number;
@@ -65,7 +65,7 @@ const applicationApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+          
         },
       withCredentials: true,
       }),
@@ -78,7 +78,7 @@ const applicationApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(),
+          
         },
       withCredentials: true,
       }),
@@ -88,9 +88,7 @@ const applicationApi = apiSlice.injectEndpoints({
       query: (id) => ({   // Удаление заявки
         url: `/api/application/${id}/`,
         method: 'DELETE',
-        headers: {
-          'X-CSRFToken': getCSRFToken(),
-        },
+        
         withCredentials: true,
       }),
       invalidatesTags: ['Application'],

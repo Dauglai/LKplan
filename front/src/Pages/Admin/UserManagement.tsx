@@ -135,6 +135,7 @@ export default function UserManagement(): JSX.Element {
                   <p>
                     <strong>{user.name} {user.surname}</strong>
                   </p>
+                  <p>id: {user.user_id}</p>
                   <p>Email: {user.email}</p>
                   <p>Telegram: {user.telegram}</p>
                   <p>Университет: {user.university}</p>

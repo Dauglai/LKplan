@@ -10,6 +10,8 @@ export type Request = {
     institution: string;
     course: number;
     description: string;
+    userFullName: string;
+    directionName: string;
 };
   
   

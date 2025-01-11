@@ -1,7 +1,7 @@
 import { apiSlice} from 'App/api/apiSlice.ts';
 
 export interface User {
-  id: number;
+  user_id: number;
   telegram: string;
   email: string;
   name: string;

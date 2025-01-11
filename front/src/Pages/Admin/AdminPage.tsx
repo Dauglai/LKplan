@@ -5,6 +5,7 @@ import TeamManagement from "./TeamManagement";
 import EventManagement from "./EventManagement";
 import DirectionManagement from "./DirectionManagement";
 import ProjectManagement from "./ProjectManager";
+import ApplicationManagement from "./ApplicationManagement";
 import "./AdminPage.scss";
 
 export default function AdminPage () : JSX.Element {
@@ -18,6 +19,7 @@ export default function AdminPage () : JSX.Element {
             <EventManagement />
             <DirectionManagement />
             <ProjectManagement />
+            <ApplicationManagement />
         </div>
     )
 }

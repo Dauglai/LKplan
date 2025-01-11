@@ -24,12 +24,14 @@ const authSlice = createSlice({
       // state.user = user;
       state.token = access;
       state.refresh = refresh;
+      localStorage.setItem('auth', JSON.stringify({ access, refresh }));
     },
 
     logOut: (state) => {
       // state.user = null;
       state.token = null;
       state.refresh = null;
+      localStorage.removeItem('auth');
     },
   },
 });

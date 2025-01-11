@@ -1,8 +1,46 @@
 @import 'Styles/mixins';
 @import 'Styles/variables';
 
+.CreateContainer {
+  width: 1060px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ListResults {
+  width: 500px;
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  padding: 20px;
+  @include backgroundWithBefore(-16px, -16px, 16px, 440px, 500px);
+
+  ul {
+    list-style: none;
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+
+      .DeleteButton {
+        background: none;
+        border: none;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.5;
+        }
+      }
+    }
+  }
+
+
+}
+
 .CreateFormContainer {
-    width: 1160px;
+    width: 800px;
     display: relative;
 }
 
@@ -12,7 +50,7 @@
     gap: 16px;
     width: 596px;
 
-    .EventFormField {
+    .FormField {
       @include text2;
       display: flex;
       justify-content: space-between;

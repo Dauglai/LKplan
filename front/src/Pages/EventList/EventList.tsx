@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { baseURL } from 'App/config/api';
 import { mockUsers } from 'Pages/CreateEvent/ui/mockUsers';
-import { allDirections } from 'Pages/CreateEvent/ui/fields/DirectionSelector';
+import { allDirections } from 'Widgets/fields/DirectionSelector';
 
 interface Event {
   id: number;

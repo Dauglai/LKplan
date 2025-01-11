@@ -1,41 +1,47 @@
 import { Request } from 'Pages/Requests/typeRequests';
+import React, { useEffect } from 'react';
+import { useGetApplicationsQuery } from 'Features/ApiSlices/applicationSlice';
+import { useGetStatusesAppQuery } from 'Features/ApiSlices/statusAppSlice';
+import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
+import { useGetUsersQuery } from 'Features/ApiSlices/userSlice';
 
 import './RequestsList.scss';
 
-const statuses: Request['status'][] = [
-  'Новые заявки',
-  'Вступившие в орг. чат',
-  'Приступившие к работе',
-];
+export default function RequestsList({ onRequestSelect }: { onRequestSelect: (request: Request) => void; }): JSX.Element {
+  const { data: applications, isLoading: applicationsLoading } = useGetApplicationsQuery();
+  const { data: statuses, isLoading: statusesLoading } = useGetStatusesAppQuery();
+  const { data: directions, isLoading: directionsLoading } = useGetDirectionsQuery();
+  const { data: users, isLoading: usersLoading } = useGetUsersQuery();
 
-
-export default function RequestsList({ 
-  requests,
-  onRequestSelect 
-}: {
-  requests: Request[];
-  onRequestSelect: (request: Request) => void;
-}): JSX.Element {
+  if (applicationsLoading || statusesLoading || directionsLoading || usersLoading) {
+    return <div>Загрузка..</div>;
+  }
   return (
     <div className="RequestsList">
       {statuses.map((status, index) => {
-        const filteredRequests = requests.filter((request) => request.status === status);
+        const filteredRequests = applications?.filter((request) => request.status === status.id); // Теперь фильтруем по id статуса
         const columnClass = `column-${index + 1}`;
 
         return (
-          <div className={`RequestsListColumn ${columnClass}`} key={status}>
-            <div className="RequestStatusName">{status}</div>
+          <div className={`RequestsListColumn ${columnClass}`} key={status.id}>
+            <div className="RequestStatusName">{status.name}</div>
             {filteredRequests.length > 0 ? (
-              filteredRequests.map((request) => (
-                <div
-                  key={request.id}
-                  className="RequestItem"
-                  onClick={() => onRequestSelect(request)}
-                >
-                  <h3 className="RequestName">{request.name}</h3>
-                  <span className="RequestDirection">#{request.direction}</span>
-                </div>
-              ))
+              filteredRequests.map((request) => {
+                // Ищем направление по id и отображаем название
+                const direction = directions?.find(d => d.id === request.direction);
+                // Ищем пользователя по id и отображаем имя
+                const user = users?.find(u => u.user_id === request.user);
+                console.log(user)
+                return (
+                  <div
+                    key={request.id}
+                    className="RequestItem"
+                    onClick={() => onRequestSelect(request)}
+                  >
+                    <h3 className="RequestName">{user?.name} {user?.surname} {user?.patronymic}</h3>
+                    <span className="RequestDirection">#{direction?.name || 'Неизвестно'}</span>
+                  </div>
+                  )})
             ) : (
               <div className="NoRequestsMessage">Заявки не найдены</div>
             )}

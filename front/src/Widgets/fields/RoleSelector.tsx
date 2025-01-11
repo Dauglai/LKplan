@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
-import { User, mockUsers } from "../mockUsers"
+import { User, mockUsers } from "Pages/CreateEvent/ui/mockUsers"
 
 import './RoleSelector.scss'
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Table,
   Dropdown,
@@ -17,6 +17,7 @@ import './Tasks.scss';
 import CreateTaskModal from './CreateTaskModal';
 import { TaskFormValues } from './CreateTaskModal/CreateTaskModal.typings';
 import type { MenuInfo } from 'rc-menu/lib/interface';
+import { useGetAllTasksQuery } from 'Features/Auth/api/tasksApiSlice';
 
 const { Option } = Select;
 
@@ -71,7 +72,7 @@ const Tasks = () => {
   const statuses = ['Новое', 'В работе', 'На проверке', 'Выполнено'];
   const tags = ['Frontend', 'Backend', 'Bugfix', 'Feature'];
 
-  const [dataSource, setDataSource] = useState(initialDataSource);
+  const [dataSource, setDataSource] = useState([]);
   const [filterDirection, setFilterDirection] = useState('asc');
   const [isModalVisible, setIsModalVisible] = useState(false); // Статус модального окна
   const [isModalTaskVisible, setIsModalTaskVisible] = useState(false); // Статус модального окна задачи
@@ -80,6 +81,31 @@ const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState(null); // Данные выбранной задачи
   const [selectedTaskKey, setSelectedTaskKey] = useState(null);
   const [parentTaskKey, setParentTaskKey] = useState(null); // Родительская задача
+
+  const { data } = useGetAllTasksQuery();
+
+  useEffect(() => {
+    if (data) {
+      setDataSource(transformTasksData(data));
+    }
+  }, [data]);
+
+  const transformTasksData = (data) => {
+    if (!data?.results) return [];
+
+    return data.results.map((task) => ({
+      key: String(task.id),
+      name: task.name || `Задача ${task.id}`,
+      sprint: `Спринт ${task.project}`,
+      status: statuses[task.status],
+      deadline: task.dateCloseTask
+        ? new Date(task.dateCloseTask).toLocaleDateString()
+        : 'Нет срока',
+      assignee:
+        `${task.responsible_user?.name || ''} ${task.responsible_user?.surname || ''}`.trim(),
+      tags: ['git'], // Пример тегов, можно кастомизировать
+    }));
+  };
 
   const handleMakeSubtask = (taskKey, info) => {
     info.domEvent.stopPropagation();

@@ -1,7 +1,7 @@
 @import 'variables';
 @import 'mixins';
 
-.primary-button {
+@mixin primary-btn {
     @include text1;
 
     display: flex;

@@ -16,9 +16,9 @@ export interface User {
 
 const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getUsers: builder.query<User[], void>({
+    getUser: builder.query<User[], void>({
       query: () => ({
-        url:'/api/profile/',   //получение списка пользователей
+        url:'/api/profile/',   //получение пользователя
         withCredentials: true,} 
       ), 
       providesTags: ['User'],
@@ -30,9 +30,9 @@ const userApi = apiSlice.injectEndpoints({
       query: (id) => `/api/users/${id}/`,
       providesTags: (result, error, id) => [{ type: 'User', id }],
     }), */
-    updateUser: builder.mutation<User, { id: number; data: Omit<User, 'id'> }>({
-      query: ({ id, ...data }) => ({
-        url: `/api/users/${id}/`, //////// Обновляем данные пользователя
+    updateUser: builder.mutation<User, { data: Omit<User, 'user_id'> }>({
+      query: ({ data }) => ({
+        url: `/api/profile/update/`, // Обновляем данные пользователя
         method: 'PUT',
         body: data, 
         headers: {
@@ -43,9 +43,9 @@ const userApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
-    partialUpdateUser: builder.mutation<User, { id: number; data: Partial<Omit<User, 'id'>> }>({
-      query: ({ id, data }) => ({
-        url: `/api/users/${id}`,  //////// Обновляем данные пользователя
+    partialUpdateUser: builder.mutation<User, { data: Partial<Omit<User, 'user_id'>> }>({
+      query: ({ data }) => ({
+        url: `/api/profile/update`,  // Обновляем данные пользователя
         method: 'PATCH',
         body: data,
         headers: {
@@ -71,7 +71,7 @@ const userApi = apiSlice.injectEndpoints({
 });
 
 export const {
-  useGetUsersQuery,
+  useGetUserQuery,
   //useGetUserByIdQuery,
   useUpdateUserMutation,
   //useDeleteUserMutation,

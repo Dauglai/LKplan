@@ -10,6 +10,7 @@ import { store } from '../model/store.ts';
 
 import Layout from 'Shared/ui/layout/layout.tsx';
 import RequireAuth from 'Shared/ui/requireAuth.tsx';
+import { NotificationProvider } from 'Widgets/Notification/Notification.tsx';
 
 import Login from 'Pages/Login/ui/Login.tsx';
 import Register from 'Pages/Register/ui/Register.tsx';
@@ -40,28 +41,31 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ConfigProvider theme={theme}>
       <Provider store={store}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route path="/" element={<App />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/StudReq/:uId" element={<StudentReq />} />
-              <Route path="/" element={<RequireAuth />}>
-                <Route path="/profile" element={<Profile />} />
-              </Route>
-              <Route path="/requests-list" element={<RequestsManagement />} />
-              <Route path="/tasks" element={<Tasks />} />
-              <Route path="/create-new-event" element={<CreateEventForm />} />
-              <Route path="/events-list" element={<EventListPage />} />
-              <Route path="/create-new-project" element={<CreateProjectForm />} />
-              <Route path="/create-new-direction" element={<CreateDirectionForm />} />
-              <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
-              <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
-              <Route path="/admin" element={<AdminPage />} />
-          </Route>
-          </Routes>
-        </BrowserRouter>
+        <NotificationProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route path="/" element={<App />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/StudReq/:uId" element={<StudentReq />} />
+                <Route path="/" element={<RequireAuth />}>
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                </Route>
+                <Route path="/requests-list" element={<RequestsManagement />} />
+                <Route path="/tasks" element={<Tasks />} />
+                <Route path="/create-new-event" element={<CreateEventForm />} />
+                <Route path="/events-list" element={<EventListPage />} />
+                <Route path="/create-new-project" element={<CreateProjectForm />} />
+                <Route path="/create-new-direction" element={<CreateDirectionForm />} />
+                <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
+                <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
+                
+            </Route>
+            </Routes>
+          </BrowserRouter>
+        </NotificationProvider>
       </Provider>
     </ConfigProvider>
   </StrictMode>

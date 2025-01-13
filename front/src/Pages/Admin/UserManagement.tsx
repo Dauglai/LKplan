@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
-  useGetUsersQuery,
+  useGetUserQuery,
   useUpdateUserMutation,
 } from 'Features/ApiSlices/userSlice';
 
 export default function UserManagement(): JSX.Element {
-  const { data: users, isLoading, isError } = useGetUsersQuery();
+  const { data: users, isLoading, isError } = useGetUserQuery();
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
   const [editingUser, setEditingUser] = useState<number | null>(null);

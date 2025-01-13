@@ -39,18 +39,18 @@ export default function Login(): JSX.Element {
           <input
             type="text"
             autoComplete="off"
-            placeholder="E-mail"
+            placeholder="Имя пользователя"
             {...register('login', { required: true })}
             className="Login-Form-Input"
           />
           <input
             type="password"
             autoComplete="off"
-            placeholder="Password"
+            placeholder="Пароль"
             {...register('password', { required: true })}
             className="Login-Form-Input"
           />
-          <a className="Login-Form-ForgotPass">Не помню пароль</a>
+          {/*<a className="Login-Form-ForgotPass">Не помню пароль</a>*/}
           <button type="submit" className="Login-Form-Submit">
             Войти
           </button>

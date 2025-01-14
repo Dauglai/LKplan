@@ -1,12 +1,59 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+@import 'Styles/buttons';
+
 .GlobalHeader {
   width: 1160px;
   height: 64px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   border-radius: 10px;
   box-shadow: 0px 4px 20px 0px #b2b2b240;
   backdrop-filter: blur(4px);
   position: absolute;
   top: 16px;
+  padding: 0 20px;
+
+  .HeaderLeft,
+  .HeaderCenter,
+  .HeaderRight {
+    display: flex;
+    align-items: center;
+  }
+
+  .HeaderLeft {
+    .BurgerMenuIcon {
+      cursor: pointer;
+    }
+  }
+
+  .HeaderCenter {
+    justify-content: center;
+    flex: 1;
+  }
+
+  .HeaderRight {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .UserInfo {
+      @include text1;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    
+      color: $black;
+    
+      cursor: pointer;
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+    
+    .LogoutButton {
+      @include primary-btn;
+    }
+  }
 }

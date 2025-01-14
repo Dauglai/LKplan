@@ -19,7 +19,6 @@ const authSlice = createSlice({
   initialState: initialState,
   reducers: {
     setCredentials: (state, action) => {
-      console.log(action);
       const { access, refresh } = action.payload;
       // state.user = user;
       state.token = access;

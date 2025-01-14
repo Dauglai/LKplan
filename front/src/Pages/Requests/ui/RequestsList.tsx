@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useGetApplicationsQuery } from 'Features/ApiSlices/applicationSlice';
 import { useGetStatusesAppQuery } from 'Features/ApiSlices/statusAppSlice';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
-import { useGetUsersQuery } from 'Features/ApiSlices/userSlice';
+import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 
 import './RequestsList.scss';
 
@@ -11,7 +11,7 @@ export default function RequestsList({ onRequestSelect }: { onRequestSelect: (re
   const { data: applications, isLoading: applicationsLoading } = useGetApplicationsQuery();
   const { data: statuses, isLoading: statusesLoading } = useGetStatusesAppQuery();
   const { data: directions, isLoading: directionsLoading } = useGetDirectionsQuery();
-  const { data: users, isLoading: usersLoading } = useGetUsersQuery();
+  const { data: users, isLoading: usersLoading } = useGetUserQuery();
 
   if (applicationsLoading || statusesLoading || directionsLoading || usersLoading) {
     return <div>Загрузка..</div>;

@@ -1,47 +1,27 @@
 @import 'Styles/mixins';
 @import 'Styles/variables';
 
-.CreateContainer {
-  width: 1060px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.ListResults {
-  width: 500px;
-  display: flex;
-  gap: 20px;
-  flex-direction: column;
-  padding: 20px;
-  @include backgroundWithBefore(-16px, -16px, 16px, 440px, 500px);
-
-  ul {
-    list-style: none;
-
-    li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-
-      .DeleteButton {
-        background: none;
-        border: none;
-        cursor: pointer;
-
-        &:hover {
-          opacity: 0.5;
-        }
-      }
-    }
-  }
-
-
-}
-
 .CreateFormContainer {
     width: 800px;
     display: relative;
+}
+
+.FormField {
+  @include text2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px;
+  padding: 12px;
+
+  border-radius: $border-radius;
+  border: 1px solid $grey;
+
+  outline: none;
+
+  svg {
+    color: $black;
+  }
 }
 
 .CreateForm {
@@ -49,24 +29,6 @@
     flex-direction: column;
     gap: 16px;
     width: 596px;
-
-    .FormField {
-      @include text2;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 40px;
-      padding: 12px;
-
-      border-radius: $border-radius;
-      border: 1px solid $grey;
-
-      outline: none;
-
-      svg {
-        color: $black;
-      }
-    }
 
     .CreateNameContainer {
       width: 100%;

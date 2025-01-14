@@ -1,0 +1,52 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+@import 'Styles/buttons';
+
+.ProfileContainer {
+    width: 1160px;
+
+    .ProfileHeading {
+        @include h2;
+        margin-bottom: 24px;
+    }
+
+    .ProfileFullName {
+        margin-bottom: 24px;
+    }
+    
+    .ProfileForm {
+
+        .Profile-Columns {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 24px;
+
+            .ProfileColumn {
+                flex: 1;
+
+                h3 {
+                    @include h3;
+                    margin-bottom: 12px;
+                }
+
+                label {
+                    @include text1;
+                    display: inline-block;
+                    margin-bottom: 4px;
+                }
+
+                .ProfileInput {
+                    width: 100%;
+                    margin-bottom: 12px;
+                }
+            }
+        }
+
+        .ProfileSubmitButton {
+            @include primary-btn;
+            margin-left: auto;
+        }
+    }
+}

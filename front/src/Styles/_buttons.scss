@@ -1,7 +1,7 @@
 @import 'variables';
 @import 'mixins';
 
-.primary-button {
+@mixin primary-btn {
     @include text1;
 
     display: flex;
@@ -38,5 +38,10 @@
 
     &:hover:before {
       opacity: 1;
+    }
+
+    &:disabled {
+      background-color: $grey;
+      cursor: default;
     }
 }

@@ -1,0 +1,80 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.FormField {
+    @include text2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    padding: 12px;
+
+    border-radius: $border-radius;
+    border: 1px solid $grey;
+
+    outline: none;
+
+    svg {
+        color: $black;
+    }
+}
+
+.ListField {
+    position: relative;
+    margin-bottom: 12px;
+
+    cursor: pointer;
+  
+    .DropdownList {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+
+      border: 1px solid #ccc;
+      border-radius: $border-radius;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      z-index: 10;
+      overflow: hidden;
+  
+      .DropdownItem {
+        padding: 8px;
+        cursor: pointer;
+  
+        &:hover {
+          background-color: $grey;
+        }
+      }
+    }
+
+}
+
+.SelectedList {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    height: 40px;
+    padding: 24px 12px;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    border-radius: $border-radius;
+    border: 1px solid $grey;
+    list-style: none;
+
+    .SelectedListItem {
+        @include text2;
+        padding: 8px;
+        display: flex;
+        gap: 4px;
+        align-items: center;
+
+        border-radius: $border-radius;
+        background-color: $blue;
+
+        svg {
+          cursor: pointer;
+        }
+    }
+}

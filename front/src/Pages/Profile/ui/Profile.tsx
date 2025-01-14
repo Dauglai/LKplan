@@ -1,20 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useGetUserQuery, useUpdateUserMutation } from 'Features/ApiSlices/userSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
+import SpecializationSelector from 'Widgets/fields/SpecializationSelector';
 
-import './Profile.scss';
+
 import 'Styles/CreateFormStyle.scss'
+import './Profile.scss';
+
 
 export default function Profile(): JSX.Element {
-  const { data: users, isLoading } = useGetUserQuery();
+  const { data: user, isLoading } = useGetUserQuery();
   const [updateUser] = useUpdateUserMutation();
-  const user = users?.[0];
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const { showNotification } = useNotification();
   const [fullName, setFullName] = useState<string>('');
-
-  const { register, handleSubmit, watch, reset, setValue } = useForm({
+  const [selectedSpecializations, setSelectedSpecializations] = useState<number[]>([]);
+  
+  const { register, handleSubmit, watch, reset } = useForm({
     defaultValues: user,
   });
 
@@ -24,12 +27,16 @@ export default function Profile(): JSX.Element {
     if (user) {
       reset(user);
       setFullName(`${user.surname} ${user.name} ${user.patronymic || ''}`);
+      setSelectedSpecializations(user.specializations || []);
     }
   }, [user, reset]);
 
   useEffect(() => {
-    setIsButtonDisabled(JSON.stringify(user) === JSON.stringify(watchedFields));
-  }, [user, watchedFields]);
+    const isUserDataChanged = JSON.stringify(user) !== JSON.stringify(watchedFields);
+    const isSpecializationsChanged = JSON.stringify(user?.specializations) !== JSON.stringify(selectedSpecializations);
+    
+    setIsButtonDisabled(!(isUserDataChanged || isSpecializationsChanged));
+  }, [user, watchedFields, selectedSpecializations]);
 
   const onSubmit: SubmitHandler<typeof watchedFields> = async (data) => {
     try {
@@ -38,7 +45,7 @@ export default function Profile(): JSX.Element {
       const patronymic = patronymicParts.join(' ');
 
       await updateUser({
-        data: { ...data, surname, name, patronymic },
+        data: { ...data, surname, name, patronymic, specializations: selectedSpecializations },
       }).unwrap();
 
       setIsButtonDisabled(true);
@@ -86,12 +93,10 @@ export default function Profile(): JSX.Element {
               placeholder="Университет"
               className="ProfileInput FormField"
             />
-            <label>Специальность</label>
-            <input
-              type="number"
-              {...register('specialization')}
-              placeholder="Специальность"
-              className="ProfileInput FormField"
+            <label>Специализации</label>
+            <SpecializationSelector
+              selectedSpecializations={selectedSpecializations}
+              onChange={setSelectedSpecializations}
             />
             <label>Работа</label>
             <input

@@ -11,19 +11,19 @@ export interface User {
   university: string;
   vk: string;
   job: string;
-  specialization: number;
+  specializations: number[];
 }
 
 const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getUser: builder.query<User[], void>({
+    getUser: builder.query<User, void>({
       query: () => ({
         url:'/api/profile/',   //получение пользователя
         withCredentials: true,} 
       ), 
       providesTags: ['User'],
       transformResponse: (response: { count: number; next: string | null; previous: string | null; results: User[] }) => {
-        return response.results;
+        return response.results[0];
       },
     }),
     /* getUserById: builder.query<User, number>({

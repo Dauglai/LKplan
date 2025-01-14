@@ -1,11 +1,11 @@
 //import { useDispatch, useSelector } from 'react-redux';
 import PlusIcon from 'assets/icons/plus.svg?react';
-//import CloseIcon from 'assets/icons/close.svg?react';
+import CloseIcon from 'assets/icons/close.svg?react';
 //import { RootState } from 'App/model/store.ts';
 import { useState } from 'react';
 //import { Event, setCurrentEvent } from 'Features/Forms/model/eventFormModelSlice';
 
-//import "./FormSelectorStyle.scss";
+import "./FormSelectorStyle.scss";
 
 interface Direction {
   id: number;
@@ -76,7 +76,7 @@ export default function DirectionSelector({
   return (
     <>
       <div
-        className="ListField EventFormField"
+        className="ListField FormField"
         onClick={() => setIsOpen(prev => !prev)}
       >
         <p>Направления</p>
@@ -101,15 +101,15 @@ export default function DirectionSelector({
           {selectedDirections.map(directionId => {
             const direction = allDirections.find(d => d.id === directionId);
             return direction ? (
-              <li className="SelectedListItem" key={direction.id} onClick={() => handleRemoveDirection(direction.id)}>
+              <li className="SelectedListItem" key={direction.id}>
                 {direction.name}
-                {/*<CloseIcon
+                <CloseIcon
                   className="RemoveIcon"
                   width="16"
                   height="16"
                   strokeWidth="1.5"
                   onClick={() => handleRemoveDirection(direction.id)}
-                />*/}
+                />
               </li>
             ) : null;
           })}

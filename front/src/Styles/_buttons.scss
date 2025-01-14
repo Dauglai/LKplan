@@ -39,4 +39,9 @@
     &:hover:before {
       opacity: 1;
     }
+
+    &:disabled {
+      background-color: $grey;
+      cursor: default;
+    }
 }

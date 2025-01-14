@@ -11,7 +11,7 @@ export default function RequestsList({ onRequestSelect }: { onRequestSelect: (re
   const { data: applications, isLoading: applicationsLoading } = useGetApplicationsQuery();
   const { data: statuses, isLoading: statusesLoading } = useGetStatusesAppQuery();
   const { data: directions, isLoading: directionsLoading } = useGetDirectionsQuery();
-  const { data: users, isLoading: usersLoading } = useGetUserQuery();
+  const { data: user, isLoading: usersLoading } = useGetUserQuery();
 
   if (applicationsLoading || statusesLoading || directionsLoading || usersLoading) {
     return <div>Загрузка..</div>;
@@ -30,8 +30,6 @@ export default function RequestsList({ onRequestSelect }: { onRequestSelect: (re
                 // Ищем направление по id и отображаем название
                 const direction = directions?.find(d => d.id === request.direction);
                 // Ищем пользователя по id и отображаем имя
-                const user = users?.find(u => u.user_id === request.user);
-                console.log(user)
                 return (
                   <div
                     key={request.id}

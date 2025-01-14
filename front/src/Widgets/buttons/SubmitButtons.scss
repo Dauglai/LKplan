@@ -1,5 +1,5 @@
-.SubmitButtons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 36px;
+@import 'Styles/buttons';
+
+.primary-btn {
+  @include primary-btn;
 }

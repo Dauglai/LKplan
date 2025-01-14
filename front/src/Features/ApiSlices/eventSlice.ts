@@ -7,11 +7,12 @@ export interface Event {
   statuses: number[];
   description: string | null;
   link: string | null;
-  start: Date | null;
-  end: Date | null;
+  start: string | null;
+  end: string | null;
   supervisor: number;
   creator: number;
   stage: string;
+  user: number;
 }
 
 const eventApi = apiSlice.injectEndpoints({
@@ -47,9 +48,9 @@ const eventApi = apiSlice.injectEndpoints({
         url: '/api/events/',
         method: 'POST',
         body: {
-            ...newEvent,
-            start: newEvent.start ? newEvent.start.toISOString() : null,
-            end: newEvent.end ? newEvent.end.toISOString() : null,
+          ...newEvent,
+          start: newEvent.start ? new Date(newEvent.start).toISOString().split('T')[0] : null,
+          end: newEvent.end ? new Date(newEvent.end).toISOString().split('T')[0] : null,
         },
         headers: {
           'Content-Type': 'application/json',

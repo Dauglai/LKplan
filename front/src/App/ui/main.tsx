@@ -21,7 +21,7 @@ import CreateProjectForm from 'Pages/CreateProject/CreateProjectForm.tsx'
 import { StudentReq } from 'Pages/StudentReq/index.ts';
 import Tasks from 'Pages/Tasks/Tasks.tsx';
 import { ConfigProvider } from 'antd';
-import EventListPage from 'Pages/EventList/EventList.tsx';
+import EventsManagement from 'Pages/EventsList/EventsManagement.tsx';
 import AdminPage from 'Pages/Admin/AdminPage.tsx';
 import CreateDirectionForm from 'Pages/CreareDirection/CreateDirectionForm.tsx';
 import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializationForm.tsx'
@@ -56,7 +56,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/requests-list" element={<RequestsManagement />} />
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/create-new-event" element={<CreateEventForm />} />
-                <Route path="/events-list" element={<EventListPage />} />
+                <Route path="/events-list" element={<EventsManagement />} />
                 <Route path="/create-new-project" element={<CreateProjectForm />} />
                 <Route path="/create-new-direction" element={<CreateDirectionForm />} />
                 <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />

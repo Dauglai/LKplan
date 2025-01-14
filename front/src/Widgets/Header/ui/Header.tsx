@@ -9,6 +9,7 @@ import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { logOut } from 'Features/Auth/model/authSlice';
 import SidebarMenu from 'Widgets/Sidebar/SidebarMenu';
+import { apiSlice } from 'App/api/apiSlice';
 
 export default function Header(): JSX.Element {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -33,6 +34,7 @@ export default function Header(): JSX.Element {
   };
 
   const handleLogout = () => {
+    dispatch(apiSlice.util.resetApiState());
     dispatch(logOut());
     navigate('/login');
   };

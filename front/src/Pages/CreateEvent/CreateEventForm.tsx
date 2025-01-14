@@ -27,11 +27,22 @@ export default function CreateEventForm(): JSX.Element {
     statuses: [] as number[],
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewEvent((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleTextAtea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+
+    setNewEvent((prev) => ({
+      ...prev,
+      [textarea.name]: textarea.value,
     }));
   };
 
@@ -103,7 +114,7 @@ export default function CreateEventForm(): JSX.Element {
           <textarea
             name="description"
             value={newEvent.description}
-            onChange={handleInputChange}
+            onChange={handleTextAtea}
             placeholder="Описание мероприятия"
             className='CreateDescription FormField'
           />

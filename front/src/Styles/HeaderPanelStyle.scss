@@ -1,19 +1,19 @@
-@import '../../../Styles/mixins';
-@import '../../../Styles/variables';
+@import 'Styles/mixins';
+@import 'Styles/variables';
 
-.RequestHeaderPanel {
+.HeaderPanel {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     gap: 56px;
-    width: 1160px;
-    margin: 0 auto 68px auto;
+    width: 100%;
+    margin: 0 auto 24px auto;
 
     .LeftHeaderPanel {
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        gap: 12px;
+        gap: 4px;
 
         .lfp-btn {
             border: none;
@@ -23,13 +23,32 @@
             background: none;
     
             cursor: pointer;
+
+            &.AddButton {
+                padding: 4px;
+                background-color: $orange;
+                border-radius: $border-radius;
+                box-sizing: content-box;
+            }
+
+            &:active {
+                opacity: 0.7;
+            }
         }
     
-        .RequestsTitle {
+        .HeaderPanelTitle {
             @include h2;
             margin-right: 12px;
         }
     }
+
+    .RightHeaderPanel {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 24px;
+    }
+
 
     .SearchInputWrapper {
         position: relative;
@@ -63,6 +82,29 @@
             position: absolute;
             top: -14px;
             left: 4px;
+        }
+    }
+
+    .SortButton {
+        @include text1;
+        display: flex;
+
+        cursor: pointer;
+
+        .SortIcons {
+            
+            display: flex;
+            align-items: center;
+            margin-left: 4px;
+          
+            .SortIcon {
+                display: none;
+                transition: ease 0.2s;
+            
+                &.active {
+                    display: block;
+                }
+            }
         }
     }
 

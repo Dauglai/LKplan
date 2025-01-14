@@ -1,13 +1,20 @@
 import { Event } from "Features/ApiSlices/eventSlice";
+import 'Styles/ListTableStyles.scss';
+import { useState } from "react";
 
 interface EventsTableProps {
   events: Event[];
   onDelete: (id: number) => void;
 }
 
-export default function EventsListTable({ events, onDelete }: EventsTableProps): JSX.Element {
+export default function EventsListTable({ events, onDelete, onEdit }: EventsTableProps): JSX.Element {
+
+  if (events.length == 0) {
+    return <span className="NullMessage">Мероприятия не найдены</span>
+  }
+
   return (
-    <table className="events-table">
+    <table className="EventsListTable ListTable">
       <thead>
         <tr>
           <th>Название</th>
@@ -15,17 +22,17 @@ export default function EventsListTable({ events, onDelete }: EventsTableProps):
           <th>Дата окончания</th>
           <th>Организатор</th>
           <th>Статус</th>
-          <th>Действия</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         {events.map((event) => (
           <tr key={event.id}>
             <td>{event.name}</td>
-            <td>{event.start ? new Date(event.start).toLocaleDateString() : "-"}</td>
-            <td>{event.end ? new Date(event.end).toLocaleDateString() : "-"}</td>
+            <td><span className="HiglightCell">{event.start ? new Date(event.start).toLocaleDateString() : "-"}</span></td>
+            <td><span className="HiglightCell">{event.end ? new Date(event.end).toLocaleDateString() : "-"}</span></td>
             <td>{event.creator}</td>
-            <td>{event.stage}</td>
+            <td><span className="HiglightCell">{event.stage}</span></td>
             <td>
               <button onClick={() => onDelete(event.id)}>Удалить</button>
             </td>

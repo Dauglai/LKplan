@@ -30,6 +30,16 @@ body.no-scroll {
   }
 }
 
+.ArrowLeft {
+  transform: rotate(90deg);
+}
+
+.ArrowUp {
+  transform: rotate(180deg);
+}
+
+
+
 .ant-form-item-label {
   padding: 0 !important; /* Убираем внутренние отступы у лейбла */
 }

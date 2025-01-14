@@ -22,7 +22,6 @@ import { StudentReq } from 'Pages/StudentReq/index.ts';
 import Tasks from 'Pages/Tasks/Tasks.tsx';
 import { ConfigProvider } from 'antd';
 import EventsManagement from 'Pages/EventsList/EventsManagement.tsx';
-import AdminPage from 'Pages/Admin/AdminPage.tsx';
 import CreateDirectionForm from 'Pages/CreareDirection/CreateDirectionForm.tsx';
 import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializationForm.tsx'
 import CreateStatusAppForm from 'Pages/CreateStatusApp/CreateStatusAppForm.tsx';
@@ -51,17 +50,15 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/StudReq/:uId" element={<StudentReq />} />
                 <Route path="/" element={<RequireAuth />}>
                   <Route path="/profile" element={<Profile />} />
-                  <Route path="/admin" element={<AdminPage />} />
+                  <Route path="/requests-list" element={<RequestsManagement />} />
+                  <Route path="/tasks" element={<Tasks />} />
+                  <Route path="/create-new-event" element={<CreateEventForm />} />
+                  <Route path="/events-list" element={<EventsManagement />} />
+                  <Route path="/create-new-project" element={<CreateProjectForm />} />
+                  <Route path="/create-new-direction" element={<CreateDirectionForm />} />
+                  <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
+                  <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
                 </Route>
-                <Route path="/requests-list" element={<RequestsManagement />} />
-                <Route path="/tasks" element={<Tasks />} />
-                <Route path="/create-new-event" element={<CreateEventForm />} />
-                <Route path="/events-list" element={<EventsManagement />} />
-                <Route path="/create-new-project" element={<CreateProjectForm />} />
-                <Route path="/create-new-direction" element={<CreateDirectionForm />} />
-                <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
-                <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
-                
             </Route>
             </Routes>
           </BrowserRouter>

@@ -14,44 +14,46 @@
   position: absolute;
   top: 16px;
   padding: 0 20px;
-}
 
-.HeaderLeft,
-.HeaderCenter,
-.HeaderRight {
-  display: flex;
-  align-items: center;
-}
-
-.HeaderCenter {
-  justify-content: center;
-  flex: 1;
-}
-
-.BurgerMenuIcon {
-  cursor: pointer;
-}
-
-.HeaderRight {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.UserInfo {
-  @include text1;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  color: $black;
-
-  cursor: pointer;
-  &:hover {
-    opacity: 0.7;
+  .HeaderLeft,
+  .HeaderCenter,
+  .HeaderRight {
+    display: flex;
+    align-items: center;
   }
-}
 
-.LogoutButton {
-  @include primary-btn;
+  .HeaderLeft {
+    .BurgerMenuIcon {
+      cursor: pointer;
+    }
+  }
+
+  .HeaderCenter {
+    justify-content: center;
+    flex: 1;
+  }
+
+  .HeaderRight {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .UserInfo {
+      @include text1;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    
+      color: $black;
+    
+      cursor: pointer;
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+    
+    .LogoutButton {
+      @include primary-btn;
+    }
+  }
 }

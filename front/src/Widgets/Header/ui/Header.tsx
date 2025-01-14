@@ -8,9 +8,11 @@ import { useDispatch } from 'react-redux';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { logOut } from 'Features/Auth/model/authSlice';
+import SidebarMenu from 'Widgets/Sidebar/SidebarMenu';
 
 export default function Header(): JSX.Element {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,6 +22,10 @@ export default function Header(): JSX.Element {
   const { data: user } = useGetUserQuery(undefined, {
     skip: isAuthPage,
   });
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
 
   const handleProfileClick = () => {
     setIsProfileOpen(!isProfileOpen);
@@ -32,6 +38,7 @@ export default function Header(): JSX.Element {
   };
 
   return (
+    <>
     <div className="GlobalHeader">
       {!isAuthPage && (
         <div className="HeaderLeft">
@@ -39,8 +46,10 @@ export default function Header(): JSX.Element {
             className="BurgerMenuIcon"
             width="24"
             height="24"
-            strokeWidth="1.5"/>
-      </div>)}
+            strokeWidth="1.5"
+            onClick={toggleSidebar}/>
+            </div>
+          )}
       <div className="HeaderCenter">
         <LogoIcon />
       </div>
@@ -59,5 +68,7 @@ export default function Header(): JSX.Element {
         </button>
       </div>)}
     </div>
+    <SidebarMenu isOpen={isSidebarOpen} onClose={toggleSidebar} />
+    </>
   );
 }

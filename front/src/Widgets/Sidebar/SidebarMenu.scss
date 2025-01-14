@@ -1,0 +1,76 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.Sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background-color: $white;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    &.open {
+        transform: translateX(0);
+    }
+
+    .SidebarHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+
+        h3 {
+            @include h3;
+            margin: 0;
+        }
+
+        .CloseButton {
+            cursor: pointer;
+        }
+    }
+
+    .SidebarContent {
+        .SidebarSection {
+            list-style: none;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            position: relative;
+
+            &::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                bottom: -6px;
+                width: 100%;
+                border-bottom: 1px solid $grey;
+            }
+        }
+
+        li {
+            @include text1;
+            padding: 6px;
+            display: flex;
+            justify-content: start;
+            gap: 8px;
+            align-items: center;
+
+            &.SidebarSectionTitle {
+                margin-bottom: 6px;
+            }
+
+            &:not(.SidebarSectionTitle) {
+                cursor: pointer;
+                transition: background-color 0.2s;
+    
+                &:hover {
+                    background-color: #f0f0f0;
+                }
+            }
+        }
+    }
+}

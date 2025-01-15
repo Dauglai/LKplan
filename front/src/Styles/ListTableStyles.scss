@@ -47,6 +47,10 @@
                     padding: 8px;
                     background-color: $blue;
                     border-radius: $border-radius;
+
+                    &.HighlightGray {
+                        background-color: $grey;
+                    }
                 }
 
                 &:first-child {

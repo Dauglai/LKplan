@@ -32,7 +32,13 @@ export default function EventsListTable({ events, onDelete, onEdit }: EventsTabl
             <td><span className="HiglightCell">{event.start ? new Date(event.start).toLocaleDateString() : "-"}</span></td>
             <td><span className="HiglightCell">{event.end ? new Date(event.end).toLocaleDateString() : "-"}</span></td>
             <td>{event.creator}</td>
-            <td><span className="HiglightCell">{event.stage}</span></td>
+            <td>
+              <span
+                className={`HiglightCell ${event.stage === 'Мероприятие завершено' ? 'HighlightGray' : ''}`}
+              >
+                {event.stage}
+              </span>
+            </td>
             <td>
               <button onClick={() => onDelete(event.id)}>Удалить</button>
             </td>

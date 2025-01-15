@@ -30,7 +30,7 @@ export default function EventsManagement(): JSX.Element {
 
   const handleDelete = async (id: number) => {
     await deleteEvent(id);
-    showNotification('Мероприятие успешно удалено!', "success")
+    showNotification('Мероприятие удалено', "success")
   };
 
   if (isLoading) return <div>Загрузка...</div>;

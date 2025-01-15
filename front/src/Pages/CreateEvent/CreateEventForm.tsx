@@ -3,6 +3,7 @@ import { useCreateEventMutation } from 'Features/ApiSlices/eventSlice';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import SpecializationSelector from 'Widgets/fields/SpecializationSelector';
 import StatusAppSelector from 'Widgets/fields/StatusAppSelector';
+import StageSelector from 'Widgets/fields/StageSelector';
 import SubmitButtons from 'Widgets/buttons/SubmitButtons';
 import './CreateEventForm.scss';
 import 'Styles/CreateFormStyle.scss';
@@ -57,6 +58,13 @@ export default function CreateEventForm(): JSX.Element {
     setNewEvent((prev) => ({
       ...prev,
       statuses: selected,
+    }));
+  };
+
+  const handleStageChange = (selected: string) => {
+    setNewEvent((prev) => ({
+      ...prev,
+      stage: selected,
     }));
   };
 
@@ -157,13 +165,10 @@ export default function CreateEventForm(): JSX.Element {
             placeholder="Дата окончания"
             className='FormField'
           />
-          <input
-            type="text"
-            name="stage"
-            value={newEvent.stage}
-            onChange={handleInputChange}
-            placeholder="Этап мероприятия"
-            className='FormField'
+
+          <StageSelector
+            selectedStage={newEvent.stage}
+            onChange={handleStageChange}
           />
         </div>
         <SubmitButtons label="Создать" />

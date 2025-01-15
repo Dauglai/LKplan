@@ -27,9 +27,8 @@ export default function RequestsList({ onRequestSelect }: { onRequestSelect: (re
             <div className="RequestStatusName">{status.name}</div>
             {filteredRequests.length > 0 ? (
               filteredRequests.map((request) => {
-                // Ищем направление по id и отображаем название
                 const direction = directions?.find(d => d.id === request.direction);
-                // Ищем пользователя по id и отображаем имя
+                
                 return (
                   <div
                     key={request.id}

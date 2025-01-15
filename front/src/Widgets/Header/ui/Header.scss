@@ -2,58 +2,79 @@
 @import 'Styles/variables';
 @import 'Styles/buttons';
 
-.GlobalHeader {
+
+.HeaderContainer {
   width: 1160px;
   height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position: absolute;
+  top: 16px;
   border-radius: 10px;
   box-shadow: 0px 4px 20px 0px #b2b2b240;
   backdrop-filter: blur(4px);
-  position: absolute;
-  top: 16px;
-  padding: 0 20px;
+  left: 50%;
+  transform: translateX(-50%);
 
-  .HeaderLeft,
-  .HeaderCenter,
-  .HeaderRight {
+  .GlobalHeader {
     display: flex;
     align-items: center;
-  }
-
-  .HeaderLeft {
-    .BurgerMenuIcon {
-      cursor: pointer;
-    }
-  }
-
-  .HeaderCenter {
-    justify-content: center;
-    flex: 1;
-  }
-
-  .HeaderRight {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-
-    .UserInfo {
-      @include text1;
+    padding: 0 20px;
+    position: relative;
+    height: 100%;
+    width: 100%;
+  
+    .HeaderLeft,
+    .HeaderRight {
       display: flex;
       align-items: center;
-      gap: 4px;
-    
-      color: $black;
-    
-      cursor: pointer;
-      &:hover {
-        opacity: 0.7;
+      flex: 1;
+    }
+
+    .HeaderCenter {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  
+    .HeaderLeft {
+      .BurgerMenuIcon {
+        cursor: pointer;
       }
     }
-    
-    .LogoutButton {
-      @include primary-btn;
+  
+    .HeaderCenter {
+      justify-content: center;
+      flex: 1;
+    }
+  
+    .HeaderRight {
+      display: flex;
+      align-items: center;
+      justify-content: end;
+      gap: 20px;
+  
+      .UserInfo {
+        @include text1;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      
+        color: $black;
+      
+        cursor: pointer;
+        &:hover {
+          opacity: 0.7;
+        }
+      }
+      
+      .LogoutButton {
+        @include primary-btn;
+      }
+
+      .LoginButton,
+      .RegisterButton {
+        @include primary-btn;
+      }
+
     }
   }
 }

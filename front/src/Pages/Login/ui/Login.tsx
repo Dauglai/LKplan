@@ -4,7 +4,7 @@ import { Link, redirect, useNavigate } from 'react-router-dom';
 import './Login.scss';
 import { useLoginMutation } from 'Features/Auth/api/authApiSlice';
 import { useAppDispatch } from 'App/model/hooks';
-import { setCredentials } from 'Features/Auth/model/authSlice';
+import { setCredentials, logOut } from 'Features/Auth/model/authSlice';
 
 type Inputs = {
   login: string;
@@ -26,7 +26,7 @@ export default function Login(): JSX.Element {
       username: data.login,
       password: data.password,
     }).unwrap();
-    console.log(userData);
+    dispatch(logOut());
     dispatch(setCredentials(userData));
     localStorage.setItem('user', JSON.stringify(userData));
     navigate('/profile');

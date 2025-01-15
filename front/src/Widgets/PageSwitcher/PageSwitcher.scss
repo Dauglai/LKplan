@@ -1,0 +1,21 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.PageSwitcher {
+    display: flex;
+}
+
+.PageSwitcherButton {
+    @include text1;
+    padding: 8px;
+    
+    color: $black;
+    border-radius: 5px;
+    text-decoration: none;
+
+    cursor: pointer;
+
+    &.active {
+        background-color: $yellow;;
+    }
+}

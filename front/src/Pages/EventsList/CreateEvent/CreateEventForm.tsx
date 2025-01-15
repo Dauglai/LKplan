@@ -3,18 +3,18 @@ import { useCreateEventMutation } from 'Features/ApiSlices/eventSlice';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import SpecializationSelector from 'Widgets/fields/SpecializationSelector';
 import StatusAppSelector from 'Widgets/fields/StatusAppSelector';
+import StageSelector from 'Widgets/fields/StageSelector';
 import SubmitButtons from 'Widgets/buttons/SubmitButtons';
 import './CreateEventForm.scss';
 import 'Styles/CreateFormStyle.scss';
 import LinkIcon from 'assets/icons/link.svg?react';
+import CloseIcon from 'assets/icons/close.svg?react';
 import { useNotification } from 'Widgets/Notification/Notification';
-import { useNavigate } from 'react-router-dom';
 
-export default function CreateEventForm(): JSX.Element {
+export default function CreateEventForm({ closeModal }: { closeModal: () => void }): JSX.Element {
   const { data: user } = useGetUserQuery();
   const [createEvent] = useCreateEventMutation();
   const { showNotification } = useNotification();
-  const navigate = useNavigate();
 
   const [newEvent, setNewEvent] = useState({
     name: '',
@@ -27,11 +27,22 @@ export default function CreateEventForm(): JSX.Element {
     statuses: [] as number[],
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewEvent((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleTextAtea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+
+    setNewEvent((prev) => ({
+      ...prev,
+      [textarea.name]: textarea.value,
     }));
   };
 
@@ -40,12 +51,21 @@ export default function CreateEventForm(): JSX.Element {
       ...prev,
       specializations: selected,
     }));
+
+    console.log(selected)
   };
 
   const handleStatusesChange = (selected: number[]) => {
     setNewEvent((prev) => ({
       ...prev,
       statuses: selected,
+    }));
+  };
+
+  const handleStageChange = (selected: string) => {
+    setNewEvent((prev) => ({
+      ...prev,
+      stage: selected,
     }));
   };
 
@@ -66,7 +86,6 @@ export default function CreateEventForm(): JSX.Element {
     };
 
     try {
-      console.log(eventData);
       await createEvent(eventData).unwrap();
       setNewEvent({
         name: '',
@@ -79,7 +98,7 @@ export default function CreateEventForm(): JSX.Element {
         statuses: [],
       });
       showNotification('Мероприятие создано!', 'success');
-      navigate('/events-list');
+      closeModal();
     } catch (error) {
       console.error('Ошибка при создании мероприятия:', error);
       showNotification(`Ошибка при создании мероприятия: ${error.status} ${error.data.stage}`, 'error');
@@ -89,7 +108,10 @@ export default function CreateEventForm(): JSX.Element {
   return (
     <div className="CreateFormContainer">
       <form className="CreateEventForm CreateForm" onSubmit={handleSubmit}>
-        <h2>Добавление мероприятия</h2>
+        <div className="ModalFormHeader">
+          <h2>Добавление мероприятия</h2>
+          <CloseIcon width="24" height="24" strokeWidth="1" onClick={closeModal} className="ModalCloseButton"/>
+        </div>
         <div className="CreateNameContainer">
           <input
             type="text"
@@ -103,7 +125,7 @@ export default function CreateEventForm(): JSX.Element {
           <textarea
             name="description"
             value={newEvent.description}
-            onChange={handleInputChange}
+            onChange={handleTextAtea}
             placeholder="Описание мероприятия"
             className='CreateDescription FormField'
           />
@@ -146,13 +168,10 @@ export default function CreateEventForm(): JSX.Element {
             placeholder="Дата окончания"
             className='FormField'
           />
-          <input
-            type="text"
-            name="stage"
-            value={newEvent.stage}
-            onChange={handleInputChange}
-            placeholder="Этап мероприятия"
-            className='FormField'
+
+          <StageSelector
+            selectedStage={newEvent.stage}
+            onChange={handleStageChange}
           />
         </div>
         <SubmitButtons label="Создать" />

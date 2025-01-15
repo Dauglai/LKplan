@@ -1,14 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PlusIcon from 'assets/icons/plus.svg?react';
 import SearchIcon from 'assets/icons/search.svg?react';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
-import CreateEventForm from "./CreateEvent/CreateEventForm";
+import CreateProjectForm from "./CreateProject/CreateProjectForm";
 import Modal from "Widgets/Modal/Modal";
 
-interface EventsHeaderProps {
+interface ProjectsHeaderProps {
   onSearch: (search: string) => void;
   onSort: (order: "asc" | "desc") => void;
 }
@@ -18,7 +19,8 @@ const pageOptions = [
   { label: 'Проекты', link: '/projects-list' },
 ];
 
-export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProps): JSX.Element {
+export default function ProjectsHeaderPanel({ onSearch, onSort }: ProjectsHeaderProps): JSX.Element {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -37,12 +39,12 @@ export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProp
   const handleBlur = () => setIsFocused(false);
 
   return (
-    <header className="EventsHeaderPanel HeaderPanel">
+    <header className="ProjectsHeaderPanel HeaderPanel">
       <div className="LeftHeaderPanel">
         <button className="BackButton lfp-btn">
           <ChevronRightIcon width="32" height="32" strokeWidth="2" className="ChevronLeft"/>
         </button>
-        <h2 className="HeaderPanelTitle">Мероприятия</h2>
+        <h2 className="HeaderPanelTitle">Проекты</h2>
         <PlusIcon 
           width="18" 
           height="18" 
@@ -53,7 +55,7 @@ export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProp
       </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <CreateEventForm closeModal={closeModal}/>
+        <CreateProjectForm closeModal={closeModal}/>
       </Modal>
       
       <div className="RightHeaderPanel">
@@ -98,4 +100,3 @@ export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProp
     </header>
   );
 };
-

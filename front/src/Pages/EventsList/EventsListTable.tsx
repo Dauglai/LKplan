@@ -1,13 +1,50 @@
 import { Event } from "Features/ApiSlices/eventSlice";
+import 'Styles/ListTableStyles.scss';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from "react-router-dom";
+
 
 interface EventsTableProps {
   events: Event[];
   onDelete: (id: number) => void;
 }
 
-export default function EventsListTable({ events, onDelete }: EventsTableProps): JSX.Element {
+export default function EventsListTable({ events, onDelete, onEdit }: EventsTableProps): JSX.Element {
+  const navigate = useNavigate();
+  const [openMenu, setOpenMenu] = useState<number | null>(null); 
+  const menuRef = useRef<HTMLUListElement | null>(null); 
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleMenu = (id: number) => {
+    setOpenMenu(openMenu === id ? null : id);
+  };
+
+  const handleDelete = (id: number) => {
+    onDelete(id);
+    setOpenMenu(null);
+  };
+
+  const handleEdit = (id: number) => {
+    onEdit(id);
+    setOpenMenu(null);
+  };
+
+  if (events.length == 0) {
+    return <span className="NullMessage">Мероприятия не найдены</span>
+  }
+
   return (
-    <table className="events-table">
+    <table className="EventsListTable ListTable">
       <thead>
         <tr>
           <th>Название</th>
@@ -15,19 +52,35 @@ export default function EventsListTable({ events, onDelete }: EventsTableProps):
           <th>Дата окончания</th>
           <th>Организатор</th>
           <th>Статус</th>
-          <th>Действия</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         {events.map((event) => (
           <tr key={event.id}>
-            <td>{event.name}</td>
-            <td>{event.start ? new Date(event.start).toLocaleDateString() : "-"}</td>
-            <td>{event.end ? new Date(event.end).toLocaleDateString() : "-"}</td>
+            <td><Link to={`/event/${event.id}`} className="LinkCell">{event.name}</Link>
+            </td>
+            <td><span className="HiglightCell">{event.start ? new Date(event.start).toLocaleDateString() : "-"}</span></td>
+            <td><span className="HiglightCell">{event.end ? new Date(event.end).toLocaleDateString() : "-"}</span></td>
             <td>{event.creator}</td>
-            <td>{event.stage}</td>
             <td>
-              <button onClick={() => onDelete(event.id)}>Удалить</button>
+              <span
+                className={`HiglightCell ${event.stage === 'Мероприятие завершено' ? 'HighlightGray' : ''}`}
+              >
+                {event.stage}
+              </span>
+            </td>
+            <td>
+              <div onClick={() => toggleMenu(event.id)} className="ThreeDotsButton">
+                &#8230;
+              </div>
+              {openMenu === event.id && (
+                <ul ref={menuRef} className="ActionsMenu">
+                  <li onClick={() => navigate(`/event/${event.id}`)}>Подробнее</li>
+                  <li onClick={() => handleEdit(event.id)}>Редактировать</li>
+                  <li onClick={() => handleDelete(event.id)}>Удалить</li>
+                </ul>
+              )}
             </td>
           </tr>
         ))}

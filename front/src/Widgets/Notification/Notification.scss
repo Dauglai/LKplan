@@ -1,3 +1,6 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
 .Notification {
   position: fixed;
   top: 20px;
@@ -5,20 +8,20 @@
   padding: 10px 20px;
   border-radius: 5px;
   font-size: 16px;
-  color: #fff;
-  z-index: 1000;
+  color: $black;
+  z-index: 1001;
   animation: fadeIn 0.3s ease-in-out, fadeOut 0.3s ease-in-out 2.7s;
 
   &-success {
-    background-color: #4caf50;
+    background-color: $green;
   }
 
   &-error {
-    background-color: #f44336;
+    background-color: $pink;
   }
 
   &-info {
-    background-color: #2196f3;
+    background-color: $blue;
   }
 }
 

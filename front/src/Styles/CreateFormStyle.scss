@@ -2,9 +2,14 @@
 @import 'Styles/variables';
 
 .CreateFormContainer {
-    width: 800px;
     display: relative;
+    padding: 24px 32px;
+    
+    border-radius: $border-radius;
+    background-color: $white;
 }
+
+
 
 .FormField {
   @include text2;
@@ -29,6 +34,16 @@
     flex-direction: column;
     gap: 16px;
     width: 596px;
+
+    .ModalFormHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .ModalCloseButton {
+        cursor: pointer;
+      }
+    }
 
     .CreateNameContainer {
       width: 100%;

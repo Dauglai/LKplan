@@ -1,4 +1,5 @@
 import 'Styles/ListTableStyles.scss';
+import { useState, useEffect, useRef } from 'react';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
@@ -13,6 +14,34 @@ export default function ProjectsListTable({ projects, onEdit }: ProjectsTablePro
   const { data: directions, isLoading: isLoadingDirections } = useGetDirectionsQuery();
   const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
   const { data: teams, isLoading: isLoadingTeams } = useGetTeamsQuery();
+
+const [openMenu, setOpenMenu] = useState<number | null>(null); 
+  const menuRef = useRef<HTMLUListElement | null>(null); 
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleMenu = (id: number) => {
+    setOpenMenu(openMenu === id ? null : id);
+  };
+
+  const handleDelete = (id: number) => {
+    onDelete(id);
+    setOpenMenu(null);
+  };
+
+  const handleEdit = (id: number) => {
+    onEdit(id);
+    setOpenMenu(null);
+  };
 
   if (isLoadingDirections || isLoadingEvents || isLoadingTeams) {
     return <span>Загрузка...</span>;
@@ -52,7 +81,14 @@ export default function ProjectsListTable({ projects, onEdit }: ProjectsTablePro
             <td>{project.curators.map(curator => `${curator}`).join(', ')}</td>
             <td>{getTeamsCount(project.id)}</td>
             <td>
-              <button onClick={() => onEdit(project.id)}>Редактировать</button>
+              <div onClick={() => toggleMenu(project.id)} className="ThreeDotsButton">
+                &#8230;
+              </div>
+              {openMenu === project.id && (
+                <ul ref={menuRef} className="ActionsMenu">
+                  <li onClick={() => handleEdit(project.id)}>Редактировать</li>
+                </ul>
+              )}
             </td>
           </tr>
         ))}

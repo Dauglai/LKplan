@@ -8,14 +8,13 @@ import SubmitButtons from 'Widgets/buttons/SubmitButtons';
 import './CreateEventForm.scss';
 import 'Styles/CreateFormStyle.scss';
 import LinkIcon from 'assets/icons/link.svg?react';
+import CloseIcon from 'assets/icons/close.svg?react';
 import { useNotification } from 'Widgets/Notification/Notification';
-import { useNavigate } from 'react-router-dom';
 
-export default function CreateEventForm(): JSX.Element {
+export default function CreateEventForm({ closeModal }: { closeModal: () => void }): JSX.Element {
   const { data: user } = useGetUserQuery();
   const [createEvent] = useCreateEventMutation();
   const { showNotification } = useNotification();
-  const navigate = useNavigate();
 
   const [newEvent, setNewEvent] = useState({
     name: '',
@@ -98,7 +97,7 @@ export default function CreateEventForm(): JSX.Element {
         statuses: [],
       });
       showNotification('Мероприятие создано!', 'success');
-      navigate('/events-list');
+      closeModal();
     } catch (error) {
       console.error('Ошибка при создании мероприятия:', error);
       showNotification(`Ошибка при создании мероприятия: ${error.status} ${error.data.stage}`, 'error');
@@ -108,7 +107,10 @@ export default function CreateEventForm(): JSX.Element {
   return (
     <div className="CreateFormContainer">
       <form className="CreateEventForm CreateForm" onSubmit={handleSubmit}>
-        <h2>Добавление мероприятия</h2>
+        <div className="ModalFormHeader">
+          <h2>Добавление мероприятия</h2>
+          <CloseIcon width="24" height="24" strokeWidth="1" onClick={closeModal} className="ModalCloseButton"/>
+        </div>
         <div className="CreateNameContainer">
           <input
             type="text"

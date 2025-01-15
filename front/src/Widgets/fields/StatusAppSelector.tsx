@@ -35,7 +35,7 @@ export default function StatusAppSelector({
   }
 
   return (
-    <div className="StatusAppSelector">
+    <div className="StatusAppSelector SelectorContainer">
       <div
         className="ListField FormField"
         onClick={() => setIsOpen(prev => !prev)}

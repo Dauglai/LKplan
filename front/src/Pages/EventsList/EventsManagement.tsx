@@ -33,13 +33,15 @@ export default function EventsManagement(): JSX.Element {
     showNotification('Мероприятие удалено', "success")
   };
 
+  
+
   if (isLoading) return <div>Загрузка...</div>;
 
   console.log(filteredEvents);
 
   return (
     <div className="EventsContainer ListTableContainer">
-      <EventsHeaderPanel onSearch={handleSearch} onSort={handleSort} />
+      <EventsHeaderPanel onSearch={handleSearch} onSort={handleSort}/>
       <EventsListTable events={filteredEvents} onDelete={handleDelete} />
     </div>
   );

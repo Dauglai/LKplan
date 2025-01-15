@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import PlusIcon from 'assets/icons/plus.svg?react';
 import SearchIcon from 'assets/icons/search.svg?react';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
+import CreateEventForm from "./CreateEvent/CreateEventForm";
+import Modal from "Widgets/Modal/Modal";
 
 interface EventsHeaderProps {
   onSearch: (search: string) => void;
@@ -18,10 +19,13 @@ const pageOptions = [
 ];
 
 export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProps): JSX.Element {
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   const toggleSortDirection = () => {
     const newDirection = sortDirection === "asc" ? "desc" : "asc";
@@ -43,10 +47,14 @@ export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProp
           width="18" 
           height="18" 
           strokeWidth="1"
-          onClick={() => navigate("/create-new-event")}
+          onClick={openModal}
           className="AddButton lfp-btn"
         />
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <CreateEventForm closeModal={closeModal}/>
+      </Modal>
       
       <div className="RightHeaderPanel">
         <div className="SortButton rght-btn" onClick={toggleSortDirection}>

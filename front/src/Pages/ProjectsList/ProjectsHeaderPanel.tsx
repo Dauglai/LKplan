@@ -6,6 +6,8 @@ import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
+import CreateProjectForm from "./CreateProject/CreateProjectForm";
+import Modal from "Widgets/Modal/Modal";
 
 interface ProjectsHeaderProps {
   onSearch: (search: string) => void;
@@ -22,6 +24,10 @@ export default function ProjectsHeaderPanel({ onSearch, onSort }: ProjectsHeader
   const [search, setSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   const toggleSortDirection = () => {
     const newDirection = sortDirection === "asc" ? "desc" : "asc";
@@ -43,10 +49,14 @@ export default function ProjectsHeaderPanel({ onSearch, onSort }: ProjectsHeader
           width="18" 
           height="18" 
           strokeWidth="1"
-          onClick={() => navigate("/create-new-project")}
+          onClick={openModal}
           className="AddButton lfp-btn"
         />
       </div>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <CreateProjectForm closeModal={closeModal}/>
+      </Modal>
       
       <div className="RightHeaderPanel">
         <div className="SortButton rght-btn" onClick={toggleSortDirection}>

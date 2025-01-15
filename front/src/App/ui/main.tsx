@@ -16,8 +16,6 @@ import Login from 'Pages/Login/ui/Login.tsx';
 import Register from 'Pages/Register/ui/Register.tsx';
 import Profile from 'Pages/Profile/ui/Profile.tsx';
 import RequestsManagement from 'Pages/Requests/ui/RequestsManagement.tsx';
-import CreateEventForm from 'Pages/CreateEvent/CreateEventForm.tsx';
-import CreateProjectForm from 'Pages/CreateProject/CreateProjectForm.tsx'
 import { StudentReq } from 'Pages/StudentReq/index.ts';
 import Tasks from 'Pages/Tasks/Tasks.tsx';
 import { ConfigProvider } from 'antd';
@@ -53,10 +51,8 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/requests-list" element={<RequestsManagement />} />
                   <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/create-new-event" element={<CreateEventForm />} />
                   <Route path="/events-list" element={<EventsManagement />} />
                   <Route path="/projects-list" element={<ProjectsManagement />} />
-                  <Route path="/create-new-project" element={<CreateProjectForm />} />
                   <Route path="/create-new-direction" element={<CreateDirectionForm />} />
                   <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
                   <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />

@@ -1,5 +1,7 @@
 import { Event } from "Features/ApiSlices/eventSlice";
 import 'Styles/ListTableStyles.scss';
+import { useState, useEffect, useRef } from 'react';
+
 
 interface EventsTableProps {
   events: Event[];
@@ -7,6 +9,34 @@ interface EventsTableProps {
 }
 
 export default function EventsListTable({ events, onDelete, onEdit }: EventsTableProps): JSX.Element {
+
+  const [openMenu, setOpenMenu] = useState<number | null>(null); 
+  const menuRef = useRef<HTMLUListElement | null>(null); 
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleMenu = (id: number) => {
+    setOpenMenu(openMenu === id ? null : id);
+  };
+
+  const handleDelete = (id: number) => {
+    onDelete(id);
+    setOpenMenu(null);
+  };
+
+  const handleEdit = (id: number) => {
+    onEdit(id);
+    setOpenMenu(null);
+  };
 
   if (events.length == 0) {
     return <span className="NullMessage">Мероприятия не найдены</span>
@@ -39,7 +69,15 @@ export default function EventsListTable({ events, onDelete, onEdit }: EventsTabl
               </span>
             </td>
             <td>
-              <button onClick={() => onDelete(event.id)}>Удалить</button>
+              <div onClick={() => toggleMenu(event.id)} className="ThreeDotsButton">
+                &#8230;
+              </div>
+              {openMenu === event.id && (
+                <ul ref={menuRef} className="ActionsMenu">
+                  <li onClick={() => handleDelete(event.id)}>Удалить</li>
+                  <li onClick={() => handleEdit(event.id)}>Редактировать</li>
+                </ul>
+              )}
             </td>
           </tr>
         ))}

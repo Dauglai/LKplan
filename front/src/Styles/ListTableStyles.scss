@@ -33,7 +33,6 @@
             tr {
                 background-color: $white;
                 position: relative;
-                z-index: 1;
     
                 &:not(:last-child) {
                     margin-bottom: 12px;
@@ -44,6 +43,8 @@
     
                     &:not(:first-child, :last-child) {
                         text-align: center;
+                        border-top: 1px solid $yellow;
+                        border-bottom: 1px solid $yellow;
                     }
     
                     .HiglightCell {
@@ -59,22 +60,18 @@
     
                     &:first-child {
                         border-radius: $border-radius 0 0 $border-radius;
+                        border: 1px solid $yellow;
+                        border-right: none;
+
+                        max-width: 300px;
                     }
     
                     &:last-child {
                         border-radius: 0 $border-radius $border-radius 0;
-                    }
-    
-                    &::before {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        z-index: -1;
                         border: 1px solid $yellow;
-                        border-radius: $border-radius;
+                        border-left: none;
+
+                        max-width: 40px;
                     }
     
                     .ThreeDotsButton {
@@ -88,8 +85,8 @@
                         border: 1px solid $grey2;
                         border-radius: $border-radius;
                         padding: 4px;
-                        top: 20px;
-                        right: 0;
+                        top: 10px;
+                        right: 40px;
                         z-index: 10;
                         list-style: none;
                       

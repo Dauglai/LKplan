@@ -15,6 +15,7 @@ export default function SpecializationSelector({
   onChange,
 }: SpecializationSelectorProps): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
+  
 
   const { data: allSpecializations, isLoading } = useGetSpecializationsQuery();
 
@@ -35,7 +36,7 @@ export default function SpecializationSelector({
   }
 
   return (
-    <div className="SpecializationSelector">
+    <div className="SpecializationSelector SelectorContainer">
       <div
         className="ListField FormField"
         onClick={() => setIsOpen(prev => !prev)}

@@ -2,7 +2,6 @@
 @import 'Styles/variables';
 
 .CreateEventForm {
-    @include backgroundWithBefore(-16px, -54px, 16px, 720px, 720px);
 
     .LinkField {
       .LinkInput {

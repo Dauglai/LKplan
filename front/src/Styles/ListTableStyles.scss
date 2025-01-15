@@ -1,116 +1,121 @@
 @import 'Styles/mixins';
 @import 'Styles/variables';
 
-.ListTable {
-    @include text1;
-    width: 100%;
-    padding: 0px 8px;
 
-    border-radius: $border-radius;
-    background-color: $grey3;
-    border-collapse: separate;
-    border-spacing: 0 8px;
+.ListTableContainer {
+    width: 1160px;
 
-
-    thead {
-        tr {
-            th {
-                padding: 8px;
-                font-weight: normal;
-
-                &:first-child {
-                    text-align: start;
-                }
-            }
-        }
-    }
-
-    tbody {
-        tr {
-            background-color: $white;
-            position: relative;
-            z-index: 1;
-
-            &:not(:last-child) {
-                margin-bottom: 12px;
-            }
-
-            td {
-                padding: 12px;
-
-                &:not(:first-child, :last-child) {
-                    text-align: center;
-                }
-
-                .HiglightCell {
-                    @include text2;
+    .ListTable {
+        @include text1;
+        width: 100%;
+        padding: 0px 8px;
+    
+        border-radius: $border-radius;
+        background-color: $grey3;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    
+    
+        thead {
+            tr {
+                th {
                     padding: 8px;
-                    background-color: $blue;
-                    border-radius: $border-radius;
-
-                    &.HighlightGray {
-                        background-color: $grey;
+                    font-weight: normal;
+    
+                    &:first-child {
+                        text-align: start;
                     }
                 }
-
-                &:first-child {
-                    border-radius: $border-radius 0 0 $border-radius;
+            }
+        }
+    
+        tbody {
+            tr {
+                background-color: $white;
+                position: relative;
+                z-index: 1;
+    
+                &:not(:last-child) {
+                    margin-bottom: 12px;
                 }
-
-                &:last-child {
-                    border-radius: 0 $border-radius $border-radius 0;
-                }
-
-                &::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    z-index: -1;
-                    border: 1px solid $yellow;
-                    border-radius: $border-radius;
-                }
-
-                .ThreeDotsButton {
-                    cursor: pointer;
-                }
-                  
-                .ActionsMenu {
-                    @include text2;
-                    position: absolute;
-                    background-color: $white;
-                    border: 1px solid $grey2;
-                    border-radius: $border-radius;
-                    padding: 4px;
-                    top: 20px;
-                    right: 0;
-                    z-index: 10;
-                    list-style: none;
-                  
-                    li {
-                      padding: 8px 12px;
-                      width: 100%;
-
-                      border-radius: $border-radius;
-                      cursor: pointer;
-                  
-                      &:hover {
-                        background-color: $yellow;
-                      }
+    
+                td {
+                    padding: 12px;
+    
+                    &:not(:first-child, :last-child) {
+                        text-align: center;
                     }
+    
+                    .HiglightCell {
+                        @include text2;
+                        padding: 8px;
+                        background-color: $blue;
+                        border-radius: $border-radius;
+    
+                        &.HighlightGray {
+                            background-color: $grey;
+                        }
+                    }
+    
+                    &:first-child {
+                        border-radius: $border-radius 0 0 $border-radius;
+                    }
+    
+                    &:last-child {
+                        border-radius: 0 $border-radius $border-radius 0;
+                    }
+    
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        z-index: -1;
+                        border: 1px solid $yellow;
+                        border-radius: $border-radius;
+                    }
+    
+                    .ThreeDotsButton {
+                        cursor: pointer;
+                    }
+                      
+                    .ActionsMenu {
+                        @include text2;
+                        position: absolute;
+                        background-color: $white;
+                        border: 1px solid $grey2;
+                        border-radius: $border-radius;
+                        padding: 4px;
+                        top: 20px;
+                        right: 0;
+                        z-index: 10;
+                        list-style: none;
+                      
+                        li {
+                          padding: 8px 12px;
+                          width: 100%;
+    
+                          border-radius: $border-radius;
+                          cursor: pointer;
+                      
+                          &:hover {
+                            background-color: $yellow;
+                          }
+                        }
+                    }
+                      
                 }
-                  
             }
         }
     }
-}
-
-.NullMessage {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+    
+    .NullMessage {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
 }
   

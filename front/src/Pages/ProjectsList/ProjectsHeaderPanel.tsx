@@ -7,7 +7,7 @@ import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
 
-interface EventsHeaderProps {
+interface ProjectsHeaderProps {
   onSearch: (search: string) => void;
   onSort: (order: "asc" | "desc") => void;
 }
@@ -17,7 +17,7 @@ const pageOptions = [
   { label: 'Проекты', link: '/projects-list' },
 ];
 
-export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProps): JSX.Element {
+export default function ProjectsHeaderPanel({ onSearch, onSort }: ProjectsHeaderProps): JSX.Element {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -33,17 +33,17 @@ export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProp
   const handleBlur = () => setIsFocused(false);
 
   return (
-    <header className="EventsHeaderPanel HeaderPanel">
+    <header className="ProjectsHeaderPanel HeaderPanel">
       <div className="LeftHeaderPanel">
         <button className="BackButton lfp-btn">
           <ChevronRightIcon width="32" height="32" strokeWidth="2" className="ChevronLeft"/>
         </button>
-        <h2 className="HeaderPanelTitle">Мероприятия</h2>
+        <h2 className="HeaderPanelTitle">Проекты</h2>
         <PlusIcon 
           width="18" 
           height="18" 
           strokeWidth="1"
-          onClick={() => navigate("/create-new-event")}
+          onClick={() => navigate("/create-new-project")}
           className="AddButton lfp-btn"
         />
       </div>
@@ -90,4 +90,3 @@ export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProp
     </header>
   );
 };
-

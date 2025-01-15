@@ -1,6 +1,5 @@
 import { Event } from "Features/ApiSlices/eventSlice";
 import 'Styles/ListTableStyles.scss';
-import { useState } from "react";
 
 interface EventsTableProps {
   events: Event[];

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useGetEventsQuery, useDeleteEventMutation } from "Features/ApiSlices/eventSlice";
 import EventsHeaderPanel from "./EventsHeaderPanel";
 import EventsListTable from "./EventsListTable";
-import './EventManagement.scss';
+import 'Styles/ListTableStyles.scss';
 import { useNotification } from 'Widgets/Notification/Notification';
 
 export default function EventsManagement(): JSX.Element {
@@ -38,7 +38,7 @@ export default function EventsManagement(): JSX.Element {
   console.log(filteredEvents);
 
   return (
-    <div className="EventsContainer">
+    <div className="EventsContainer ListTableContainer">
       <EventsHeaderPanel onSearch={handleSearch} onSort={handleSort} />
       <EventsListTable events={filteredEvents} onDelete={handleDelete} />
     </div>

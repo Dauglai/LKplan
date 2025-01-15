@@ -51,6 +51,8 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
       ...prev,
       specializations: selected,
     }));
+
+    console.log(selected)
   };
 
   const handleStatusesChange = (selected: number[]) => {
@@ -84,7 +86,6 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
     };
 
     try {
-      console.log(eventData);
       await createEvent(eventData).unwrap();
       setNewEvent({
         name: '',

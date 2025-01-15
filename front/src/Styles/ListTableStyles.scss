@@ -40,6 +40,12 @@
     
                 td {
                     padding: 12px;
+                    max-width: 200px;
+                    
+                    * {
+                        word-wrap: break-word;
+                        overflow-wrap: break-word;
+                    }
     
                     &:not(:first-child, :last-child) {
                         text-align: center;
@@ -49,6 +55,7 @@
     
                     .HiglightCell {
                         @include text2;
+                        display: inline-block;
                         padding: 8px;
                         background-color: $blue;
                         border-radius: $border-radius;
@@ -72,6 +79,11 @@
                         border-left: none;
 
                         max-width: 40px;
+                    }
+
+                    .LinkCell {
+                        text-decoration: none;
+                        color: $black;
                     }
     
                     .ThreeDotsButton {

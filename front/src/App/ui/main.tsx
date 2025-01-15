@@ -24,6 +24,7 @@ import ProjectsManagement from 'Pages/ProjectsList/ProjectsManagement.tsx';
 import CreateDirectionForm from 'Pages/CreareDirection/CreateDirectionForm.tsx';
 import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializationForm.tsx'
 import CreateStatusAppForm from 'Pages/CreateStatusApp/CreateStatusAppForm.tsx';
+import EventPage from 'Pages/Event/EventPage.tsx';
 
 const theme = {
   token: {
@@ -56,6 +57,7 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/create-new-direction" element={<CreateDirectionForm />} />
                   <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
                   <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
+                  <Route path="/event/:id" element={<EventPage />} />
                 </Route>
             </Route>
             </Routes>

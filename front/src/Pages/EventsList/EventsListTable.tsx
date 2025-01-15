@@ -1,6 +1,7 @@
 import { Event } from "Features/ApiSlices/eventSlice";
 import 'Styles/ListTableStyles.scss';
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from "react-router-dom";
 
 
 interface EventsTableProps {
@@ -9,7 +10,7 @@ interface EventsTableProps {
 }
 
 export default function EventsListTable({ events, onDelete, onEdit }: EventsTableProps): JSX.Element {
-
+  const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState<number | null>(null); 
   const menuRef = useRef<HTMLUListElement | null>(null); 
 
@@ -57,7 +58,8 @@ export default function EventsListTable({ events, onDelete, onEdit }: EventsTabl
       <tbody>
         {events.map((event) => (
           <tr key={event.id}>
-            <td>{event.name}</td>
+            <td><Link to={`/event/${event.id}`} className="LinkCell">{event.name}</Link>
+            </td>
             <td><span className="HiglightCell">{event.start ? new Date(event.start).toLocaleDateString() : "-"}</span></td>
             <td><span className="HiglightCell">{event.end ? new Date(event.end).toLocaleDateString() : "-"}</span></td>
             <td>{event.creator}</td>
@@ -74,8 +76,9 @@ export default function EventsListTable({ events, onDelete, onEdit }: EventsTabl
               </div>
               {openMenu === event.id && (
                 <ul ref={menuRef} className="ActionsMenu">
-                  <li onClick={() => handleDelete(event.id)}>Удалить</li>
+                  <li onClick={() => navigate(`/event/${event.id}`)}>Подробнее</li>
                   <li onClick={() => handleEdit(event.id)}>Редактировать</li>
+                  <li onClick={() => handleDelete(event.id)}>Удалить</li>
                 </ul>
               )}
             </td>

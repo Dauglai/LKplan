@@ -1,0 +1,51 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.InfoPage {
+    width: 1160px;
+
+    .InfoHeader {
+        margin-bottom: 24px;
+        padding: 0px 32px;
+
+        h2 {
+            @include h2;
+        }
+    }
+
+    .MainInfo {
+        width: 100%;
+        overflow: auto;
+        padding: 24px 32px;
+        box-shadow: 0px 4px 20px 0px #b2b2b240;
+        
+        border-radius: $border-radius;
+        background-color: $white;
+
+        .InfoDescription {
+            margin-bottom: 24px;
+
+            @include text1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .InfoContent {
+            .InfoLevelOne {
+                .InfoLevelTwo {
+                    margin-left: 24px;
+                    .InfoLevelThree {
+                        padding-left: 48px;
+                    }
+                }
+            }
+        }
+
+        .InfoContent * {
+            @include text1;
+            margin-bottom: 12px;
+
+        }
+    }
+}

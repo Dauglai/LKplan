@@ -2,27 +2,27 @@ from rest_framework import serializers
 from .models import *
 from django.contrib.auth.models import User
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'password']
 
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
-            email=validated_data['email'],
             password=validated_data['password']
         )
         return user
 
 
 class UserSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = User
         fields = ['id', 'email']
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     # user = UserSerializer(read_only=True)
@@ -50,6 +50,7 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Role
         fields = '__all__'
 
+
 # class UserSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = User
@@ -66,37 +67,29 @@ class SpecializationSerializer(serializers.ModelSerializer):
         model = Specialization
         fields = '__all__'
 
+
 class Status_AppSerializer(serializers.ModelSerializer):
     class Meta:
         model = Status_App
         fields = '__all__'
 
-class SupervisorSerializer(serializers.ModelSerializer):
 
+class SupervisorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = '__all__'
 
+
 class EventSerializer(serializers.ModelSerializer):
-    user = ProfileSerializer(read_only=True)
-    # supervisor = ProfileSerializer(read_only=True)
+    creator = ProfileSerializer(read_only=True)
+    supervisor = ProfileSerializer(read_only=True)
     specializations = SpecializationSerializer(read_only=True, many=True)
     statuses = Status_AppSerializer(read_only=True, many=True)
-    
+
     class Meta:
         model = Event
         fields = '__all__'
 
-    def create(self, validated_data):
-        specializations_data = validated_data.pop('specializations', [])
-        statuses_data = validated_data.pop('statuses', [])
-        print(validated_data)
-        event = Event.objects.create(**validated_data)
-        for specialization_data in specializations_data:
-            Specialization.objects.create(event=event, **specialization_data)
-        for status_data in statuses_data:
-            Status_App.objects.create(event=event, **status_data)
-        return event
     def update(self, instance, validated_data):
         specializations_data = validated_data.pop('specializations', [])
         statuses_data = validated_data.pop('statuses', [])
@@ -108,15 +101,35 @@ class EventSerializer(serializers.ModelSerializer):
         if statuses_data is not None:
             instance.statuses.set(statuses_data)
         return instance
+
     def delete(self, instance):
         instance.delete()
+
+
+class EventCreateSerializer(serializers.ModelSerializer):
+    # user = ProfileSerializer(read_only=True)
+    # specializations = SpecializationSerializer(read_only=True, many=True)
+    # statuses = Status_AppSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Event
+        fields = '__all__'
+
+
+class ApplicationCreateSerializer(serializers.ModelSerializer):
+    # user = ProfileSerializer(read_only=True)
+    # specializations = SpecializationSerializer(read_only=True, many=True)
+    # statuses = Status_AppSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Application
+        fields = '__all__'
 
 
 class DirectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Direction
         fields = '__all__'
-
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -130,6 +143,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     #     for curator_data in curators_data:
     #         Profile.objects.create(**curator_data)
     #     return project
+
 
 class TeamSerializer(serializers.ModelSerializer):
     # students = ProfileSerializer(many=True,read_only=True)
@@ -145,6 +159,14 @@ class TeamSerializer(serializers.ModelSerializer):
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
+    user = ProfileSerializer(read_only=True)
+    project = ProjectSerializer(read_only=True)
+    event = EventSerializer(read_only=True)
+    direction = DirectionSerializer(read_only=True)
+    specialization = SpecializationSerializer(read_only=True)
+    team = TeamSerializer(read_only=True)
+    status = Status_AppSerializer(read_only=True)
+
     class Meta:
         model = Application
         fields = '__all__'
@@ -161,27 +183,33 @@ class TestSerializer(serializers.ModelSerializer):
         model = Test
         fields = '__all__'
 
+
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = '__all__'
+
 
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = '__all__'
 
+
 class TrueAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = True_Answer
         fields = '__all__'
 
+
 class ProjectCreateSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Project
         fields = '__all__'
-       
+
+
 class TeamCreateSerializer(serializers.ModelSerializer):
     # author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:

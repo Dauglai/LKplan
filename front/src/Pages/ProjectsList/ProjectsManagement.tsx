@@ -20,7 +20,7 @@ export default function ProjectsManagement(): JSX.Element {
   };
 
   const filteredProjects = Projects
-    .filter((event) => event.name.toLowerCase().includes(search))
+    .filter((project) => project.name.toLowerCase().includes(search))
     .sort((a, b) =>
       sortOrder === "asc"
         ? a.name.localeCompare(b.name)

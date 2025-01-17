@@ -1,15 +1,11 @@
 import CreateEventHeader from 'Widgets/CreateFormHeader/CreateFormHeader';
 import DateRangePicker from 'Widgets/fields/DateRangePicker';
-import SubmitButtons from 'Widgets/buttons/SubmitButtons';
 import RoleSelector from 'Widgets/fields/RoleSelector';
 
 import PlusIcon from "assets/icons/plus.svg?react";
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
-import TrashIcon from 'assets/icons/trash-2.svg?react';
-
 
 import 'Styles/CreateFormStyle.scss'
-import './CreateProjectForm.scss';
 
 import React, { useState } from 'react';
 import { useCreateProjectMutation } from 'Features/ApiSlices/projectSlice';
@@ -118,7 +114,12 @@ export default function CreateProjectForm({ closeModal }: { closeModal: () => vo
             className="FormField"
           />
 
-            <SubmitButtons label="Создать" />
+          <div className="FormButtons">
+            <button className="primary-btn" type="submit">
+              Создать
+              <ChevronRightIcon width="24" height="24" strokeWidth="1"/>
+            </button>
+          </div>
         </form>
       </div>
     </div>

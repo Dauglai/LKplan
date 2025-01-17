@@ -68,7 +68,7 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
       <tbody>
         {projects.map((project) => (
           <tr key={project.id}>
-            <td><Link to={`/projects/${project.id}`} className="LinkCell">{project.name}</Link></td>
+            <td><Link to={`/project/${project.id}`} className="LinkCell">{project.name}</Link></td>
             <td><span className="HiglightCell">{getEventName(project.direction)}</span></td>
             <td>{project.curators.map(curator => `${curator}`).join(', ')}</td>
             <td>
@@ -86,7 +86,7 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
               </div>
               {openMenu === project.id && (
                 <ul ref={menuRef} className="ActionsMenu">
-                  <li onClick={() => navigate(`/projects/${project.id}`)}>Подробнее</li>
+                  <li onClick={() => navigate(`/project/${project.id}`)}>Подробнее</li>
                   <li onClick={() => handleEdit(project.id)}>Редактировать</li>
                 </ul>
               )}

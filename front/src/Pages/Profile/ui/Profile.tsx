@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useGetUserQuery, useUpdateUserMutation } from 'Features/ApiSlices/userSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
-import SpecializationSelector from 'Widgets/fields/SpecializationSelector';
+import SpecializationSelector from 'Widgets/Selectors/SpecializationSelector';
 
 
 import 'Styles/CreateFormStyle.scss'

@@ -8,7 +8,7 @@ import {
 import CreateEventHeader from 'Widgets/CreateFormHeader/CreateFormHeader';
 import 'Styles/CreateFormStyle.scss';
 import './CreateStatusAppForm.scss';
-import SubmitButtons from 'Widgets/buttons/SubmitButtons';
+import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import TrashIcon from 'assets/icons/trash-2.svg?react';
 
 export default function CreateStatusAppForm (): JSX.Element {
@@ -64,7 +64,12 @@ export default function CreateStatusAppForm (): JSX.Element {
                     onInput={handleTextAtea}
                 />
             </div>
-            <SubmitButtons label="Создать" />
+            <div className="FormButtons">
+              <button className="primary-btn" type="submit">
+                Создать
+                <ChevronRightIcon width="24" height="24" strokeWidth="1"/>
+              </button>
+            </div>
             </form>
         </div>
 

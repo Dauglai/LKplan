@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import PlusIcon from 'assets/icons/plus.svg?react';
 import SearchIcon from 'assets/icons/search.svg?react';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
@@ -8,19 +7,14 @@ import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
 import CreateProjectForm from "./CreateProject/CreateProjectForm";
 import Modal from "Widgets/Modal/Modal";
+import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions";
 
 interface ProjectsHeaderProps {
   onSearch: (search: string) => void;
   onSort: (order: "asc" | "desc") => void;
 }
 
-const pageOptions = [
-  { label: 'Мероприятия', link: '/events-list' },
-  { label: 'Проекты', link: '/projects-list' },
-];
-
 export default function ProjectsHeaderPanel({ onSearch, onSort }: ProjectsHeaderProps): JSX.Element {
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -95,7 +89,7 @@ export default function ProjectsHeaderPanel({ onSearch, onSort }: ProjectsHeader
                     <div className="SearchInputText">Поиск по названию</div>
                 )}
           </div>
-          <PageSwitcher options={pageOptions} />
+          <PageSwitcher options={CRMPageOptions} />
       </div>
     </header>
   );

@@ -58,6 +58,7 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarProps): JSX.Elem
                 Управление
             </li>
             <li onClick={() => handleNavigation('/events-list')}>Мероприятия</li>
+            <li onClick={() => handleNavigation('/directions-list')}>Направления</li>
             <li onClick={() => handleNavigation('/projects-list')}>Проекты</li>
             <li onClick={() => handleNavigation('/requests-list')}>Список заявок</li>
           </ul>

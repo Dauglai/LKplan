@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
-import {
-  useGetDirectionsQuery,
-  useCreateDirectionMutation,
-  useDeleteDirectionMutation,
-} from 'Features/ApiSlices/directionSlice';
-
+import { useCreateDirectionMutation } from 'Features/ApiSlices/directionSlice';
+import { useNotification } from 'Widgets/Notification/Notification';
 import CreateEventHeader from 'Widgets/CreateFormHeader/CreateFormHeader';
 import 'Styles/CreateFormStyle.scss';
-import './СreateDirectionForm.scss';
-import SubmitButtons from 'Widgets/buttons/SubmitButtons';
-import TrashIcon from 'assets/icons/trash-2.svg?react';
+import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
+import EventSelector from 'Widgets/Selectors/EventSelector';
 
-export default function CreateDirectionForm(): JSX.Element {
-  const { data: directions, isLoading, isError } = useGetDirectionsQuery();
+export default function CreateDirectionForm({ closeModal }: { closeModal: () => void }): JSX.Element {
   const [createDirection, { isLoading: isCreating }] = useCreateDirectionMutation();
-  const [deleteDirection, { isLoading: isDeleting }] = useDeleteDirectionMutation();
+  const { showNotification } = useNotification();
 
   const [newDirection, setNewDirection] = useState({
     event: 0,
@@ -35,11 +29,16 @@ export default function CreateDirectionForm(): JSX.Element {
     if (newDirection.name.trim()) {
       await createDirection(newDirection);
       setNewDirection({ event: 0, name: '', description: '' });
+      showNotification('Направление создано!', 'success');
+      closeModal();
     }
   };
 
-  const handleDeleteDirection = async (id: number) => {
-    await deleteDirection(id);
+  const handleEventChange = (selected: number) => {
+    setNewDirection((prev) => ({
+      ...prev,
+      event: selected,
+    }));
   };
 
   const handleTextAtea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -58,13 +57,10 @@ export default function CreateDirectionForm(): JSX.Element {
         <div className="CreateFormContainer">
         <form  className="CreateForm CreateDirectionForm"  onSubmit={handleCreateDirection}>
             <CreateEventHeader label="Добавление направления" />
-            <input
-            type="number"
-            name="event"
-            value={newDirection.event}
-            onChange={handleInputChange}
-            placeholder="ID мероприятия"
-            className="TextField FormField"
+
+            <EventSelector
+              selectedEventId={newDirection.event}
+              onChange={handleEventChange}
             />
 
             <div className="CreateNameContainer">
@@ -86,36 +82,14 @@ export default function CreateDirectionForm(): JSX.Element {
                 />
             </div>
         
-            <SubmitButtons label="Создать" />
+            <div className="FormButtons">
+              <button className="primary-btn" type="submit">
+                Создать
+                <ChevronRightIcon width="24" height="24" strokeWidth="1"/>
+              </button>
+            </div>
         </form>
         </div>
-
-        <div className="ListResults">
-            <h3>Список направлений</h3>
-            {isLoading ? (
-                <p>Загрузка...</p>
-            ) : isError ? (
-                <p>Ошибка при загрузке направлений.</p>
-            ) : (
-                <ul>
-                {directions?.map((direction) => (
-                    <li key={direction.id}>
-                        <div>
-                            <h4>{direction.name}</h4>
-                            <p>Описание: {direction.description || 'Нет описания'}</p>
-                            <p>Мероприятие ID: {direction.event}</p>
-                        </div>
-                        <button 
-                            className="DeleteButton lfp-btn"
-                            onClick={() => handleDeleteDirection(direction.id)}
-                            disabled={isDeleting}>
-                            <TrashIcon width="20" height="20" strokeWidth="2"/>
-                        </button>
-                    </li>
-                ))}
-                </ul>
-        )}
-      </div>
     </div>
   );
 }

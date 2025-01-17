@@ -21,7 +21,7 @@ import Tasks from 'Pages/Tasks/Tasks.tsx';
 import { ConfigProvider } from 'antd';
 import EventsManagement from 'Pages/EventsList/EventsManagement.tsx';
 import ProjectsManagement from 'Pages/ProjectsList/ProjectsManagement.tsx';
-import CreateDirectionForm from 'Pages/CreareDirection/CreateDirectionForm.tsx';
+import DirectionsManagement from 'Pages/DirectionsList/DirectionsManagement.tsx';
 import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializationForm.tsx'
 import CreateStatusAppForm from 'Pages/CreateStatusApp/CreateStatusAppForm.tsx';
 import EventPage from 'Pages/Event/EventPage.tsx';
@@ -55,11 +55,11 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/events-list" element={<EventsManagement />} />
                   <Route path="/projects-list" element={<ProjectsManagement />} />
-                  <Route path="/create-new-direction" element={<CreateDirectionForm />} />
+                  <Route path="/directions-list" element={<DirectionsManagement />} />
                   <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
                   <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
                   <Route path="/event/:id" element={<EventPage />} />
-                  <Route path="/projects/:id" element={<ProjectPage />} />
+                  <Route path="/project/:id" element={<ProjectPage />} />
                 </Route>
             </Route>
             </Routes>

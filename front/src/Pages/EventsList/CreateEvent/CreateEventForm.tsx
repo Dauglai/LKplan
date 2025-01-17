@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useCreateEventMutation } from 'Features/ApiSlices/eventSlice';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
-import SpecializationSelector from 'Widgets/fields/SpecializationSelector';
-import StatusAppSelector from 'Widgets/fields/StatusAppSelector';
-import StageSelector from 'Widgets/fields/StageSelector';
-import SubmitButtons from 'Widgets/buttons/SubmitButtons';
+import SpecializationSelector from 'Widgets/Selectors/SpecializationSelector';
+import StatusAppSelector from 'Widgets/Selectors/StatusAppSelector';
+import StageSelector from 'Widgets/Selectors/StageSelector';
+import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import './CreateEventForm.scss';
 import 'Styles/CreateFormStyle.scss';
 import LinkIcon from 'assets/icons/link.svg?react';
@@ -51,8 +51,6 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
       ...prev,
       specializations: selected,
     }));
-
-    console.log(selected)
   };
 
   const handleStatusesChange = (selected: number[]) => {
@@ -174,7 +172,12 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
             onChange={handleStageChange}
           />
         </div>
-        <SubmitButtons label="Создать" />
+        <div className="FormButtons">
+          <button className="primary-btn" type="submit">
+            Создать
+            <ChevronRightIcon width="24" height="24" strokeWidth="1"/>
+          </button>
+        </div>
       </form>
     </div>
   );

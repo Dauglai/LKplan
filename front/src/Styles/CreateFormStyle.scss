@@ -1,15 +1,14 @@
 @import 'Styles/mixins';
 @import 'Styles/variables';
+@import 'Styles/buttons';
 
 .CreateFormContainer {
-    display: relative;
+    position: relative;
     padding: 24px 32px;
     
     border-radius: $border-radius;
     background-color: $white;
 }
-
-
 
 .FormField {
   @include text2;
@@ -92,6 +91,15 @@
           }
         }
       }
+    }
 
+    .FormButtons {
+      display: flex;
+      justify-content: end;
+      gap: 12px;
+
+      .primary-btn {
+        @include primary-btn;
+      }
     }
 } 

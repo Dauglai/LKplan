@@ -1,0 +1,100 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+h1 {
+    @include h1;
+    color: $orange;
+}
+
+h2 {
+    @include h2;
+}
+
+h3 {
+    @include h3;
+}
+
+p {
+    @include text1;
+}
+
+.MainPageContainer {
+    width: $primary-width;
+
+    .MainInfoContainer {
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 80px;
+    
+        .MainInfoLeftSide {
+            .MainIfoTitle {
+                margin-bottom: 24px;
+            }
+        }
+    }
+
+    .OpportunitiesInfoContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 52px;
+        align-items: center;
+        margin-bottom: 80px;
+
+        .OpportunitiesList {
+            display: flex;
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 40px;
+
+            list-style: none;
+
+            .OpportunitiesListItem {
+                max-width: calc(50% - 20px);
+                padding: 32px;
+                display: flex;
+                flex-direction: column;
+                gap: 32px;
+                align-items: center;
+
+                border-radius: 5px;
+                box-shadow: 0 4px 11.5px 0 rgba(187, 187, 187, 0.25);
+
+                .OpportunitiesTitle {
+                    text-align: center;
+                }
+            }
+        }
+    }
+
+    .AdvantagesInfoContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 52px;
+        align-items: center;
+        margin-bottom: 80px;
+
+        .AdvantagesList {
+            display: flex;
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 40px;
+
+            list-style: none;
+
+            .AdvantagesListItem {
+                max-width: 360px;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
+                align-items: center;
+
+                border-radius: 5px;
+                box-shadow: 0 4px 11.5px 0 rgba(187, 187, 187, 0.25);
+            }
+        }
+    }
+}

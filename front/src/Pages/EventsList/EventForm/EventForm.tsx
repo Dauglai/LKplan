@@ -1,19 +1,29 @@
-import React, { useState } from 'react';
-import { useCreateEventMutation } from 'Features/ApiSlices/eventSlice';
+import React, { useState, useEffect } from 'react';
+import { 
+  Event,
+  useCreateEventMutation,
+  useUpdateEventMutation } from 'Features/ApiSlices/eventSlice';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
-import SpecializationSelector from 'Widgets/fields/SpecializationSelector';
-import StatusAppSelector from 'Widgets/fields/StatusAppSelector';
-import StageSelector from 'Widgets/fields/StageSelector';
-import SubmitButtons from 'Widgets/buttons/SubmitButtons';
-import './CreateEventForm.scss';
-import 'Styles/CreateFormStyle.scss';
+import SpecializationSelector from 'Widgets/Selectors/SpecializationSelector';
+import StatusAppSelector from 'Widgets/Selectors/StatusAppSelector';
+import StageSelector from 'Widgets/Selectors/StageSelector';
+import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
+import './EventForm.scss';
+import 'Styles/FormStyle.scss';
 import LinkIcon from 'assets/icons/link.svg?react';
 import CloseIcon from 'assets/icons/close.svg?react';
 import { useNotification } from 'Widgets/Notification/Notification';
 
-export default function CreateEventForm({ closeModal }: { closeModal: () => void }): JSX.Element {
+export default function EventForm({ 
+  closeModal,
+  existingEvent,
+}:{
+  closeModal: () => void;
+  existingEvent?: Event;
+}): JSX.Element {
   const { data: user } = useGetUserQuery();
-  const [createEvent] = useCreateEventMutation();
+  const [createEvent, { isLoading: isCreating }] = useCreateEventMutation();
+  const [updateEvent, { isLoading: isUpdating }] = useUpdateEventMutation();
   const { showNotification } = useNotification();
 
   const [newEvent, setNewEvent] = useState({
@@ -27,6 +37,21 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
     statuses: [] as number[],
   });
 
+  useEffect(() => {
+    if (existingEvent) {
+      setNewEvent({
+        name: existingEvent.name,
+        description: existingEvent.description,
+        link: existingEvent.link,
+        stage: existingEvent.stage,
+        start: existingEvent.start,
+        end: existingEvent.end,
+        specializations: existingEvent.specializations,
+        statuses: existingEvent.statuses,
+      });
+    }
+  }, [existingEvent]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewEvent((prev) => ({
@@ -35,7 +60,7 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
     }));
   };
 
-  const handleTextAtea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
     textarea.style.height = 'auto';
     textarea.style.height = `${textarea.scrollHeight}px`;
@@ -51,8 +76,6 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
       ...prev,
       specializations: selected,
     }));
-
-    console.log(selected)
   };
 
   const handleStatusesChange = (selected: number[]) => {
@@ -69,6 +92,8 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
     }));
   };
 
+  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
@@ -78,11 +103,8 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
 
     const eventData = {
       ...newEvent,
-      start: newEvent.start ? new Date(newEvent.start).toISOString().split('T')[0] : null,
-      end: newEvent.end ? new Date(newEvent.end).toISOString().split('T')[0] : null,
       creator: user.user_id,
       supervisor: user.user_id,
-      user: user.user_id,
     };
 
     try {
@@ -105,18 +127,27 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
     }
   };
 
+  const handleUpdateEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newEvent.name.trim()) {
+      await updateEvent(newEvent).unwrap();
+      showNotification('Мероприятие обновлено!', 'success');
+    }
+  }
+
   return (
-    <div className="CreateFormContainer">
-      <form className="CreateEventForm CreateForm" onSubmit={handleSubmit}>
+    <div className="FormContainer">
+      <form className="EventForm Form" 
+        onSubmit={existingEvent ? handleUpdateEvent : handleSubmit}>
         <div className="ModalFormHeader">
-          <h2>Добавление мероприятия</h2>
+          <h2>{existingEvent ? 'Редактирование мероприятия' : 'Добавление мероприятия'}</h2>
           <CloseIcon width="24" height="24" strokeWidth="1" onClick={closeModal} className="ModalCloseButton"/>
         </div>
-        <div className="CreateNameContainer">
+        <div className="NameContainer">
           <input
             type="text"
             name="name"
-            className='CreateName FormField'
+            className='Name FormField'
             value={newEvent.name}
             onChange={handleInputChange}
             required
@@ -125,9 +156,9 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
           <textarea
             name="description"
             value={newEvent.description}
-            onChange={handleTextAtea}
+            onChange={handleTextArea}
             placeholder="Описание мероприятия"
-            className='CreateDescription FormField'
+            className='Description FormField'
           />
         </div>
         <SpecializationSelector
@@ -174,7 +205,12 @@ export default function CreateEventForm({ closeModal }: { closeModal: () => void
             onChange={handleStageChange}
           />
         </div>
-        <SubmitButtons label="Создать" />
+        <div className="FormButtons">
+          <button className="primary-btn" type="submit" disabled={isCreating || isUpdating}>
+            {existingEvent ? 'Обновить' : 'Создать'}
+            <ChevronRightIcon width="24" height="24" strokeWidth="1" />
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -4,16 +4,21 @@ import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { Project } from 'Features/ApiSlices/projectSlice';
+import { useNavigate, Link } from "react-router-dom";
+import ProjectForm from "./ProjectForm";
+import Modal from "Widgets/Modal/Modal";
 
 interface ProjectsTableProps {
   projects: Project[];
-  onEdit: (id: number) => void;
 }
 
-export default function ProjectsListTable({ projects, onEdit }: ProjectsTableProps): JSX.Element {
+export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.Element {
   const { data: directions, isLoading: isLoadingDirections } = useGetDirectionsQuery();
   const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
   const { data: teams, isLoading: isLoadingTeams } = useGetTeamsQuery();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const navigate = useNavigate();
 
 const [openMenu, setOpenMenu] = useState<number | null>(null); 
   const menuRef = useRef<HTMLUListElement | null>(null); 
@@ -33,14 +38,17 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
     setOpenMenu(openMenu === id ? null : id);
   };
 
-  const handleDelete = (id: number) => {
-    onDelete(id);
-    setOpenMenu(null);
+  const handleEdit = (id: number) => {
+    const projectToEdit = projects.find((dir) => dir.id === id);
+    if (projectToEdit) {
+      setSelectedProject(projectToEdit);
+      setIsModalOpen(true);
+    }
   };
 
-  const handleEdit = (id: number) => {
-    onEdit(id);
-    setOpenMenu(null);
+  const closeModal = () => {
+      setIsModalOpen(false);
+      setSelectedProject(null);
   };
 
   if (isLoadingDirections || isLoadingEvents || isLoadingTeams) {
@@ -57,10 +65,6 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
     return event ? event.name : 'Не указано';
   };
 
-  const getTeamsCount = (project: number): number => {
-    return teams?.filter(team => team.project === project).length || 0;
-  };
-
   return (
     <table className="ProjectsListTable ListTable">
       <thead>
@@ -68,24 +72,32 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
           <th>Название</th>
           <th>Мероприятие</th>
           <th>Куратор</th>
-          <th>Количество команд</th>
+          <th>Команды</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         {projects.map((project) => (
           <tr key={project.id}>
-            <td>{project.name}</td>
-            <td>
-            <span className="HiglightCell">{getEventName(project.direction)}</span></td>
+            <td><Link to={`/project/${project.id}`} className="LinkCell">{project.name}</Link></td>
+            <td><span className="HiglightCell">{getEventName(project.direction)}</span></td>
             <td>{project.curators.map(curator => `${curator}`).join(', ')}</td>
-            <td>{getTeamsCount(project.id)}</td>
+            <td>
+              <ul>
+                {teams?.map((team) => {
+                  if (team.project === project.id) {
+                    return <li><Link to={`/teams/${team.id}`}>{team.name}</Link></li>
+                  }
+                })}
+              </ul>
+            </td>
             <td>
               <div onClick={() => toggleMenu(project.id)} className="ThreeDotsButton">
                 &#8230;
               </div>
               {openMenu === project.id && (
                 <ul ref={menuRef} className="ActionsMenu">
+                  <li onClick={() => navigate(`/project/${project.id}`)}>Подробнее</li>
                   <li onClick={() => handleEdit(project.id)}>Редактировать</li>
                 </ul>
               )}
@@ -93,6 +105,11 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
           </tr>
         ))}
       </tbody>
+      {isModalOpen && (
+        <Modal isOpen={isModalOpen} onClose={closeModal}>
+          <ProjectForm closeModal={closeModal} existingProject={selectedProject} />
+        </Modal>
+      )}
     </table>
   );
 }

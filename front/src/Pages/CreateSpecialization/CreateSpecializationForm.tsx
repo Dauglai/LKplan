@@ -5,10 +5,9 @@ import {
   useDeleteSpecializationMutation
 } from 'Features/ApiSlices/specializationSlice';
 
-import CreateEventHeader from 'Widgets/CreateFormHeader/CreateFormHeader';
-import 'Styles/CreateFormStyle.scss';
+import 'Styles/FormStyle.scss';
 import './CreateSpecializationForm.scss';
-import SubmitButtons from 'Widgets/buttons/SubmitButtons';
+import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import TrashIcon from 'assets/icons/trash-2.svg?react';
 
 
@@ -46,7 +45,7 @@ export default function CreateSpecializationForm () : JSX.Element {
     <div className="CreateContainer">
         <div className="CreateFormContainer">
         <form onSubmit={handleCreateSpecialization} className='CreateForm CreateSpecializationForm'>
-            <CreateEventHeader label="Добавление специализации" />
+
             <div className="CreateNameContainer">
                 <input
                     type="text"
@@ -65,7 +64,12 @@ export default function CreateSpecializationForm () : JSX.Element {
                     onInput={handleTextAtea}
                 />
             </div>
-            <SubmitButtons label="Создать" />
+            <div className="FormButtons">
+              <button className="primary-btn" type="submit">
+                Создать
+                <ChevronRightIcon width="24" height="24" strokeWidth="1"/>
+              </button>
+            </div>
         </form>
         </div>
         <div className="ListResults">

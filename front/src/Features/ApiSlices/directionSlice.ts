@@ -1,7 +1,7 @@
 import { apiSlice } from 'App/api/apiSlice.ts';
 
 export interface Direction {
-  id: number;
+  id?: number;
   event: number;
   name: string;
   description: string | null;

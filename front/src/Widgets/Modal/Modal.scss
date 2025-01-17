@@ -11,11 +11,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
+  background-color: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
 }
 
 .ModalContent {
   position: relative;
-  max-height: 90vh;
+  max-height: 80vh;
   overflow-y: scroll;
 
   @include no-scrollbar;

@@ -5,16 +5,16 @@ import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
-import EventForm from "./EventForm/EventForm";
+import DirectionForm from "./DirectionForm";
 import Modal from "Widgets/Modal/Modal";
 import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions";
 
-interface EventsHeaderProps {
+interface DirectionsHeaderProps {
   onSearch: (search: string) => void;
   onSort: (order: "asc" | "desc") => void;
 }
 
-export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProps): JSX.Element {
+export default function DirectionsHeaderPanel({ onSearch, onSort }: DirectionsHeaderProps): JSX.Element {
   const [search, setSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -33,13 +33,13 @@ export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProp
   const handleBlur = () => setIsFocused(false);
 
   return (
-    <header className="EventsHeaderPanel HeaderPanel">
+    <header className="DirectionsHeaderPanel HeaderPanel">
       <div className="LeftHeaderPanel">
         <button className="BackButton lfp-btn">
           <ChevronRightIcon width="32" height="32" strokeWidth="2" className="ChevronLeft"/>
         </button>
-        <h2 className="HeaderPanelTitle">Мероприятия</h2>
-        <PlusIcon 
+        <h2 className="HeaderPanelTitle">Направления</h2>
+        <PlusIcon
           width="18" 
           height="18" 
           strokeWidth="1"
@@ -49,7 +49,7 @@ export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProp
       </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <EventForm closeModal={closeModal}/>
+        <DirectionForm closeModal={closeModal}/>
       </Modal>
       
       <div className="RightHeaderPanel">
@@ -94,4 +94,3 @@ export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProp
     </header>
   );
 };
-

@@ -31,7 +31,7 @@ const projectApi = apiSlice.injectEndpoints({
     }),
     createProject: builder.mutation<Project, Omit<Project, 'id'>>({
       query: (newProject) => ({    // Создание нового проекта
-        url: '/api/project/create',
+        url: '/api/project/create/',
         method: 'POST',
         body: newProject,
         headers: {

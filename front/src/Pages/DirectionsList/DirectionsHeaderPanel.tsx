@@ -5,7 +5,7 @@ import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
-import CreateDirectionForm from "./CreareDirection/CreateDirectionForm";
+import DirectionForm from "./DirectionForm";
 import Modal from "Widgets/Modal/Modal";
 import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions";
 
@@ -49,7 +49,7 @@ export default function DirectionsHeaderPanel({ onSearch, onSort }: DirectionsHe
       </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <CreateDirectionForm closeModal={closeModal}/>
+        <DirectionForm closeModal={closeModal}/>
       </Modal>
       
       <div className="RightHeaderPanel">

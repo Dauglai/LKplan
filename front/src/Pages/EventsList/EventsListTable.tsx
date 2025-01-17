@@ -3,6 +3,8 @@ import 'Styles/ListTableStyles.scss';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from "react-router-dom";
 import { getInitials } from "Features/utils/getInitials";
+import EventForm from "./EventForm/EventForm";
+import Modal from "Widgets/Modal/Modal";
 
 
 interface EventsTableProps {
@@ -10,10 +12,12 @@ interface EventsTableProps {
   //onDelete: (id: number) => void;
 }
 
-export default function EventsListTable({ events, /*onDelete,*/ onEdit }: EventsTableProps): JSX.Element {
+export default function EventsListTable({ events, /*onDelete,*/ }: EventsTableProps): JSX.Element {
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState<number | null>(null); 
   const menuRef = useRef<HTMLUListElement | null>(null); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -36,9 +40,17 @@ export default function EventsListTable({ events, /*onDelete,*/ onEdit }: Events
   };*/
 
   const handleEdit = (id: number) => {
-    onEdit(id);
-    setOpenMenu(null);
+    const EventToEdit = events.find((dir) => dir.id === id);
+    if (EventToEdit) {
+      setSelectedEvent(EventToEdit);
+      setIsModalOpen(true);
+    }
   };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedEvent(null);
+};
 
   if (events.length == 0) {
     return <span className="NullMessage">Мероприятия не найдены</span>
@@ -85,6 +97,11 @@ export default function EventsListTable({ events, /*onDelete,*/ onEdit }: Events
           </tr>
         ))}
       </tbody>
+      {isModalOpen && (
+        <Modal isOpen={isModalOpen} onClose={closeModal}>
+          <EventForm closeModal={closeModal} existingEvent={selectedEvent} />
+        </Modal>
+      )}
     </table>
   );
 };

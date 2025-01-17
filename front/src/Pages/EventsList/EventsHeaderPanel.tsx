@@ -5,7 +5,7 @@ import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
-import CreateEventForm from "./CreateEvent/CreateEventForm";
+import EventForm from "./EventForm/EventForm";
 import Modal from "Widgets/Modal/Modal";
 import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions";
 
@@ -49,7 +49,7 @@ export default function EventsHeaderPanel({ onSearch, onSort }: EventsHeaderProp
       </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <CreateEventForm closeModal={closeModal}/>
+        <EventForm closeModal={closeModal}/>
       </Modal>
       
       <div className="RightHeaderPanel">

@@ -5,7 +5,7 @@ import { useNotification } from 'Widgets/Notification/Notification';
 import SpecializationSelector from 'Widgets/Selectors/SpecializationSelector';
 
 
-import 'Styles/CreateFormStyle.scss'
+import 'Styles/FormStyle.scss'
 import './Profile.scss';
 
 

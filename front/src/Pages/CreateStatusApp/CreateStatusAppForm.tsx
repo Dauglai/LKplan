@@ -5,8 +5,7 @@ import {
   useDeleteStatusAppMutation,
 } from 'Features/ApiSlices/statusAppSlice';
 
-import CreateEventHeader from 'Widgets/CreateFormHeader/CreateFormHeader';
-import 'Styles/CreateFormStyle.scss';
+import 'Styles/FormStyle.scss';
 import './CreateStatusAppForm.scss';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import TrashIcon from 'assets/icons/trash-2.svg?react';
@@ -45,7 +44,6 @@ export default function CreateStatusAppForm (): JSX.Element {
     <div className="CreateContainer">
         <div className="CreateFormContainer">
         <form  className="CreateForm CreateStatusAppForm"  onSubmit={handleCreateStatus}>
-            <CreateEventHeader label="Добавление статуса" />
             <div className="CreateNameContainer">
                 <input
                     type="text"

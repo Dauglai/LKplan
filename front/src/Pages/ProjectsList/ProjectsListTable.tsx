@@ -5,16 +5,19 @@ import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { Project } from 'Features/ApiSlices/projectSlice';
 import { useNavigate, Link } from "react-router-dom";
+import ProjectForm from "./ProjectForm";
+import Modal from "Widgets/Modal/Modal";
 
 interface ProjectsTableProps {
   projects: Project[];
-  onEdit: (id: number) => void;
 }
 
-export default function ProjectsListTable({ projects, onEdit }: ProjectsTableProps): JSX.Element {
+export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.Element {
   const { data: directions, isLoading: isLoadingDirections } = useGetDirectionsQuery();
   const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
   const { data: teams, isLoading: isLoadingTeams } = useGetTeamsQuery();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const navigate = useNavigate();
 
 const [openMenu, setOpenMenu] = useState<number | null>(null); 
@@ -36,8 +39,16 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
   };
 
   const handleEdit = (id: number) => {
-    onEdit(id);
-    setOpenMenu(null);
+    const projectToEdit = projects.find((dir) => dir.id === id);
+    if (projectToEdit) {
+      setSelectedProject(projectToEdit);
+      setIsModalOpen(true);
+    }
+  };
+
+  const closeModal = () => {
+      setIsModalOpen(false);
+      setSelectedProject(null);
   };
 
   if (isLoadingDirections || isLoadingEvents || isLoadingTeams) {
@@ -94,6 +105,11 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
           </tr>
         ))}
       </tbody>
+      {isModalOpen && (
+        <Modal isOpen={isModalOpen} onClose={closeModal}>
+          <ProjectForm closeModal={closeModal} existingProject={selectedProject} />
+        </Modal>
+      )}
     </table>
   );
 }

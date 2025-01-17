@@ -2,7 +2,7 @@
 @import 'Styles/variables';
 @import 'Styles/buttons';
 
-.CreateFormContainer {
+.FormContainer {
     position: relative;
     padding: 24px 32px;
     
@@ -28,7 +28,7 @@
   }
 }
 
-.CreateForm {
+.Form {
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -44,16 +44,16 @@
       }
     }
 
-    .CreateNameContainer {
+    .NameContainer {
       width: 100%;
 
-      .CreateName {
+      .Name {
         width: 100%;
         border-radius: $border-radius $border-radius 0 0;
         border-bottom: none;
       }
 
-      .CreateDescription {
+      .Description {
         width: 100%;
         min-height: 120px;
         display: block;

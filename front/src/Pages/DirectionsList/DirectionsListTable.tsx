@@ -4,19 +4,22 @@ import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
 import { Direction } from 'Features/ApiSlices/directionSlice';
 import { Link } from 'react-router-dom';
+import DirectionForm from "./DirectionForm";
+import Modal from "Widgets/Modal/Modal";
 
 interface DirectionsTableProps {
   directions: Direction[];
-  onEdit: (id: number) => void;
   onDelete: (id: number) => void;
 }
 
-export default function DirectionsListTable({ directions, onEdit, onDelete }: DirectionsTableProps): JSX.Element {
+export default function DirectionsListTable({ directions, onDelete }: DirectionsTableProps): JSX.Element {
     const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
     const { data: projects, isLoading: isLoadingProjects } = useGetProjectsQuery();
 
     const [openMenu, setOpenMenu] = useState<number | null>(null);
+    const [selectedDirection, setSelectedDirection] = useState<Direction | null>(null);
     const menuRef = useRef<HTMLUListElement | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -34,8 +37,16 @@ export default function DirectionsListTable({ directions, onEdit, onDelete }: Di
     };
 
     const handleEdit = (id: number) => {
-        onEdit(id);
-        setOpenMenu(null);
+        const directionToEdit = directions.find((dir) => dir.id === id);
+        if (directionToEdit) {
+          setSelectedDirection(directionToEdit);
+          setIsModalOpen(true);
+        }
+    };
+    
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedDirection(null);
     };
 
     const handleDelete = (id: number) => {
@@ -62,42 +73,47 @@ export default function DirectionsListTable({ directions, onEdit, onDelete }: Di
 
     return (
         <table className="DirectionsListTable ListTable">
-        <thead>
-            <tr>
-            <th>Название</th>
-            <th>Мероприятие</th>
-            <th>Проекты</th>
-            <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {directions.map((direction) => (
-            <tr key={direction.id}>
-                <td>{direction.name}</td>
-                <td><Link to={`/event/${direction.event}`} className="HiglightCell">{getEventName(direction.event)}</Link></td>
-                <td>
-                    <ul>
-                        {getProjectsForDirection(direction.id).map((project) => (
-                        <li key={project.id}>
-                            <Link to={`/project/${project.id}`}>{project.name}</Link>
-                        </li>
-                        ))}
-                    </ul>
-                </td>
-                <td>
-                <div onClick={() => toggleMenu(direction.id)} className="ThreeDotsButton">
-                    &#8230;
-                </div>
-                {openMenu === direction.id && (
-                    <ul ref={menuRef} className="ActionsMenu">
-                    <li onClick={() => handleEdit(direction.id)}>Редактировать</li>
-                    <li onClick={() => handleDelete(direction.id)}>Удалить</li>
-                    </ul>
-                )}
-                </td>
-            </tr>
-            ))}
-        </tbody>
+            <thead>
+                <tr>
+                <th>Название</th>
+                <th>Мероприятие</th>
+                <th>Проекты</th>
+                <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {directions.map((direction) => (
+                <tr key={direction.id}>
+                    <td>{direction.name}</td>
+                    <td><Link to={`/event/${direction.event}`} className="HiglightCell">{getEventName(direction.event)}</Link></td>
+                    <td>
+                        <ul>
+                            {getProjectsForDirection(direction.id).map((project) => (
+                            <li key={project.id}>
+                                <Link to={`/project/${project.id}`}>{project.name}</Link>
+                            </li>
+                            ))}
+                        </ul>
+                    </td>
+                    <td>
+                    <div onClick={() => toggleMenu(direction.id)} className="ThreeDotsButton">
+                        &#8230;
+                    </div>
+                    {openMenu === direction.id && (
+                        <ul ref={menuRef} className="ActionsMenu">
+                        <li onClick={() => handleEdit(direction.id)}>Редактировать</li>
+                        <li onClick={() => handleDelete(direction.id)}>Удалить</li>
+                        </ul>
+                    )}
+                    </td>
+                </tr>
+                ))}
+            </tbody>
+            {isModalOpen && (
+                <Modal isOpen={isModalOpen} onClose={closeModal}>
+                    <DirectionForm closeModal={closeModal} existingDirection={selectedDirection} />
+                </Modal>
+            )}
         </table>
     );
 }

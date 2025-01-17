@@ -5,7 +5,7 @@ import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
-import CreateProjectForm from "./CreateProject/CreateProjectForm";
+import CreateProjectForm from "./ProjectForm";
 import Modal from "Widgets/Modal/Modal";
 import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions";
 

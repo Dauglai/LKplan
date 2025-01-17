@@ -80,42 +80,6 @@ class SupervisorSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class EventSerializer(serializers.ModelSerializer):
-    creator = ProfileSerializer(read_only=True)
-    supervisor = ProfileSerializer(read_only=True)
-    specializations = SpecializationSerializer(read_only=True, many=True)
-    statuses = Status_AppSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Event
-        fields = '__all__'
-
-    def update(self, instance, validated_data):
-        specializations_data = validated_data.pop('specializations', [])
-        statuses_data = validated_data.pop('statuses', [])
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        if specializations_data is not None:
-            instance.specializations.set(specializations_data)
-        if statuses_data is not None:
-            instance.statuses.set(statuses_data)
-        return instance
-
-    def delete(self, instance):
-        instance.delete()
-
-
-class EventCreateSerializer(serializers.ModelSerializer):
-    # user = ProfileSerializer(read_only=True)
-    # specializations = SpecializationSerializer(read_only=True, many=True)
-    # statuses = Status_AppSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Event
-        fields = '__all__'
-
-
 class ApplicationCreateSerializer(serializers.ModelSerializer):
     # user = ProfileSerializer(read_only=True)
     # specializations = SpecializationSerializer(read_only=True, many=True)
@@ -133,10 +97,22 @@ class DirectionSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    # curators = ProfileSerializer(many=True,read_only=True)
+    curatorsSet = ProfileSerializer(many=True, read_only=True, source="curators")
+    # creator = ProfileSerializer(read_only=True)
+    supervisorSet = ProfileSerializer(read_only=True, source="supervisor")
+    direction = DirectionSerializer(read_only=True)
+
     class Meta:
         model = Project
-        fields = '__all__'
+        fields = ["direction",
+                  "name",
+                  "description",
+                  # "supervisor",
+                  "curators",
+                  "creator",
+                  "curatorsSet",
+                  "supervisorSet",
+                  ]
     # def create(self, validated_data):
     #     curators_data = validated_data.pop('curators', [])
     #     project = Project.objects.create(**validated_data)
@@ -146,7 +122,8 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class TeamSerializer(serializers.ModelSerializer):
-    # students = ProfileSerializer(many=True,read_only=True)
+    students = ProfileSerializer(many=True, read_only=True)
+
     class Meta:
         model = Team
         fields = '__all__'
@@ -158,10 +135,17 @@ class TeamSerializer(serializers.ModelSerializer):
     #     return team
 
 
+class EventAppSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = '__all__'
+
+
 class ApplicationSerializer(serializers.ModelSerializer):
     user = ProfileSerializer(read_only=True)
+
     project = ProjectSerializer(read_only=True)
-    event = EventSerializer(read_only=True)
+    event = EventAppSerializer(read_only=True)
     direction = DirectionSerializer(read_only=True)
     specialization = SpecializationSerializer(read_only=True)
     team = TeamSerializer(read_only=True)
@@ -169,7 +153,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Application
-        fields = '__all__'
+        fields = "__all__"
+        ref_name = "AppEventSer"
 
 
 # class App_reviewSerializer(serializers.ModelSerializer):
@@ -203,7 +188,7 @@ class TrueAnswerSerializer(serializers.ModelSerializer):
 
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    creator = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Project
@@ -215,7 +200,58 @@ class TeamCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = '__all__'
+
+
 # class App_reviewSerializer(serializers.ModelSerializer):
 #         class Meta:
 #             model = App_review
 #             fields = '__all__'
+
+
+class EventSerializer(serializers.ModelSerializer):
+    creator = ProfileSerializer(read_only=True)
+    supervisorOne = ProfileSerializer(read_only=True, source="supervisor")
+    specializationsSet = SpecializationSerializer(read_only=True, many=True, source="specializations")
+    statusesSet = Status_AppSerializer(read_only=True, many=True, source="statuses")
+    directions = DirectionSerializer(read_only=True, many=True)
+    applications = ApplicationSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Event
+        fields = ["creator",
+                  "name",
+                  "supervisor",
+                  "specializations",
+                  "statuses",
+                  "description",
+                  "link",
+                  "stage",
+                  "start",
+                  "end", "supervisorOne",
+                  "specializationsSet",
+                  "statusesSet", "directions",
+                  "applications"]
+
+
+class EventCreateSerializer(serializers.ModelSerializer):
+    # user = ProfileSerializer(read_only=True)
+    # specializations = SpecializationSerializer(read_only=True, many=True)
+    # statuses = Status_AppSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Event
+        fields = '__all__'
+
+# class ApplicationSerializer(serializers.ModelSerializer):
+#     user = ProfileSerializer(read_only=True)
+#     project = ProjectSerializer(read_only=True)
+#     event = EventSerializer(read_only=True)
+#     direction = DirectionSerializer(read_only=True)
+#     specialization = SpecializationSerializer(read_only=True)
+#     team = TeamSerializer(read_only=True)
+#     status = Status_AppSerializer(read_only=True)
+#
+#     class Meta:
+#         model = Application
+#         fields = "__all__"
+#         ref_name = "AppEventSerAll"

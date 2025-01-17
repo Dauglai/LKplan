@@ -98,7 +98,7 @@ class Event(models.Model):
 
 
 class Direction(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='directions')
     name = models.CharField(verbose_name="Название направления", max_length=100)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
 
@@ -110,8 +110,8 @@ class Project(models.Model):
     direction = models.ForeignKey(Direction, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Название проекта", max_length=100)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
-    supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True,
-                                   related_name="supervised_projects")
+    # supervisor = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True,
+    #                                related_name="supervised_projects")
     curators = models.ManyToManyField(Profile, related_name="curated_projects")
     creator = models.ForeignKey(Profile, on_delete=models.CASCADE,
                                 related_name="projects_creators", verbose_name="Создатель проекта")
@@ -132,7 +132,7 @@ class Team(models.Model):
 class Application(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='applications', null=True, blank=True)
     direction = models.ForeignKey(Direction, on_delete=models.CASCADE, null=True, blank=True)
     specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE, null=True, blank=True)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)

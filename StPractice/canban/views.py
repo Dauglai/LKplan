@@ -14,6 +14,7 @@ from django_filters import rest_framework as filters
 from rest_framework.filters import SearchFilter
 from django_filters import BaseInFilter
 
+
 class NumberInFilter(BaseInFilter, filters.NumberFilter):
     pass
 
@@ -22,6 +23,7 @@ class TaskAPIListPagination(pagination.PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 100
+
 
 class ProfileSearchAPIView(generics.ListAPIView):
     queryset = Profile.objects.all()
@@ -73,7 +75,7 @@ class TaskAPICreate(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user.profile)
+        serializer.save(creator=self.request.user.profile)
 
 
 class TaskAPIUpdate(generics.RetrieveUpdateAPIView):
@@ -86,6 +88,7 @@ class TaskAPIDestroy(generics.RetrieveDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = (IsAuthorOrReadOnly,)
+
 
 class CheckListAPIViews(viewsets.ModelViewSet):
     queryset = ChecklistItem.objects.all()
@@ -110,13 +113,11 @@ class TagAPIViews(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     permission_classes = (IsAuthenticated,)
 
+
 class ResultAPIListCreate(generics.ListCreateAPIView):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
     permission_classes = (IsAuthenticated,)
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user.profile)
 
 
 class ResultAPIUpdate(generics.RetrieveUpdateAPIView):
@@ -130,36 +131,8 @@ class GradeAPIListCreate(generics.ListCreateAPIView):
     serializer_class = GradeSerializer
     permission_classes = (IsAuthenticated,)
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user.profile)
-
 
 class CommentAPIListCreate(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticated,)
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user.profile)
-
-class ProfileAPIList(generics.ListAPIView):
-    serializer_class = ProfileSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        # Возвращает профиль текущего пользователя
-        return Profile.objects.filter(author=self.request.user)
-
-class ProfilesAPIList(generics.ListAPIView):
-    serializer_class = ProfileSerializer
-    permission_classes = (IsAuthenticated,)
-
-
-
-class ProfileAPIUpdate(generics.RetrieveUpdateAPIView):
-    serializer_class = ProfileSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
-
-    def get_object(self):
-        # Возвращает профиль текущего пользователя
-        return Profile.objects.get(author=self.request.user)

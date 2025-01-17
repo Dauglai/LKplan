@@ -13,9 +13,7 @@ task_router.register(r'checklist', CheckListAPIViews)
 urlpatterns = [
     path('/', include(router.urls)),
     path('tasks/<int:pk>/', include(task_router.urls)),
-    path('profile/', ProfileAPIList.as_view()),
-    path('profile/update/', ProfileAPIUpdate.as_view()),
-    path('profiles/', ProfilesAPIList.as_view()),
+
     path('tasks/create/', TaskAPICreate.as_view()),
 
     path('tasks/', TaskAPIList.as_view()),
@@ -24,6 +22,6 @@ urlpatterns = [
     path('tasks_delete/<int:pk>/', TaskAPIDestroy.as_view()),
     path('tasks/<int:id>/results/', ResultAPIListCreate.as_view()),
     path('tasks/<int:id>/grades/', GradeAPIListCreate.as_view()),
-    path('tasks/<int:id>/comments/', GradeAPIListCreate.as_view()),
+    path('tasks/<int:id>/comments/', CommentAPIListCreate.as_view()),
 
 ]

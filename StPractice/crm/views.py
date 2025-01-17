@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics, viewsets, pagination
 from .serializers import *
 from .models import *
-from .permissions import IsAuthorOrReadOnly
+from .permissions import *
 from django_filters import BaseInFilter
 from django_filters import rest_framework as filters
 from rest_framework.filters import SearchFilter
@@ -68,8 +68,8 @@ class EventAPIList(generics.ListAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     permission_classes = (IsAuthenticated,)
-    filter_backends = [SearchFilter]
-    search_fields = ['name']
+    # filter_backends = [SearchFilter]
+    # search_fields = ['name']
 
 
 class EventAPICreate(generics.CreateAPIView):
@@ -99,6 +99,25 @@ class DirectionAPIViews(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
 
+class ApplicationFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    status = filters.CharFilter(field_name='status', lookup_expr='iexact')
+    # deadline = filters.DateFilter(field_name='deadline')
+    # author = filters.NumberFilter(field_name='author__id')  # фильтр по автору
+    created_after = filters.DateFilter(field_name='datetime', lookup_expr='gte')  # начальная дата
+    created_before = filters.DateFilter(field_name='datetime', lookup_expr='lte')  # конечная дата
+    is_approved = filters.BooleanFilter(field_name='is_approved')
+    is_link = filters.BooleanFilter(field_name='is_link')
+    project = filters.NumberFilter(field_name='project__id')
+    team = filters.NumberFilter(field_name='team__id')
+    specialization = filters.NumberFilter(field_name='specialization__id')
+
+    class Meta:
+        model = Application
+        fields = ['name', 'status', 'created_after', 'created_before', "is_approved", "is_link", "project", "team",
+                  "specialization"]
+
+
 class ApplicationAPIViews(viewsets.ModelViewSet):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
@@ -106,15 +125,16 @@ class ApplicationAPIViews(viewsets.ModelViewSet):
 
 
 class ApplicationAPIList(generics.ListAPIView):
-    queryset = Event.objects.all()
+    queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     permission_classes = (IsAuthenticated,)
-    filter_backends = [SearchFilter]
-    search_fields = ['name']
+    filterset_class = ApplicationFilter
+    # filter_backends = [SearchFilter]
+    # search_fields = ['name']
 
 
 class ApplicationAPICreate(generics.CreateAPIView):
-    queryset = Event.objects.all()
+    queryset = Application.objects.all()
     serializer_class = ApplicationCreateSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -123,13 +143,13 @@ class ApplicationAPICreate(generics.CreateAPIView):
 
 
 class ApplicationAPIUpdate(generics.RetrieveUpdateAPIView):
-    queryset = Event.objects.all()
+    queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     permission_classes = (IsAuthorOrReadOnly,)
 
 
 class ApplicationAPIDestroy(generics.RetrieveDestroyAPIView):
-    queryset = Event.objects.all()
+    queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
     permission_classes = (IsAuthorOrReadOnly,)
 
@@ -180,13 +200,13 @@ class ProfileAPIViews(viewsets.ModelViewSet):
 class ProjectAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsCuratorAuthorOrReadonly,)
 
 
 class ProjectAPIDestroy(generics.RetrieveDestroyAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsCuratorAuthorOrReadonly,)
 
 
 class ProjectAPIList(generics.ListAPIView):
@@ -210,16 +230,16 @@ class TeamAPICreate(generics.CreateAPIView):
 class TeamAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsCuratorAuthorOrReadonly,)
 
 
 class TeamAPIDestroy(generics.RetrieveDestroyAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsCuratorAuthorOrReadonly,)
 
 
-class ProfileAPIList(generics.ListAPIView):
+class ProfileAPI(generics.ListAPIView):
     serializer_class = ProfileSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -235,3 +255,11 @@ class ProfileAPIUpdate(generics.RetrieveUpdateAPIView):
     def get_object(self):
         # Возвращает профиль текущего пользователя
         return Profile.objects.get(user=self.request.user)
+
+
+class ProfilesAPIList(generics.ListAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = (IsAuthenticated,)
+    filter_backends = [SearchFilter]
+    search_fields = ['name', 'surname', 'course']

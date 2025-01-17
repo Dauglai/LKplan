@@ -15,7 +15,7 @@ import { NotificationProvider } from 'Widgets/Notification/Notification.tsx';
 import Login from 'Pages/Login/ui/Login.tsx';
 import Register from 'Pages/Register/ui/Register.tsx';
 import Profile from 'Pages/Profile/ui/Profile.tsx';
-import RequestsManagement from 'Pages/Requests/ui/RequestsManagement.tsx';
+//import RequestsManagement from 'Pages/Requests/ui/RequestsManagement.tsx';
 import { StudentReq } from 'Pages/StudentReq/index.ts';
 import Tasks from 'Pages/Tasks/Tasks.tsx';
 import { ConfigProvider } from 'antd';
@@ -25,6 +25,7 @@ import CreateDirectionForm from 'Pages/CreareDirection/CreateDirectionForm.tsx';
 import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializationForm.tsx'
 import CreateStatusAppForm from 'Pages/CreateStatusApp/CreateStatusAppForm.tsx';
 import EventPage from 'Pages/Event/EventPage.tsx';
+import ProjectPage from 'Pages/Project/ProjectPage.tsx';
 
 const theme = {
   token: {
@@ -50,7 +51,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/StudReq/:uId" element={<StudentReq />} />
                 <Route path="/" element={<RequireAuth />}>
                   <Route path="/profile" element={<Profile />} />
-                  <Route path="/requests-list" element={<RequestsManagement />} />
+                  {/*<Route path="/requests-list" element={<RequestsManagement />} />*/}
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/events-list" element={<EventsManagement />} />
                   <Route path="/projects-list" element={<ProjectsManagement />} />
@@ -58,6 +59,7 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
                   <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
                   <Route path="/event/:id" element={<EventPage />} />
+                  <Route path="/projects/:id" element={<ProjectPage />} />
                 </Route>
             </Route>
             </Routes>

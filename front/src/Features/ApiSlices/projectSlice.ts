@@ -24,7 +24,7 @@ const projectApi = apiSlice.injectEndpoints({
     }),
     getProjectById: builder.query<Project, number>({
       query: (id) => ({
-        url: `/api/project/${id}/`,    //Получение проекта по id
+        url: `/api/project/${id}`,    //Получение проекта по id
         withCredentials: true,}
       ),
       providesTags: ['Project'],

@@ -2,14 +2,15 @@ import { Event } from "Features/ApiSlices/eventSlice";
 import 'Styles/ListTableStyles.scss';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from "react-router-dom";
+import { getInitials } from "Features/utils/getInitials";
 
 
 interface EventsTableProps {
   events: Event[];
-  onDelete: (id: number) => void;
+  //onDelete: (id: number) => void;
 }
 
-export default function EventsListTable({ events, onDelete, onEdit }: EventsTableProps): JSX.Element {
+export default function EventsListTable({ events, /*onDelete,*/ onEdit }: EventsTableProps): JSX.Element {
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState<number | null>(null); 
   const menuRef = useRef<HTMLUListElement | null>(null); 
@@ -29,10 +30,10 @@ export default function EventsListTable({ events, onDelete, onEdit }: EventsTabl
     setOpenMenu(openMenu === id ? null : id);
   };
 
-  const handleDelete = (id: number) => {
+  /*const handleDelete = (id: number) => {
     onDelete(id);
     setOpenMenu(null);
-  };
+  };*/
 
   const handleEdit = (id: number) => {
     onEdit(id);
@@ -50,7 +51,7 @@ export default function EventsListTable({ events, onDelete, onEdit }: EventsTabl
           <th>Название</th>
           <th>Дата начала</th>
           <th>Дата окончания</th>
-          <th>Организатор</th>
+          <th>Руководитель</th>
           <th>Статус</th>
           <th></th>
         </tr>
@@ -58,11 +59,10 @@ export default function EventsListTable({ events, onDelete, onEdit }: EventsTabl
       <tbody>
         {events.map((event) => (
           <tr key={event.id}>
-            <td><Link to={`/event/${event.id}`} className="LinkCell">{event.name}</Link>
-            </td>
+            <td><Link to={`/event/${event.id}`} className="LinkCell">{event.name}</Link></td>
             <td><span className="HiglightCell">{event.start ? new Date(event.start).toLocaleDateString() : "-"}</span></td>
             <td><span className="HiglightCell">{event.end ? new Date(event.end).toLocaleDateString() : "-"}</span></td>
-            <td>{event.creator}</td>
+            <td>{event.supervisor.surname} {getInitials(event.supervisor.name, event.supervisor.patronymic)}</td>
             <td>
               <span
                 className={`HiglightCell ${event.stage === 'Мероприятие завершено' ? 'HighlightGray' : ''}`}
@@ -78,7 +78,7 @@ export default function EventsListTable({ events, onDelete, onEdit }: EventsTabl
                 <ul ref={menuRef} className="ActionsMenu">
                   <li onClick={() => navigate(`/event/${event.id}`)}>Подробнее</li>
                   <li onClick={() => handleEdit(event.id)}>Редактировать</li>
-                  <li onClick={() => handleDelete(event.id)}>Удалить</li>
+                  {/*<li onClick={() => handleDelete(event.id)}>Удалить</li>*/}
                 </ul>
               )}
             </td>

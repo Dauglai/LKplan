@@ -33,7 +33,7 @@ const eventApi = apiSlice.injectEndpoints({
     }),
     getEventById: builder.query<Event, number>({
       query: (id) => ({
-        url: `/api/events/${id}/`,    //Получение мероприятия по id
+        url: `/api/events/${id}`,    //Получение мероприятия по id
         withCredentials: true,}
       ),
       providesTags: (result, error, id) => [{ type: 'Event', id }],
@@ -45,7 +45,7 @@ const eventApi = apiSlice.injectEndpoints({
     }),
     createEvent: builder.mutation<Event, Omit<Event, 'id'>>({
       query: (newEvent) => ({ // Создаем новое мероприятие
-        url: '/api/events/',
+        url: '/api/events/create/',
         method: 'POST',
         body: {
           ...newEvent,
@@ -94,7 +94,7 @@ const eventApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Event'],
     }),
-    deleteEvent: builder.mutation<void, number>({
+    /*deleteEvent: builder.mutation<void, number>({
       query: (id) => ({  // Удаляем мероприятие
         url: `/api/events/${id}/`,
         method: 'DELETE', 
@@ -102,7 +102,7 @@ const eventApi = apiSlice.injectEndpoints({
         withCredentials: true,
       }),
       invalidatesTags: ['Event'],
-    }),
+    }),*/
   }),
 });
 
@@ -112,6 +112,6 @@ export const {
   useCreateEventMutation,
   useUpdateEventMutation,
   usePartialUpdateEventMutation,
-  useDeleteEventMutation,
+  //useDeleteEventMutation,
 } = eventApi;
 

@@ -114,6 +114,18 @@
                           }
                         }
                     }
+
+                    ul {
+                        list-style: none;
+
+                        li {
+                            a {
+                                @include text1;
+                                text-decoration: none;
+                                color: $black;
+                            }
+                        }
+                    }
                       
                 }
             }

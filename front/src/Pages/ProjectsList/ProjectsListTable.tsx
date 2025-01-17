@@ -4,6 +4,7 @@ import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { Project } from 'Features/ApiSlices/projectSlice';
+import { useNavigate, Link } from "react-router-dom";
 
 interface ProjectsTableProps {
   projects: Project[];
@@ -14,6 +15,7 @@ export default function ProjectsListTable({ projects, onEdit }: ProjectsTablePro
   const { data: directions, isLoading: isLoadingDirections } = useGetDirectionsQuery();
   const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
   const { data: teams, isLoading: isLoadingTeams } = useGetTeamsQuery();
+  const navigate = useNavigate();
 
 const [openMenu, setOpenMenu] = useState<number | null>(null); 
   const menuRef = useRef<HTMLUListElement | null>(null); 
@@ -31,11 +33,6 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
 
   const toggleMenu = (id: number) => {
     setOpenMenu(openMenu === id ? null : id);
-  };
-
-  const handleDelete = (id: number) => {
-    onDelete(id);
-    setOpenMenu(null);
   };
 
   const handleEdit = (id: number) => {
@@ -57,10 +54,6 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
     return event ? event.name : 'Не указано';
   };
 
-  const getTeamsCount = (project: number): number => {
-    return teams?.filter(team => team.project === project).length || 0;
-  };
-
   return (
     <table className="ProjectsListTable ListTable">
       <thead>
@@ -68,24 +61,32 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
           <th>Название</th>
           <th>Мероприятие</th>
           <th>Куратор</th>
-          <th>Количество команд</th>
+          <th>Команды</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         {projects.map((project) => (
           <tr key={project.id}>
-            <td>{project.name}</td>
-            <td>
-            <span className="HiglightCell">{getEventName(project.direction)}</span></td>
+            <td><Link to={`/projects/${project.id}`} className="LinkCell">{project.name}</Link></td>
+            <td><span className="HiglightCell">{getEventName(project.direction)}</span></td>
             <td>{project.curators.map(curator => `${curator}`).join(', ')}</td>
-            <td>{getTeamsCount(project.id)}</td>
+            <td>
+              <ul>
+                {teams?.map((team) => {
+                  if (team.project === project.id) {
+                    return <li><Link to={`/teams/${team.id}`}>{team.name}</Link></li>
+                  }
+                })}
+              </ul>
+            </td>
             <td>
               <div onClick={() => toggleMenu(project.id)} className="ThreeDotsButton">
                 &#8230;
               </div>
               {openMenu === project.id && (
                 <ul ref={menuRef} className="ActionsMenu">
+                  <li onClick={() => navigate(`/projects/${project.id}`)}>Подробнее</li>
                   <li onClick={() => handleEdit(project.id)}>Редактировать</li>
                 </ul>
               )}

@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.termcolors import RESET
-
 from crm.models import Profile, Project
 
 class Tag(models.Model):

@@ -1,23 +1,11 @@
-# from tkinter.tix import CheckList
+from asyncore import write
 
-# from Tools.scripts.generate_token import update_file
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from crm.models import Profile
 from crm.serializers import ProjectSerializer, ProfileSerializer
 from .models import *
 
-
-# class ProfileSerializer(serializers.ModelSerializer):
-#     user = UserSerializer(read_only=True)
-#     user_id = serializers.IntegerField(source='user.id', read_only=True)
-
-#     class Meta:
-#         model = Profile
-#         fields = [
-#             'name', 'surname', 'patronymic', 'course',
-#             'university', 'telegram', 'email', 'user', 'user_id',
-#         ]
 
 class CheckListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,7 +45,7 @@ class GradeSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Result
+        model = Comment
         fields = '__all__'
 
 
@@ -66,13 +54,13 @@ class TaskSerializer(serializers.ModelSerializer):
     checklist = CheckListSerializer(many=True, required=False)
     comment_set = CommentSerializer(many=True, read_only=True)
     result_set = ResultSerializer(many=True, read_only=True)
-
+    resp_user = ProfileSerializer(read_only=True, source='responsible_user')
     class Meta:
         model = Task
         fields = [
             'id', 'project', 'name', 'datetime', 'dateCloseTask', 'description', 'creator', 'status', 'comment_set',
             'result_set', 'parent_task',
-            'responsible_user', 'checklist'
+            'responsible_user', 'checklist', 'resp_user'
         ]
 
     def create(self, validated_data):

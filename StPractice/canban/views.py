@@ -90,10 +90,7 @@ class TaskAPIDestroy(generics.RetrieveDestroyAPIView):
     permission_classes = (IsAuthorOrReadOnly,)
 
 
-class CheckListAPIViews(viewsets.ModelViewSet):
-    queryset = ChecklistItem.objects.all()
-    serializer_class = CheckListSerializer
-    permission_classes = (IsAuthenticated,)
+
 
 
 class StatusAPIViews(viewsets.ModelViewSet):
@@ -136,3 +133,22 @@ class CommentAPIListCreate(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticated,)
+
+
+class CheckListAPIListCreate(generics.ListCreateAPIView):
+    queryset = ChecklistItem.objects.all()
+    serializer_class = CheckListSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class CheckListAPIUpdate(generics.RetrieveUpdateAPIView):
+    queryset = ChecklistItem.objects.all()
+    serializer_class = CheckListSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class CheckListAPIDelete(generics.RetrieveDestroyAPIView):
+    queryset = ChecklistItem.objects.all()
+    serializer_class = CheckListSerializer
+    permission_classes = (IsAuthenticated,)
+

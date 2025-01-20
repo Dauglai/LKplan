@@ -101,6 +101,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     # creator = ProfileSerializer(read_only=True)
     supervisorSet = ProfileSerializer(read_only=True, source="supervisor")
     direction = DirectionSerializer(read_only=True)
+    project_id = serializers.IntegerField(read_only=True, source="id")
 
     class Meta:
         model = Project
@@ -112,6 +113,7 @@ class ProjectSerializer(serializers.ModelSerializer):
                   "creator",
                   "curatorsSet",
                   "supervisorSet",
+                  "project_id"
                   ]
     # def create(self, validated_data):
     #     curators_data = validated_data.pop('curators', [])
@@ -215,6 +217,7 @@ class EventSerializer(serializers.ModelSerializer):
     statusesSet = Status_AppSerializer(read_only=True, many=True, source="statuses")
     directions = DirectionSerializer(read_only=True, many=True)
     applications = ApplicationSerializer(read_only=True, many=True)
+    event_id = serializers.IntegerField(read_only=True, source="id")
 
     class Meta:
         model = Event
@@ -230,7 +233,7 @@ class EventSerializer(serializers.ModelSerializer):
                   "end", "supervisorOne",
                   "specializationsSet",
                   "statusesSet", "directions",
-                  "applications"]
+                  "applications", "event_id"]
 
 
 class EventCreateSerializer(serializers.ModelSerializer):

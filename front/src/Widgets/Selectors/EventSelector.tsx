@@ -26,7 +26,7 @@ export default function EventSelector({
     return <div className="EventSelector">Мероприятия не найдены</div>;
   }
 
-  const selectedEventName = events.find(event => event.id === selectedEventId)?.name || 'Выбрать мероприятие';
+  const selectedEventName = events.find(event => event.event_id === selectedEventId)?.name || 'Выбрать мероприятие*';
 
   return (
     <div className="EventSelector">
@@ -46,9 +46,9 @@ export default function EventSelector({
           <div className="DropdownList">
             {events.map(event => (
               <div
-                key={event.id}
-                className={`DropdownItem ${selectedEventId === event.id ? 'selected' : ''}`}
-                onClick={() => handleSelectEvent(event.id)}
+                key={event.event_id}
+                className={`DropdownItem ${selectedEventId === event.event_id ? 'selected' : ''}`}
+                onClick={() => handleSelectEvent(event.event_id)}
               >
                 {event.name}
               </div>

@@ -3,6 +3,8 @@ import { useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
+import { getInitials } from "Features/utils/getInitials";
+import BackButton from "Widgets/BackButton/BackButton";
 import 'Styles/InfoPageStyle.scss';
 
 export default function EventPage(): JSX.Element {
@@ -26,11 +28,20 @@ export default function EventPage(): JSX.Element {
     return (
         <div className="EventInfoPage InfoPage">
             <div className="EventInfoHeader InfoHeader">
+                <BackButton />
                 <h2>{event?.name}</h2>
             </div>
             <div className="EventInfo MainInfo">
+                    <ul className="EventInfoList ListInfo">
+                        <li><strong>Дата начала: </strong>{event.start ? new Date(event.start).toLocaleDateString() : "-"}</li>
+                        <li><strong>Дата окончания: </strong>{event.end ? new Date(event.end).toLocaleDateString() : "-"}</li>
+                        <li><strong>Ссылка на орг.чат: </strong><Link to={event.link}>{event.link ? event.link : "-"}</Link></li>
+                        <li><strong>Руководитель: </strong><Link to={`/profile/${event.supervisorOne.user_id}`}>{event.supervisorOne.surname} {getInitials(event.supervisorOne.name, event.supervisorOne.patronymic)}</Link></li>
+                        <li><strong>Текущий этап: </strong>{event.stage}</li>
+                    </ul>
                 <div className="EventDescription InfoDescription">{event?.description}</div>
                 <div className="EventContent InfoContent">
+                    <strong>Направления - Проекты - Команды</strong>
                     {directions?.map((direction) => {
                         if (direction.event === eventId) {
                         return (
@@ -38,15 +49,19 @@ export default function EventPage(): JSX.Element {
                             <h3>{direction.name}</h3>
                 
                             {projects?.map((project) => {
-                                if (project.direction === direction.id) {
+                                if (project.direction.id === direction.id) {
                                 return (
-                                    <div key={project.id} className='EventProject InfoLevel InfoLevelTwo'>
-                                    <h4>{project.name}</h4>
+                                    <div key={project.project_id} className='EventProject InfoLevel InfoLevelTwo'>
+                                        <Link 
+                                            to={`/project/${project.project_id}`}
+                                            key={project.project_id}>
+                                                {project.name}
+                                        </Link>
                 
                                     {teams?.map((team) => {
-                                        if (team.project === project.id) {
+                                        if (team.project === project.project_id) {
                                         return <Link 
-                                            to=""
+                                            to={`/teams/${team.id}`}
                                             key={team.id}
                                             className='EventTeam InfoLevel InfoLevelThree'>
                                                 {team.name}

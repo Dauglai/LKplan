@@ -1,0 +1,14 @@
+
+.BackButton {
+    border: none;
+    display: flex;
+    align-items: center;
+
+    background: none;
+
+    cursor: pointer;
+
+    &:active {
+        opacity: 0.7;
+    }
+}

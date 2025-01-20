@@ -63,11 +63,7 @@ const eventApi = apiSlice.injectEndpoints({
       query: ({ id, data }) => ({   // Обновляем мероприятие
         url: `/api/events/${id}`,
         method: 'PUT',
-        body: {
-          ...data,
-          start: data.start ? data.start.toISOString() : null,
-          end: data.end ? data.end.toISOString() : null,
-        },
+        body: data,
         headers: {
           'Content-Type': 'application/json',
           
@@ -80,11 +76,7 @@ const eventApi = apiSlice.injectEndpoints({
       query: ({ id, data }) => ({   // Обновляем мероприятие
         url: `/api/events/${id}`,
         method: 'PATCH',
-        body: {
-          ...data,
-          start: data.start ? data.start.toISOString() : null,
-          end: data.end ? data.end.toISOString() : null,
-        },
+        body: data,
         headers: {
           'Content-Type': 'application/json',
           

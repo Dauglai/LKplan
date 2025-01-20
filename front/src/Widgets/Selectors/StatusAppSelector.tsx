@@ -40,7 +40,7 @@ export default function StatusAppSelector({
         className="ListField FormField"
         onClick={() => setIsOpen(prev => !prev)}
       >
-        <p>Добавить статус</p>
+        <p>Добавить статус*</p>
         <PlusIcon width="20" height="20" strokeWidth="1" />
 
         {isOpen && (

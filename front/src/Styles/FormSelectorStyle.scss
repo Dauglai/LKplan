@@ -8,7 +8,6 @@
 }
 
 .FormField {
-    @include text2;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -19,6 +18,10 @@
     border: 1px solid $grey;
 
     outline: none;
+
+    p {
+      @include text2;
+    }
 
     svg {
         color: $black;
@@ -82,3 +85,4 @@
         }
     }
 }
+

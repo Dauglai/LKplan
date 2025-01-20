@@ -1,5 +1,3 @@
-from asyncore import write
-
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from crm.models import Profile
@@ -55,6 +53,7 @@ class TaskSerializer(serializers.ModelSerializer):
     comment_set = CommentSerializer(many=True, read_only=True)
     result_set = ResultSerializer(many=True, read_only=True)
     resp_user = ProfileSerializer(read_only=True, source='responsible_user')
+
     class Meta:
         model = Task
         fields = [

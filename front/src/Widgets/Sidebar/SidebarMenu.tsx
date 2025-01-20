@@ -72,7 +72,7 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarProps): JSX.Elem
                 Планировщик
             </li>
             <li onClick={() => handleNavigation('/teams')}>Команды</li>
-            <li onClick={() => handleNavigation('/members')}>Участники</li>
+            {/*<li onClick={() => handleNavigation('/students')}>Участники</li>*/}
             <li onClick={() => handleNavigation('/tasks')}>Список задач</li>
           </ul>
         </ul>

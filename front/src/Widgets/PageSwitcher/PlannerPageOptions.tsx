@@ -1,4 +1,4 @@
 export const PlannerPageOptions = [
     { label: 'Команды', link: '/teams' },
-    { label: 'Участники', link: '/members' },
+    { label: 'Участники', link: '/students' },
 ];

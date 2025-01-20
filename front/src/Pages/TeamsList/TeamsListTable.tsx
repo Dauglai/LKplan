@@ -70,9 +70,9 @@ export default function TeamsListTable({ teams }: TeamsTableProps): JSX.Element 
         return project ? project.name : 'Не указано';
     };
 
-    const getCurators = (projectId: number): string => {
+    const getCurators = (projectId: number): [] => {
         const project = projects?.find((project) => project.project_id === projectId);
-        return project ? project.curatorsSet : 'Не указано';
+        return project ? project.curatorsSet : ['Не указано'];
     };
 
 
@@ -85,64 +85,65 @@ export default function TeamsListTable({ teams }: TeamsTableProps): JSX.Element 
             <th>Куратор</th>
             <th>Участники</th>
             <th></th>
+            <th></th>
             </tr>
         </thead>
         <tbody>
             {teams.map((team) => (
             <tr key={team.id}>
                 <td>
-                <Link to={`/teams/${team.id}`} className="LinkCell">
-                    {team.name}
-                </Link>
+                    <Link to={`/teams/${team.id}`} className="LinkCell">
+                        {team.name}
+                    </Link>
                 </td>
                 <td>
-                <span className="HiglightCell">
-                    <Link to={`/project/${team.project}`}  className="LinkCell">{getProjectName(team.project)}</Link>
-                </span>
+                    <span className="HiglightCell">
+                        <Link to={`/project/${team.project}`}  className="LinkCell">{getProjectName(team.project)}</Link>
+                    </span>
                 </td>
                 <td>
-                {getCurators(team.project)
-                    .map(
-                    (curator) =>
-                        `${curator.surname} ${getInitials(curator.name, curator.patronymic)}`
-                    )
-                    .join(', ')}
+                    {getCurators(team.project)
+                        .map(
+                        (curator) =>
+                            <Link to={`/profile/${curator.user_id}`} className="LinkCell">{curator.surname} {getInitials(curator.name, curator.patronymic)}</Link>
+                        )}
                 </td>
                 <td>
-                <ul>
-                    {team.students.map((student) => (
-                    <li key={student.user_id}>
-                        {student.surname} {getInitials(student.name, student.patronymic)}
-                    </li>
-                    ))}
-                </ul>
-                </td>
-                <td>
-                <button
-                    onClick={() => handleEdit(team.id)}
-                    className="AddParticipantsButton"
-                >
-                    Добавить участников
-                </button>
-                <div onClick={() => toggleMenu(team.id)} className="ThreeDotsButton">
-                    &#8230;
-                </div>
-                {openMenu === team.id && (
-                    <ul ref={menuRef} className="ActionsMenu">
-                    <li onClick={() => navigate(`/teams/${team.id}`)}>Подробнее</li>
-                    <li onClick={() => handleEdit(team.id)}>Редактировать</li>
-                    <li onClick={() => handleDelete(team.id)}>Удалить</li>
+                    <ul>
+                        {team.students.map((student) => (
+                        <li key={student.user_id}>
+                            <Link to={`/profile/${student.user_id}`} className="LinkCell">{student.surname} {getInitials(student.name, student.patronymic)}</Link>
+                        </li>
+                        ))}
                     </ul>
-                )}
+                </td>
+                <td className="ButtonsColumn">
+                    <button
+                        onClick={() => handleEdit(team.id)}
+                        className="primary-btn">
+                        Добавить участников
+                    </button>
+                </td>
+                <td>
+                    <div onClick={() => toggleMenu(team.id)} className="ThreeDotsButton">
+                        &#8230;
+                    </div>
+                    {openMenu === team.id && (
+                        <ul ref={menuRef} className="ActionsMenu">
+                        <li onClick={() => navigate(`/teams/${team.id}`)}>Подробнее</li>
+                        <li onClick={() => handleEdit(team.id)}>Редактировать</li>
+                        <li onClick={() => handleDelete(team.id)}>Удалить</li>
+                        </ul>
+                    )}
                 </td>
             </tr>
             ))}
         </tbody>
-        {isModalOpen && (
+        {/*isModalOpen && (
             <Modal isOpen={isModalOpen} onClose={closeModal}>
-            <TeamForm closeModal={closeModal} existingTeam={selectedTeam} />
+                <TeamForm closeModal={closeModal} existingTeam={selectedTeam} />
             </Modal>
-        )}
+        )*/}
         </table>
     );
 }

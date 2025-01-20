@@ -15,7 +15,7 @@ import { NotificationProvider } from 'Widgets/Notification/Notification.tsx';
 import Login from 'Pages/Login/ui/Login.tsx';
 import Register from 'Pages/Register/ui/Register.tsx';
 import Profile from 'Pages/Profile/ui/Profile.tsx';
-//import RequestsManagement from 'Pages/Requests/ui/RequestsManagement.tsx';
+import RequestsManagement from 'Pages/RequestsList/RequestsManagement.tsx';
 import { StudentReq } from 'Pages/StudentReq/index.ts';
 import Tasks from 'Pages/Tasks/Tasks.tsx';
 import { ConfigProvider } from 'antd';
@@ -52,7 +52,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/StudReq/:uId" element={<StudentReq />} />
                 <Route path="/" element={<RequireAuth />}>
                   <Route path="/profile" element={<Profile />} />
-                  {/*<Route path="/requests" element={<RequestsManagement />} />*/}
+                  <Route path="/requests" element={<RequestsManagement />} />
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/events" element={<EventsManagement />} />
                   <Route path="/projects" element={<ProjectsManagement />} />

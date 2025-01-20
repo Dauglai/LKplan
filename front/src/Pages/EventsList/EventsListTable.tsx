@@ -79,12 +79,11 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
             <td><Link to={`/event/${event.event_id}`} className="LinkCell">{event.name}</Link></td>
             <td><span className="HiglightCell">{event.start ? new Date(event.start).toLocaleDateString() : "-"}</span></td>
             <td><span className="HiglightCell">{event.end ? new Date(event.end).toLocaleDateString() : "-"}</span></td>
-            <td>{event.supervisorOne.surname} {getInitials(event.supervisorOne.name, event.supervisorOne.patronymic)}</td>
+            <td><Link to={`/profile/${event.supervisorOne.user_id}`} className="LinkCell">{event.supervisorOne.surname} {getInitials(event.supervisorOne.name, event.supervisorOne.patronymic)}</Link></td>
             {/*<td><Link to={event.link} className="LinkCell">{event.link}</Link></td>*/}
             <td>
               <span
-                className={`HiglightCell ${event.stage === 'Мероприятие завершено' ? 'HighlightGray' : ''}`}
-              >
+                className={`HiglightCell ${event.stage === 'Мероприятие завершено' ? 'HighlightGray' : ''}`}>
                 {event.stage}
               </span>
             </td>

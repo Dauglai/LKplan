@@ -6,7 +6,7 @@ import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
 import Modal from "Widgets/Modal/Modal";
-import { PlannerPageOptions } from "Widgets/PageSwitcher/PlannerPageOptions";
+//import { PlannerPageOptions } from "Widgets/PageSwitcher/PlannerPageOptions";
 
 interface TeamsHeaderProps {
     onSearch: (search: string) => void;
@@ -88,7 +88,7 @@ export default function TeamsHeaderPanel({ onSearch, onSort }: TeamsHeaderProps)
                         <div className="SearchInputText">Поиск по названию</div>
                     )}
             </div>
-            <PageSwitcher options={PlannerPageOptions} />
+            {/*<PageSwitcher options={PlannerPageOptions} />*/}
         </div>
         </header>
     );

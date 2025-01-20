@@ -1,5 +1,6 @@
 @import 'Styles/mixins';
 @import 'Styles/variables';
+@import 'Styles/buttons';
 
 
 .ListTableContainer {
@@ -126,7 +127,13 @@
                             }
                         }
                     }
-                      
+
+                    &.ButtonsColumn {
+                        max-width: 120px;
+                        .primary-btn {
+                            @include primary-btn;
+                        }
+                    }  
                 }
             }
         }

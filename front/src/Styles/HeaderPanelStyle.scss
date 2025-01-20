@@ -47,6 +47,34 @@
         justify-content: flex-end;
         align-items: center;
         gap: 24px;
+
+        .SortButton,
+        .SortOptions .SortButton {
+            @include text1;
+            display: flex;
+
+            cursor: pointer;
+
+            .SortIcons {
+                display: flex;
+                align-items: center;
+                margin-left: 4px;
+            
+                .SortIcon {
+                    display: none;
+                    transition: ease 0.2s;
+                
+                    &.active {
+                        display: block;
+                    }
+                }
+            }
+        }
+
+        .FiltersPanel {
+            display: flex;
+            gap: 8px;
+        }
     }
 
 
@@ -82,29 +110,6 @@
             position: absolute;
             top: -14px;
             left: 4px;
-        }
-    }
-
-    .SortButton {
-        @include text1;
-        display: flex;
-
-        cursor: pointer;
-
-        .SortIcons {
-            
-            display: flex;
-            align-items: center;
-            margin-left: 4px;
-          
-            .SortIcon {
-                display: none;
-                transition: ease 0.2s;
-            
-                &.active {
-                    display: block;
-                }
-            }
         }
     }
 

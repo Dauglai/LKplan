@@ -1,0 +1,47 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.FilterSelect {
+    @include text1;
+    position: relative;
+
+    cursor: pointer;
+
+    .DropdownHeader {
+        display: flex;
+        align-items: center;
+
+        p {
+            text-overflow: ellipsis;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+    }
+
+    .DropdownList {
+        @include text2;
+        position: absolute;
+        top: calc(100% + 5px);
+        left: 0;
+        z-index: 100;
+        background-color: $white;
+        border: 1px solid $grey2;
+        border-radius: $border-radius;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 200px;
+        overflow-y: auto;
+
+        .DropdownItem {
+            padding: 8px 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+    
+            &:hover {
+                background-color: $grey2;
+            }
+        }
+    }
+}

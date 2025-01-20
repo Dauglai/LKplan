@@ -90,7 +90,8 @@ export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.
           <tr key={project.project_id}>
             <td><Link to={`/project/${project.project_id}`} className="LinkCell">{project.name}</Link></td>
             <td><span className="HiglightCell">{getEventName(project.direction.id)}</span></td>
-            <td>{project.curatorsSet.map(curator => `${curator.surname} ${getInitials(curator.name, curator.patronymic)}`).join(', ')}</td>
+            <td>{project.curatorsSet.map(curator => 
+              <Link to={`/profile/${curator.user_id}`} className="LinkCell">{curator.surname} {getInitials(curator.name, curator.patronymic)}</Link>)}</td>
             <td>
               <ul>
                 {teams?.map((team) => {

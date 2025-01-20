@@ -65,17 +65,14 @@ const teamApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Team'],
     }),
-    /* deleteTeam: builder.mutation<void, number>({
+    deleteTeam: builder.mutation<void, number>({
       query: (id) => ({
-        url: `/api/teams/${id}`,
+        url: `/api/teams/delete/${id}`,
         method: 'DELETE',
-        headers: {
-          'X-CSRFToken': getCSRFToken(),
-        },
         withCredentials: true,
       }),
       invalidatesTags: ['Team'],
-    }), */
+    }),
   }),
 });
 
@@ -85,6 +82,6 @@ export const {
   useCreateTeamMutation,
   useUpdateTeamMutation,
   usePartialUpdateTeamMutation,
-  //useDeleteTeamMutation,
+  useDeleteTeamMutation,
 } = teamApi;
 

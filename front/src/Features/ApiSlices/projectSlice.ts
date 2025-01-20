@@ -1,7 +1,7 @@
 import { apiSlice} from 'App/api/apiSlice.ts';
 
 export interface Project {
-  id: number;
+  project_id: number;
   direction: number;
   name: string;
   description: string | null;
@@ -36,7 +36,6 @@ const projectApi = apiSlice.injectEndpoints({
         body: newProject,
         headers: {
           'Content-Type': 'application/json',
-
         },
         withCredentials: true,
       }),
@@ -49,7 +48,6 @@ const projectApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-
         },
         withCredentials: true,
       }),
@@ -62,23 +60,19 @@ const projectApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-
         },
         withCredentials: true,
       }),
       invalidatesTags: ['Project'],
     }),
-    /* deleteProject: builder.mutation<void, number>({
-      query: (id) => ({  // Удаление проекта
-        url: `/api/project/${id}`,
+    deleteProject: builder.mutation<void, number>({
+      query: (id) => ({          // Удаление проекта
+        url: `/api/project/delete/${id}`,
         method: 'DELETE',
-        headers: {
-          'X-CSRFToken': getCSRFToken(),
-        },
         withCredentials: true,
       }),
       invalidatesTags: ['Project'],
-    }), */
+    }),
     
   }),
 });
@@ -89,5 +83,5 @@ export const {
   useCreateProjectMutation,
   useUpdateProjectMutation,
   usePartialUpdateProjectMutation,
-  //useDeleteProjectMutation,
+  useDeleteProjectMutation,
 } = projectApi;

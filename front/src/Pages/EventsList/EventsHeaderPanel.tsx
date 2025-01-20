@@ -7,7 +7,7 @@ import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
 import EventForm from "./EventForm/EventForm";
 import Modal from "Widgets/Modal/Modal";
-import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions";
+import { CRMPageOptions } from "Widgets/PageSwitcher/CRMPageOptions";
 
 interface EventsHeaderProps {
   onSearch: (search: string) => void;

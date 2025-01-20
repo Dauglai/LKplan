@@ -57,10 +57,10 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarProps): JSX.Elem
                     className="menu-btn"/>
                 Управление
             </li>
-            <li onClick={() => handleNavigation('/events-list')}>Мероприятия</li>
-            <li onClick={() => handleNavigation('/directions-list')}>Направления</li>
-            <li onClick={() => handleNavigation('/projects-list')}>Проекты</li>
-            <li onClick={() => handleNavigation('/requests-list')}>Список заявок</li>
+            <li onClick={() => handleNavigation('/events')}>Мероприятия</li>
+            <li onClick={() => handleNavigation('/directions')}>Направления</li>
+            <li onClick={() => handleNavigation('/projects')}>Проекты</li>
+            <li onClick={() => handleNavigation('/requests')}>Список заявок</li>
           </ul>
           <ul className="SidebarSection">
             <li className="SidebarSectionTitle">
@@ -72,6 +72,7 @@ export default function SidebarMenu({ isOpen, onClose }: SidebarProps): JSX.Elem
                 Планировщик
             </li>
             <li onClick={() => handleNavigation('/teams')}>Команды</li>
+            <li onClick={() => handleNavigation('/members')}>Участники</li>
             <li onClick={() => handleNavigation('/tasks')}>Список задач</li>
           </ul>
         </ul>

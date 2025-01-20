@@ -1,7 +1,7 @@
 import { apiSlice  } from 'App/api/apiSlice.ts';
 
 export interface Event {
-  id?: number;
+  event_id?: number;
   name: string;
   specializations: number[];
   statuses: number[];
@@ -93,15 +93,15 @@ const eventApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Event'],
     }),
-    /*deleteEvent: builder.mutation<void, number>({
+    deleteEvent: builder.mutation<void, number>({
       query: (id) => ({  // Удаляем мероприятие
-        url: `/api/events/${id}/`,
+        url: `/api/events/delete/${id}`,
         method: 'DELETE', 
 
         withCredentials: true,
       }),
       invalidatesTags: ['Event'],
-    }),*/
+    }),
   }),
 });
 
@@ -111,6 +111,6 @@ export const {
   useCreateEventMutation,
   useUpdateEventMutation,
   usePartialUpdateEventMutation,
-  //useDeleteEventMutation,
+  useDeleteEventMutation,
 } = eventApi;
 

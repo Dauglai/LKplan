@@ -22,6 +22,7 @@ import { ConfigProvider } from 'antd';
 import EventsManagement from 'Pages/EventsList/EventsManagement.tsx';
 import ProjectsManagement from 'Pages/ProjectsList/ProjectsManagement.tsx';
 import DirectionsManagement from 'Pages/DirectionsList/DirectionsManagement.tsx';
+import TeamsManagement from 'Pages/TeamsList/TeamsManagement.tsx';
 import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializationForm.tsx'
 import CreateStatusAppForm from 'Pages/CreateStatusApp/CreateStatusAppForm.tsx';
 import EventPage from 'Pages/Event/EventPage.tsx';
@@ -51,11 +52,12 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/StudReq/:uId" element={<StudentReq />} />
                 <Route path="/" element={<RequireAuth />}>
                   <Route path="/profile" element={<Profile />} />
-                  {/*<Route path="/requests-list" element={<RequestsManagement />} />*/}
+                  {/*<Route path="/requests" element={<RequestsManagement />} />*/}
                   <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/events-list" element={<EventsManagement />} />
-                  <Route path="/projects-list" element={<ProjectsManagement />} />
-                  <Route path="/directions-list" element={<DirectionsManagement />} />
+                  <Route path="/events" element={<EventsManagement />} />
+                  <Route path="/projects" element={<ProjectsManagement />} />
+                  <Route path="/directions" element={<DirectionsManagement />} />
+                  <Route path="/teams" element={<TeamsManagement />} />
                   <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
                   <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
                   <Route path="/event/:id" element={<EventPage />} />

@@ -1,10 +1,12 @@
 import 'Styles/ListTableStyles.scss';
 import { useState, useEffect, useRef } from 'react';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
-import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
+import { useGetEventsQuery, useDeleteEventMutation } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { Project } from 'Features/ApiSlices/projectSlice';
 import { useNavigate, Link } from "react-router-dom";
+import { getInitials } from "Features/utils/getInitials";
+import { useNotification } from 'Widgets/Notification/Notification';
 import ProjectForm from "./ProjectForm";
 import Modal from "Widgets/Modal/Modal";
 
@@ -19,8 +21,9 @@ export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const navigate = useNavigate();
-
-const [openMenu, setOpenMenu] = useState<number | null>(null); 
+  const [deleteProject] = useDeleteEventMutation();
+  const { showNotification } = useNotification()
+  const [openMenu, setOpenMenu] = useState<number | null>(null); 
   const menuRef = useRef<HTMLUListElement | null>(null); 
 
   useEffect(() => {
@@ -39,11 +42,17 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
   };
 
   const handleEdit = (id: number) => {
-    const projectToEdit = projects.find((dir) => dir.id === id);
+    const projectToEdit = projects.find((project) => project.project_id === id);
     if (projectToEdit) {
       setSelectedProject(projectToEdit);
       setIsModalOpen(true);
     }
+  };
+
+  const handleDelete = async (id: number) => {
+    await deleteProject(id);
+    showNotification('Проект удален', "success")
+    setOpenMenu(null);
   };
 
   const closeModal = () => {
@@ -60,8 +69,8 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
   }
 
   const getEventName = (directionId: number): string => {
-    const direction = directions?.find(dir => dir.id === directionId);
-    const event = events?.find(evt => evt.id === direction?.event);
+    const direction = directions?.find(direction => direction.id === directionId);
+    const event = events?.find(event => event.event_id === direction?.event);
     return event ? event.name : 'Не указано';
   };
 
@@ -78,27 +87,28 @@ const [openMenu, setOpenMenu] = useState<number | null>(null);
       </thead>
       <tbody>
         {projects.map((project) => (
-          <tr key={project.id}>
-            <td><Link to={`/project/${project.id}`} className="LinkCell">{project.name}</Link></td>
-            <td><span className="HiglightCell">{getEventName(project.direction)}</span></td>
-            <td>{project.curators.map(curator => `${curator}`).join(', ')}</td>
+          <tr key={project.project_id}>
+            <td><Link to={`/project/${project.project_id}`} className="LinkCell">{project.name}</Link></td>
+            <td><span className="HiglightCell">{getEventName(project.direction.id)}</span></td>
+            <td>{project.curatorsSet.map(curator => `${curator.surname} ${getInitials(curator.name, curator.patronymic)}`).join(', ')}</td>
             <td>
               <ul>
                 {teams?.map((team) => {
-                  if (team.project === project.id) {
+                  if (team.project === project.project_id) {
                     return <li><Link to={`/teams/${team.id}`}>{team.name}</Link></li>
                   }
                 })}
               </ul>
             </td>
             <td>
-              <div onClick={() => toggleMenu(project.id)} className="ThreeDotsButton">
+              <div onClick={() => toggleMenu(project.project_id)} className="ThreeDotsButton">
                 &#8230;
               </div>
-              {openMenu === project.id && (
+              {openMenu === project.project_id && (
                 <ul ref={menuRef} className="ActionsMenu">
-                  <li onClick={() => navigate(`/project/${project.id}`)}>Подробнее</li>
-                  <li onClick={() => handleEdit(project.id)}>Редактировать</li>
+                  <li onClick={() => navigate(`/project/${project.project_id}`)}>Подробнее</li>
+                  <li onClick={() => handleEdit(project.project_id)}>Редактировать</li>
+                  <li onClick={() => handleDelete(project.project_id)}>Удалить</li>
                 </ul>
               )}
             </td>

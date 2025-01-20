@@ -1,7 +1,7 @@
 import { apiSlice  } from 'App/api/apiSlice.ts';
 
 export interface Event {
-  id?: number;
+  event_id?: number;
   name: string;
   specializations: number[];
   statuses: number[];
@@ -63,11 +63,7 @@ const eventApi = apiSlice.injectEndpoints({
       query: ({ id, data }) => ({   // Обновляем мероприятие
         url: `/api/events/${id}`,
         method: 'PUT',
-        body: {
-          ...data,
-          start: data.start ? data.start.toISOString() : null,
-          end: data.end ? data.end.toISOString() : null,
-        },
+        body: data,
         headers: {
           'Content-Type': 'application/json',
           
@@ -80,11 +76,7 @@ const eventApi = apiSlice.injectEndpoints({
       query: ({ id, data }) => ({   // Обновляем мероприятие
         url: `/api/events/${id}`,
         method: 'PATCH',
-        body: {
-          ...data,
-          start: data.start ? data.start.toISOString() : null,
-          end: data.end ? data.end.toISOString() : null,
-        },
+        body: data,
         headers: {
           'Content-Type': 'application/json',
           
@@ -93,15 +85,15 @@ const eventApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Event'],
     }),
-    /*deleteEvent: builder.mutation<void, number>({
+    deleteEvent: builder.mutation<void, number>({
       query: (id) => ({  // Удаляем мероприятие
-        url: `/api/events/${id}/`,
+        url: `/api/events/delete/${id}`,
         method: 'DELETE', 
 
         withCredentials: true,
       }),
       invalidatesTags: ['Event'],
-    }),*/
+    }),
   }),
 });
 
@@ -111,6 +103,6 @@ export const {
   useCreateEventMutation,
   useUpdateEventMutation,
   usePartialUpdateEventMutation,
-  //useDeleteEventMutation,
+  useDeleteEventMutation,
 } = eventApi;
 

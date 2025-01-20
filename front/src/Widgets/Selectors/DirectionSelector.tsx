@@ -26,7 +26,7 @@ export default function DirectionSelector({
         return <div className="DirectionSelector">Направления не найдены</div>;
     }
 
-    const selectedDirectionName = directions.find(direction => direction.id === selectedDirectionId)?.name || 'Выбрать мероприятие';
+    const selectedDirectionName = directions.find(direction => direction.id === selectedDirectionId)?.name || 'Выбрать направление*';
 
     return (
         <div className="DirectionSelector">

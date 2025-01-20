@@ -1,13 +1,13 @@
 import { useState } from "react";
 import PlusIcon from 'assets/icons/plus.svg?react';
 import SearchIcon from 'assets/icons/search.svg?react';
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
 import CreateProjectForm from "./ProjectForm";
 import Modal from "Widgets/Modal/Modal";
-import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions";
+import { CRMPageOptions } from "Widgets/PageSwitcher/CRMPageOptions";
+import BackButton from "Widgets/BackButton/BackButton";
 
 interface ProjectsHeaderProps {
   onSearch: (search: string) => void;
@@ -17,16 +17,16 @@ interface ProjectsHeaderProps {
 export default function ProjectsHeaderPanel({ onSearch, onSort }: ProjectsHeaderProps): JSX.Element {
   const [search, setSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortProject, setSortProject] = useState<"asc" | "desc">("asc");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const toggleSortDirection = () => {
-    const newDirection = sortDirection === "asc" ? "desc" : "asc";
-    setSortDirection(newDirection);
-    onSort(newDirection);
+  const toggleSortProject = () => {
+    const newProject = sortProject === "asc" ? "desc" : "asc";
+    setSortProject(newProject);
+    onSort(newProject);
   };
 
   const handleFocus = () => setIsFocused(true);
@@ -35,9 +35,7 @@ export default function ProjectsHeaderPanel({ onSearch, onSort }: ProjectsHeader
   return (
     <header className="ProjectsHeaderPanel HeaderPanel">
       <div className="LeftHeaderPanel">
-        <button className="BackButton lfp-btn">
-          <ChevronRightIcon width="32" height="32" strokeWidth="2" className="ChevronLeft"/>
-        </button>
+        <BackButton />
         <h2 className="HeaderPanelTitle">Проекты</h2>
         <PlusIcon 
           width="18" 
@@ -53,15 +51,15 @@ export default function ProjectsHeaderPanel({ onSearch, onSort }: ProjectsHeader
       </Modal>
       
       <div className="RightHeaderPanel">
-        <div className="SortButton rght-btn" onClick={toggleSortDirection}>
+        <div className="SortButton rght-btn" onClick={toggleSortProject}>
           <span className="SortIcons">
               <ArrowIcon
-                className={`SortIcon ${sortDirection === "asc" ? "active" : ""}`}
+                className={`SortIcon ${sortProject === "asc" ? "active" : ""}`}
                 width="16"
                 height="16"
               />
               <ArrowIcon
-                className={`SortIcon ArrowUp ${sortDirection === "desc" ? "active" : ""}`}
+                className={`SortIcon ArrowUp ${sortProject === "desc" ? "active" : ""}`}
                 width="16"
                 height="16"
               />

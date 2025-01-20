@@ -3,13 +3,11 @@ import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
 import ProjectsHeaderPanel from "./ProjectsHeaderPanel";
 import ProjectsListTable from "./ProjectsListTable";
 import 'Styles/ListTableStyles.scss';
-import { useNotification } from 'Widgets/Notification/Notification';
 
 export default function ProjectsManagement(): JSX.Element {
   const { data: Projects = [], isLoading } = useGetProjectsQuery();
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const { showNotification } = useNotification()
 
   const handleSearch = (searchValue: string) => {
     setSearch(searchValue.toLowerCase());

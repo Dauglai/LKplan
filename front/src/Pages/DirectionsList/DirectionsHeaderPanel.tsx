@@ -1,13 +1,13 @@
 import { useState } from "react";
 import PlusIcon from 'assets/icons/plus.svg?react';
 import SearchIcon from 'assets/icons/search.svg?react';
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
 import DirectionForm from "./DirectionForm";
 import Modal from "Widgets/Modal/Modal";
-import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions";
+import { CRMPageOptions } from "Widgets/PageSwitcher/CRMPageOptions";
+import BackButton from "Widgets/BackButton/BackButton";
 
 interface DirectionsHeaderProps {
   onSearch: (search: string) => void;
@@ -35,9 +35,7 @@ export default function DirectionsHeaderPanel({ onSearch, onSort }: DirectionsHe
   return (
     <header className="DirectionsHeaderPanel HeaderPanel">
       <div className="LeftHeaderPanel">
-        <button className="BackButton lfp-btn">
-          <ChevronRightIcon width="32" height="32" strokeWidth="2" className="ChevronLeft"/>
-        </button>
+        <BackButton />
         <h2 className="HeaderPanelTitle">Направления</h2>
         <PlusIcon
           width="18" 

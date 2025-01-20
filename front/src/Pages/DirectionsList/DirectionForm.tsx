@@ -99,11 +99,11 @@ export default function DirectionForm({
                   value={newDirection.name}
                   onChange={handleInputChange}
                   required
-                  placeholder="Название направления"
+                  placeholder="Название направления*"
                   className="Name TextField FormField"
                 />
                 <textarea
-                  placeholder="Описание (опционально)"
+                  placeholder="Описание"
                   className="Description TextField FormField"
                   name="description"
                   value={newDirection.description}

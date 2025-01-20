@@ -41,7 +41,7 @@ export default function SpecializationSelector({
         className="ListField FormField"
         onClick={() => setIsOpen(prev => !prev)}
       >
-        <p>Добавить специализацию</p>
+        <p>Добавить специализацию*</p>
         <PlusIcon width="20" height="20" strokeWidth="1" />
 
         {isOpen && (

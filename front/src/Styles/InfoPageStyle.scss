@@ -6,7 +6,11 @@
 
     .InfoHeader {
         margin-bottom: 24px;
-        padding: 0px 32px;
+        padding: 0px;
+        display: flex;
+        justify-content: start;
+        align-items: start;
+        gap: 12px;
 
         h2 {
             @include h2;
@@ -22,6 +26,21 @@
         border-radius: $border-radius;
         background-color: $white;
 
+        .ListInfo {
+            list-style: none;
+            margin-bottom: 24px;
+
+            li {
+                @include text1;
+                margin-bottom: 8px;
+
+                a {
+                    text-decoration: none;
+                    color: $black;
+                }
+            }
+        }
+
         .InfoDescription {
             margin-bottom: 24px;
 
@@ -32,9 +51,16 @@
         }
 
         .InfoContent {
+            strong {
+                @include h4;
+                display: block;
+                margin-bottom: 24px;
+            }
+
             .InfoLevelOne {
                 .InfoLevelTwo {
                     margin-left: 24px;
+                    
                     .InfoLevelThree {
                         padding-left: 48px;
                     }
@@ -45,7 +71,7 @@
         .InfoContent * {
             @include text1;
             margin-bottom: 12px;
-
+            display: block;
         }
     }
 }

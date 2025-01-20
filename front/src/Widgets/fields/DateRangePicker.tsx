@@ -30,7 +30,7 @@ export default function DateRangePicker({
   return (
     <div className="DateRangeContainer">
       <div 
-      className="DataField EventFormField" 
+      className="DataField FormField" 
       onClick={() => startDateInputRef.current?.showPicker()}>
         <input
           ref={startDateInputRef}
@@ -47,7 +47,7 @@ export default function DateRangePicker({
         />
       </div>
       <div 
-      className="DataField EventFormField" 
+      className="DataField FormField" 
       onClick={() => endDateInputRef.current?.showPicker()}>
         <input
           ref={endDateInputRef}

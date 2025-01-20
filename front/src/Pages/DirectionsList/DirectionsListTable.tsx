@@ -63,12 +63,12 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
     }
 
     const getEventName = (eventId: number): string => {
-        const event = events?.find((evt) => evt.id === eventId);
+        const event = events?.find((event) => event.event_id === eventId);
         return event ? event.name : 'Не указано';
     };
 
     const getProjectsForDirection = (directionId: number) => {
-        return projects?.filter((project) => project.direction === directionId) || [];
+        return projects?.filter((project) => project.direction.id === directionId) || [];
     };
 
     return (
@@ -89,22 +89,22 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
                     <td>
                         <ul>
                             {getProjectsForDirection(direction.id).map((project) => (
-                            <li key={project.id}>
-                                <Link to={`/project/${project.id}`}>{project.name}</Link>
+                            <li key={project.project_id}>
+                                <Link to={`/project/${project.project_id}`}>{project.name}</Link>
                             </li>
                             ))}
                         </ul>
                     </td>
                     <td>
-                    <div onClick={() => toggleMenu(direction.id)} className="ThreeDotsButton">
-                        &#8230;
-                    </div>
-                    {openMenu === direction.id && (
-                        <ul ref={menuRef} className="ActionsMenu">
-                        <li onClick={() => handleEdit(direction.id)}>Редактировать</li>
-                        <li onClick={() => handleDelete(direction.id)}>Удалить</li>
-                        </ul>
-                    )}
+                        <div onClick={() => toggleMenu(direction.id)} className="ThreeDotsButton">
+                            &#8230;
+                        </div>
+                        {openMenu === direction.id && (
+                            <ul ref={menuRef} className="ActionsMenu">
+                            <li onClick={() => handleEdit(direction.id)}>Редактировать</li>
+                            <li onClick={() => handleDelete(direction.id)}>Удалить</li>
+                            </ul>
+                        )}
                     </td>
                 </tr>
                 ))}

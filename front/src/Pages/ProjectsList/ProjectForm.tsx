@@ -1,12 +1,9 @@
-import EventHeader from 'Widgets/FormHeader/FormHeader';
-import DateRangePicker from 'Widgets/fields/DateRangePicker';
-import RoleSelector from 'Widgets/fields/RoleSelector';
 import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
 import { useEffect } from 'react';
+import UserSelector from 'Widgets/Selectors/UserSelector';
 
-import PlusIcon from "assets/icons/plus.svg?react";
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import CloseIcon from 'assets/icons/close.svg?react';
 
@@ -33,14 +30,22 @@ export default function ProjectForm({
       direction: 0,
       name: '',
       description: '',
-      supervisor: null,
+      supervisorSet: null,
       curators: [],
       creator: 0,
+      project_id: 0,
     });
 
     useEffect(() => {
         if (existingProject) {
-          setNewProject(existingProject);
+          setNewProject({
+            direction: existingProject.direction.id,
+            name: existingProject.name,
+            description: existingProject.description,
+            curators: existingProject.curators,
+            creator: existingProject.creator,
+            project_id: existingProject.project_id,
+        });
         }
       }, [existingProject]);
   
@@ -55,15 +60,14 @@ export default function ProjectForm({
     const handleCreateProject = async (e: React.FormEvent) => {
       e.preventDefault();
 
-      const eventData = {
+      const projectData = {
         ...newProject,
         creator: user.user_id,
-        supervisor: user.user_id,
       };
 
       try {
-        await createProject(eventData).unwrap();
-        setNewProject({ direction: 0, name: '', description: '', supervisor: null, curators: [], creator: 0 });
+        await createProject(projectData).unwrap();
+        setNewProject({ direction: 0, name: '', description: '', supervisorSet: null, curators: [], creator: 0, project_id: 0, });
         showNotification('Проект создан!', 'success');
         closeModal();
       } catch (error) {
@@ -74,10 +78,23 @@ export default function ProjectForm({
 
     const handleUpdateProject = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const projectData = {
+          ...newProject,
+          creator: user.user_id,
+          supervisorSet: user.user_id,
+        };
+        
         if (newProject.name.trim()) {
-          await updateProject(newProject);
-          showNotification('Проект обновлен!', 'success');
-          closeModal();
+          try {
+            await updateProject({ id: projectData.project_id, data: projectData }).unwrap();
+            showNotification('Проект обновлен!', 'success');
+            closeModal();
+          } catch (error) {
+            showNotification(`Ошибка при обновлении проекта: ${error.status} ${error.stage}`, 'error');
+          }
+        } else {
+          showNotification('Пожалуйста, заполните все поля!', 'error');
         }
     };
 
@@ -87,6 +104,14 @@ export default function ProjectForm({
         direction: selected,
       }));
     };
+
+    const handleCuratorsChange = (selected: number) => {
+      setNewProject((prev) => ({
+        ...prev,
+        curators: [selected],
+      }));
+    };
+    
 
   const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
@@ -119,7 +144,7 @@ export default function ProjectForm({
             <input
               type="text"
               name="name"
-              placeholder='Название проекта'
+              placeholder='Название проекта*'
               value={newProject.name}
               onChange={handleInputChange}
               className="Name TextField FormField"/>
@@ -131,13 +156,9 @@ export default function ProjectForm({
               onChange={handleTextArea}/>
           </div>
 
-          <input
-            type="text"
-            name="curators"
-            value={newProject.curators.join(', ')}
-            onChange={(e) => handleInputChange({ target: { name: 'curators', value: e.target.value.split(', ') } })}
-            placeholder="ID кураторов (через запятую)"
-            className="FormField"
+          <UserSelector
+            selectedUserId={newProject.curators[0] || null}
+            onChange={handleCuratorsChange}
           />
 
           <div className="FormButtons">

@@ -26,10 +26,13 @@ const userApi = apiSlice.injectEndpoints({
         return response.results[0];
       },
     }),
-    /* getUserById: builder.query<User, number>({
-      query: (id) => `/api/users/${id}/`,
-      providesTags: (result, error, id) => [{ type: 'User', id }],
-    }), */
+    getUsers: builder.query<User[], void>({
+      query: () => `/api/profiles/`,
+      providesTags: ['User'],
+      transformResponse: (response: { count: number; next: string | null; previous: string | null; results: User[] }) => {
+        return response.results;
+      },
+    }),
     updateUser: builder.mutation<User, { data: Omit<User, 'user_id'> }>({
       query: ({ data }) => ({
         url: `/api/profile/update/`, // Обновляем данные пользователя
@@ -72,7 +75,7 @@ const userApi = apiSlice.injectEndpoints({
 
 export const {
   useGetUserQuery,
-  //useGetUserByIdQuery,
+  useGetUsersQuery,
   useUpdateUserMutation,
   //useDeleteUserMutation,
 } = userApi;

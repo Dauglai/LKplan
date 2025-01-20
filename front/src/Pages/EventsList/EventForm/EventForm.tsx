@@ -6,6 +6,7 @@ import StatusAppSelector from 'Widgets/Selectors/StatusAppSelector';
 import StageSelector from 'Widgets/Selectors/StageSelector';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import DateRangePicker from 'Widgets/fields/DateRangePicker';
+import UserSelector from 'Widgets/Selectors/UserSelector';
 import './EventForm.scss';
 import 'Styles/FormStyle.scss';
 import LinkIcon from 'assets/icons/link.svg?react';
@@ -34,6 +35,7 @@ export default function EventForm({
     specializations: [] as number[],
     statuses: [] as number[],
     event_id: 0,
+    supervisor: null,
   });
 
   useEffect(() => {
@@ -94,6 +96,13 @@ export default function EventForm({
     }));
   };
 
+  const handleSupervisorChange = (selected: number) => {
+    setNewEvent((prev) => ({
+      ...prev,
+      supervisor: selected,
+    }));
+  };
+
   const handleDateChange = (startDate: string, endDate: string) => {
     setNewEvent((prev) => ({
       ...prev,
@@ -112,7 +121,6 @@ export default function EventForm({
     const eventData = {
       ...newEvent,
       creator: user.user_id,
-      supervisor: user.user_id,
     };
 
     try {
@@ -190,7 +198,23 @@ export default function EventForm({
           selectedStatusesApp={newEvent.statuses}
           onChange={handleStatusesChange}
         />
-        
+
+        <StageSelector
+          selectedStage={newEvent.stage}
+          onChange={handleStageChange}
+        />
+
+        <UserSelector
+          selectedUserId={newEvent.supervisor}
+          onChange={handleSupervisorChange}
+        />
+
+        <DateRangePicker
+          startDate={newEvent.start}
+          endDate={newEvent.end}
+          onChange={handleDateChange}
+        />
+
         <div className="LinkField FormField">
           <input
             type="text"
@@ -203,16 +227,6 @@ export default function EventForm({
           <LinkIcon width="16" height="16" strokeWidth="1" />
         </div>
 
-        <DateRangePicker
-          startDate={newEvent.start}
-          endDate={newEvent.end}
-          onChange={handleDateChange}
-        />
-
-        <StageSelector
-          selectedStage={newEvent.stage}
-          onChange={handleStageChange}
-        />
         <div className="FormButtons">
           <button className="primary-btn" type="submit" disabled={isCreating || isUpdating}>
             {existingEvent ? 'Обновить' : 'Создать'}

@@ -1,9 +1,9 @@
 import 'Styles/ListTableStyles.scss';
 import { useState, useEffect, useRef } from 'react';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
-import { useGetEventsQuery, useDeleteEventMutation } from 'Features/ApiSlices/eventSlice';
+import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
-import { Project } from 'Features/ApiSlices/projectSlice';
+import { Project, useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useNavigate, Link } from "react-router-dom";
 import { getInitials } from "Features/utils/getInitials";
 import { useNotification } from 'Widgets/Notification/Notification';
@@ -21,7 +21,7 @@ export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const navigate = useNavigate();
-  const [deleteProject] = useDeleteEventMutation();
+  const [deleteProject] = useDeleteProjectMutation();
   const { showNotification } = useNotification()
   const [openMenu, setOpenMenu] = useState<number | null>(null); 
   const menuRef = useRef<HTMLUListElement | null>(null); 
@@ -74,6 +74,12 @@ export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.
     return event ? event.name : 'Не указано';
   };
 
+  const getEventId = (directionId: number): string => {
+    const direction = directions?.find(direction => direction.id === directionId);
+    const event = events?.find(event => event.event_id === direction?.event);
+    return event ? event.event_id : '';
+  };
+
   return (
     <table className="ProjectsListTable ListTable">
       <thead>
@@ -89,14 +95,14 @@ export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.
         {projects.map((project) => (
           <tr key={project.project_id}>
             <td><Link to={`/project/${project.project_id}`} className="LinkCell">{project.name}</Link></td>
-            <td><span className="HiglightCell">{getEventName(project.direction.id)}</span></td>
+            <td><Link to={`/event/${getEventId(project.direction.id)}`} className=" HiglightCell LinkCell">{getEventName(project.direction.id)}</Link></td>
             <td>{project.curatorsSet.map(curator => 
               <Link to={`/profile/${curator.user_id}`} className="LinkCell">{curator.surname} {getInitials(curator.name, curator.patronymic)}</Link>)}</td>
             <td>
               <ul>
                 {teams?.map((team) => {
                   if (team.project === project.project_id) {
-                    return <li><Link to={`/teams/${team.id}`}>{team.name}</Link></li>
+                    return <li><Link to={`/team/${team.id}`}>{team.name}</Link></li>
                   }
                 })}
               </ul>
@@ -108,7 +114,7 @@ export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.
               {openMenu === project.project_id && (
                 <ul ref={menuRef} className="ActionsMenu">
                   <li onClick={() => navigate(`/project/${project.project_id}`)}>Подробнее</li>
-                  <li onClick={() => handleEdit(project.project_id)}>Редактировать</li>
+                  {/*<li onClick={() => handleEdit(project.project_id)}>Редактировать</li>*/}
                   <li onClick={() => handleDelete(project.project_id)}>Удалить</li>
                 </ul>
               )}

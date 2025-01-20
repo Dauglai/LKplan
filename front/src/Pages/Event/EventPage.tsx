@@ -61,7 +61,7 @@ export default function EventPage(): JSX.Element {
                                     {teams?.map((team) => {
                                         if (team.project === project.project_id) {
                                         return <Link 
-                                            to={`/teams/${team.id}`}
+                                            to={`/team/${team.id}`}
                                             key={team.id}
                                             className='EventTeam InfoLevel InfoLevelThree'>
                                                 {team.name}

@@ -92,7 +92,7 @@ export default function TeamsListTable({ teams }: TeamsTableProps): JSX.Element 
             {teams.map((team) => (
             <tr key={team.id}>
                 <td>
-                    <Link to={`/teams/${team.id}`} className="LinkCell">
+                    <Link to={`/team/${team.id}`} className="LinkCell">
                         {team.name}
                     </Link>
                 </td>
@@ -130,7 +130,7 @@ export default function TeamsListTable({ teams }: TeamsTableProps): JSX.Element 
                     </div>
                     {openMenu === team.id && (
                         <ul ref={menuRef} className="ActionsMenu">
-                        <li onClick={() => navigate(`/teams/${team.id}`)}>Подробнее</li>
+                        <li onClick={() => navigate(`/team/${team.id}`)}>Подробнее</li>
                         <li onClick={() => handleEdit(team.id)}>Редактировать</li>
                         <li onClick={() => handleDelete(team.id)}>Удалить</li>
                         </ul>

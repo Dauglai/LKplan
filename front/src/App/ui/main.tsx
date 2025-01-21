@@ -28,6 +28,7 @@ import EventPage from 'Pages/Event/EventPage.tsx';
 import ProjectPage from 'Pages/Project/ProjectPage.tsx';
 import TeamPage from 'Pages/Team/TeamPage.tsx';
 import RequestPage from 'Pages/Request/RequestPage.tsx';
+import UsersProfilePage from 'Pages/UsersProfile/UsersProfilePage.tsx';
 
 const theme = {
   token: {
@@ -64,6 +65,7 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/project/:id" element={<ProjectPage />} />
                   <Route path="/team/:id" element={<TeamPage />} />
                   <Route path="/events/submit/:id" element={<RequestPage />} />
+                  <Route path="/profile/:id" element={<UsersProfilePage />} />
                 </Route>
             </Route>
             </Routes>

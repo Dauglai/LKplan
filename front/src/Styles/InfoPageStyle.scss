@@ -37,6 +37,11 @@
         border-radius: $border-radius;
         background-color: $white;
 
+        h3 {
+            @include h3;
+            margin-bottom: 12px;
+        }
+
         .ListInfo {
             list-style: none;
             margin-bottom: 24px;

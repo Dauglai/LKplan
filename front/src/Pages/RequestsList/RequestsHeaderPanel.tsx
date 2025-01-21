@@ -4,6 +4,7 @@ import ArrowIcon from "assets/icons/arrow-down.svg?react";
 import ChevronRightIcon from "assets/icons/chevron-right.svg?react";
 import "Styles/HeaderPanelStyle.scss";
 import { FiltersSelector } from "Widgets/Selectors/FiltersSelector";
+import BackButton from "Widgets/BackButton/BackButton";
 
 interface RequestsHeaderPanelProps {
   onSearch: (searchValue: string) => void;
@@ -56,9 +57,7 @@ export default function RequestsHeaderPanel({
     return (
         <div className="RequestsHeaderPanel HeaderPanel">
             <div className="LeftHeaderPanel">
-                <button className="BackButton lfp-btn">
-                <ChevronRightIcon width="32" height="32" strokeWidth="2" className="ChevronLeft" />
-                </button>
+                <BackButton />
                 <h2 className="HeaderPanelTitle">Заявки</h2>
             </div>
 

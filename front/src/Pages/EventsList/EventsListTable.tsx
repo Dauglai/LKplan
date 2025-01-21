@@ -72,6 +72,7 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
           {/*<th>Чат</th>*/}
           <th>Статус</th>
           <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -88,6 +89,13 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
                 {event.stage}
               </span>
             </td>
+            <td className="ButtonsColumn">
+              <button
+                onClick={() => navigate(`submit/${event.event_id}`)}
+                className="primary-btn">
+                Подать заявку
+                </button>
+              </td>
             <td>
               <MoreIcon 
                 width="16" 

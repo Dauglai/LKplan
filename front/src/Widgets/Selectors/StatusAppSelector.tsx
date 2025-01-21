@@ -31,7 +31,7 @@ export default function StatusAppSelector({
   };
 
   if (isLoading) {
-    return <div>Загрузка...</div>;
+    return <div className="FormField">Загрузка...</div>;
   }
 
   return (

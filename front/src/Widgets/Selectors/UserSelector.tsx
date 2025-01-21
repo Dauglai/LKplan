@@ -32,11 +32,11 @@ export default function UserSelector({
     };
 
     if (isLoading) {
-        return <div className="UserSelector">Загрузка пользователей...</div>;
+        return <div className="UserSelector FormField">Загрузка пользователей...</div>;
     }
 
     if (error || !users || users.length === 0) {
-        return <div className="UserSelector">Пользователи не найдены</div>;
+        return <div className="UserSelector FormField">Пользователи не найдены</div>;
     }
 
     const selectedUserName =

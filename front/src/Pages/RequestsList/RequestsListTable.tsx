@@ -93,7 +93,11 @@ export default function RequestsListTable({ requests }: RequestsListTableProps):
                         <td>
                             <span className="HiglightCell">{request.specialization.name}</span>
                         </td>
-                        <td>{request.team ? request.team : 'Не указана'}</td>
+                        <td>{request.team ? 
+                            <Link to={`/team/${request.team.id}`} className="LinkCell">
+                                {request.team.name}
+                            </Link>
+                        : 'Не указана'}</td>
                         <td className="ButtonsColumn">
                             <button
                                 onClick={() => openModal(request)}

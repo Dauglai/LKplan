@@ -1,5 +1,35 @@
 import { apiSlice } from 'App/api/apiSlice.ts';
 
+interface User {
+  telegram?: string;
+  email?: string;
+  surname?: string;
+  name?: string;
+  partonymic?: string;
+  course?: number;
+  university?: string;
+  vk?: string;
+  job?: string;
+  specializations?: number[];
+}
+
+interface Checklist {
+  description: string;
+  is_completed?: boolean;
+}
+
+interface Task {
+  project: number;
+  name: string;
+  desription: string;
+  dateCloseTask: string | null;
+  author?: User;
+  status: number;
+  parent_task?: number;
+  responsible_user?: User;
+  checklist?: Checklist[];
+}
+
 export const tasksApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllTasks: builder.query({
@@ -8,10 +38,9 @@ export const tasksApiSlice = apiSlice.injectEndpoints({
         method: 'GET',
       }),
     }),
-    //TODO type task
     createTask: builder.mutation({
-      query: (task) => ({
-        url: 'api/tasks',
+      query: (task: Task) => ({
+        url: 'api/tasks/create/',
         method: 'POST',
         body: task,
       }),

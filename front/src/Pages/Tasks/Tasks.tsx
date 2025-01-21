@@ -5,64 +5,42 @@ import {
   Menu,
   Button,
   Tag,
-  Checkbox,
   Select,
-  Space,
   message,
   Modal,
   Descriptions,
 } from 'antd';
 import { LeftOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
+
 import './Tasks.scss';
+
 import CreateTaskModal from './CreateTaskModal';
 import { TaskFormValues } from './CreateTaskModal/CreateTaskModal.typings';
-import type { MenuInfo } from 'rc-menu/lib/interface';
-import { useGetAllTasksQuery } from 'Features/Auth/api/tasksApiSlice';
+
+import {
+  useCreateTaskMutation,
+  useGetAllTasksQuery,
+} from 'Features/Auth/api/tasksApiSlice';
+
+interface Task {
+  key: string;
+  name: string;
+  sprint: string;
+  status: string;
+  deadline: string;
+  assignee: string;
+  tags: string[];
+  children?: Task[]; // Подзадачи
+}
+
+interface RemoveTaskResult {
+  updatedChildren: Task[];
+  removedTask: Task | null;
+}
 
 const { Option } = Select;
 
 const Tasks = () => {
-  const initialDataSource = [
-    {
-      key: '1',
-      name: 'Задача 1',
-      sprint: 'Sprint 1',
-      status: 'Новое',
-      deadline: '2024-12-05',
-      assignee: 'Иван Иванов',
-      tags: ['Frontend', 'Critical'],
-      children: [
-        {
-          key: '1-1',
-          name: 'Подзадача 1',
-          sprint: 'Sprint 1',
-          status: 'В работе',
-          deadline: '2024-12-06',
-          assignee: 'Петр Петров',
-          tags: ['Backend'],
-        },
-      ],
-    },
-    {
-      key: '2',
-      name: 'Задача 2',
-      sprint: 'Sprint 2',
-      status: 'На проверке',
-      deadline: '2024-12-10',
-      assignee: 'Анна Смирнова',
-      tags: ['Bugfix'],
-    },
-    {
-      key: '3',
-      name: 'Задача 3',
-      sprint: 'Sprint 2',
-      status: 'Выполнено',
-      deadline: '2024-12-12',
-      assignee: 'Алексей Павлов',
-      tags: ['Feature'],
-    },
-  ];
-
   const assignees = [
     { id: 1, name: 'Иван Иванов' },
     { id: 2, name: 'Анна Смирнова' },
@@ -72,16 +50,18 @@ const Tasks = () => {
   const statuses = ['Новое', 'В работе', 'На проверке', 'Выполнено'];
   const tags = ['Frontend', 'Backend', 'Bugfix', 'Feature'];
 
-  const [dataSource, setDataSource] = useState([]);
+  const [dataSource, setDataSource] = useState<Task[]>([]);
   const [filterDirection, setFilterDirection] = useState('asc');
   const [isModalVisible, setIsModalVisible] = useState(false); // Статус модального окна
   const [isModalTaskVisible, setIsModalTaskVisible] = useState(false); // Статус модального окна задачи
   const [isModalCreateTaskVisible, setIsModalCreateTaskVisible] =
     useState(false); // Статус модального окна создания задачи
-  const [selectedTask, setSelectedTask] = useState(null); // Данные выбранной задачи
-  const [selectedTaskKey, setSelectedTaskKey] = useState(null);
-  const [parentTaskKey, setParentTaskKey] = useState(null); // Родительская задача
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null); // Данные выбранной задачи
+  const [selectedTaskKey, setSelectedTaskKey] = useState<string | null>(null);
+  const [parentTaskKey, setParentTaskKey] = useState<string | null>(null); // Родительская задача
+  const [createTask] = useCreateTaskMutation();
 
+  // @ts-ignore
   const { data } = useGetAllTasksQuery();
 
   useEffect(() => {
@@ -90,10 +70,10 @@ const Tasks = () => {
     }
   }, [data]);
 
-  const transformTasksData = (data) => {
+  const transformTasksData = (data: any): Task[] => {
     if (!data?.results) return [];
 
-    return data.results.map((task) => ({
+    return data.results.map((task: any) => ({
       key: String(task.id),
       name: task.name || `Задача ${task.id}`,
       sprint: `Спринт ${task.project}`,
@@ -103,11 +83,11 @@ const Tasks = () => {
         : 'Нет срока',
       assignee:
         `${task.responsible_user?.name || ''} ${task.responsible_user?.surname || ''}`.trim(),
-      tags: ['git'], // Пример тегов, можно кастомизировать
+      tags: ['git'],
     }));
   };
 
-  const handleMakeSubtask = (taskKey, info) => {
+  const handleMakeSubtask = (taskKey: string, info: any) => {
     info.domEvent.stopPropagation();
     setSelectedTaskKey(taskKey);
     setIsModalVisible(true);
@@ -118,8 +98,27 @@ const Tasks = () => {
     setParentTaskKey(null);
   };
 
-  const handleCreateTask = (newTask: TaskFormValues) => {
+  const handleCreateTask = async (newTask: TaskFormValues) => {
     const taskWithKey = { ...newTask, key: Date.now().toString() };
+    await createTask({
+      project: 1,
+      name: newTask.name,
+      desription: 'wqdwdq',
+      dateCloseTask: newTask.deadline,
+      responsible_user: {
+        name: 'Иван Иванов',
+        surname: 'Иванов',
+        telegram: 'wd',
+        email: 'wqdq',
+        partonymic: 'qwqwd',
+        course: 1,
+        university: 'ITMO',
+        vk: 'dqwq',
+        job: 'dwqd',
+        specializations: [1, 2, 3],
+      },
+      status: 1,
+    });
     setDataSource([...dataSource, taskWithKey]);
     console.log(dataSource);
     message.success('Задача успешно создана!');
@@ -127,7 +126,11 @@ const Tasks = () => {
   };
 
   // Рекурсивная функция для изменения статуса
-  const updateStatus = (data, key, newStatus) => {
+  const updateStatus = (
+    data: Task[],
+    key: string,
+    newStatus: string
+  ): Task[] => {
     return data.map((item) => {
       if (item.key === key) {
         return { ...item, status: newStatus };
@@ -143,7 +146,7 @@ const Tasks = () => {
   };
 
   // Рекурсивная функция для удаления строки
-  const deleteRow = (data, key) => {
+  const deleteRow = (data: Task[], key: string): Task[] => {
     return data
       .filter((item) => item.key !== key)
       .map((item) => {
@@ -155,13 +158,13 @@ const Tasks = () => {
   };
 
   // Обработчик изменения статуса
-  const handleChangeStatus = (key, newStatus) => {
+  const handleChangeStatus = (key: string, newStatus: string) => {
     const updatedData = updateStatus(dataSource, key, newStatus);
     setDataSource(updatedData);
   };
 
   // Обработчик удаления строки
-  const handleDeleteRow = (key, info) => {
+  const handleDeleteRow = (key: string, info: any) => {
     info.domEvent.stopPropagation();
     const updatedData = deleteRow(dataSource, key);
     setDataSource(updatedData);
@@ -177,18 +180,24 @@ const Tasks = () => {
       return;
     }
 
-    const updatedData = moveTaskToParent(
-      dataSource,
-      selectedTaskKey,
-      parentTaskKey
-    );
-    setDataSource(updatedData);
-    setIsModalVisible(false);
-    setParentTaskKey(null);
-    message.success('Задача успешно стала подзадачей!');
+    if (selectedTaskKey) {
+      const updatedData = moveTaskToParent(
+        dataSource,
+        selectedTaskKey,
+        parentTaskKey
+      );
+      setDataSource(updatedData);
+      setIsModalVisible(false);
+      setParentTaskKey(null);
+      message.success('Задача успешно стала подзадачей!');
+    }
   };
 
-  const moveTaskToParent = (data, taskKey, parentKey) => {
+  const moveTaskToParent = (
+    data: Task[],
+    taskKey: string,
+    parentKey: string
+  ) => {
     const { updatedChildren, removedTask } = removeTask(data, taskKey);
 
     if (!removedTask) {
@@ -199,8 +208,8 @@ const Tasks = () => {
     return addTaskToParent(updatedChildren, removedTask, parentKey);
   };
 
-  const removeTask = (data, taskKey) => {
-    let removedTask = null;
+  const removeTask = (data: Task[], taskKey: string): RemoveTaskResult => {
+    let removedTask: Task | null = null;
 
     const updatedData = data
       .filter((item) => {
@@ -223,7 +232,11 @@ const Tasks = () => {
     return { updatedChildren: updatedData, removedTask };
   };
 
-  const addTaskToParent = (data, task, parentKey) => {
+  const addTaskToParent = (
+    data: Task[],
+    task: Task,
+    parentKey: string
+  ): Task[] => {
     return data.map((item) => {
       if (item.key === parentKey) {
         const updatedChildren = item.children
@@ -243,9 +256,9 @@ const Tasks = () => {
 
   // Сортировка по статусу
   const handleStatusSort = () => {
-    const statusIndex = (status) => statuses.indexOf(status);
+    const statusIndex = (status: string) => statuses.indexOf(status);
 
-    const sortData = (data) =>
+    const sortData = (data: Task[]): Task[] =>
       [...data]
         .sort((a, b) => {
           const comparison = statusIndex(a.status) - statusIndex(b.status);
@@ -262,7 +275,7 @@ const Tasks = () => {
   };
 
   // Открытие модального окна с информацией о задаче
-  const handleRowClick = (record) => {
+  const handleRowClick = (record: Task) => {
     setSelectedTask(record); // Устанавливаем выбранную задачу
     setIsModalTaskVisible(true);
   };
@@ -278,7 +291,7 @@ const Tasks = () => {
       title: 'Название',
       dataIndex: 'name',
       key: 'name',
-      render: (text) => <strong>{text}</strong>,
+      render: (text: string) => <strong>{text}</strong>,
     },
     {
       title: 'Спринт',
@@ -289,7 +302,7 @@ const Tasks = () => {
       title: 'Статус',
       dataIndex: 'status',
       key: 'status',
-      render: (status, record) => (
+      render: (status: string, record: Task) => (
         <Select
           value={status}
           style={{ width: 120 }}
@@ -322,7 +335,7 @@ const Tasks = () => {
       title: 'Тэги',
       dataIndex: 'tags',
       key: 'tags',
-      render: (tags) =>
+      render: (tags: string[]) =>
         tags.map((tag) => (
           <Tag color="blue" key={tag}>
             {tag}
@@ -332,7 +345,7 @@ const Tasks = () => {
     {
       title: 'Действия',
       key: 'actions',
-      render: (_, record) => (
+      render: (_: any, record: Task) => (
         <Dropdown
           overlay={
             <Menu>
@@ -347,7 +360,8 @@ const Tasks = () => {
             </Menu>
           }
           trigger={['click']}
-          onClick={(e) => e.stopPropagation()} // Останавливаем всплытие события клика
+          // @ts-ignore
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()} // Останавливаем всплытие события клика
         >
           <Button icon={<MoreOutlined />} />
         </Dropdown>

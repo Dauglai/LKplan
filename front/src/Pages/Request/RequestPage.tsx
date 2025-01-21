@@ -8,6 +8,7 @@ import 'Styles/InfoPageStyle.scss';
 import 'Styles/FormStyle.scss';
 import './RequestPage.scss';
 import BackButton from "Widgets/BackButton/BackButton";
+import { useEffect } from "react";
 
 export default function RequestPage(): JSX.Element {
     const { id } = useParams<{ id: string }>();
@@ -18,6 +19,10 @@ export default function RequestPage(): JSX.Element {
 
     const { data: event, isLoading: eventLoading, error: eventError } = useGetEventByIdQuery(eventId);
     const [createApplication, { isLoading: isSubmitting, isSuccess, isError }] = useCreateApplicationMutation();
+
+    useEffect(() => {
+		document.title = 'Подать заявку - MeetPoint';
+	}, []);
 
     const handleSubmit = async (requestData: any) => {
         try {

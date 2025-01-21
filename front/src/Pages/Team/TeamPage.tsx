@@ -31,6 +31,14 @@ export default function TeamPage(): JSX.Element {
     const { data: specializations, isLoading: specLoading, error: specError } = useGetSpecializationsQuery();
     const { data: project, isLoading: projectLoading, error: projectError } = useGetProjectByIdQuery(team?.project);
 
+    useEffect(() => {
+        if (team) {
+            document.title = `${team.name} - MeetPoint`;
+        } else {
+            document.title = `Страница команды - MeetPoint`;
+        }
+	}, []);
+
     const toggleMenu = (id: number) => {
         setOpenMenu(openMenu === id ? null : id);
     };

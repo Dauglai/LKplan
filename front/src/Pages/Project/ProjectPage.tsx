@@ -5,6 +5,7 @@ import { useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import BackButton from "Widgets/BackButton/BackButton";
 import { getInitials } from "Features/utils/getInitials";
+import { useEffect } from 'react';
 
 export default function ProjectPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +17,14 @@ export default function ProjectPage(): JSX.Element {
     skip: !direction,
   });
   const { data: teams, isLoading: isTeamsLoading } = useGetTeamsQuery();
+
+  useEffect(() => {
+    if (project) {
+        document.title = `${project.name} - MeetPoint`;
+    } else {
+        document.title = `Страница проекта - MeetPoint`;
+    }
+  }, []);
 
   if (isProjectLoading || isDirectionLoading || isEventLoading || isTeamsLoading) {
     return <div>Загрузка...</div>;

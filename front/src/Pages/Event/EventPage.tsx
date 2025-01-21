@@ -6,6 +6,7 @@ import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { getInitials } from "Features/utils/getInitials";
 import BackButton from "Widgets/BackButton/BackButton";
 import 'Styles/InfoPageStyle.scss';
+import { useEffect } from 'react';
 
 export default function EventPage(): JSX.Element {
     const { id } = useParams<{ id: string }>();
@@ -15,6 +16,14 @@ export default function EventPage(): JSX.Element {
     const { data: directions, isLoading: directionsLoading, error: directionsError } = useGetDirectionsQuery();
     const { data: projects, isLoading: projectsLoading, error: projectsError } = useGetProjectsQuery();
     const { data: teams, isLoading: teamsLoading, error: teamsError } = useGetTeamsQuery();
+
+    useEffect(() => {
+        if (event) {
+            document.title = `${event.name} - MeetPoint`;
+        } else {
+            document.title = `Страница мероприятия - MeetPoint`;
+        }
+	}, []);
 
 
     if (eventLoading || directionsLoading || projectsLoading || teamsLoading) {

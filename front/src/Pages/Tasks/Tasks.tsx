@@ -70,6 +70,10 @@ const Tasks = () => {
     }
   }, [data]);
 
+  useEffect(() => {
+		document.title = 'Список задач - MeetPoint';
+	}, []);
+
   const transformTasksData = (data: any): Task[] => {
     if (!data?.results) return [];
 

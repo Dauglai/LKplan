@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   useCreateSpecializationMutation,
   useGetSpecializationsQuery,
@@ -9,6 +9,7 @@ import 'Styles/FormStyle.scss';
 import './CreateSpecializationForm.scss';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import TrashIcon from 'assets/icons/trash-2.svg?react';
+import BackButton from "Widgets/BackButton/BackButton";
 
 
 export default function CreateSpecializationForm () : JSX.Element {
@@ -18,6 +19,10 @@ export default function CreateSpecializationForm () : JSX.Element {
   
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+
+  useEffect(() => {
+      document.title = 'Специализации - MeetPoint';
+  }, []);
   
   const handleCreateSpecialization = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,35 +47,38 @@ export default function CreateSpecializationForm () : JSX.Element {
     };
 
   return (
-    <div className="CreateContainer">
-        <div className="CreateFormContainer">
-        <form onSubmit={handleCreateSpecialization} className='CreateForm CreateSpecializationForm'>
-
-            <div className="CreateNameContainer">
-                <input
-                    type="text"
-                    name="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    placeholder="Название специализации"
-                    className="CreateName TextField FormField"
-                />
-                <textarea
-                    placeholder="Описание (опционально)"
-                    className="CreateDescription TextField FormField"
-                    name="description"
-                    value={description}
-                    onInput={handleTextAtea}
-                />
-            </div>
-            <div className="FormButtons">
-              <button className="primary-btn" type="submit">
-                Создать
-                <ChevronRightIcon width="24" height="24" strokeWidth="1"/>
-              </button>
-            </div>
-        </form>
+    <div className="Container">
+        <div className="FormContainer">
+          <form onSubmit={handleCreateSpecialization} className='Form CreateSpecializationForm'>
+              <div className="ModalFormHeader">
+                <BackButton />
+                <h2>Создать специализацию</h2>
+              </div>
+              <div className="NameContainer">
+                  <input
+                      type="text"
+                      name="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                      placeholder="Название специализации"
+                      className="Name TextField FormField"
+                  />
+                  <textarea
+                      placeholder="Описание (опционально)"
+                      className="Description TextField FormField"
+                      name="description"
+                      value={description}
+                      onInput={handleTextAtea}
+                  />
+              </div>
+              <div className="FormButtons">
+                <button className="primary-btn" type="submit">
+                  Создать
+                  <ChevronRightIcon width="24" height="24" strokeWidth="1"/>
+                </button>
+              </div>
+          </form>
         </div>
         <div className="ListResults">
             <h3>Существующие специализации</h3>

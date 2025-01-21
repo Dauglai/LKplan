@@ -48,11 +48,11 @@ createRoot(document.getElementById('root')!).render(
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Layout />}>
-                <Route path="/" element={<App />} />
+                <Route path="/" element={<App />}/>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<RequireAuth />}>
-                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/profile" element={<Profile />}/>
                   <Route path="/requests" element={<RequestsManagement />} />
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/events" element={<EventsManagement />} />

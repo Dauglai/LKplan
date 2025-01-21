@@ -3,17 +3,26 @@ import { useGetUsersQuery } from 'Features/ApiSlices/userSlice';
 import { useGetSpecializationsQuery } from 'Features/ApiSlices/specializationSlice';
 import BackButton from "Widgets/BackButton/BackButton";
 import 'Styles/InfoPageStyle.scss';
+import { useEffect } from 'react';
+import { getInitials } from 'Features/utils/getInitials';
 
 export default function UsersProfilePage(): JSX.Element {
     const { id } = useParams<{ id: string }>();
     const { data: users, isLoading: isUsersLoading } = useGetUsersQuery();
     const { data: specializations, isLoading: isSpecializationsLoading } = useGetSpecializationsQuery();
+    const user = users?.find((u) => u.user_id === Number(id));
+
+    useEffect(() => {
+        if (user) {
+            document.title = `${user.surname} ${getInitials(user.name, user.patronymic)} - MeetPoint`;
+        } else {
+            document.title = `Страница пользователя - MeetPoint`;
+        }
+	}, []);
 
     if (isUsersLoading || isSpecializationsLoading) {
         return <div>Загрузка...</div>;
     }
-
-    const user = users?.find((u) => u.user_id === Number(id));
 
     if (!user) {
         return <div>Пользователь не найден</div>;

@@ -82,7 +82,7 @@ const applicationApi = apiSlice.injectEndpoints({
     }),      
     deleteApplication: builder.mutation<void, number>({
       query: (id) => ({   // Удаление заявки
-        url: `/api/application/delete/${id}/`,
+        url: `/api/application/delete/${id}`,
         method: 'DELETE',
         
         withCredentials: true,

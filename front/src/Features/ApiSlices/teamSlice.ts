@@ -28,7 +28,7 @@ const teamApi = apiSlice.injectEndpoints({
     }),
     createTeam: builder.mutation<Team, Omit<Team, 'id'>>({
       query: (newTeam) => ({ // Создание команды
-        url: '/api/teams/create',
+        url: '/api/teams/create/',
         method: 'POST',
         body: newTeam,
         headers: {

@@ -6,6 +6,7 @@ import { Direction } from 'Features/ApiSlices/directionSlice';
 import { Link } from 'react-router-dom';
 import DirectionForm from "./DirectionForm";
 import Modal from "Widgets/Modal/Modal";
+import MoreIcon from 'assets/icons/more.svg?react';
 
 interface DirectionsTableProps {
   directions: Direction[];
@@ -96,9 +97,13 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
                         </ul>
                     </td>
                     <td>
-                        <div onClick={() => toggleMenu(direction.id)} className="ThreeDotsButton">
-                            &#8230;
-                        </div>
+                        <MoreIcon 
+                            width="16" 
+                            height="16" 
+                            strokeWidth="1"
+                            onClick={() => toggleMenu(direction.id)}
+                            className="ThreeDotsButton"
+                        />
                         {openMenu === direction.id && (
                             <ul ref={menuRef} className="ActionsMenu">
                             <li onClick={() => handleEdit(direction.id)}>Редактировать</li>

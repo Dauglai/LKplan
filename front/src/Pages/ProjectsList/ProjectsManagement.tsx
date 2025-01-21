@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
 import ProjectsHeaderPanel from "./ProjectsHeaderPanel";
 import ProjectsListTable from "./ProjectsListTable";
@@ -8,6 +8,10 @@ export default function ProjectsManagement(): JSX.Element {
   const { data: Projects = [], isLoading } = useGetProjectsQuery();
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  useEffect(() => {
+      document.title = 'Проекты - MeetPoint';
+  }, []);
 
   const handleSearch = (searchValue: string) => {
     setSearch(searchValue.toLowerCase());

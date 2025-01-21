@@ -5,11 +5,13 @@ import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 interface DirectionSelectorProps {
   selectedDirectionId: number | null;
   onChange: (directionId: number) => void;
+  label? : string;
 }
 
 export default function DirectionSelector({
     selectedDirectionId,
     onChange,
+    label = "Выбрать направление*"
 }: DirectionSelectorProps): JSX.Element {
     const { data: directions, isLoading, error } = useGetDirectionsQuery();
     const [isOpen, setIsOpen] = useState(false);
@@ -19,14 +21,14 @@ export default function DirectionSelector({
     };
 
     if (isLoading) {
-        return <div className="DirectionSelector">Загрузка направлений...</div>;
+        return <div className="DirectionSelector FormField">Загрузка направлений...</div>;
     }
 
     if (error || !directions || directions.length === 0) {
-        return <div className="DirectionSelector">Направления не найдены</div>;
+        return <div className="DirectionSelector FormField">Направления не найдены</div>;
     }
 
-    const selectedDirectionName = directions.find(direction => direction.id === selectedDirectionId)?.name || 'Выбрать направление*';
+    const selectedDirectionName = directions.find(direction => direction.id === selectedDirectionId)?.name || label;
 
     return (
         <div className="DirectionSelector">

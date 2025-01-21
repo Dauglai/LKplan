@@ -9,8 +9,12 @@ import JointWorkIcon from 'assets/JointWorkIcon.svg';
 import IntegrationIcon from 'assets/IntegrationIcon.svg';
 import DevelopmentIcon from 'assets/DevelopmentIcon.svg';
 import PersonalizationIcon from 'assets/PersonalizationIcon.svg';
+import { useEffect } from 'react';
 
 function App(): JSX.Element {
+	useEffect(() => {
+		document.title = 'MeetPoint';
+	}, []);
 
 	return (
 		<div className="MainPageContainer">

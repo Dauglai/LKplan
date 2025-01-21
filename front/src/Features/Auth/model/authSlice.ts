@@ -12,24 +12,25 @@ const initialState: AuthState = {
   user: null,
   token: null,
   refresh: null,
+  isAuthenticated: false,
 };
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: initialState,
+  initialState,
   reducers: {
     setCredentials: (state, action) => {
       const { access, refresh } = action.payload;
-      // state.user = user;
       state.token = access;
       state.refresh = refresh;
+      state.isAuthenticated = true;
       localStorage.setItem('auth', JSON.stringify({ access, refresh }));
     },
 
     logOut: (state) => {
-      // state.user = null;
       state.token = null;
       state.refresh = null;
+      state.isAuthenticated = false;
       localStorage.removeItem('auth');
       localStorage.removeItem('user');
     },
@@ -40,6 +41,5 @@ export const { setCredentials, logOut } = authSlice.actions;
 
 export const authReducer = authSlice.reducer;
 
-// export const selectCurrentUser = (state: RootState) => state.auth.user;
+export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated;
 export const selectCurrentToken = (state: RootState) => state.auth.token;
-// export const selectCurrentToken = (state: RootState) => state.auth.token;

@@ -44,15 +44,11 @@ const applicationApi = apiSlice.injectEndpoints({
     }),
     createApplication: builder.mutation<Application, Omit<Application, 'id' | 'datetime'>>({
       query: (newApplication) => ({    // Создание новой заявки
-        url: '/api/application/',
+        url: '/api/application/create/',
         method: 'POST',
-        body: {
-            ...newApplication,
-            dateTime: newApplication.dateTime.toISOString(),
-          },
+        body: newApplication,
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCSRFToken(),
           },
         withCredentials: true,
       }),
@@ -86,7 +82,7 @@ const applicationApi = apiSlice.injectEndpoints({
     }),      
     deleteApplication: builder.mutation<void, number>({
       query: (id) => ({   // Удаление заявки
-        url: `/api/application/delete/${id}/`,
+        url: `/api/application/delete/${id}`,
         method: 'DELETE',
         
         withCredentials: true,

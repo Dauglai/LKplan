@@ -5,18 +5,19 @@ import { useNotification } from 'Widgets/Notification/Notification';
 import { getInitials } from "Features/utils/getInitials";
 import { useDeleteApplicationMutation } from 'Features/ApiSlices/applicationSlice';
 import Modal from 'Widgets/Modal/Modal';
-import { Request } from 'Pages/Requests/typeRequests';
-
+import RequestDetails from './RequestDetails';
+import { Application } from 'Features/ApiSlices/applicationSlice';
+import MoreIcon from 'assets/icons/more.svg?react';
 
 
 interface RequestsListTableProps {
-    requests: Request[];
+    requests: Application[];
 }
 
 export default function RequestsListTable({ requests }: RequestsListTableProps): JSX.Element {
     const [openMenu, setOpenMenu] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
+    const [selectedRequest, setSelectedRequest] = useState<Application | null>(null);
     const [deleteRequest] = useDeleteApplicationMutation();
     const menuRef = useRef<HTMLUListElement | null>(null);
     const navigate = useNavigate();
@@ -43,7 +44,7 @@ export default function RequestsListTable({ requests }: RequestsListTableProps):
         setOpenMenu(null);
     };
 
-    const openModal = (request: Request) => {
+    const openModal = (request: Application) => {
         setSelectedRequest(request);
         setIsModalOpen(true);
     };
@@ -93,7 +94,11 @@ export default function RequestsListTable({ requests }: RequestsListTableProps):
                         <td>
                             <span className="HiglightCell">{request.specialization.name}</span>
                         </td>
-                        <td>{request.team ? request.team : 'Не указана'}</td>
+                        <td>{request.team ? 
+                            <Link to={`/team/${request.team.id}`} className="LinkCell">
+                                {request.team.name}
+                            </Link>
+                        : 'Не указана'}</td>
                         <td className="ButtonsColumn">
                             <button
                                 onClick={() => openModal(request)}
@@ -102,30 +107,29 @@ export default function RequestsListTable({ requests }: RequestsListTableProps):
                             </button>
                         </td>
                         <td>
-                            <div onClick={() => toggleMenu(request.id)} className="ThreeDotsButton">
-                                &#8230;
-                            </div>
+                            <MoreIcon 
+                                width="16" 
+                                height="16" 
+                                strokeWidth="1"
+                                onClick={() => toggleMenu(request.id)}
+                                className="ThreeDotsButton"
+                            />
                             {openMenu === request.id && (
                                 <ul ref={menuRef} className="ActionsMenu">
                                     <li onClick={() => navigate(`/profile/${request.id}`)}>Профиль</li>
-                                    <li onClick={() => navigate(`/request/${request.id}`)}>Полная информация</li>
-                                    <li onClick={() => handleDelete(request.id)}>Удалить</li>
+                                    <li onClick={() =>  openModal(request)}>Информация</li>
+                                    {/*<li onClick={() => handleDelete(request.id)}>Удалить</li>*/}
                                 </ul>
                             )}
                         </td>
                     </tr>
                 ))}
             </tbody>
-            {/*isModalOpen && selectedRequest && (
+            {isModalOpen && selectedRequest && (
                 <Modal isOpen={isModalOpen} onClose={closeModal}>
-                    <div>
-                        <h2>Заявка: {selectedRequest.fullName}</h2>
-                        <p>Мероприятие: {selectedRequest.event}</p>
-                        <p>Проект: {selectedRequest.project}</p>
-                        <button onClick={closeModal}>Закрыть</button>
-                    </div>
+                    <RequestDetails closeModal={closeModal} request={selectedRequest} />
                 </Modal>
-            )*/}
+            )}
         </table>
     );
 }

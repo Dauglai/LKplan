@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetTeamsQuery } from "Features/ApiSlices/teamSlice";
 import TeamsHeaderPanel from "./TeamsHeaderPanel";
 import TeamsListTable from "./TeamsListTable";
@@ -9,6 +9,10 @@ export default function TeamsManagement(): JSX.Element {
     const { data: Teams = [], isLoading } = useGetTeamsQuery();
     const [search, setSearch] = useState("");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+    useEffect(() => {
+        document.title = 'Команды - MeetPoint';
+    }, []);
 
     const handleSearch = (searchValue: string) => {
         setSearch(searchValue.toLowerCase());

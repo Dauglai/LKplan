@@ -1,0 +1,70 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+@import 'Styles/buttons';
+
+.RequestContainer {
+    width: 1160px;
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+    justify-content: space-between;
+    align-items: start;
+
+    .EventInfo {
+        background-image: 
+            linear-gradient(45deg, rgba(255, 165, 0, 0.5), rgba(255, 165, 0, 0)),
+            url("assets/student background.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-clip: padding-box;
+        flex: 1;
+        padding: 32px;
+
+        .EventDescription {
+            @include h4;
+            color: $white;
+        }
+
+        .SpecializationsList {
+            list-style: none;
+            display: flex;
+            gap: 12px;
+            justify-content: start;
+            align-items: center;
+
+            li {
+                @include h4;
+                display: inline-block;
+                padding: 8px 12px;
+                border-radius: $border-radius;
+                background-color: $blue;
+            }
+        }
+    }
+
+    .FormContainer {
+        box-shadow: 0px 4px 20px 0px #b2b2b240;
+        
+        .RequestForm {
+            max-width: 360px;
+
+            .ModalFormHeader {
+                justify-content: center;
+                margin-bottom: 12px;
+            }
+
+            .Message {
+                min-height: 120px;
+                display: block;
+                resize: none;
+                overflow: hidden;
+            }
+
+            .primary-btn {
+                @include primary-btn;
+            }
+        }
+    }
+    
+}

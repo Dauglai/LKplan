@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   useCreateStatusAppMutation,
   useGetStatusesAppQuery,
@@ -6,9 +6,12 @@ import {
 } from 'Features/ApiSlices/statusAppSlice';
 
 import 'Styles/FormStyle.scss';
-import './CreateStatusAppForm.scss';
+import '../CreateSpecialization/CreateSpecializationForm.scss';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import TrashIcon from 'assets/icons/trash-2.svg?react';
+import BackButton from "Widgets/BackButton/BackButton";
+
+
 
 export default function CreateStatusAppForm (): JSX.Element {
   const [createStatus, { isLoading: isCreating }] = useCreateStatusAppMutation();
@@ -17,6 +20,10 @@ export default function CreateStatusAppForm (): JSX.Element {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+
+  useEffect(() => {
+      document.title = 'Статусы - MeetPoint';
+  }, []);
 
   const handleCreateStatus = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,10 +48,14 @@ export default function CreateStatusAppForm (): JSX.Element {
     };
 
   return (
-    <div className="CreateContainer">
-        <div className="CreateFormContainer">
-        <form  className="CreateForm CreateStatusAppForm"  onSubmit={handleCreateStatus}>
-            <div className="CreateNameContainer">
+    <div className="Container">
+        <div className="FormContainer">
+        <form  className="Form CreateStatusAppForm"  onSubmit={handleCreateStatus}>
+          <div className="ModalFormHeader">
+            <BackButton />
+            <h2>Создать статус</h2>
+          </div>
+          <div className="NameContainer">
                 <input
                     type="text"
                     name="name"
@@ -52,11 +63,11 @@ export default function CreateStatusAppForm (): JSX.Element {
                     onChange={(e) => setName(e.target.value)}
                     required
                     placeholder="Название статуса"
-                    className="CreateName TextField FormField"
+                    className="Name TextField FormField"
                 />
                 <textarea
                     placeholder="Описание (опционально)"
-                    className="CreateDescription TextField FormField"
+                    className="Description TextField FormField"
                     name="description"
                     value={description}
                     onInput={handleTextAtea}

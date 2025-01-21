@@ -3,6 +3,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useGetUserQuery, useUpdateUserMutation } from 'Features/ApiSlices/userSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
 import SpecializationSelector from 'Widgets/Selectors/SpecializationSelector';
+import { getInitials } from 'Features/utils/getInitials';
 
 
 import 'Styles/FormStyle.scss'
@@ -22,6 +23,14 @@ export default function Profile(): JSX.Element {
   });
 
   const watchedFields = watch();
+
+  useEffect(() => {
+    if (user) {
+      document.title = `${user.surname} ${getInitials(user.name, user.patronymic)} - MeetPoint`;
+    } else {
+      document.title = `Профиль пользователя - MeetPoint`;
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -97,6 +106,7 @@ export default function Profile(): JSX.Element {
             <SpecializationSelector
               selectedSpecializations={selectedSpecializations}
               onChange={setSelectedSpecializations}
+              label="Добавить специализацию"
             />
             <label>Работа</label>
             <input

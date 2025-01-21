@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetApplicationsQuery } from "Features/ApiSlices/applicationSlice";
 import RequestsHeaderPanel from "./RequestsHeaderPanel";
 import RequestsListTable from "./RequestsListTable";
@@ -24,6 +24,10 @@ export default function RequestsManagement(): JSX.Element {
         event: "",
         direction: "",
     });
+
+    useEffect(() => {
+        document.title = 'Список заявок - MeetPoint';
+    }, []);
   
     const handleSearch = (value: string) => setSearch(value.toLowerCase());
     const handleSort = (order: "asc" | "desc", field: "name" | "date") => {

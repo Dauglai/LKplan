@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import './Notification.scss';
+import SuccessIcon from 'assets/icons/alert-circle.svg?react';
+import ErrorIcon from 'assets/icons/x-octagon.svg?react';
+import InfoIcon from 'assets/icons/check-circle.svg?react';
 
 interface Notification {
   message: string;
@@ -33,6 +36,26 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       {children}
       {notification && (
         <div className={`Notification Notification-${notification.type}`}>
+          <div className='img'>
+            {notification.type === 'success' && 
+              <SuccessIcon 
+                width="16px"
+                height="16px"
+                strokeWidth="1" />}
+
+            {notification.type === 'error' && 
+              <ErrorIcon 
+                width="16px"
+                height="16px"
+                strokeWidth="1" />}
+
+            {notification.type === 'info' && 
+              <InfoIcon 
+                width="16px"
+                height="16px"
+                strokeWidth="1" />}
+            
+          </div>
           {notification.message}
         </div>
       )}

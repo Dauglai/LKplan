@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetDirectionsQuery, useDeleteDirectionMutation } from "Features/ApiSlices/directionSlice";
 import DirectionsHeaderPanel from "./DirectionsHeaderPanel";
 import DirectionsListTable from "./DirectionsListTable";
@@ -11,6 +11,10 @@ export default function DirectionsManagement(): JSX.Element {
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const { showNotification } = useNotification()
+
+  useEffect(() => {
+      document.title = 'Направления - MeetPoint';
+  }, []);
 
   const handleSearch = (searchValue: string) => {
     setSearch(searchValue.toLowerCase());

@@ -1,11 +1,12 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import './Register.scss';
 import { useRegisterMutation } from 'Features/Auth/api/authApiSlice';
 
 type Inputs = {
+  username: string;
   email: string;
   password: string;
 };
@@ -18,13 +19,17 @@ export default function Register(): JSX.Element {
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
+
+  useEffect(() => {
+      document.title = 'Регистрация - MeetPoint';
+    }, []);
   
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       const userData = await register({
-        username: data.email.split('@')[0].replace('.', ''),
+        username: data.username,
         email: data.email,
         password: data.password,
       }).unwrap();
@@ -53,13 +58,23 @@ export default function Register(): JSX.Element {
           <input
             type="text"
             autoComplete="off"
+            placeholder="Имя пользователя"
+            className="Register-Form-Input"
+            {...reg('username', { required: true, minLength: 3 })}
+          />
+          {errors.username && <span className="Register-Form-Error">Имя пользователя должно содержать не менее 3 символов</span>}
+          {formErrors.username && <span className="Register-Form-Error">{formErrors.username}</span>}
+        </div>
+        <div className="Register-Form-Group">
+          <input
+            type="text"
+            autoComplete="off"
             placeholder="E-mail"
             className="Register-Form-Input"
             {...reg('email', { required: true })}
           />
           {errors.email && <span className="Register-Form-Error">Поле E-mail обязательно для заполнения</span>}
           {formErrors.email && <span className="Register-Form-Error">{formErrors.email}</span>}
-          {formErrors.username && <span className="Register-Form-Error">{formErrors.username}</span>}
         </div>
         <div className="Register-Form-Group">
           <input
@@ -85,3 +100,4 @@ export default function Register(): JSX.Element {
     </main>
   );
 }
+

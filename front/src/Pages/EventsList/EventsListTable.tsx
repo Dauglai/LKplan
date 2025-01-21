@@ -7,6 +7,7 @@ import { useDeleteEventMutation } from "Features/ApiSlices/eventSlice";
 import { useNotification } from 'Widgets/Notification/Notification';
 import EventForm from "./EventForm/EventForm";
 import Modal from "Widgets/Modal/Modal";
+import MoreIcon from 'assets/icons/more.svg?react';
 
 
 interface EventsTableProps {
@@ -71,6 +72,7 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
           {/*<th>Чат</th>*/}
           <th>Статус</th>
           <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -87,10 +89,21 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
                 {event.stage}
               </span>
             </td>
+            <td className="ButtonsColumn">
+              <button
+                onClick={() => navigate(`submit/${event.event_id}`)}
+                className="primary-btn">
+                Подать заявку
+                </button>
+              </td>
             <td>
-              <div onClick={() => toggleMenu(event.event_id)} className="ThreeDotsButton">
-                &#8230;
-              </div>
+              <MoreIcon 
+                width="16" 
+                height="16" 
+                strokeWidth="1"
+                onClick={() => toggleMenu(event.event_id)}
+                className="ThreeDotsButton"
+              />
               {openMenu === event.event_id && (
                 <ul ref={menuRef} className="ActionsMenu">
                   <li onClick={() => navigate(`/event/${event.event_id}`)}>Подробнее</li>

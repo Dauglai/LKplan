@@ -13,6 +13,7 @@
 .FormField {
   @include text2;
   display: flex;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
   height: 40px;

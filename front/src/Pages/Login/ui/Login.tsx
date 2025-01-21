@@ -1,10 +1,11 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Link, redirect, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import './Login.scss';
 import { useLoginMutation } from 'Features/Auth/api/authApiSlice';
 import { useAppDispatch } from 'App/model/hooks';
 import { setCredentials, logOut } from 'Features/Auth/model/authSlice';
+import { useEffect } from 'react';
 
 type Inputs = {
   login: string;
@@ -15,12 +16,20 @@ export default function Login(): JSX.Element {
   const [login, { isLoading }] = useLoginMutation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm<Inputs>();
+
+  useEffect(() => {
+    document.title = 'Авторизация - MeetPoint';
+  }, []);
+
+  const from = location.state?.from?.pathname || '/';
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     const userData = await login({
       username: data.login,
@@ -29,7 +38,7 @@ export default function Login(): JSX.Element {
     dispatch(logOut());
     dispatch(setCredentials(userData));
     localStorage.setItem('user', JSON.stringify(userData));
-    navigate('/profile');
+    navigate(from, { replace: true });
 };
   return (
     <>

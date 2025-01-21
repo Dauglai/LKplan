@@ -16,7 +16,6 @@ import Login from 'Pages/Login/ui/Login.tsx';
 import Register from 'Pages/Register/ui/Register.tsx';
 import Profile from 'Pages/Profile/ui/Profile.tsx';
 import RequestsManagement from 'Pages/RequestsList/RequestsManagement.tsx';
-import { StudentReq } from 'Pages/StudentReq/index.ts';
 import Tasks from 'Pages/Tasks/Tasks.tsx';
 import { ConfigProvider } from 'antd';
 import EventsManagement from 'Pages/EventsList/EventsManagement.tsx';
@@ -27,6 +26,9 @@ import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializ
 import CreateStatusAppForm from 'Pages/CreateStatusApp/CreateStatusAppForm.tsx';
 import EventPage from 'Pages/Event/EventPage.tsx';
 import ProjectPage from 'Pages/Project/ProjectPage.tsx';
+import TeamPage from 'Pages/Team/TeamPage.tsx';
+import RequestPage from 'Pages/Request/RequestPage.tsx';
+import UsersProfilePage from 'Pages/UsersProfile/UsersProfilePage.tsx';
 
 const theme = {
   token: {
@@ -46,12 +48,11 @@ createRoot(document.getElementById('root')!).render(
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Layout />}>
-                <Route path="/" element={<App />} />
+                <Route path="/" element={<App />}/>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/StudReq/:uId" element={<StudentReq />} />
                 <Route path="/" element={<RequireAuth />}>
-                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/profile" element={<Profile />}/>
                   <Route path="/requests" element={<RequestsManagement />} />
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/events" element={<EventsManagement />} />
@@ -62,6 +63,9 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
                   <Route path="/event/:id" element={<EventPage />} />
                   <Route path="/project/:id" element={<ProjectPage />} />
+                  <Route path="/team/:id" element={<TeamPage />} />
+                  <Route path="/events/submit/:id" element={<RequestPage />} />
+                  <Route path="/profile/:id" element={<UsersProfilePage />} />
                 </Route>
             </Route>
             </Routes>

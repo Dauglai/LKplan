@@ -27,6 +27,7 @@ import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializ
 import CreateStatusAppForm from 'Pages/CreateStatusApp/CreateStatusAppForm.tsx';
 import EventPage from 'Pages/Event/EventPage.tsx';
 import ProjectPage from 'Pages/Project/ProjectPage.tsx';
+import TeamPage from 'Pages/Team/TeamPage.tsx';
 
 const theme = {
   token: {
@@ -62,6 +63,7 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
                   <Route path="/event/:id" element={<EventPage />} />
                   <Route path="/project/:id" element={<ProjectPage />} />
+                  <Route path="/team/:id" element={<TeamPage />} />
                 </Route>
             </Route>
             </Routes>

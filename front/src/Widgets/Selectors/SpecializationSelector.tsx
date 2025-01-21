@@ -8,11 +8,13 @@ import PlusIcon from 'assets/icons/plus.svg?react';
 interface SpecializationSelectorProps {
   selectedSpecializations: number[];
   onChange: (selectedIds: number[]) => void;
+  label?: string;
 }
 
 export default function SpecializationSelector({
   selectedSpecializations,
   onChange,
+  label
 }: SpecializationSelectorProps): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   
@@ -41,7 +43,7 @@ export default function SpecializationSelector({
         className="ListField FormField"
         onClick={() => setIsOpen(prev => !prev)}
       >
-        <p>Добавить специализацию*</p>
+        <p>{label ? label : "Добавить специализацию*"}</p>
         <PlusIcon width="20" height="20" strokeWidth="1" />
 
         {isOpen && (

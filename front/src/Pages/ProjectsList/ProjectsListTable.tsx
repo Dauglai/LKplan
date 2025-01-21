@@ -9,6 +9,7 @@ import { getInitials } from "Features/utils/getInitials";
 import { useNotification } from 'Widgets/Notification/Notification';
 import ProjectForm from "./ProjectForm";
 import Modal from "Widgets/Modal/Modal";
+import MoreIcon from 'assets/icons/more.svg?react';
 
 interface ProjectsTableProps {
   projects: Project[];
@@ -108,9 +109,13 @@ export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.
               </ul>
             </td>
             <td>
-              <div onClick={() => toggleMenu(project.project_id)} className="ThreeDotsButton">
-                &#8230;
-              </div>
+              <MoreIcon 
+                width="16" 
+                height="16" 
+                strokeWidth="1"
+                onClick={() => toggleMenu(project.project_id)}
+                className="ThreeDotsButton"
+              />
               {openMenu === project.project_id && (
                 <ul ref={menuRef} className="ActionsMenu">
                   <li onClick={() => navigate(`/project/${project.project_id}`)}>Подробнее</li>

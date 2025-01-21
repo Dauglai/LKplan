@@ -2,7 +2,7 @@ import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
 import { useEffect } from 'react';
-import UserSelector from 'Widgets/Selectors/UserSelector';
+import UsersSelector from 'Widgets/Selectors/UsersSelector';
 
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import CloseIcon from 'assets/icons/close.svg?react';
@@ -105,10 +105,10 @@ export default function ProjectForm({
       }));
     };
 
-    const handleCuratorsChange = (selected: number) => {
+    const handleCuratorsChange = (selected: number[]) => {
       setNewProject((prev) => ({
         ...prev,
-        curators: [selected],
+        curators: selected,
       }));
     };
     
@@ -156,9 +156,10 @@ export default function ProjectForm({
               onChange={handleTextArea}/>
           </div>
 
-          <UserSelector
-            selectedUserId={newProject.curators[0] || null}
+          <UsersSelector
+            selectedUsersId={newProject.curators || null}
             onChange={handleCuratorsChange}
+            label='Добавить куратора*'
           />
 
           <div className="FormButtons">

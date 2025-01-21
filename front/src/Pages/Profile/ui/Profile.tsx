@@ -97,6 +97,7 @@ export default function Profile(): JSX.Element {
             <SpecializationSelector
               selectedSpecializations={selectedSpecializations}
               onChange={setSelectedSpecializations}
+              label="Добавить специализацию"
             />
             <label>Работа</label>
             <input

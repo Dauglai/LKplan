@@ -6,7 +6,7 @@ import { getInitials } from "Features/utils/getInitials";
 import { useDeleteApplicationMutation } from 'Features/ApiSlices/applicationSlice';
 import Modal from 'Widgets/Modal/Modal';
 import { Request } from 'Pages/Requests/typeRequests';
-
+import MoreIcon from 'assets/icons/more.svg?react';
 
 
 interface RequestsListTableProps {
@@ -102,9 +102,13 @@ export default function RequestsListTable({ requests }: RequestsListTableProps):
                             </button>
                         </td>
                         <td>
-                            <div onClick={() => toggleMenu(request.id)} className="ThreeDotsButton">
-                                &#8230;
-                            </div>
+                            <MoreIcon 
+                                width="16" 
+                                height="16" 
+                                strokeWidth="1"
+                                onClick={() => toggleMenu(request.id)}
+                                className="ThreeDotsButton"
+                            />
                             {openMenu === request.id && (
                                 <ul ref={menuRef} className="ActionsMenu">
                                     <li onClick={() => navigate(`/profile/${request.id}`)}>Профиль</li>

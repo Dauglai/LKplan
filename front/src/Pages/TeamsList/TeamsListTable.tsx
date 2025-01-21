@@ -8,6 +8,7 @@ import { getInitials } from 'Features/utils/getInitials';
 import { useNotification } from 'Widgets/Notification/Notification';
 //import TeamForm from './TeamForm';
 import Modal from 'Widgets/Modal/Modal';
+import MoreIcon from 'assets/icons/more.svg?react';
 
 interface TeamsTableProps {
     teams: Team[];
@@ -84,7 +85,7 @@ export default function TeamsListTable({ teams }: TeamsTableProps): JSX.Element 
             <th>Проект</th>
             <th>Куратор</th>
             <th>Участники</th>
-            <th></th>
+            {/*<th></th>*/}
             <th></th>
             </tr>
         </thead>
@@ -117,22 +118,26 @@ export default function TeamsListTable({ teams }: TeamsTableProps): JSX.Element 
                         ))}
                     </ul>
                 </td>
-                <td className="ButtonsColumn">
+                {/*<td className="ButtonsColumn">
                     <button
                         onClick={() => handleEdit(team.id)}
                         className="primary-btn">
                         Добавить участников
                     </button>
-                </td>
+                </td>*/}
                 <td>
-                    <div onClick={() => toggleMenu(team.id)} className="ThreeDotsButton">
-                        &#8230;
-                    </div>
+                    <MoreIcon 
+                        width="16" 
+                        height="16" 
+                        strokeWidth="1"
+                        onClick={() => toggleMenu(team.id)}
+                        className="ThreeDotsButton"
+                    />
                     {openMenu === team.id && (
                         <ul ref={menuRef} className="ActionsMenu">
-                        <li onClick={() => navigate(`/team/${team.id}`)}>Подробнее</li>
-                        <li onClick={() => handleEdit(team.id)}>Редактировать</li>
-                        <li onClick={() => handleDelete(team.id)}>Удалить</li>
+                            <li onClick={() => navigate(`/team/${team.id}`)}>Подробнее</li>
+                            {/*<li onClick={() => handleEdit(team.id)}>Редактировать</li>*/}
+                            <li onClick={() => handleDelete(team.id)}>Удалить</li>
                         </ul>
                     )}
                 </td>

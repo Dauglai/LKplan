@@ -19,14 +19,14 @@ export default function ProjectSelector({
     };
 
     if (isLoading) {
-        return <div className="ProjectSelector">Загрузка направлений...</div>;
+        return <div className="ProjectSelector">Загрузка проектов...</div>;
     }
 
     if (error || !projects || projects.length === 0) {
-        return <div className="ProjectSelector">Направления не найдены</div>;
+        return <div className="ProjectSelector">Проекты не найдены</div>;
     }
 
-    const selectedProjectName = projects.find(project => project.id === selectedProjectId)?.name || 'Выбрать мероприятие';
+    const selectedProjectName = projects.find(project => project.project_id === selectedProjectId)?.name || 'Выбрать проект';
 
     return (
         <div className="ProjectSelector">
@@ -46,9 +46,9 @@ export default function ProjectSelector({
                 <div className="DropdownList">
                     {projects.map(project => (
                     <div
-                        key={project.id}
-                        className={`DropdownItem ${selectedProjectId === project.id ? 'selected' : ''}`}
-                        onClick={() => handleSelectProject(project.id)}
+                        key={project.project_id}
+                        className={`DropdownItem ${selectedProjectId === project.project_id ? 'selected' : ''}`}
+                        onClick={() => handleSelectProject(project.project_id)}
                     >
                         {project.name}
                     </div>

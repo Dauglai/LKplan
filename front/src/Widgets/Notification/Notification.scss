@@ -3,13 +3,17 @@
 
 .Notification {
   position: fixed;
+  display: flex;
+  justify-content: start;
+  gap: 8px;
+  align-items: center;
   top: 20px;
   right: 20px;
   padding: 10px 20px;
   border-radius: 5px;
   font-size: 16px;
   color: $black;
-  z-index: 1001;
+  z-index: 2000;
   animation: fadeIn 0.3s ease-in-out, fadeOut 0.3s ease-in-out 2.7s;
 
   &-success {

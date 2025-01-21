@@ -1,12 +1,13 @@
 import { useState } from "react";
 import PlusIcon from 'assets/icons/plus.svg?react';
 import SearchIcon from 'assets/icons/search.svg?react';
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/HeaderPanelStyle.scss';
-import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
+//import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
 import Modal from "Widgets/Modal/Modal";
+import TeamForm from "./TeamForm";
 //import { PlannerPageOptions } from "Widgets/PageSwitcher/PlannerPageOptions";
+import BackButton from "Widgets/BackButton/BackButton";
 
 interface TeamsHeaderProps {
     onSearch: (search: string) => void;
@@ -34,9 +35,7 @@ export default function TeamsHeaderPanel({ onSearch, onSort }: TeamsHeaderProps)
     return (
         <header className="TeamsHeaderPanel HeaderPanel">
         <div className="LeftHeaderPanel">
-            <button className="BackButton lfp-btn">
-            <ChevronRightIcon width="32" height="32" strokeWidth="2" className="ChevronLeft"/>
-            </button>
+            <BackButton />
             <h2 className="HeaderPanelTitle">Команды</h2>
             <PlusIcon 
             width="18" 
@@ -47,9 +46,9 @@ export default function TeamsHeaderPanel({ onSearch, onSort }: TeamsHeaderProps)
             />
         </div>
 
-        {/*<Modal isOpen={isModalOpen} onClose={closeModal}>
-            <CreateProjectForm closeModal={closeModal}/>
-        </Modal>*/}
+        <Modal isOpen={isModalOpen} onClose={closeModal}>
+            <TeamForm closeModal={closeModal}/>
+        </Modal>
         
         <div className="RightHeaderPanel">
             <div className="SortButton rght-btn" onClick={toggleSortTeam}>

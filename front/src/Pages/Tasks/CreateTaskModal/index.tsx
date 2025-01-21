@@ -11,6 +11,8 @@ import './CreateTaskModal.scss';
 
 import { Modal, Form, Input, Select, DatePicker, Button, Space } from 'antd';
 
+const { Option } = Select;
+
 const CreateTaskModal: FC<CreateTaskModalProps> = ({
   visible,
   onCreate,

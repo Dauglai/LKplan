@@ -1,1 +1,1 @@
-export const baseURL = 'http://studprzi.beget.tech';
+export const baseURL = 'http://crm.studprzi.beget.tech';

@@ -12,7 +12,12 @@ export interface User {
   vk: string;
   job: string;
   specializations: number[];
+  role: string;
 }
+
+const determineUserRole = (email: string): 'Организатор' | 'Практикант' => {
+  return email === 'admin@admin.com' ? 'Организатор' : 'Практикант';
+};
 
 const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -23,7 +28,8 @@ const userApi = apiSlice.injectEndpoints({
       ), 
       providesTags: ['User'],
       transformResponse: (response: { count: number; next: string | null; previous: string | null; results: User[] }) => {
-        return response.results[0];
+        const user = response.results[0];
+        return { ...user, role: determineUserRole(user.email) };
       },
     }),
     getUsers: builder.query<User[], void>({

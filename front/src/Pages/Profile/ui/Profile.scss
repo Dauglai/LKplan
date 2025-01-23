@@ -12,6 +12,11 @@
 
     .ProfileFullName {
         margin-bottom: 24px;
+
+        .ProfileRole {
+            @include text2;
+            color: $grey;
+        }
     }
     
     .ProfileForm {

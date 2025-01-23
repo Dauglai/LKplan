@@ -3,10 +3,12 @@ import { useGetEventsQuery } from "Features/ApiSlices/eventSlice";
 import EventsHeaderPanel from "./EventsHeaderPanel";
 import EventsListTable from "./EventsListTable";
 import 'Styles/ListTableStyles.scss';
+import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 
 
 export default function EventsManagement(): JSX.Element {
   const { data: events = [], isLoading } = useGetEventsQuery();
+  const { data: user, isLoading: isUserLoading } = useGetUserQuery();
   const [search, setSearch] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
@@ -34,8 +36,8 @@ export default function EventsManagement(): JSX.Element {
 
   return (
     <div className="EventsContainer ListTableContainer">
-      <EventsHeaderPanel onSearch={handleSearch} onSort={handleSort}/>
-      <EventsListTable events={filteredEvents} />
+      <EventsHeaderPanel onSearch={handleSearch} onSort={handleSort} role={user.role}/>
+      <EventsListTable events={filteredEvents} role={user.role}/>
     </div>
   );
 };

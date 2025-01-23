@@ -16,12 +16,10 @@ export default function Header(): JSX.Element {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
-  // Получение данных пользователя
   const { data: user, isLoading: isUserLoading } = useGetUserQuery(undefined, {
-    skip: !isAuthenticated, // Запрос выполняется только, если пользователь авторизован
+    skip: !isAuthenticated,
   });
 
   const toggleSidebar = () => {
@@ -54,7 +52,7 @@ export default function Header(): JSX.Element {
           </div>
           <div className="HeaderRight">
             {isAuthenticated ? (
-              !isUserLoading && user ? ( // Проверяем, загрузился ли пользователь
+              !isUserLoading && user ? (
                 <>
                   <div className="UserInfo" onClick={() => navigate('/profile')}>
                     <UserIcon className="UserIcon" width="16" height="16" strokeWidth="2" />
@@ -65,7 +63,7 @@ export default function Header(): JSX.Element {
                   </button>
                 </>
               ) : (
-                <span>Загрузка...</span> // Показать сообщение, пока данные загружаются
+                <span>Загрузка...</span>
               )
             ) : (
               <>
@@ -80,7 +78,9 @@ export default function Header(): JSX.Element {
           </div>
         </div>
       </div>
-      {isAuthenticated && <SidebarMenu isOpen={isSidebarOpen} onClose={toggleSidebar} />}
+      {isAuthenticated && !isUserLoading && user && (
+        <SidebarMenu isOpen={isSidebarOpen} onClose={toggleSidebar} user={user} />
+      )}
     </>
   );
 }

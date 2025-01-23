@@ -10,6 +10,7 @@ import { store } from '../model/store.ts';
 
 import Layout from 'Shared/ui/layout/layout.tsx';
 import RequireAuth from 'Shared/ui/requireAuth.tsx';
+import { RequireRole } from 'Shared/ui/RequireRole.tsx';
 import { NotificationProvider } from 'Widgets/Notification/Notification.tsx';
 
 import Login from 'Pages/Login/ui/Login.tsx';
@@ -52,20 +53,30 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/" element={<RequireAuth />}>
-                  <Route path="/profile" element={<Profile />}/>
-                  <Route path="/requests" element={<RequestsManagement />} />
-                  <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/events" element={<EventsManagement />} />
-                  <Route path="/projects" element={<ProjectsManagement />} />
-                  <Route path="/directions" element={<DirectionsManagement />} />
-                  <Route path="/teams" element={<TeamsManagement />} />
-                  <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
-                  <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
-                  <Route path="/event/:id" element={<EventPage />} />
-                  <Route path="/project/:id" element={<ProjectPage />} />
-                  <Route path="/team/:id" element={<TeamPage />} />
-                  <Route path="/events/submit/:id" element={<RequestPage />} />
+
+                {/* Доступ только админу */}
+                  <Route element={<RequireRole allowedRoles={['Организатор']} />}>
+                    <Route path="/requests" element={<RequestsManagement />} />
+                    <Route path="/directions" element={<DirectionsManagement />} />
+                    <Route path="/projects" element={<ProjectsManagement />} />
+                    <Route path="/event/:id" element={<EventPage />} />
+                    <Route path="/project/:id" element={<ProjectPage />} />
+                    <Route path="/teams" element={<TeamsManagement />} />
+                    <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
+                    <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
+                  </Route>
+
+                  {/* Доступ только практикантам */}
+                  <Route element={<RequireRole allowedRoles={['Практикант']} />}>
+                    <Route path="/events/submit/:id" element={<RequestPage />} />
+                  </Route>
+
+                  {/* Общие маршруты */}
+                  <Route path="/profile" element={<Profile />} />
                   <Route path="/profile/:id" element={<UsersProfilePage />} />
+                  <Route path="/events" element={<EventsManagement />} />
+                  <Route path="/team/:id" element={<TeamPage />} />
+                  <Route path="/tasks" element={<Tasks />} />
                 </Route>
             </Route>
             </Routes>

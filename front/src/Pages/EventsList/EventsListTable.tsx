@@ -12,9 +12,10 @@ import MoreIcon from 'assets/icons/more.svg?react';
 
 interface EventsTableProps {
   events: Event[];
+  role: string;
 }
 
-export default function EventsListTable({ events }: EventsTableProps): JSX.Element {
+export default function EventsListTable({ events, role }: EventsTableProps): JSX.Element {
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState<number | null>(null); 
   const menuRef = useRef<HTMLUListElement | null>(null); 
@@ -70,7 +71,9 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
           <th>Дата окончания</th>
           <th>Руководитель</th>
           {/*<th>Чат</th>*/}
-          <th>Статус</th>
+          {role === "Организатор" && 
+            <th>Статус</th>
+          }
           <th></th>
           <th></th>
         </tr>
@@ -78,24 +81,28 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
       <tbody>
         {events.map((event) => (
           <tr key={event.event_id}>
-            <td><Link to={`/event/${event.event_id}`} className="LinkCell">{event.name}</Link></td>
+            <td><Link to={role === "Организатор" ? `/event/${event.event_id}` : `/events/submit/${event.event_id}`} className="LinkCell">{event.name}</Link></td>
             <td><span className="HiglightCell">{event.start ? new Date(event.start).toLocaleDateString() : "-"}</span></td>
             <td><span className="HiglightCell">{event.end ? new Date(event.end).toLocaleDateString() : "-"}</span></td>
             <td><Link to={`/profile/${event.supervisorOne.user_id}`} className="LinkCell">{event.supervisorOne.surname} {getInitials(event.supervisorOne.name, event.supervisorOne.patronymic)}</Link></td>
             {/*<td><Link to={event.link} className="LinkCell">{event.link}</Link></td>*/}
-            <td>
-              <span
-                className={`HiglightCell ${event.stage === 'Мероприятие завершено' ? 'HighlightGray' : ''}`}>
-                {event.stage}
-              </span>
-            </td>
-            <td className="ButtonsColumn">
-              <button
-                onClick={() => navigate(`submit/${event.event_id}`)}
-                className="primary-btn">
-                Подать заявку
+            {role === "Организатор" && 
+              <td>
+                <span
+                  className={`HiglightCell ${event.stage === 'Мероприятие завершено' ? 'HighlightGray' : ''}`}>
+                  {event.stage}
+                </span>
+              </td>
+            }
+            {role === "Практикант" && 
+              <td className="ButtonsColumn">
+                <button
+                  onClick={() => navigate(`submit/${event.event_id}`)}
+                  className="primary-btn">
+                  Подать заявку
                 </button>
               </td>
+            }
             <td>
               <MoreIcon 
                 width="16" 
@@ -106,9 +113,16 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
               />
               {openMenu === event.event_id && (
                 <ul ref={menuRef} className="ActionsMenu">
-                  <li onClick={() => navigate(`/event/${event.event_id}`)}>Подробнее</li>
-                  <li onClick={() => handleEdit(event.event_id)}>Редактировать</li>
-                  <li onClick={() => handleDelete(event.event_id)}>Удалить</li>
+                  {role === "Организатор" && 
+                    <>
+                      <li onClick={() => navigate(`/event/${event.event_id}`)}>Подробнее</li>
+                      <li onClick={() => handleEdit(event.event_id)}>Редактировать</li>
+                      <li onClick={() => handleDelete(event.event_id)}>Удалить</li>
+                    </>
+                  }
+                  {role === "Практикант" && 
+                    <li onClick={() => navigate(`submit/${event.event_id}`)}>Подробнее</li>
+                  }
                 </ul>
               )}
             </td>

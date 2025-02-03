@@ -15,7 +15,8 @@ class IsCuratorAuthorOrReadonly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
-
+        if request.user and request.user.is_staff:
+            return True
         if isinstance(obj, Team):
             curators = obj.project.curators.all()
             for curator in curators:

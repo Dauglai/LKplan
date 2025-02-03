@@ -144,7 +144,7 @@ class ApplicationAPICreate(generics.CreateAPIView):
 
 class ApplicationAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Application.objects.all()
-    serializer_class = ApplicationSerializer
+    serializer_class = ApplicationUpdateSerializer
     permission_classes = (IsAuthorOrReadOnly,)
 
 

@@ -160,7 +160,7 @@ class ApplicationAPIDestroy(generics.RetrieveDestroyAPIView):
 #     permission_classes = (IsAuthenticated,)
 
 class status_AppAPIViews(viewsets.ModelViewSet):
-    queryset = Status_App.objects.all()
+    queryset = Status.objects.all()
     serializer_class = Status_AppSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -177,66 +177,10 @@ class RoleAPIViews(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
 
-# class ProjectAPIViews(viewsets.ModelViewSet):
-#     queryset = Project.objects.all()
-#     serializer_class = ProjectSerializer
-#     permission_classes = (IsAuthenticated,)    
-
-class ProjectAPICreate(generics.CreateAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectCreateSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def perform_create(self, serializer):
-        serializer.save(creator=self.request.user.profile)
-
-
 class ProfileAPIViews(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = (IsAuthenticated,)
-
-
-class ProjectAPIUpdate(generics.RetrieveUpdateAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = (IsCuratorAuthorOrReadonly,)
-
-
-class ProjectAPIDestroy(generics.RetrieveDestroyAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = (IsCuratorAuthorOrReadonly,)
-
-
-class ProjectAPIList(generics.ListAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = (IsAuthenticated,)
-
-
-class TeamAPIList(generics.ListAPIView):
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
-    permission_classes = (IsAuthenticated,)
-
-
-class TeamAPICreate(generics.CreateAPIView):
-    queryset = Team.objects.all()
-    serializer_class = TeamCreateSerializer
-    permission_classes = (IsAuthenticated,)
-
-
-class TeamAPIUpdate(generics.RetrieveUpdateAPIView):
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
-    permission_classes = (IsCuratorAuthorOrReadonly,)
-
-
-class TeamAPIDestroy(generics.RetrieveDestroyAPIView):
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
-    permission_classes = (IsCuratorAuthorOrReadonly,)
 
 
 class ProfileAPI(generics.ListAPIView):

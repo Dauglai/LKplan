@@ -50,7 +50,7 @@ urlpatterns = [
     # path('api/login/', login_view, name='login'),
     # path('api/logout/', logout_view, name='logout'),
     path('api/', include('crm.urls')),
-    path('api/', include('canban.urls')),
+    path('api/', include('plan.urls')),
     re_path(
         r'^swagger(?P<format>\.json|\.yaml)$',
         schema_view.without_ui(cache_timeout=0),

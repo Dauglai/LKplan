@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from crm.models import Profile
-from crm.serializers import ProjectSerializer, ProfileSerializer
+from crm.serializers import ProfileSerializer, DirectionSerializer
 from .models import *
 
 
@@ -11,39 +11,42 @@ class CheckListSerializer(serializers.ModelSerializer):
         fields = ['id', 'description', 'is_completed']
 
 
-class CustomizationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Customization
-        fields = '__all__'
-
-
-class StatusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Status
-        fields = '__all__'
-
-
-class TagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = '__all__'
-
-
-class ResultSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Result
-        fields = '__all__'
-
-
-class GradeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Result
-        fields = '__all__'
-
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
+        fields = '__all__'
+
+class ProjectCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = '__all__'
+
+
+class TeamCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = '__all__'
+
+class ProjectSerializer(serializers.ModelSerializer):
+    curatorsSet = ProfileSerializer(many=True, read_only=True, source="curators")
+    creatorSet = ProfileSerializer(read_only=True, source="creator")
+    direction = serializers.PrimaryKeyRelatedField(queryset=Direction.objects.all(), write_only=True, required=True)
+    directionSet = DirectionSerializer(source="direction", read_only=True)
+    project_id = serializers.IntegerField(read_only=True, source="id")
+    curators = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all(), write_only=True)
+    creator = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all(), write_only=True)
+
+    class Meta:
+        model = Project
+        fields = '__all__'
+
+class TeamSerializer(serializers.ModelSerializer):
+    # students = ProfileSerializer(many=True, read_only=True)
+    students = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
+
+    class Meta:
+        model = Team
         fields = '__all__'
 
 
@@ -51,14 +54,12 @@ class TaskSerializer(serializers.ModelSerializer):
     creator = ProfileSerializer(read_only=True)
     checklist = CheckListSerializer(many=True, required=False)
     comment_set = CommentSerializer(many=True, read_only=True)
-    result_set = ResultSerializer(many=True, read_only=True)
     resp_user = ProfileSerializer(read_only=True, source='responsible_user')
 
     class Meta:
         model = Task
         fields = [
-            'id', 'project', 'name', 'datetime', 'dateCloseTask', 'description', 'creator', 'status', 'comment_set',
-            'result_set', 'parent_task',
+            'id', 'project', 'name', 'datetime', 'dateCloseTask', 'description', 'creator', 'status', 'comment_set', 'parent_task',
             'responsible_user', 'checklist', 'resp_user'
         ]
 

@@ -33,7 +33,10 @@ const userApi = apiSlice.injectEndpoints({
       },
     }),
     getUsers: builder.query<User[], void>({
-      query: () => `/api/profiles/`,
+      query: () => ({
+          url:'/api/profiles/',   //получение пользователя
+          withCredentials: true,}
+      ),
       providesTags: ['User'],
       transformResponse: (response: { count: number; next: string | null; previous: string | null; results: User[] }) => {
         return response.results;

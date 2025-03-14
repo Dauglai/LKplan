@@ -1,15 +1,16 @@
 export interface TaskFormValues {
   name: string;
-  sprint: string;
-  status: string;
+  description: string;
+  status: number;
   deadline: string;
-  assignee: string;
-  tags: string[];
+  assignee: number;
 }
 
 export interface Assignee {
   id: number;
+  surname: string;
   name: string;
+  patronymic: string;
 }
 
 export interface CreateTaskModalProps {
@@ -18,5 +19,4 @@ export interface CreateTaskModalProps {
   onCancel: () => void;
   statuses: string[];
   assignees: Assignee[];
-  tags: string[];
 }

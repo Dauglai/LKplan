@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useGetUserQuery, useUpdateUserMutation } from 'Features/ApiSlices/userSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
-import SpecializationSelector from 'Widgets/Selectors/SpecializationSelector';
 import { getInitials } from 'Features/utils/getInitials';
 
 
@@ -16,7 +15,6 @@ export default function Profile(): JSX.Element {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const { showNotification } = useNotification();
   const [fullName, setFullName] = useState<string>('');
-  const [selectedSpecializations, setSelectedSpecializations] = useState<number[]>([]);
   
   const { register, handleSubmit, watch, reset } = useForm({
     defaultValues: user,
@@ -36,16 +34,14 @@ export default function Profile(): JSX.Element {
     if (user) {
       reset(user);
       setFullName(`${user.surname} ${user.name} ${user.patronymic || ''}`);
-      setSelectedSpecializations(user.specializations || []);
     }
   }, [user, reset]);
 
   useEffect(() => {
     const isUserDataChanged = JSON.stringify(user) !== JSON.stringify(watchedFields);
-    const isSpecializationsChanged = JSON.stringify(user?.specializations) !== JSON.stringify(selectedSpecializations);
     
-    setIsButtonDisabled(!(isUserDataChanged || isSpecializationsChanged));
-  }, [user, watchedFields, selectedSpecializations]);
+    setIsButtonDisabled(!(isUserDataChanged));
+  }, [user, watchedFields]);
 
   const onSubmit: SubmitHandler<typeof watchedFields> = async (data) => {
     try {
@@ -54,7 +50,7 @@ export default function Profile(): JSX.Element {
       const patronymic = patronymicParts.join(' ');
 
       await updateUser({
-        data: { ...data, surname, name, patronymic, specializations: selectedSpecializations },
+        data: { ...data, surname, name, patronymic },
       }).unwrap();
 
       setIsButtonDisabled(true);
@@ -102,12 +98,6 @@ export default function Profile(): JSX.Element {
               {...register('university')}
               placeholder="Университет"
               className="ProfileInput FormField"
-            />
-            <label>Специализации</label>
-            <SpecializationSelector
-              selectedSpecializations={selectedSpecializations}
-              onChange={setSelectedSpecializations}
-              label="Добавить специализацию"
             />
             <label>Работа</label>
             <input

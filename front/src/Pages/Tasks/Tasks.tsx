@@ -8,28 +8,29 @@ import {
   Select,
   message,
   Modal,
-  Descriptions,
+  Descriptions, Avatar,
 } from 'antd';
 import { LeftOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
-
 import './Tasks.scss';
-
 import CreateTaskModal from './CreateTaskModal';
 import { TaskFormValues } from './CreateTaskModal/CreateTaskModal.typings';
+
 
 import {
   useCreateTaskMutation,
   useGetAllTasksQuery,
 } from 'Features/Auth/api/tasksApiSlice';
+import { useGetUsersQuery } from 'Features/ApiSlices/userSlice.ts';
+import { useGetProjectByIdQuery } from 'Features/ApiSlices/projectSlice.ts';
+import { useParams } from 'react-router-dom';
 
 interface Task {
   key: string;
   name: string;
   sprint: string;
   status: string;
-  deadline: string;
+  end: string;
   assignee: string;
-  tags: string[];
   children?: Task[]; // Подзадачи
 }
 
@@ -41,14 +42,13 @@ interface RemoveTaskResult {
 const { Option } = Select;
 
 const Tasks = () => {
-  const assignees = [
+  /*const assignees = [
     { id: 1, name: 'Иван Иванов' },
     { id: 2, name: 'Анна Смирнова' },
     { id: 3, name: 'Алексей Павлов' },
   ];
-
+*/
   const statuses = ['Новое', 'В работе', 'На проверке', 'Выполнено'];
-  const tags = ['Frontend', 'Backend', 'Bugfix', 'Feature'];
 
   const [dataSource, setDataSource] = useState<Task[]>([]);
   const [filterDirection, setFilterDirection] = useState('asc');
@@ -61,7 +61,11 @@ const Tasks = () => {
   const [parentTaskKey, setParentTaskKey] = useState<string | null>(null); // Родительская задача
   const [createTask] = useCreateTaskMutation();
 
+  const { projectId } = useParams();
   // @ts-ignore
+  const { data: userData, isLoading, error } = useGetUsersQuery();
+  const { data: projectData} = useGetProjectByIdQuery(projectId);
+  const assignees = userData ? userData : [];
   const { data } = useGetAllTasksQuery();
 
   useEffect(() => {
@@ -74,20 +78,19 @@ const Tasks = () => {
 		document.title = 'Список задач - MeetPoint';
 	}, []);
 
-  const transformTasksData = (data: any): Task[] => {
-    if (!data?.results) return [];
+  const transformTasksData = (data: Task[]): Task[] => {
+    if (!data) return [];
 
-    return data.results.map((task: any) => ({
+    return data.map((task) => ({
       key: String(task.id),
       name: task.name || `Задача ${task.id}`,
-      sprint: `Спринт ${task.project}`,
-      status: statuses[task.status],
-      deadline: task.dateCloseTask
-        ? new Date(task.dateCloseTask).toLocaleDateString()
-        : 'Нет срока',
-      assignee:
-        `${task.responsible_user?.name || ''} ${task.responsible_user?.surname || ''}`.trim(),
-      tags: ['git'],
+      sprint: task.project ? `Проект ${task.project}` : "Без проекта",
+      status: statuses[task.status] || "Неизвестно",
+      end: task.end ? new Date(task.end).toLocaleDateString() : "Нет срока",
+      assignee: task.responsible_user
+        ? `${task.responsible_user.surname} ${task.responsible_user.name}`
+        : "Не назначен",
+      tags: task.checklist?.map((item) => item.description) || [],
     }));
   };
 
@@ -105,22 +108,11 @@ const Tasks = () => {
   const handleCreateTask = async (newTask: TaskFormValues) => {
     const taskWithKey = { ...newTask, key: Date.now().toString() };
     await createTask({
-      project: 1,
+      project: projectId,
       name: newTask.name,
-      desription: 'wqdwdq',
+      description: newTask.description,
       dateCloseTask: newTask.deadline,
-      responsible_user: {
-        name: 'Иван Иванов',
-        surname: 'Иванов',
-        telegram: 'wd',
-        email: 'wqdq',
-        partonymic: 'qwqwd',
-        course: 1,
-        university: 'ITMO',
-        vk: 'dqwq',
-        job: 'dwqd',
-        specializations: [1, 2, 3],
-      },
+      responsible_user: newTask.assignee,
       status: 1,
     });
     setDataSource([...dataSource, taskWithKey]);
@@ -327,25 +319,24 @@ const Tasks = () => {
     },
     {
       title: 'Дедлайн',
-      dataIndex: 'deadline',
-      key: 'deadline',
+      dataIndex: 'end',
+      key: 'end',
     },
     {
       title: 'Исполнитель',
-      dataIndex: 'assignee',
-      key: 'assignee',
+      dataIndex: 'resp_user',
+      key: 'responsible_user',
+      render: (responsible) =>
+        responsible ? (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar src={responsible?.avatarUrl} alt={responsible?.name} style={{ marginRight: 8 }} />
+            {responsible?.surname} {responsible?.name} {responsible?.patronymic}
+          </div>
+        ) : (
+          'Не назначен'
+        ),
     },
-    {
-      title: 'Тэги',
-      dataIndex: 'tags',
-      key: 'tags',
-      render: (tags: string[]) =>
-        tags.map((tag) => (
-          <Tag color="blue" key={tag}>
-            {tag}
-          </Tag>
-        )),
-    },
+
     {
       title: 'Действия',
       key: 'actions',
@@ -378,7 +369,7 @@ const Tasks = () => {
       <div className="Tasks-Header">
         <div className="Tasks-Header-Heading">
           <div>
-            <p>Название проекта тестовое</p>
+            <p>Название проекта {projectData?.name || "Загрузка..."}</p>
             <h2>{<LeftOutlined />} Все задачи</h2>
           </div>
           <Button
@@ -400,7 +391,7 @@ const Tasks = () => {
       <Table
         columns={columns}
         dataSource={dataSource}
-        rowKey="key"
+        rowKey="id"
         onRow={(record) => ({
           onClick: () => handleRowClick(record),
         })}
@@ -443,7 +434,7 @@ const Tasks = () => {
             <Descriptions.Item label="Название">
               {selectedTask.name}
             </Descriptions.Item>
-            <Descriptions.Item label="Спринт">
+            <Descriptions.Item label="Проект">
               {selectedTask.sprint}
             </Descriptions.Item>
             <Descriptions.Item label="Статус">
@@ -469,9 +460,8 @@ const Tasks = () => {
         visible={isModalCreateTaskVisible}
         onCreate={handleCreateTask}
         onCancel={() => setIsModalCreateTaskVisible(false)}
-        statuses={statuses}
+        statuses={projectData?.stages || []}
         assignees={assignees}
-        tags={tags}
       />
     </div>
   );

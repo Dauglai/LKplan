@@ -1,1 +1,1 @@
-export const baseURL = 'https://crm.meetuppoint.ru';
+export const baseURL = 'http://localhost:8000';

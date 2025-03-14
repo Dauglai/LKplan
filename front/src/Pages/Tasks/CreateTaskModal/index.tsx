@@ -19,7 +19,6 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
   onCancel,
   statuses,
   assignees,
-  tags,
 }) => {
   const [form] = Form.useForm<TaskFormValues>();
 
@@ -43,7 +42,7 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
   return (
     <Modal
       title="Создать задачу"
-      visible={visible}
+      open={visible} // Заменили `visible` на `open`
       onCancel={onCancel}
       footer={null}
     >
@@ -51,13 +50,22 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
         form={form}
         layout="vertical"
         name="createTaskForm"
-        initialValues={{ status: 'Новое', tags: [] }}
+        initialValues={{ status: 'Новое' }}
       >
         {/* Название */}
         <Form.Item
           name="name"
           label="Название задачи"
           rules={[{ required: true, message: 'Введите название задачи' }]}
+        >
+          <Input placeholder="Введите название" />
+        </Form.Item>
+
+        {/* Название */}
+        <Form.Item
+          name="description"
+          label="Описание"
+          rules={[{ required: true, message: 'Опишите задачу' }]}
         >
           <Input placeholder="Введите название" />
         </Form.Item>
@@ -79,8 +87,8 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
         >
           <Select placeholder="Выберите статус">
             {statuses.map((status) => (
-              <Option key={status} value={status}>
-                {status}
+              <Option key={status.id} value={status.id}>
+                {status.name}
               </Option>
             ))}
           </Select>
@@ -102,26 +110,15 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
           rules={[{ required: true, message: 'Выберите исполнителя' }]}
         >
           <Select placeholder="Выберите исполнителя">
-            {assignees.map((assignee) => (
-              <Option key={assignee.id} value={assignee.name}>
-                {assignee.name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        {/* Тэги */}
-        <Form.Item name="tags" label="Тэги">
-          <Select
-            mode="tags"
-            style={{ width: '100%' }}
-            placeholder="Выберите тэги или добавьте свои"
-          >
-            {tags.map((tag) => (
-              <Option key={tag} value={tag}>
-                {tag}
-              </Option>
-            ))}
+            {assignees && assignees.length > 0 ? (
+              assignees.map((assignee) => (
+                <Option key={assignee.user_id} value={assignee.user_id}>
+                  {assignee.surname} {assignee.name} {assignee.patronymic}
+                </Option>
+              ))
+            ) : (
+              <Option disabled>Нет доступных исполнителей</Option>
+            )}
           </Select>
         </Form.Item>
 

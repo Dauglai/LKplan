@@ -75,8 +75,8 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/profile/:id" element={<UsersProfilePage />} />
                   <Route path="/events" element={<EventsManagement />} />
-                  <Route path="/team/:id" element={<TeamPage />} />
-                  <Route path="/tasks" element={<Tasks />} />
+                  <Route path="/projects/:projectId/team/:id" element={<TeamPage />} />
+                  <Route path="/projects/:projectId/tasks" element={<Tasks />} />
                 </Route>
             </Route>
             </Routes>

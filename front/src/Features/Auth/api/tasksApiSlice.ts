@@ -19,11 +19,13 @@ interface Checklist {
 }
 
 interface Task {
+  id?: number;
   project: number;
   name: string;
-  desription: string;
-  dateCloseTask: string | null;
-  author?: User;
+  description: string; // Исправлено
+  start?: string;
+  end?: string;
+  creator?: User;
   status: number;
   parent_task?: number;
   responsible_user?: User;
@@ -32,20 +34,50 @@ interface Task {
 
 export const tasksApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getAllTasks: builder.query({
+    getAllTasks: builder.query<{ results: Task[] }, void>({
       query: () => ({
-        url: 'api/tasks',
-        method: 'GET',
+        url: '/api/tasks/',
+        withCredentials: true,
       }),
+      transformResponse: (response: { results: Task[] }) => response.results,
+      providesTags: ['Task'],
     }),
-    createTask: builder.mutation({
-      query: (task: Task) => ({
-        url: 'api/tasks/create/',
+    createTask: builder.mutation<Task, Partial<Task>>({
+      query: (task) => ({
+        url: '/api/tasks/create/',
         method: 'POST',
         body: task,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      }),
+      invalidatesTags: ['Task'],
+    }),
+    updateTask: builder.mutation<Task, { id: number; data: Partial<Task> }>({
+      query: ({ id, data }) => ({
+        url: `/api/tasks/${id}/`,
+        method: 'PATCH',
+        body: data,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      }),
+      invalidatesTags: ['Task'],
+    }),
+    getTaskComments: builder.query<any[], number>({
+      query: (taskId) => ({
+        url: `/api/tasks/${taskId}/comments/`,
+        withCredentials: true,
       }),
     }),
   }),
 });
 
-export const { useGetAllTasksQuery, useCreateTaskMutation } = tasksApiSlice;
+export const {
+  useGetAllTasksQuery,
+  useCreateTaskMutation,
+  useUpdateTaskMutation,
+  useGetTaskCommentsQuery,
+} = tasksApiSlice;

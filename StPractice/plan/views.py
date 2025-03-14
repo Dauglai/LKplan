@@ -78,16 +78,11 @@ class TaskAPICreate(generics.CreateAPIView):
         serializer.save(creator=self.request.user.profile)
 
 
-class TaskAPIUpdate(generics.RetrieveUpdateAPIView):
+class TaskAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = (IsAuthorOrReadOnly,)
 
-
-class TaskAPIDestroy(generics.RetrieveDestroyAPIView):
-    queryset = Task.objects.all()
-    serializer_class = TaskSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
 
 class CommentAPIListCreate(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
@@ -101,23 +96,23 @@ class CheckListAPIListCreate(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
 
 
-class CheckListAPIUpdate(generics.RetrieveUpdateAPIView):
+class CheckListAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ChecklistItem.objects.all()
+    serializer_class = CheckListSerializer
+    permission_classes = (IsAuthenticated,)
+
+class CheckListItemAPIListCreate(generics.ListCreateAPIView):
     queryset = ChecklistItem.objects.all()
     serializer_class = CheckListSerializer
     permission_classes = (IsAuthenticated,)
 
 
-class CheckListAPIDelete(generics.RetrieveDestroyAPIView):
+class CheckListItemAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = ChecklistItem.objects.all()
     serializer_class = CheckListSerializer
     permission_classes = (IsAuthenticated,)
 
-class ProjectAPIUpdate(generics.RetrieveUpdateAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-
-
-class ProjectAPIDestroy(generics.RetrieveDestroyAPIView):
+class ProjectAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
@@ -125,6 +120,11 @@ class ProjectAPIDestroy(generics.RetrieveDestroyAPIView):
 class ProjectAPIList(generics.ListAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = (IsAuthenticated,)
+
+class ProjectAPICreate(generics.CreateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectCreateSerializer
     permission_classes = (IsAuthenticated,)
 
 
@@ -140,18 +140,10 @@ class TeamAPICreate(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
 
-class TeamAPIUpdate(generics.RetrieveUpdateAPIView):
+class TeamAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
 
 
-class TeamAPIDestroy(generics.RetrieveDestroyAPIView):
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
 
-
-class ProjectAPICreate(generics.CreateAPIView):
-    queryset = Project.objects.all()
-    serializer_class = ProjectCreateSerializer
-    permission_classes = (IsAuthenticated,)
 

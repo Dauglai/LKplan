@@ -115,7 +115,6 @@ class Direction(models.Model):
         return f'{self.name}'
 
 
-
 class Application(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     project = models.ForeignKey("plan.Project", on_delete=models.CASCADE, null=True, blank=True)
@@ -133,8 +132,6 @@ class Application(models.Model):
 
     def __str__(self):
         return f'{self.user}'
-
-
 
 
 class Test(models.Model):

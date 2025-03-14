@@ -30,7 +30,7 @@ class Team(models.Model):
 
 
 class Stage(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="stages")
     name = models.CharField(verbose_name="Название этапа", max_length=256)
 
     def __str__(self):

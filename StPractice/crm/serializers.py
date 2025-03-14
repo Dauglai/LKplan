@@ -40,7 +40,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             'university',
             'vk',
             'job',
-            'specializations',
             'user_id',
         ]
 

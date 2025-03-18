@@ -45,7 +45,7 @@ class Task(models.Model):
     description = models.TextField(verbose_name="Описание", max_length=10000)
     responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
     start = models.DateTimeField(auto_now_add=True,verbose_name="Дата создания")
-    end = models.DateTimeField(verbose_name="Время закрытия задачи",blank=True,null=True)
+    end = models.DateTimeField(verbose_name="Время закрытия задачи", blank=True,null=True)
     parent_task = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,
@@ -64,7 +64,7 @@ class Checklist(models.Model):
     description = models.CharField(verbose_name="Описание пункта", max_length=500)
 
     def __str__(self):
-        return f"{self.description} - {'Выполнено' if self.is_completed else 'Не выполнено'}"
+        return f"{self.description}"
 
 
 class ChecklistItem(models.Model):

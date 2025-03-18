@@ -17,20 +17,29 @@ import { TaskFormValues } from './CreateTaskModal/CreateTaskModal.typings';
 
 
 import {
-  useCreateTaskMutation,
-  useGetAllTasksQuery,
+  useCreateTaskMutation, useDeleteTaskMutation,
+  useGetAllTasksQuery, useUpdateTaskMutation,
 } from 'Features/Auth/api/tasksApiSlice';
 import { useGetUsersQuery } from 'Features/ApiSlices/userSlice.ts';
 import { useGetProjectByIdQuery } from 'Features/ApiSlices/projectSlice.ts';
 import { useParams } from 'react-router-dom';
+import TaskCard from 'Pages/Tasks/TaskCard/TaskCard.tsx';
+
+interface Profile {
+  user_id: number;
+  surname: string;
+  name: string;
+  patronymic: string;
+}
 
 interface Task {
   key: string;
   name: string;
   sprint: string;
   status: string;
+  stage: string;
   end: string;
-  assignee: string;
+  assignee: Profile;
   children?: Task[]; // Подзадачи
 }
 
@@ -60,19 +69,49 @@ const Tasks = () => {
   const [selectedTaskKey, setSelectedTaskKey] = useState<string | null>(null);
   const [parentTaskKey, setParentTaskKey] = useState<string | null>(null); // Родительская задача
   const [createTask] = useCreateTaskMutation();
+  const [updateTask] = useUpdateTaskMutation();
+  const [deleteTask] = useDeleteTaskMutation();
 
   const { projectId } = useParams();
   // @ts-ignore
   const { data: userData, isLoading, error } = useGetUsersQuery();
   const { data: projectData} = useGetProjectByIdQuery(projectId);
   const assignees = userData ? userData : [];
+  const stages = projectData?.stages || [];
   const { data } = useGetAllTasksQuery();
 
   useEffect(() => {
     if (data) {
-      setDataSource(transformTasksData(data));
+      const structuredTasks = organizeTasks(data);
+      setDataSource(transformTasksData(structuredTasks));
     }
   }, [data]);
+
+  const organizeTasks = (tasks: Task[]): Task[] => {
+    const taskMap: Record<string, Task> = {};
+    const rootTasks: Task[] = [];
+
+    // Создаем глубокую копию
+    const tasksCopy = tasks.map(task => ({
+      ...task,
+      children: task.children || [], // Убедимся, что `children` массив, а не `undefined`
+    }));
+
+    tasksCopy.forEach((task) => {
+      taskMap[task.id] = task;
+    });
+
+    tasksCopy.forEach((task) => {
+      if (task.parent_task && taskMap[task.parent_task]) {
+        taskMap[task.parent_task].children.push(task);
+      } else {
+        rootTasks.push(task);
+      }
+    });
+
+    return rootTasks;
+  };
+
 
   useEffect(() => {
 		document.title = 'Список задач - MeetPoint';
@@ -85,17 +124,20 @@ const Tasks = () => {
       key: String(task.id),
       name: task.name || `Задача ${task.id}`,
       sprint: task.project ? `Проект ${task.project}` : "Без проекта",
-      status: statuses[task.status] || "Неизвестно",
+      status: task.status,
+      stage: task.stage,
       end: task.end ? new Date(task.end).toLocaleDateString() : "Нет срока",
-      assignee: task.responsible_user
-        ? `${task.responsible_user.surname} ${task.responsible_user.name}`
-        : "Не назначен",
-      tags: task.checklist?.map((item) => item.description) || [],
+      assignee: task.resp_user
+      ? task.resp_user
+      : null,
+      children: task.subtasks ? transformTasksData(task.subtasks) : [],
+      checklist: task.checklist?.map((item) => item.description) || [],
     }));
   };
 
   const handleMakeSubtask = (taskKey: string, info: any) => {
     info.domEvent.stopPropagation();
+
     setSelectedTaskKey(taskKey);
     setIsModalVisible(true);
   };
@@ -111,9 +153,9 @@ const Tasks = () => {
       project: projectId,
       name: newTask.name,
       description: newTask.description,
-      dateCloseTask: newTask.deadline,
+      end: newTask.deadline,
       responsible_user: newTask.assignee,
-      status: 1,
+      status: newTask.status,
     });
     setDataSource([...dataSource, taskWithKey]);
     console.log(dataSource);
@@ -122,20 +164,13 @@ const Tasks = () => {
   };
 
   // Рекурсивная функция для изменения статуса
-  const updateStatus = (
-    data: Task[],
-    key: string,
-    newStatus: string
-  ): Task[] => {
+  const updateStatus = (data: Task[], key: string, newStatus: string): Task[] => {
     return data.map((item) => {
       if (item.key === key) {
         return { ...item, status: newStatus };
       }
       if (item.children) {
-        return {
-          ...item,
-          children: updateStatus(item.children, key, newStatus),
-        };
+        return { ...item, children: updateStatus(item.children, key, newStatus) };
       }
       return item;
     });
@@ -154,19 +189,31 @@ const Tasks = () => {
   };
 
   // Обработчик изменения статуса
-  const handleChangeStatus = (key: string, newStatus: string) => {
-    const updatedData = updateStatus(dataSource, key, newStatus);
-    setDataSource(updatedData);
+  const handleChangeStatus = async (key: string, newStatus: string) => {
+    try {
+      // Обновляем задачу на сервере
+      await updateTask({ id: Number(key), data: { status: newStatus } }).unwrap();
+
+      // После успешного обновления меняем состояние локально
+      setDataSource((prevData) => updateStatus(prevData, key, newStatus));
+    } catch (error) {
+      console.error('Ошибка обновления статуса:', error);
+    }
   };
 
   // Обработчик удаления строки
-  const handleDeleteRow = (key: string, info: any) => {
+  const handleDeleteRow = async (key: string, info: any) => {
     info.domEvent.stopPropagation();
-    const updatedData = deleteRow(dataSource, key);
-    setDataSource(updatedData);
+    try {
+      await deleteTask(Number(key)).unwrap(); // Теперь передаём только id
+      const updatedData = deleteRow(dataSource, key);
+      setDataSource(updatedData);
+    } catch (error) {
+      console.error('Ошибка удаления:', error);
+    }
   };
 
-  const handleConfirmMove = () => {
+  const handleConfirmMove = async () => {
     if (!parentTaskKey) {
       message.error('Выберите родительскую задачу');
       return;
@@ -176,7 +223,12 @@ const Tasks = () => {
       return;
     }
 
-    if (selectedTaskKey) {
+    try {
+      await updateTask({
+        id: Number(selectedTaskKey),
+        data: { parent_task: Number(parentTaskKey) },
+      }).unwrap();
+
       const updatedData = moveTaskToParent(
         dataSource,
         selectedTaskKey,
@@ -186,6 +238,9 @@ const Tasks = () => {
       setIsModalVisible(false);
       setParentTaskKey(null);
       message.success('Задача успешно стала подзадачей!');
+    } catch (error) {
+      message.error('Ошибка при обновлении задачи');
+      console.error('Ошибка:', error);
     }
   };
 
@@ -272,7 +327,12 @@ const Tasks = () => {
 
   // Открытие модального окна с информацией о задаче
   const handleRowClick = (record: Task) => {
-    setSelectedTask(record); // Устанавливаем выбранную задачу
+    const id = Number(record.key)
+    if (!id) {
+      console.error('Ошибка: У задачи нет ID', record);
+      return;
+    }
+    setSelectedTask(record);
     setIsModalTaskVisible(true);
   };
 
@@ -290,7 +350,7 @@ const Tasks = () => {
       render: (text: string) => <strong>{text}</strong>,
     },
     {
-      title: 'Спринт',
+      title: 'Проект',
       dataIndex: 'sprint',
       key: 'sprint',
     },
@@ -305,13 +365,12 @@ const Tasks = () => {
           onChange={(value) => handleChangeStatus(record.key, value)}
           onClick={(e) => e.stopPropagation()}
         >
-          {statuses.map((statusOption) => (
+          {stages.map((statusOption) => (
             <Option
-              key={statusOption}
-              value={statusOption}
-              // onClick={(e) => e.stopPropagation()}
+              key={statusOption.id}
+              value={statusOption.id}
             >
-              {statusOption}
+              {statusOption.name}
             </Option>
           ))}
         </Select>
@@ -324,16 +383,15 @@ const Tasks = () => {
     },
     {
       title: 'Исполнитель',
-      dataIndex: 'resp_user',
-      key: 'responsible_user',
-      render: (responsible) =>
-        responsible ? (
+      dataIndex: 'assignee',
+      key: 'assignee',
+      render: (assignee) =>
+        assignee ? (
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar src={responsible?.avatarUrl} alt={responsible?.name} style={{ marginRight: 8 }} />
-            {responsible?.surname} {responsible?.name} {responsible?.patronymic}
+            {assignee.surname} {assignee.name} {assignee.patronymic}
           </div>
         ) : (
-          'Не назначен'
+          <div style={{ display: 'flex', alignItems: 'center' }}>Не назначен</div>
         ),
     },
 
@@ -423,44 +481,19 @@ const Tasks = () => {
             ))}
         </Select>
       </Modal>
-      <Modal
-        title="Информация о задаче"
-        visible={isModalTaskVisible}
-        onCancel={handleCloseModal}
-        footer={null}
-      >
-        {selectedTask && (
-          <Descriptions column={1}>
-            <Descriptions.Item label="Название">
-              {selectedTask.name}
-            </Descriptions.Item>
-            <Descriptions.Item label="Проект">
-              {selectedTask.sprint}
-            </Descriptions.Item>
-            <Descriptions.Item label="Статус">
-              {selectedTask.status}
-            </Descriptions.Item>
-            <Descriptions.Item label="Дедлайн">
-              {selectedTask.deadline}
-            </Descriptions.Item>
-            <Descriptions.Item label="Исполнитель">
-              {selectedTask.assignee}
-            </Descriptions.Item>
-            <Descriptions.Item label="Тэги">
-              {selectedTask.tags.map((tag) => (
-                <Tag color="blue" key={tag}>
-                  {tag}
-                </Tag>
-              ))}
-            </Descriptions.Item>
-          </Descriptions>
-        )}
-      </Modal>
+
       <CreateTaskModal
         visible={isModalCreateTaskVisible}
         onCreate={handleCreateTask}
         onCancel={() => setIsModalCreateTaskVisible(false)}
         statuses={projectData?.stages || []}
+        assignees={assignees}
+      />
+      <TaskCard
+        visible={isModalTaskVisible}
+        selectedTask={selectedTask}
+        onClose={handleCloseModal}
+        stages={projectData?.stages || []}
         assignees={assignees}
       />
     </div>

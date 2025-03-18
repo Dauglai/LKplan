@@ -72,6 +72,15 @@ export const tasksApiSlice = apiSlice.injectEndpoints({
         withCredentials: true,
       }),
     }),
+    deleteTask: builder.mutation<void, number>({  // Изменяем тип данных, теперь он принимает только id
+      query: (id) => ({
+        url: `/api/tasks/${id}/`,
+        method: 'DELETE',
+        withCredentials: true,
+      }),
+      transformResponse: (response: { results: Comment[] }) => response.results,
+      providesTags: ['Comment'],
+    }),
   }),
 });
 
@@ -80,4 +89,5 @@ export const {
   useCreateTaskMutation,
   useUpdateTaskMutation,
   useGetTaskCommentsQuery,
+  useDeleteTaskMutation,
 } = tasksApiSlice;

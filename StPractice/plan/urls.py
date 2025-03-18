@@ -7,7 +7,17 @@ urlpatterns = [
     path('tasks/', TaskAPIList.as_view()),
     path('tasks/<int:pk>/', TaskAPIUpdate.as_view()),
 
-    path('tasks/<int:id>/comments/', CommentAPIListCreate.as_view()),
+    # 🔹 Комментарии
+    path('tasks/<int:pk>/comments/', CommentAPIListCreate.as_view()),  # Список и создание
+    #path('comments/<int:pk>/', CommentAPIUpdate.as_view()),  # Редактирование и удаление
+
+    # 🔹 Чек-листы
+    path('tasks/<int:pk>/checklists/', ChecklistAPIListCreate.as_view()),  # Список и создание
+    path('checklists/<int:pk>/', ChecklistAPIUpdate.as_view()),  # Редактирование и удаление
+
+    # 🔹 Пункты чек-листов
+    path('checklists/<int:pk>/checklistItems/', ChecklistItemAPIListCreate.as_view()),  # Список и создание
+    path('checklistItems/<int:pk>/', ChecklistItemAPIUpdate.as_view()),  # Редактирование и удаление
 
     path('project/create/', ProjectAPICreate.as_view()),
     path('project/', ProjectAPIList.as_view()),
@@ -15,11 +25,4 @@ urlpatterns = [
     path('teams/', TeamAPIList.as_view()),
     path('teams/create/', TeamAPICreate.as_view()),
     path('teams/<int:pk>/', TeamAPIUpdate.as_view()),
-
-    path('checkList/', CheckListAPIListCreate.as_view()),
-    path('checkList/<int:pk>/', CheckListAPIUpdate.as_view()),
-
-    path('checkListItem/', CheckListItemAPIListCreate.as_view()),
-    path('checkListItem/<int:pk>/', CheckListItemAPIUpdate.as_view()),
-
 ]

@@ -14,8 +14,8 @@ class CheckListSerializer(serializers.ModelSerializer):
     checklistItems = CheckListItemSerializer(many=True, read_only=True)
 
     class Meta:
-        model = ChecklistItem
-        fields = ['id', 'checklistItems', 'name', 'description']
+        model = Checklist
+        fields = ['id', 'checklistItems', 'description']
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -64,10 +64,17 @@ class TaskSerializer(serializers.ModelSerializer):
     comment_set = CommentSerializer(many=True, read_only=True)
     resp_user = ProfileSerializer(read_only=True, source='responsible_user')
     project_info = ProjectSerializer(read_only=True, source='project')
+    subtasks = serializers.SerializerMethodField()
+    stage = serializers.CharField(source='stage.name', read_only=True)
 
     class Meta:
         model = Task
         fields = [
             'id', 'project', 'name', 'start', 'end', 'description', 'creator', 'status', 'comment_set', 'parent_task',
-            'responsible_user', 'checklist', 'resp_user', 'project_info'
+            'responsible_user', 'checklist', 'resp_user', 'project_info', 'subtasks', 'stage'
         ]
+
+    def get_subtasks(self, obj):
+        """Метод для получения подзадач"""
+        subtasks = obj.subtasks.all()  # Доступ к подзадачам через related_name
+        return TaskSerializer(subtasks, many=True).data  # Сериализуем подзадачи

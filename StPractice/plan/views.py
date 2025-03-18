@@ -1,9 +1,11 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework import generics, viewsets, pagination
+from rest_framework import generics, viewsets, pagination, status
+from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from crm.serializers import ProfileSerializer, Profile
 from .models import *
@@ -83,34 +85,106 @@ class TaskAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
     permission_classes = (IsAuthorOrReadOnly,)
 
-
 class CommentAPIListCreate(generics.ListCreateAPIView):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        task_id = self.kwargs.get('pk')
+        try:
+            task = Task.objects.get(pk=task_id)
+        except Task.DoesNotExist:
+            raise NotFound({"error": "Task not found."})  # Возвращает 404 вместо ошибки сервера
+        return Comment.objects.filter(task=task)
+
+    def perform_create(self, serializer):
+        task_id = self.kwargs.get('pk')
+        try:
+            task = Task.objects.get(pk=task_id)
+        except Task.DoesNotExist:
+            raise NotFound({"error": "Task not found."})
+        serializer.save(author=self.request.user.profile, task=task)
+
+
+class CommentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            return Response({"error": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        comments = Comment.objects.filter(task=task)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        try:
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            return Response({"error": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user.profile, task=task)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChecklistAPIListCreate(generics.ListCreateAPIView):
+    serializer_class = CheckListSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get_queryset(self):
+        task_id = self.kwargs.get('pk')
+        try:
+            task = Task.objects.get(pk=task_id)
+        except Task.DoesNotExist:
+            raise NotFound({"error": "Task not found."})  # Возвращает 404 вместо ошибки сервера
+        return Checklist.objects.filter(task=task)
 
-class CheckListAPIListCreate(generics.ListCreateAPIView):
-    queryset = ChecklistItem.objects.all()
+    def perform_create(self, serializer):
+        task_id = self.kwargs.get('pk')
+        try:
+            task = Task.objects.get(pk=task_id)
+        except Task.DoesNotExist:
+            raise NotFound({"error": "Task not found."})
+        serializer.save(task=task)
+
+
+class ChecklistAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Checklist.objects.all()
     serializer_class = CheckListSerializer
     permission_classes = (IsAuthenticated,)
 
 
-class CheckListAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ChecklistItem.objects.all()
-    serializer_class = CheckListSerializer
+class ChecklistItemAPIListCreate(generics.ListCreateAPIView):
+    serializer_class = CheckListItemSerializer
     permission_classes = (IsAuthenticated,)
 
-class CheckListItemAPIListCreate(generics.ListCreateAPIView):
-    queryset = ChecklistItem.objects.all()
-    serializer_class = CheckListSerializer
-    permission_classes = (IsAuthenticated,)
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        try:
+            checklist = Checklist.objects.get(pk=pk)
+        except Checklist.DoesNotExist:
+            raise NotFound({"error": "Checklist not found."})  # Возвращает 404 вместо ошибки сервера
+        return ChecklistItem.objects.filter(checklist=checklist)
+
+    def perform_create(self, serializer):
+        pk = self.kwargs.get('pk')
+        try:
+            checklist = Checklist.objects.get(pk=pk)
+        except Checklist.DoesNotExist:
+            raise NotFound({"error": "Checklist not found."})
+        serializer.save(checklist=checklist)
 
 
-class CheckListItemAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
+class ChecklistItemAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = ChecklistItem.objects.all()
-    serializer_class = CheckListSerializer
+    serializer_class = CheckListItemSerializer
     permission_classes = (IsAuthenticated,)
+
 
 class ProjectAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
@@ -121,6 +195,7 @@ class ProjectAPIList(generics.ListAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = (IsAuthenticated,)
+
 
 class ProjectAPICreate(generics.CreateAPIView):
     queryset = Project.objects.all()
@@ -143,7 +218,3 @@ class TeamAPICreate(generics.CreateAPIView):
 class TeamAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
-
-
-
-

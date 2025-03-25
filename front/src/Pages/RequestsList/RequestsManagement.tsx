@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useGetApplicationsQuery } from "Features/ApiSlices/applicationSlice";
 import RequestsHeaderPanel from "./RequestsHeaderPanel";
 import RequestsListTable from "./RequestsListTable";
-import 'Styles/ListTableStyles.scss';
+import 'Styles/components/Sections/ListTableStyles.scss';
 import { useGetStatusesAppQuery } from "Features/ApiSlices/statusAppSlice";
 import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
 import { useGetEventsQuery } from "Features/ApiSlices/eventSlice";

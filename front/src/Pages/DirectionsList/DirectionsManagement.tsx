@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useGetDirectionsQuery, useDeleteDirectionMutation } from "Features/ApiSlices/directionSlice";
 import DirectionsHeaderPanel from "./DirectionsHeaderPanel";
 import DirectionsListTable from "./DirectionsListTable";
-import 'Styles/ListTableStyles.scss';
+import 'Styles/components/Sections/ListTableStyles.scss';
 import { useNotification } from 'Widgets/Notification/Notification';
 
 export default function DirectionsManagement(): JSX.Element {

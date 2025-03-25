@@ -3,7 +3,6 @@ import { useGetEventsQuery } from "Features/ApiSlices/eventSlice";
 import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
 import EventsListTable from "./EventsListTable";
 import EventForm from "./EventForm/EventForm";
-import 'Styles/ListTableStyles.scss';
 import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 import { CRMPageOptions } from "Widgets/PageSwitcher/CRMPageOptions";
 

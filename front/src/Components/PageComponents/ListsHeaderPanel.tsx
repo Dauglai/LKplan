@@ -4,7 +4,7 @@ import PlusIcon from 'assets/icons/plus.svg?react';
 import PageSwitcher, { PageOption } from "Widgets/PageSwitcher/PageSwitcher";
 import BackButton from "Widgets/BackButton/BackButton";
 import UniversalInput from "Components/Common/UniversalInput";
-import 'Styles/components/HeaderPanelStyle.scss';
+import 'Styles/components/PageComponents/HeaderPanelStyle.scss';
 
 interface ListsHeaderProps {
   title: string;

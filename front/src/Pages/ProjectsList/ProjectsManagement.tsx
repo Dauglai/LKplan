@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
 import ProjectsHeaderPanel from "./ProjectsHeaderPanel";
 import ProjectsListTable from "./ProjectsListTable";
-import 'Styles/ListTableStyles.scss';
+import 'Styles/components/Sections/ListTableStyles.scss';
 
 export default function ProjectsManagement(): JSX.Element {
   const { data: Projects = [], isLoading } = useGetProjectsQuery();

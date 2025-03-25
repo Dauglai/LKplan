@@ -1,4 +1,4 @@
-import 'Styles/ListTableStyles.scss';
+import 'Styles/components/Sections/ListTableStyles.scss';
 import { useState, useEffect, useRef } from 'react';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';

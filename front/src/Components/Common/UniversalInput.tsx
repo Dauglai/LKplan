@@ -1,7 +1,7 @@
 import { useState } from "react";
 import SearchIcon from 'assets/icons/search.svg?react';
 import CalendarIcon from "assets/icons/calendar.svg?react";
-import "Styles/components/UniversalInput.scss";
+import "Styles/components/Common/UniversalInput.scss";
 
 
 interface UniversalInputProps {

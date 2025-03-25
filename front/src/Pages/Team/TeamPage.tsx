@@ -7,7 +7,7 @@ import { getInitials } from 'Features/utils/getInitials';
 import MoreIcon from 'assets/icons/more.svg?react';
 import BackButton from "Widgets/BackButton/BackButton";
 import 'Styles/InfoPageStyle.scss';
-import 'Styles/ListTableStyles.scss';
+import 'Styles/components/Sections/ListTableStyles.scss';
 
 export default function TeamPage(): JSX.Element {
     const { id } = useParams<{ id: string }>();

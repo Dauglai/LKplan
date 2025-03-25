@@ -1,5 +1,4 @@
 import { Event } from "Features/ApiSlices/eventSlice";
-import 'Styles/ListTableStyles.scss';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from "react-router-dom";
 import { getInitials } from "Features/utils/getInitials";
@@ -7,8 +6,8 @@ import { useDeleteEventMutation } from "Features/ApiSlices/eventSlice";
 import { useNotification } from 'Widgets/Notification/Notification';
 import EventForm from "./EventForm/EventForm";
 import Modal from "Widgets/Modal/Modal";
-import MoreIcon from 'assets/icons/more.svg?react';
-
+import ActionMenu from "Components/Common/ActionMenu";
+import ListTable from "Components/Sections/ListsTable";
 
 interface EventsTableProps {
   events: Event[];
@@ -17,31 +16,17 @@ interface EventsTableProps {
 
 export default function EventsListTable({ events, role }: EventsTableProps): JSX.Element {
   const navigate = useNavigate();
-  const [openMenu, setOpenMenu] = useState<number | null>(null); 
-  const menuRef = useRef<HTMLUListElement | null>(null); 
+  const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteEvent] = useDeleteEventMutation();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const { showNotification } = useNotification()
+  const { showNotification } = useNotification();
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpenMenu(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const toggleMenu = (id: number) => {
-    setOpenMenu(openMenu === id ? null : id);
-  };
+  const handleCloseMenu = () => setOpenMenu(null);
 
   const handleDelete = async (id: number) => {
     await deleteEvent(id);
-    showNotification('Мероприятие удалено', "success")
+    showNotification('Мероприятие удалено', "success");
     setOpenMenu(null);
   };
 
@@ -56,84 +41,92 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedEvent(null);
-};
+  };
 
-  if (events.length == 0) {
-    return <span className="NullMessage">Мероприятия не найдены</span>
+  if (events.length === 0) {
+    return <span className="NullMessage">Мероприятия не найдены</span>;
   }
 
+  // Колонки для таблицы
+  const columns = [
+    {
+      header: 'Название',
+      render: (event: Event) => (
+        <Link to={role === "Организатор" ? `/event/${event.event_id}` : `/events/submit/${event.event_id}`} className="LinkCell">
+          {event.name}
+        </Link>
+      ),
+      sortKey: 'name',
+    },
+    {
+      header: 'Дата начала',
+      render: (event: Event) => (
+        <span className="HiglightCell">{event.start ? new Date(event.start).toLocaleDateString() : "-"}</span>
+      ),
+      sortKey: 'start',
+    },
+    {
+      header: 'Дата окончания',
+      render: (event: Event) => (
+        <span className="HiglightCell">{event.end ? new Date(event.end).toLocaleDateString() : "-"}</span>
+      ),
+      sortKey: 'end',
+    },
+    {
+      header: 'Организатор',
+      render: (event: Event) => (
+        <Link to={`/profile/${event.creator.user_id}`} className="LinkCell">
+          {event.creator.surname} {getInitials(event.creator.name, event.creator.patronymic)}
+        </Link>
+      ),
+      sortKey: 'creator.surname',
+    },
+    role === "Организатор" && {
+      header: 'Статус',
+      render: (event: Event) => (
+        <span className={`HiglightCell ${event.stage === 'Мероприятие завершено' ? 'HighlightGray' : ''}`}>
+          {event.stage}
+        </span>
+      ),
+      sortKey: 'stage',
+    },
+    role === "Практикант" && {
+      header: '',
+      render: (event: Event) => (
+        <button onClick={() => navigate(`submit/${event.event_id}`)} className="primary-btn">
+          Подать заявку
+        </button>
+      )
+    },
+    {
+      header: '',
+      render: (event: Event) => (
+        <ActionMenu 
+          actions={actions(event)} 
+          onClose={handleCloseMenu}
+          role={role}
+        />
+      )
+    }
+  ].filter(Boolean); // Убираем пустые элементы для ненужных столбцов
+
+  // Действия для каждого мероприятия
+  const actions = (event: Event) => [
+    { label: 'Редактировать', onClick: () => handleEdit(event.event_id), requiredRole: 'Организатор' },
+    { label: 'Удалить', onClick: () => handleDelete(event.event_id), requiredRole: 'Организатор' },
+  ];
+
   return (
-    <table className="EventsListTable ListTable">
-      <thead>
-        <tr>
-          <th>Название</th>
-          <th>Дата начала</th>
-          <th>Дата окончания</th>
-          <th>Организатор</th>
-          {/*<th>Чат</th>*/}
-          {role === "Организатор" && 
-            <th>Статус</th>
-          }
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {events.map((event) => (
-          <tr key={event.event_id}>
-            <td><Link to={role === "Организатор" ? `/event/${event.event_id}` : `/events/submit/${event.event_id}`} className="LinkCell">{event.name}</Link></td>
-            <td><span className="HiglightCell">{event.start ? new Date(event.start).toLocaleDateString() : "-"}</span></td>
-            <td><span className="HiglightCell">{event.end ? new Date(event.end).toLocaleDateString() : "-"}</span></td>
-            <td><Link to={`/profile/${event.creator.user_id}`} className="LinkCell">{event.creator.surname} {getInitials(event.creator.name, event.creator.patronymic)}</Link></td>
-            {/*<td><Link to={event.link} className="LinkCell">{event.link}</Link></td>*/}
-            {role === "Организатор" && 
-              <td>
-                <span
-                  className={`HiglightCell ${event.stage === 'Мероприятие завершено' ? 'HighlightGray' : ''}`}>
-                  {event.stage}
-                </span>
-              </td>
-            }
-            {role === "Практикант" && 
-              <td className="ButtonsColumn">
-                <button
-                  onClick={() => navigate(`submit/${event.event_id}`)}
-                  className="primary-btn">
-                  Подать заявку
-                </button>
-              </td>
-            }
-            <td>
-              <MoreIcon 
-                width="16" 
-                height="16" 
-                strokeWidth="1"
-                onClick={() => toggleMenu(event.event_id)}
-                className="ThreeDotsButton"
-              />
-              {openMenu === event.event_id && (
-                <ul ref={menuRef} className="ActionsMenu">
-                  {role === "Организатор" && 
-                    <>
-                      <li onClick={() => navigate(`/event/${event.event_id}`)}>Подробнее</li>
-                      <li onClick={() => handleEdit(event.event_id)}>Редактировать</li>
-                      <li onClick={() => handleDelete(event.event_id)}>Удалить</li>
-                    </>
-                  }
-                  {role === "Практикант" && 
-                    <li onClick={() => navigate(`submit/${event.event_id}`)}>Подробнее</li>
-                  }
-                </ul>
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
+    <>
+      <ListTable
+        data={events}
+        columns={columns}
+      />
       {isModalOpen && (
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <EventForm closeModal={closeModal} existingEvent={selectedEvent} />
         </Modal>
       )}
-    </table>
+    </>
   );
-};
+}

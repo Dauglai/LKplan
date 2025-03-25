@@ -1,0 +1,37 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.UniversalInputWrapper {
+    position: relative;
+
+    .UniversalInput {
+        @include text1;
+        width: 240px;
+        height: 32px;
+        padding: 8px 12px;
+
+        border-radius: $border-radius;
+        border: 1px solid $grey2;
+
+        &:focus {
+            outline: none;
+            border-color: $grey2;
+        }
+    }
+
+    .UniversalInputIcon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .UniversalInputText {
+        @include text2;
+        position: absolute;
+        top: -14px;
+        left: 4px;
+    }
+}

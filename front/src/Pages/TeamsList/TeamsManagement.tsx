@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useGetTeamsQuery } from "Features/ApiSlices/teamSlice";
 import TeamsHeaderPanel from "./TeamsHeaderPanel";
 import TeamsListTable from "./TeamsListTable";
-import 'Styles/ListTableStyles.scss';
+import 'Styles/components/Sections/ListTableStyles.scss';
 
 
 export default function TeamsManagement(): JSX.Element {

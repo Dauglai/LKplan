@@ -2,7 +2,7 @@ import { useState } from "react";
 import SearchIcon from "assets/icons/search.svg?react";
 import ArrowIcon from "assets/icons/arrow-down.svg?react";
 import ChevronRightIcon from "assets/icons/chevron-right.svg?react";
-import "Styles/HeaderPanelStyle.scss";
+import 'Styles/components/PageComponents/HeaderPanelStyle.scss';
 import { FiltersSelector } from "Widgets/Selectors/FiltersSelector";
 import BackButton from "Widgets/BackButton/BackButton";
 

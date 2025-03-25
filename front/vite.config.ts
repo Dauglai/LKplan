@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
+import { Component } from 'react';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -22,6 +23,7 @@ export default defineConfig({
       Shared: '/src/Shared',
       Widgets: '/src/Widgets',
       Styles: '/src/Styles',
+      Components: '/src/Components',
     },
   },
 });

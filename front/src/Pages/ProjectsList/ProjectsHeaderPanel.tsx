@@ -2,7 +2,7 @@ import { useState } from "react";
 import PlusIcon from 'assets/icons/plus.svg?react';
 import SearchIcon from 'assets/icons/search.svg?react';
 import ArrowIcon from 'assets/icons/arrow-down.svg?react';
-import 'Styles/HeaderPanelStyle.scss';
+import 'Styles/components/HeaderPanelStyle.scss';
 import PageSwitcher from "Widgets/PageSwitcher/PageSwitcher";
 import CreateProjectForm from "./ProjectForm";
 import Modal from "Widgets/Modal/Modal";

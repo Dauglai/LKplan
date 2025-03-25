@@ -69,7 +69,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
           <th>Название</th>
           <th>Дата начала</th>
           <th>Дата окончания</th>
-          <th>Руководитель</th>
+          <th>Организатор</th>
           {/*<th>Чат</th>*/}
           {role === "Организатор" && 
             <th>Статус</th>
@@ -84,7 +84,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
             <td><Link to={role === "Организатор" ? `/event/${event.event_id}` : `/events/submit/${event.event_id}`} className="LinkCell">{event.name}</Link></td>
             <td><span className="HiglightCell">{event.start ? new Date(event.start).toLocaleDateString() : "-"}</span></td>
             <td><span className="HiglightCell">{event.end ? new Date(event.end).toLocaleDateString() : "-"}</span></td>
-            <td><Link to={`/profile/${event.supervisorOne.user_id}`} className="LinkCell">{event.supervisorOne.surname} {getInitials(event.supervisorOne.name, event.supervisorOne.patronymic)}</Link></td>
+            <td><Link to={`/profile/${event.creator.user_id}`} className="LinkCell">{event.creator.surname} {getInitials(event.creator.name, event.creator.patronymic)}</Link></td>
             {/*<td><Link to={event.link} className="LinkCell">{event.link}</Link></td>*/}
             {role === "Организатор" && 
               <td>

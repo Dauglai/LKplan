@@ -77,42 +77,6 @@
         }
     }
 
-
-    .SearchInputWrapper {
-        position: relative;
-
-        .SearchInput {
-            @include text1;
-            width: 240px;
-            height: 32px;
-            padding: 8px 12px;
-
-            border-radius: $border-radius;
-            border: 1px solid $grey2;
-
-            &:focus {
-                outline: none;
-                border-color: $grey2;
-            }
-        }
-
-        .SearchInputIcon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-
-            transform: translateY(-50%);
-            pointer-events: none;
-        }
-
-        .SearchInputText {
-            @include text2;
-            position: absolute;
-            top: -14px;
-            left: 4px;
-        }
-    }
-
     .ManageButton {
         @include text2;
         display: flex;

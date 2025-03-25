@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useGetEventsQuery } from "Features/ApiSlices/eventSlice";
-import EventsHeaderPanel from "./EventsHeaderPanel";
+import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
 import EventsListTable from "./EventsListTable";
+import EventForm from "./EventForm/EventForm";
 import 'Styles/ListTableStyles.scss';
 import { useGetUserQuery } from "Features/ApiSlices/userSlice";
+import { CRMPageOptions } from "Widgets/PageSwitcher/CRMPageOptions";
 
 
 export default function EventsManagement(): JSX.Element {
@@ -36,7 +38,13 @@ export default function EventsManagement(): JSX.Element {
 
   return (
     <div className="EventsContainer ListTableContainer">
-      <EventsHeaderPanel onSearch={handleSearch} onSort={handleSort} role={user.role}/>
+      <ListsHeaderPanel
+        title="Мероприятия"
+        onSearch={handleSearch}
+        role={user.role}
+        PageOptions={CRMPageOptions}
+        FormComponent={EventForm}
+      />
       <EventsListTable events={filteredEvents} role={user.role}/>
     </div>
   );

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import './PageSwitcher.scss';
 import { useLocation } from 'react-router-dom';
 
-interface PageOption {
+export interface PageOption {
   label: string;
   link: string;
 }

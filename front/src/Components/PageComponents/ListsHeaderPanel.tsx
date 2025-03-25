@@ -15,6 +15,32 @@ interface ListsHeaderProps {
   FormComponent?: React.ElementType;
 }
 
+/**
+ * Шапка с заголовком для списков, включающий поисковое поле и кнопку для добавления.
+ * Отображает элементы в зависимости от роли пользователя и предоставляет функционал для поиска и переключения страниц.
+ *
+ * @component
+ * @example
+ * // Пример использования:
+ * <ListsHeaderPanel 
+ *   title="Список мероприятий"
+ *   onSearch={handleSearch}
+ *   role="Организатор"
+ *   PageOptions={pageOptions}
+ *   SearchPlaceholder="Поиск по названию"
+ *   FormComponent={FormComponent}
+ * />
+ *
+ * @param {Object} props - Свойства компонента.
+ * @param {string} props.title - Заголовок панели.
+ * @param {Function} props.onSearch - Функция, которая вызывается при изменении значения в поисковом поле.
+ * @param {string} [props.role] - Роль пользователя. Используется для отображения кнопки добавления только для организатора.
+ * @param {PageOption[]} [props.PageOptions] - Опции для переключателя страниц.
+ * @param {string} [props.SearchPlaceholder="Поиск по названию"] - Текст, который будет отображаться в поле поиска.
+ * @param {React.ElementType} [props.FormComponent] - Компонент формы, который будет отображаться в модальном окне при нажатии кнопки "Добавить".
+ * @returns {JSX.Element} Компонент заголовка списка с поиском и добавлением.
+ */
+
 export default function ListsHeaderPanel({
     title,
     onSearch,

@@ -14,6 +14,29 @@ interface TableProps<T> {
     columns: TableColumn<T>[];
 }
 
+/**
+ * Компонент таблицы для отображения данных с возможностью сортировки по столбцам.
+ * Поддерживает динамическую сортировку данных по ключам и отображение дополнительных текстов с иконками.
+ *
+ * @component
+ * @example
+ * // Пример использования:
+ * const columns = [
+ *   { header: 'Имя', render: (row) => row.name, sortKey: 'name', text: 'В этом столбце имена' },
+ *   { header: 'Возраст', render: (row) => row.age, sortKey: 'age' },
+ * ];
+ *
+ * <ListTable
+ *   data={[{ name: 'Иван', age: 25 }, { name: 'Мария', age: 30 }]}
+ *   columns={columns}
+ * />
+ *
+ * @param {Object} props - Свойства компонента.
+ * @param {T[]} props.data - Массив данных, которые будут отображаться в таблице.
+ * @param {TableColumn<T>[]} props.columns - Столбцы таблицы, каждый с заголовком, функцией рендеринга и опциональными параметрами сортировки и текста.
+ * @returns {JSX.Element} Таблица с данными и возможностью сортировки.
+ */
+
 export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Element {
     const [sortConfig, setSortConfig] = useState<{ key: keyof T | null; direction: 'asc' | 'desc' | null }>({
         key: columns[0]?.sortKey || null, direction: 'asc',

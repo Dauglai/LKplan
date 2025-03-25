@@ -14,6 +14,23 @@ interface EventsTableProps {
   role: string;
 }
 
+/**
+ * Компонент для отображения списка мероприятий с возможностью редактирования, удаления и подачи заявок.
+ * Отображает данные о мероприятиях в таблице, с учетом роли пользователя (организатор или практикант).
+ * Для организаторов доступна возможность редактирования и удаления мероприятия, а для практикантов — подачи заявки.
+ *
+ * @component
+ * @example
+ * // Пример использования:
+ * <EventsListTable events={eventsData} role="Организатор" />
+ *
+ * @param {Object} props - Пропсы компонента.
+ * @param {Event[]} props.events - Список мероприятий для отображения.
+ * @param {string} props.role - Роль пользователя (например, "Организатор" или "Практикант").
+ *
+ * @returns {JSX.Element} Компонент для отображения списка мероприятий.
+ */
+
 export default function EventsListTable({ events, role }: EventsTableProps): JSX.Element {
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState<number | null>(null);
@@ -22,13 +39,27 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const { showNotification } = useNotification();
 
+  /**
+   * Закрыть открытое меню действий.
+   */
   const handleCloseMenu = () => setOpenMenu(null);
+
+  /**
+   * Удалить мероприятие по ID.
+   * Отправляет запрос на удаление и отображает уведомление.
+   * @param {number} id - ID мероприятия для удаления.
+   */
 
   const handleDelete = async (id: number) => {
     await deleteEvent(id);
     showNotification('Мероприятие удалено', "success");
     setOpenMenu(null);
   };
+
+  /**
+   * Открыть модальное окно для редактирования мероприятия.
+   * @param {number} id - ID мероприятия для редактирования.
+   */
 
   const handleEdit = (id: number) => {
     const EventToEdit = events.find((event) => event.event_id === id);
@@ -37,6 +68,10 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
       setIsModalOpen(true);
     }
   };
+
+  /**
+   * Закрыть модальное окно редактирования мероприятия.
+   */
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -111,6 +146,12 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
       )
     }
   ].filter(Boolean);
+
+  /**
+   * Генерация списка действий для каждой строки таблицы.
+   * @param {Event} event - Мероприятие для генерации действий.
+   * @returns {Array} Список действий для меню.
+   */
 
   const actions = (event: Event) => [
     { label: 'Редактировать', onClick: () => handleEdit(event.event_id), requiredRole: 'Организатор' },

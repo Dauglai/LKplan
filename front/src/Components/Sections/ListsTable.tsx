@@ -1,10 +1,12 @@
 import { useState } from "react";
 import 'Styles/components/Sections/ListTableStyles.scss';
+import InfoCircle from "Components/Common/InfoCircle";
 
 interface TableColumn<T> {
     header: string;
     render: (row: T) => JSX.Element;
     sortKey?: keyof T;
+    text?: string;
 }
 
 interface TableProps<T> {
@@ -59,6 +61,7 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
                                     {sortConfig.direction === 'asc' ? '🔼' : '🔽'}
                                 </span>
                             )}
+                            {col.text && <InfoCircle text={col.text} />}
                             {col.sortKey && sortConfig.key !== col.sortKey && (
                                 <span> ↕</span>
                             )}

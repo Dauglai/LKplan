@@ -57,6 +57,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
         </Link>
       ),
       sortKey: 'name',
+      text: 'Нажмите на мероприятие для просмотра детальной информации',
     },
     {
       header: 'Дата начала',
@@ -80,6 +81,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
         </Link>
       ),
       sortKey: 'creator.surname',
+      text: 'Нажмите на организатора для просмотра детальной информации',
     },
     role === "Организатор" && {
       header: 'Статус',
@@ -108,9 +110,8 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
         />
       )
     }
-  ].filter(Boolean); // Убираем пустые элементы для ненужных столбцов
+  ].filter(Boolean);
 
-  // Действия для каждого мероприятия
   const actions = (event: Event) => [
     { label: 'Редактировать', onClick: () => handleEdit(event.event_id), requiredRole: 'Организатор' },
     { label: 'Удалить', onClick: () => handleDelete(event.event_id), requiredRole: 'Организатор' },

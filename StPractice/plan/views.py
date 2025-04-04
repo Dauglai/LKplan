@@ -21,12 +21,6 @@ class NumberInFilter(BaseInFilter, filters.NumberFilter):
     pass
 
 
-class TaskAPIListPagination(pagination.PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
-
 class ProfileSearchAPIView(generics.ListAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
@@ -36,18 +30,19 @@ class ProfileSearchAPIView(generics.ListAPIView):
 
 
 class TaskFilter(filters.FilterSet):
-    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
-    status = filters.CharFilter(field_name='status', lookup_expr='iexact')
-    author = filters.NumberFilter(field_name='author__author__id')
-    responsible_users = filters.NumberFilter(field_name='responsible_users__author__id')
-    project = filters.NumberFilter(field_name='project__id')
-    deadline = filters.DateFilter(field_name='deadline')
-    created_after = filters.DateFilter(field_name='datetime', lookup_expr='gte')  # Начальная дата
-    created_before = filters.DateFilter(field_name='datetime', lookup_expr='lte')  # Конечная дата
-    task_id = filters.NumberFilter(field_name='id')
-    team = filters.NumberFilter(method='filter_by_team')
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains') # Фильтрация по названию
+    status = filters.CharFilter(field_name='status', lookup_expr='iexact') # Фильтрация по статусу
+    creator = filters.NumberFilter(field_name='creator__user_id') # Фильтрация по создателю
+    responsible_user = filters.NumberFilter(field_name='responsible_user__user_id') # Фильтрация по проекту
+    project = filters.NumberFilter(field_name='project__id') # Фильтрация по проекту
+    deadline = filters.DateFilter(field_name='end') # Фильтрация по дедлайну
+    created_after = filters.DateFilter(field_name='start', lookup_expr='gte')  # Начальная дата
+    created_before = filters.DateFilter(field_name='end', lookup_expr='lte')  # Конечная дата
+    task_id = filters.NumberFilter(field_name='id') # Фильтрация по id
+    team = filters.NumberFilter(method='filter_by_team') # Фильтрация по команде
 
     def filter_by_team(self, queryset, name, value):
+        # Фильтрация по команде
         team = Team.objects.filter(id=value).first()
         if not team:
             return queryset.none()
@@ -56,10 +51,16 @@ class TaskFilter(filters.FilterSet):
     class Meta:
         model = Task
         fields = [
-            'name', 'status', 'deadline', 'author',
-            'responsible_users', 'project', 'created_after',
+            'name', 'status', 'deadline', 'creator',
+            'responsible_user', 'project', 'created_after',
             'created_before', 'task_id', 'team'
         ]
+
+
+class TaskAPIListPagination(pagination.PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 class TaskAPIList(generics.ListAPIView):
@@ -218,3 +219,4 @@ class TeamAPICreate(generics.CreateAPIView):
 class TeamAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
+    permission_classes = (IsAuthenticated,)

@@ -1,0 +1,38 @@
+.Task-Filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.Tasks-Header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.Tasks-Header-Heading h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.Tasks-Header-Buttons button {
+    margin-left: 10px;
+}
+
+.ant-table-thead th {
+    cursor: pointer;
+}
+.Tasks-Header-Search {
+    display: flex;
+    justify-content: center;
+    padding: 16px 0;
+}
+
+.task-filter {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}

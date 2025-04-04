@@ -75,7 +75,7 @@ export const CheckListApiSlice = apiSlice.injectEndpoints({
     // 🔹 Создать пункт чек-листа
     createCheckListItem: builder.mutation<ChecklistItem, { checkListId: number; data: Partial<ChecklistItem> }>({
       query: ({ checkListId, data }) => ({
-        url: `/api/checklists/${checkListId}/checkListItems/`,
+        url: `/api/checklists/${checkListId}/checklistItems/`,
         method: 'POST',
         body: data,
         headers: {

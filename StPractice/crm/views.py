@@ -207,3 +207,7 @@ class ProfilesAPIList(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     filter_backends = [SearchFilter]
     search_fields = ['name', 'surname', 'course']
+
+class ProfilesAPIUpdate(generics.RetrieveUpdateAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = (IsAuthorOrReadOnly,)

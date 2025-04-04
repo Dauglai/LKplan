@@ -1,0 +1,51 @@
+.task-modal {
+    .ant-modal-content {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .ant-modal-title {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .ant-descriptions-item-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .ant-input,
+    .ant-select-selector,
+    .ant-picker {
+        border-radius: 5px;
+        border: 1px solid #d9d9d9;
+        transition: border 0.3s ease;
+    }
+
+    .ant-input:focus,
+    .ant-select-selector:focus,
+    .ant-picker:focus {
+        border-color: #1890ff;
+        box-shadow: 0 0 5px rgba(24, 144, 255, 0.3);
+    }
+
+    .checklist-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 0;
+    }
+
+    .checklist-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .task-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 15px;
+    }
+}

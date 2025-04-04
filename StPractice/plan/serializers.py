@@ -50,12 +50,16 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ['id', 'stages', 'direction', 'directionSet', 'project_id', 'name', 'description']
 
 class TeamSerializer(serializers.ModelSerializer):
-    # students = ProfileSerializer(many=True, read_only=True)
-    students = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
+    students_info = ProfileSerializer(many=True, read_only=True, source="students")
+    #students = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
+    project_info = ProjectSerializer( read_only=True)
+    curator_info = ProfileSerializer(read_only=True, source="curator")
+
+
 
     class Meta:
         model = Team
-        fields = '__all__'
+        fields = ['id', 'name', 'students_info', 'project', 'curator_info', 'is_agreed', 'curator', 'students', 'project_info']
 
 
 class TaskSerializer(serializers.ModelSerializer):

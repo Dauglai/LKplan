@@ -2,48 +2,68 @@
 @import 'Styles/variables';
 @import 'Styles/buttons';
 
-
 .ListTableContainer {
     width: 1160px;
+    margin: 0 auto; /* Центрирование без отступов */
+    padding: 0; /* Убираем лишний отступ перед таблицей */
 }
 
+/* Основной стиль таблицы */
 .UniversalListTable {
     @include text1;
     width: 100%;
-    padding: 0px 8px;
-
+    padding: 8px;
     border-radius: $border-radius;
-    background-color: $grey3;
+    background-color: $white; /* Сделал фон белым */
     border-collapse: separate;
     border-spacing: 0 8px;
 
-
+    /* Заголовки */
     thead {
+        background-color: $white; /* Фон заголовков теперь белый */
+
         tr {
             th {
-                padding: 8px;
-                font-weight: normal;
+                padding: 12px;
+                font-weight: bold;
+                text-transform: uppercase;
+                text-align: left;
+                border-bottom: 2px solid $yellow;
+                white-space: nowrap; /* Исключает перенос заголовков */
 
                 &:first-child {
-                    text-align: start;
+                    border-radius: $border-radius 0 0 0;
+                }
+
+                &:last-child {
+                    border-radius: 0 $border-radius 0 0;
                 }
             }
         }
     }
 
+    /* Тело таблицы */
     tbody {
         tr {
-            background-color: $white;
-            position: relative;
+            background-color: $white; /* Сделал строки белыми */
+            transition: background-color 0.3s ease;
 
-            &:not(:last-child) {
-                margin-bottom: 12px;
+            /* Чередование цветов строк */
+            &:nth-child(odd) {
+                background-color: $white; /* Теперь все строки белые */
             }
 
+            &:hover {
+                background-color: $white;
+            }
+
+            /* Ячейки */
             td {
-                padding: 12px;
-                max-width: 200px;
-                
+                padding: 14px;
+                max-width: 220px;
+                vertical-align: middle;
+                white-space: nowrap; /* Не даёт контенту переноситься */
+
                 * {
                     word-wrap: break-word;
                     overflow-wrap: break-word;
@@ -55,12 +75,15 @@
                     border-bottom: 1px solid $yellow;
                 }
 
+                /* Выделенные ячейки */
                 .HiglightCell {
                     @include text2;
                     display: inline-block;
-                    padding: 8px;
+                    padding: 8px 12px;
                     background-color: $blue;
                     border-radius: $border-radius;
+                    font-weight: bold;
+                    color: $white;
 
                     &.HighlightGray {
                         background-color: $grey;
@@ -71,27 +94,43 @@
                     border-radius: $border-radius 0 0 $border-radius;
                     border: 1px solid $yellow;
                     border-right: none;
-
                     max-width: 300px;
+                    font-weight: bold;
                 }
 
                 &:last-child {
                     border-radius: 0 $border-radius $border-radius 0;
                     border: 1px solid $yellow;
                     border-left: none;
-
                     max-width: 40px;
+                    text-align: center;
                 }
 
+                /* Ссылки */
                 .LinkCell {
                     text-decoration: none;
                     color: $black;
+                    font-weight: bold;
+                    transition: color 0.2s;
+
+                    &:hover {
+                        color: $blue;
+                    }
                 }
 
+                /* Кнопка с тремя точками */
                 .ThreeDotsButton {
                     cursor: pointer;
+                    padding: 4px;
+                    border-radius: 50%;
+                    transition: background-color 0.3s;
+
+                    &:hover {
+                        background-color: rgba(0, 0, 0, 0.1);
+                    }
                 }
-                  
+
+                /* Выпадающее меню */
                 .ActionsMenu {
                     @include text2;
                     position: absolute;
@@ -99,33 +138,41 @@
                     border: 1px solid $grey2;
                     border-radius: $border-radius;
                     padding: 4px;
-                    top: 10px;
-                    right: 40px;
+                    top: 50%;
+                    right: 10px;
+                    transform: translateY(-50%);
                     z-index: 10;
                     list-style: none;
-                  
-                    li {
-                      padding: 8px 12px;
-                      width: 100%;
+                    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 
-                      border-radius: $border-radius;
-                      cursor: pointer;
-                  
-                      &:hover {
-                        background-color: $yellow;
-                      }
+                    li {
+                        padding: 10px 16px;
+                        width: 100%;
+                        border-radius: $border-radius;
+                        cursor: pointer;
+                        transition: background-color 0.3s;
+
+                        &:hover {
+                            background-color: $yellow;
+                        }
                     }
                 }
 
+                /* Список участников */
                 ul {
                     list-style: none;
+                    padding: 0;
+                    margin: 0;
 
                     li {
+                        padding: 4px 0;
 
                         &.HiglightCell {
                             display: block;
-                            padding: 4px;
-                            margin-bottom: 2px;
+                            padding: 6px;
+                            margin-bottom: 4px;
+                            border-radius: $border-radius;
+                            background-color: $grey;
                         }
 
                         a {
@@ -136,21 +183,27 @@
                     }
                 }
 
+                /* Колонка с кнопками */
                 &.ButtonsColumn {
                     max-width: 120px;
+
                     .primary-btn {
                         @include primary-btn;
                     }
-                }  
+                }
             }
         }
     }
 }
 
+/* Сообщение "Команды не найдены" */
 .NullMessage {
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: $white;
+    padding: 20px;
 }
-  

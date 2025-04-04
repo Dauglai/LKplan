@@ -21,9 +21,12 @@ import {
   useGetAllTasksQuery, useUpdateTaskMutation,
 } from 'Features/Auth/api/tasksApiSlice';
 import { useGetUsersQuery } from 'Features/ApiSlices/userSlice.ts';
-import { useGetProjectByIdQuery } from 'Features/ApiSlices/projectSlice.ts';
+import { useGetProjectByIdQuery, useGetProjectsQuery } from 'Features/ApiSlices/projectSlice.ts';
 import { useParams } from 'react-router-dom';
 import TaskCard from 'Pages/Tasks/TaskCard/TaskCard.tsx';
+import TaskFilters from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
+import TaskFilter from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
+
 
 interface Profile {
   user_id: number;
@@ -71,14 +74,33 @@ const Tasks = () => {
   const [createTask] = useCreateTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
   const [deleteTask] = useDeleteTaskMutation();
-
+  const { data: projects, isLoading: isLoadingProjects } = useGetProjectsQuery();
+  const projectList = projects || [];
   const { projectId } = useParams();
   // @ts-ignore
   const { data: userData, isLoading, error } = useGetUsersQuery();
   const { data: projectData} = useGetProjectByIdQuery(projectId);
   const assignees = userData ? userData : [];
   const stages = projectData?.stages || [];
-  const { data } = useGetAllTasksQuery();
+//  const { data } = useGetAllTasksQuery();
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
+  const [filter, setFilter] = useState({ sort: '', query: ''});
+  const { data: data = [] } = useGetAllTasksQuery({
+    name: filter.query,
+    status: filter.status,
+    creator: filter.creator,
+    responsible_user: filter.responsible_user,
+    project: filter.project,
+    deadline: filter.deadline,
+    created_after: filter.created_after,
+    created_before: filter.created_before,
+    task_id: filter.task_id,
+    team: filter.team,
+    page,
+    page_size: limit,
+    sort: filter.sort,
+  });
 
   useEffect(() => {
     if (data) {
@@ -283,6 +305,14 @@ const Tasks = () => {
     return { updatedChildren: updatedData, removedTask };
   };
 
+  const [filters, setFilters] = useState({});
+  const [sortOrder, setSortOrder] = useState({ columnKey: null, order: null });
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+
   const addTaskToParent = (
     data: Task[],
     task: Task,
@@ -427,7 +457,7 @@ const Tasks = () => {
       <div className="Tasks-Header">
         <div className="Tasks-Header-Heading">
           <div>
-            <p>Название проекта {projectData?.name || "Загрузка..."}</p>
+            <p>Название проекта {projectData?.name || 'Загрузка...'}</p>
             <h2>{<LeftOutlined />} Все задачи</h2>
           </div>
           <Button
@@ -436,10 +466,10 @@ const Tasks = () => {
             icon={<PlusOutlined />}
           ></Button>{' '}
         </div>
-        <div className="Tasks-Header-Status">
-          <Button onClick={handleStatusSort}>Сортировать</Button>
+
+        <div className="Tasks-Header-Search">
+          <TaskFilter filter={filter} setFilter={setFilter} stages={stages} users={assignees} projectData={projectList} />
         </div>
-        <div className="Tasks-Header-Search">{/* <p>Поиск</p> */}</div>
         <div className="Tasks-Header-Buttons">
           <Button type="default">Гант</Button>
           <Button type="default">Канбан</Button>

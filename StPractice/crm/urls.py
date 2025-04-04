@@ -24,5 +24,6 @@ urlpatterns = [
     path('profile/', ProfileAPI.as_view()),
     path('profile/update/', ProfileAPIUpdate.as_view()),
     path('profiles/', ProfilesAPIList.as_view()),
+    path('profiles/<int:pk>', ProfilesAPIUpdate.as_view()),
 ]
 urlpatterns += router.urls

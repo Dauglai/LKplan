@@ -34,14 +34,69 @@ interface Task {
 
 export const tasksApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    getAllTasks: builder.query<{ results: Task[] }, void>({
+    getAllTasks: builder.query<
+      { results: Task[] },
+      {
+        name?: string;
+        status?: string;
+        creator?: number;
+        responsible_user?: number;
+        project?: number;
+        deadline?: string;
+        created_after?: string;
+        created_before?: string;
+        task_id?: number;
+        team?: number;
+        page?: number;
+        page_size?: number;
+        sort?: string;
+      }
+    >({
+      query: ({
+                name,
+                status,
+                creator,
+                responsible_user,
+                project,
+                deadline,
+                created_after,
+                created_before,
+                task_id,
+                team,
+                page = 1,
+                page_size = 10,
+                sort,
+              }) => ({
+        url: '/api/tasks/',
+        params: {
+          name,
+          status,
+          creator,
+          responsible_user,
+          project,
+          deadline,
+          created_after,
+          created_before,
+          task_id,
+          team,
+          page,
+          page_size,
+          ordering: sort,
+        },
+        withCredentials: true,
+      }),
+      transformResponse: (response: { results: Task[] }) => response.results,
+      providesTags: ['Task'],
+    }),
+
+    /*    getAllTasks: builder.query<{ results: Task[] }, void>({
       query: () => ({
         url: '/api/tasks/',
         withCredentials: true,
       }),
       transformResponse: (response: { results: Task[] }) => response.results,
       providesTags: ['Task'],
-    }),
+    }), */
     createTask: builder.mutation<Task, Partial<Task>>({
       query: (task) => ({
         url: '/api/tasks/create/',

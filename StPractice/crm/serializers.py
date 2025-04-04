@@ -96,8 +96,6 @@ class DirectionSerializer(serializers.ModelSerializer):
 
 
 
-
-
 class EventAppSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
@@ -155,8 +153,6 @@ class TrueAnswerSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
-    creator = ProfileSerializer(read_only=True)
-    supervisorOne = ProfileSerializer(read_only=True, source="supervisor")
     specializationsSet = SpecializationSerializer(read_only=True, many=True, source="specializations")
     statusesSet = Status_AppSerializer(read_only=True, many=True, source="statuses")
     directions = DirectionSerializer(read_only=True, many=True)
@@ -165,19 +161,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ["creator",
-                  "name",
-                  "supervisor",
-                  "specializations",
-                  "statuses",
-                  "description",
-                  "link",
-                  "stage",
-                  "start",
-                  "end", "supervisorOne",
-                  "specializationsSet",
-                  "statusesSet", "directions",
-                  "applications", "event_id"]
+        fields = '__all__'
 
 
 class EventCreateSerializer(serializers.ModelSerializer):

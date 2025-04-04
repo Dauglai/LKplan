@@ -44,7 +44,7 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       title: 'Планировщик',
       icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
-        { label: 'Команды', path: '/projects/:project_id/teams' },
+        { label: 'Команды', path: '/teams' },
         { label: 'Список задач', path: `/projects/:project_id/tasks` },
       ],
     },
@@ -63,7 +63,7 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
         ...(userTeam ? [{ label: 'Моя команда', path: `/team/${userTeam.id}` }] : []),
-        { label: 'Команды', path: '/projects/:project_id/teams' },
+        { label: 'Команды', path: '/teams' },
         { label: 'Список задач', path: `/projects/:project_id/tasks` },
       ],
     },

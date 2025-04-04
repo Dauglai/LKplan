@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useUpdateTaskMutation } from 'Features/Auth/api/tasksApiSlice.ts';
+import "./TaskCard.css";
 import {
   useGetCheckListsByTaskQuery,
   useCreateCheckListMutation,
@@ -132,6 +133,7 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
 
   return (
     <Modal
+      className="task-modal"
       title="Редактирование задачи"
       visible={visible}
       onCancel={onClose}
@@ -147,7 +149,10 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
       {formData && (
         <Descriptions column={1} bordered>
           <Descriptions.Item label="Название">
-            <Input value={formData.name} onChange={(e) => handleInputChange('name', e.target.value)} />
+            <Input
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
+            />
           </Descriptions.Item>
 
           <Descriptions.Item label="Проект">{formData.sprint}</Descriptions.Item>
@@ -155,8 +160,8 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
           <Descriptions.Item label="Статус">
             <Select
               value={formData.stage}
-              style={{ width: '100%' }}
-              onChange={(value) => handleInputChange('stage', value)}
+              style={{ width: "100%" }}
+              onChange={(value) => handleInputChange("stage", value)}
             >
               {stages.map((statusOption) => (
                 <Option key={statusOption.id} value={statusOption.id}>
@@ -166,19 +171,20 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
             </Select>
           </Descriptions.Item>
 
-          <Descriptions.Item
-            name="deadline"
-            label="Дедлайн"
-            rules={[{ required: true, message: 'Выберите дату дедлайна' }]}
-          >
-            <DatePicker style={{ width: '100%' }} />
+          <Descriptions.Item label="Дедлайн">
+            <DatePicker style={{ width: "100%" }} />
           </Descriptions.Item>
 
           <Descriptions.Item label="Исполнитель">
             <Select
               value={formData.assignee?.id}
-              style={{ width: '100%' }}
-              onChange={(value) => handleInputChange('assignee', assignees.find((a) => a.id === value))}
+              style={{ width: "100%" }}
+              onChange={(value) =>
+                handleInputChange(
+                  "assignee",
+                  assignees.find((a) => a.id === value)
+                )
+              }
             >
               {assignees.map((user) => (
                 <Option key={user.id} value={user.id}>
@@ -192,33 +198,56 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
             <List
               dataSource={safeCheckLists}
               renderItem={(checkList) => (
-                <List.Item>
-                  <Checkbox checked={checkList.is_completed} onChange={() => handleUpdateCheckList(checkList.id, { is_completed: !checkList.is_completed })}>
+                <List.Item className="checklist-item">
+                  <Checkbox
+                    checked={checkList.is_completed}
+                    onChange={() =>
+                      handleUpdateCheckList(checkList.id, {
+                        is_completed: !checkList.is_completed,
+                      })
+                    }
+                  >
                     {checkList.description}
                   </Checkbox>
-                  <Button type="link" onClick={() => handleDeleteCheckList(checkList.id)}>
+                  <Button
+                    type="link"
+                    onClick={() => handleDeleteCheckList(checkList.id)}
+                  >
                     Удалить
                   </Button>
                   <List
                     dataSource={safeCheckListItems}
                     renderItem={(item) => (
-                      <List.Item>
-                        <Checkbox checked={item.is_checked} onChange={() => handleToggleCheckListItem(item)}>
+                      <List.Item className="checklist-item">
+                        <Checkbox
+                          checked={item.is_checked}
+                          onChange={() => handleToggleCheckListItem(item)}
+                        >
                           {item.description}
                         </Checkbox>
-                        <Button type="link" onClick={() => handleDeleteCheckListItem(item.id)}>
+                        <Button
+                          type="link"
+                          onClick={() => handleDeleteCheckListItem(item.id)}
+                        >
                           Удалить
                         </Button>
                       </List.Item>
                     )}
                   />
-                  <Button type="dashed" onClick={() => handleAddCheckListItem(checkList.id)}>
+                  <Button
+                    type="dashed"
+                    onClick={() => handleAddCheckListItem(checkList.id)}
+                  >
                     Добавить пункт
                   </Button>
                 </List.Item>
               )}
             />
-            <Button type="dashed" style={{ width: '100%', marginTop: '10px' }} onClick={handleAddCheckList}>
+            <Button
+              type="dashed"
+              style={{ width: "100%", marginTop: "10px" }}
+              onClick={handleAddCheckList}
+            >
               Добавить чек-лист
             </Button>
           </Descriptions.Item>

@@ -61,7 +61,6 @@ createRoot(document.getElementById('root')!).render(
                     <Route path="/projects" element={<ProjectsManagement />} />
                     <Route path="/event/:id" element={<EventPage />} />
                     <Route path="/project/:id" element={<ProjectPage />} />
-                    <Route path="/teams" element={<TeamsManagement />} />
                     <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
                     <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
                   </Route>
@@ -75,7 +74,8 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/profile/:id" element={<UsersProfilePage />} />
                   <Route path="/events" element={<EventsManagement />} />
-                  <Route path="/projects/:projectId/team/:id" element={<TeamPage />} />
+                  <Route path="/teams" element={<TeamsManagement />} />
+                  <Route path="/teams/:teamId" element={<TeamPage />} />
                   <Route path="/projects/:projectId/tasks" element={<Tasks />} />
                 </Route>
             </Route>

@@ -10,6 +10,7 @@ class CheckListItemSerializer(serializers.ModelSerializer):
         model = ChecklistItem
         fields = ['id', 'description', 'is_completed']
 
+
 class CheckListSerializer(serializers.ModelSerializer):
     checklistItems = CheckListItemSerializer(many=True, read_only=True)
 
@@ -23,6 +24,7 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = '__all__'
 
+
 class ProjectCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
@@ -34,10 +36,12 @@ class TeamCreateSerializer(serializers.ModelSerializer):
         model = Team
         fields = '__all__'
 
+
 class StageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stage
         fields = ['id', 'name']
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     stages = StageSerializer(many=True, read_only=True)
@@ -48,6 +52,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ['id', 'stages', 'direction', 'directionSet', 'project_id', 'name', 'description']
+
 
 class TeamSerializer(serializers.ModelSerializer):
     students_info = ProfileSerializer(many=True, read_only=True, source="students")

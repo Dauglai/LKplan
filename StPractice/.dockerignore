@@ -1,0 +1,10 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+*.sqlite3
+*.md
+Dockerfile
+docker-compose.yml

@@ -2,9 +2,10 @@
 @import 'Styles/variables';
 @import 'Styles/buttons';
 
-
 .ListTableContainer {
     width: 1160px;
+    margin: 0 auto; /* Центрирование без отступов */
+    padding: 0; /* Убираем лишний отступ перед таблицей */
 }
 
 .UniversalListTable, .ant-table-wrapper {
@@ -121,6 +122,7 @@
                             }
                         }
                     }
+                }
                 }
             }
 

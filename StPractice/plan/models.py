@@ -30,11 +30,29 @@ class Team(models.Model):
 
 
 class Stage(models.Model):
+    Color_CHOISES = (
+        ("Зелёный", "Зелёный"),
+        ("Жёлтый", "Жёлтый"),
+        ("Красный", "Красный"),
+        ("Серый", "Серый"),
+    )
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="stages")
     name = models.CharField(verbose_name="Название этапа", max_length=256)
+    position = models.IntegerField(default=1)
+    color = models.CharField(verbose_name="Цвет", max_length=256, default="Серый", choices=Color_CHOISES )
 
     def __str__(self):
         return self.name
+
+class Meeting(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="meetings")
+    name = models.CharField(max_length=256, verbose_name="Название")
+    description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
+    datetime = models.DateTimeField(verbose_name="Дата и время начала")
+
+    def __str__(self):
+        return f'{self.name}'
 
 
 class Task(models.Model):
@@ -71,6 +89,8 @@ class ChecklistItem(models.Model):
     checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
     description = models.CharField(verbose_name="Описание пункта", max_length=500)
     is_completed = models.BooleanField(verbose_name="Выполнено", default=False)
+    responsible = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True)
+    datetime = models.DateTimeField(verbose_name="Дата и время", blank=True,null=True)
 
     def __str__(self):
         return f"{self.description} - {'Выполнено' if self.is_completed else 'Не выполнено'}"

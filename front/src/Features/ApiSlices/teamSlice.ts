@@ -21,7 +21,7 @@ const teamApi = apiSlice.injectEndpoints({
     }),
     getTeamById: builder.query<Team, number>({
       query: (id) => ({
-        url: `/api/teams/${id}`,    //Получение команды по id
+        url: `/api/teams/${id}/`,    //Получение команды по id
         withCredentials: true,}
       ),
       providesTags: ['Team'],
@@ -41,7 +41,7 @@ const teamApi = apiSlice.injectEndpoints({
     }),
     updateTeam: builder.mutation<Team, { id: number; data: Omit<Team, 'id'> }>({
       query: ({ id, ...data }) => ({
-        url: `/api/teams/${id}`,
+        url: `/api/teams/${id}/`,
         method: 'PUT',
         body: data,
         headers: {
@@ -54,7 +54,7 @@ const teamApi = apiSlice.injectEndpoints({
     }),
     partialUpdateTeam: builder.mutation<Team, { id: number; data: Partial<Omit<Team, 'id'>> }>({
       query: ({ id, data }) => ({
-        url: `/api/teams/${id}`,
+        url: `/api/teams/${id}/`,
         method: 'PATCH',
         body: data,
         headers: {
@@ -67,7 +67,7 @@ const teamApi = apiSlice.injectEndpoints({
     }),
     deleteTeam: builder.mutation<void, number>({
       query: (id) => ({
-        url: `/api/teams/delete/${id}`,
+        url: `/api/teams/${id}/`,
         method: 'DELETE',
         withCredentials: true,
       }),

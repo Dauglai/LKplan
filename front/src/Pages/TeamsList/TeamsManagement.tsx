@@ -10,6 +10,7 @@ export default function TeamsManagement(): JSX.Element {
     const [search, setSearch] = useState("");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
+
     useEffect(() => {
         document.title = 'Команды - MeetPoint';
     }, []);

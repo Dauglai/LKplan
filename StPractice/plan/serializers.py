@@ -10,6 +10,7 @@ class CheckListItemSerializer(serializers.ModelSerializer):
         model = ChecklistItem
         fields = ['id', 'description', 'is_completed']
 
+
 class CheckListSerializer(serializers.ModelSerializer):
     checklistItems = CheckListItemSerializer(many=True, read_only=True)
 
@@ -23,6 +24,7 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = '__all__'
 
+
 class ProjectCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
@@ -34,10 +36,12 @@ class TeamCreateSerializer(serializers.ModelSerializer):
         model = Team
         fields = '__all__'
 
+
 class StageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stage
         fields = ['id', 'name']
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     stages = StageSerializer(many=True, read_only=True)
@@ -49,13 +53,18 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = ['id', 'stages', 'direction', 'directionSet', 'project_id', 'name', 'description']
 
+
 class TeamSerializer(serializers.ModelSerializer):
-    # students = ProfileSerializer(many=True, read_only=True)
-    students = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
+    students_info = ProfileSerializer(many=True, read_only=True, source="students")
+    #students = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
+    project_info = ProjectSerializer( read_only=True)
+    curator_info = ProfileSerializer(read_only=True, source="curator")
+
+
 
     class Meta:
         model = Team
-        fields = '__all__'
+        fields = ['id', 'name', 'students_info', 'project', 'curator_info', 'is_agreed', 'curator', 'students', 'project_info']
 
 
 class TaskSerializer(serializers.ModelSerializer):

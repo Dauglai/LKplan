@@ -10,4 +10,5 @@ admin.site.register(Checklist)
 admin.site.register(ChecklistItem)
 admin.site.register(Team)
 admin.site.register(Project)
+admin.site.register(Meeting)
 # Register your models here.

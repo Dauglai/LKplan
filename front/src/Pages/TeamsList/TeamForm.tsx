@@ -8,13 +8,13 @@ import { useNotification } from 'Widgets/Notification/Notification';
 
 interface TeamFormProps {
   closeModal: () => void;
-  existingTeam?: Team; 
+  existingTeam?: Team;
 }
 
 export default function TeamForm({
-  closeModal,
-  existingTeam,
-}: TeamFormProps): JSX.Element {
+                                   closeModal,
+                                   existingTeam,
+                                 }: TeamFormProps): JSX.Element {
   const [createTeam, { isLoading: isCreating }] = useCreateTeamMutation();
   const [updateTeam, { isLoading: isUpdating }] = useUpdateTeamMutation();
   const { showNotification } = useNotification();
@@ -23,6 +23,8 @@ export default function TeamForm({
     name: '',
     project: 0,
     students: [] as number[],
+    curator: null as number | null, // Выбор одного куратора
+    // curators: [] as number[], // Закомментировано: множественный выбор кураторов
   });
 
   useEffect(() => {
@@ -53,6 +55,20 @@ export default function TeamForm({
     }));
   };
 
+  const handleCuratorChange = (selectedCurator: number) => {
+    setNewTeam((prev) => ({
+      ...prev,
+      curator: selectedCurator,
+    }));
+  };
+
+  // const handleCuratorsChange = (selectedCurators: number[]) => {
+  //   setNewTeam((prev) => ({
+  //     ...prev,
+  //     curators: selectedCurators,
+  //   }));
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (teamData.name.trim()) {
@@ -65,7 +81,6 @@ export default function TeamForm({
           console.error('Ошибка при обновлении команды:', error);
           showNotification(`Ошибка при обновлении команды: ${error.status} ${error.data.stage}`, 'error');
         }
-        
       } else {
         try {
           await createTeam(teamData).unwrap();
@@ -73,7 +88,8 @@ export default function TeamForm({
             name: '',
             project: 0,
             students: [],
-          })
+            curator: null,
+          });
           showNotification('Команда создана!', 'success');
           closeModal();
         } catch (error) {
@@ -86,19 +102,10 @@ export default function TeamForm({
 
   return (
     <div className="FormContainer">
-      <form
-        className="Form TeamForm"
-        onSubmit={handleSubmit}
-      >
+      <form className="Form TeamForm" onSubmit={handleSubmit}>
         <div className="ModalFormHeader">
           <h2>{existingTeam ? 'Редактирование команды' : 'Добавление команды'}</h2>
-          <CloseIcon
-            width="24"
-            height="24"
-            strokeWidth="1"
-            onClick={closeModal}
-            className="ModalCloseButton"
-          />
+          <CloseIcon width="24" height="24" strokeWidth="1" onClick={closeModal} className="ModalCloseButton" />
         </div>
 
         <div className="NameContainer">
@@ -113,23 +120,17 @@ export default function TeamForm({
           />
         </div>
 
-        <ProjectSelector
-          selectedProjectId={teamData.project}
-          onChange={handleProjectChange}
-        />
+        <ProjectSelector selectedProjectId={teamData.project} onChange={handleProjectChange} />
 
-        <UsersSelector
-          selectedUsersId={teamData.students}
-          onChange={handleStudentsChange}
-          label="Добавить студентов*"
-        />
+        <UsersSelector selectedUsersId={teamData.students} onChange={handleStudentsChange} label="Добавить студентов*" />
+
+        <UsersSelector selectedUsersId={teamData.curator ? [teamData.curator] : []} onChange={(ids) => handleCuratorChange(ids[0])} label="Выбрать куратора*" />
+
+        {/* <UsersSelector selectedUsersId={teamData.curators} onChange={handleCuratorsChange} label="Выбрать кураторов*" multiple /> */}
+        {/* Закомментировано: множественный выбор кураторов */}
 
         <div className="FormButtons">
-          <button
-            className="primary-btn"
-            type="submit"
-            disabled={isCreating || isUpdating}
-          >
+          <button className="primary-btn" type="submit" disabled={isCreating || isUpdating}>
             {existingTeam ? 'Обновить' : 'Создать'}
             <ChevronRightIcon width="24" height="24" strokeWidth="1" />
           </button>

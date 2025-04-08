@@ -58,7 +58,7 @@ export default function EventPage(): JSX.Element {
                             <h3>{direction.name}</h3>
                 
                             {projects?.map((project) => {
-                                if (project.direction.id === direction.id) {
+                                if (project.directionSet.id === direction.id) {
                                 return (
                                     <div key={project.project_id} className='EventProject InfoLevel InfoLevelTwo'>
                                         <Link 

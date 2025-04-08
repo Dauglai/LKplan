@@ -22,11 +22,15 @@ import { ConfigProvider } from 'antd';
 import EventsManagement from 'Pages/EventsList/EventsManagement.tsx';
 import ProjectsManagement from 'Pages/ProjectsList/ProjectsManagement.tsx';
 import DirectionsManagement from 'Pages/DirectionsList/DirectionsManagement.tsx';
+import DirectionForm from 'Pages/DirectionsList/DirectionForm.tsx';
 import TeamsManagement from 'Pages/TeamsList/TeamsManagement.tsx';
 import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializationForm.tsx'
 import CreateStatusAppForm from 'Pages/CreateStatusApp/CreateStatusAppForm.tsx';
 import EventPage from 'Pages/Event/EventPage.tsx';
+import EventForm from 'Pages/EventsList/EventForm/EventForm.tsx';
+import EventSetupSummary from 'Pages/Event/EventSetupSummary.tsx';
 import ProjectPage from 'Pages/Project/ProjectPage.tsx';
+import ProjectForm from 'Pages/ProjectsList/ProjectForm.tsx';
 import TeamPage from 'Pages/Team/TeamPage.tsx';
 import RequestPage from 'Pages/Request/RequestPage.tsx';
 import UsersProfilePage from 'Pages/UsersProfile/UsersProfilePage.tsx';
@@ -64,6 +68,11 @@ createRoot(document.getElementById('root')!).render(
                     <Route path="/teams" element={<TeamsManagement />} />
                     <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
                     <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
+
+                    <Route path="/event-setup" element={<EventForm />} />
+                    <Route path="/directions-setup" element={<DirectionForm />} />
+                    <Route path="/projects-setup" element={<ProjectForm />} />
+                    <Route path="/event-setup-save" element={<EventSetupSummary />} />
                   </Route>
 
                   {/* Доступ только практикантам */}

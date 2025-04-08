@@ -35,9 +35,9 @@
     gap: 16px;
     width: 596px;
 
-    .ModalFormHeader {
+    .FormHeader {
       display: flex;
-      justify-content: space-between;
+      justify-content: start;
       align-items: center;
 
       .ModalCloseButton {

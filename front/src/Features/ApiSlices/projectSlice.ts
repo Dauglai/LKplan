@@ -1,12 +1,11 @@
 import { apiSlice} from 'App/api/apiSlice.ts';
 
 export interface Project {
-  project_id: number;
-  direction: number;
+  project_id?: number;
+  directionSet: number;
   name: string;
   description: string | null;
-  supervisor: number | null;
-  curators: number[];
+  curatorsSet: number[];
   creator: number;
 }
 

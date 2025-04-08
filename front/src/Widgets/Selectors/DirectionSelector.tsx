@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
+import { useDispatch, useSelector } from 'react-redux';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 
 interface DirectionSelectorProps {
@@ -13,22 +13,21 @@ export default function DirectionSelector({
     onChange,
     label = "Выбрать направление*"
 }: DirectionSelectorProps): JSX.Element {
-    const { data: directions, isLoading, error } = useGetDirectionsQuery();
+    const { stepDirections } = useSelector((state: any) => state.event || []);
     const [isOpen, setIsOpen] = useState(false);
 
     const handleSelectDirection = (directionId: number) => {
-        onChange(directionId);
+        onChange(directionId);  // Отправляем выбранный directionId
+        setIsOpen(false);  // Закрываем список после выбора
     };
 
-    if (isLoading) {
-        return <div className="DirectionSelector FormField">Загрузка направлений...</div>;
-    }
-
-    if (error || !directions || directions.length === 0) {
-        return <div className="DirectionSelector FormField">Направления не найдены</div>;
-    }
-
+    // Проверяем, есть ли направлений, если нет, показываем сообщение
+    const directions = stepDirections?.directions || [];
+    
     const selectedDirectionName = directions.find(direction => direction.id === selectedDirectionId)?.name || label;
+
+    console.log('selectedDirectionName', selectedDirectionName);
+    console.log('directions', directions);
 
     return (
         <div className="DirectionSelector">
@@ -38,26 +37,34 @@ export default function DirectionSelector({
             >
                 <p>{selectedDirectionName}</p>
                 <ChevronRightIcon
-                width="20"
-                height="20"
-                strokeWidth="1"
-                className={`ChevronDown ${isOpen ? 'open' : ''}`}
+                    width="20"
+                    height="20"
+                    strokeWidth="1"
+                    className={`ChevronDown ${isOpen ? 'open' : ''}`}
                 />
+            </div>
 
-                {isOpen && (
+            {/* Дропдаун со списком направлений */}
+            {isOpen && directions.length > 0 && (
                 <div className="DropdownList">
                     {directions.map(direction => (
-                    <div
-                        key={direction.id}
-                        className={`DropdownItem ${selectedDirectionId === direction.id ? 'selected' : ''}`}
-                        onClick={() => handleSelectDirection(direction.id)}
-                    >
-                        {direction.name}
-                    </div>
+                        <div
+                            key={direction.id}
+                            className={`DropdownItem ${selectedDirectionId === direction.id ? 'selected' : ''}`}
+                            onClick={() => handleSelectDirection(direction.id)}
+                        >
+                            {direction.name}
+                        </div>
                     ))}
                 </div>
-                )}
-            </div>
+            )}
+
+            {/* Если направлений нет */}
+            {isOpen && directions.length === 0 && (
+                <div className="DropdownList">
+                    <p>Нет доступных направлений</p>
+                </div>
+            )}
         </div>
     );
 }

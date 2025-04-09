@@ -1,4 +1,6 @@
 .task-modal {
+
+    width: 1000px !important; /* шире окно */
     .ant-modal-content {
         background-color: #f9f9f9;
         border-radius: 10px;
@@ -48,4 +50,23 @@
         justify-content: flex-end;
         margin-top: 15px;
     }
+
+    .task-modal {
+        width: 1000px !important; /* шире окно */
+    }
+
+    .checklist-item input {
+        margin-left: 8px;
+    }
+
+    .checklist-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+
 }
+
+

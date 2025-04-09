@@ -100,7 +100,9 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
           label="Дедлайн"
           rules={[{ required: true, message: 'Выберите дату дедлайна' }]}
         >
-          <DatePicker style={{ width: '100%' }} />
+          <DatePicker
+            style={{ width: '100%' }}
+          />
         </Form.Item>
 
         {/* Исполнитель */}

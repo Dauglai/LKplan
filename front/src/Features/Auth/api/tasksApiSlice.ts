@@ -13,10 +13,6 @@ interface User {
   specializations?: number[];
 }
 
-interface Checklist {
-  description: string;
-  is_completed?: boolean;
-}
 
 interface Task {
   id?: number;
@@ -29,7 +25,6 @@ interface Task {
   status: number;
   parent_task?: number;
   responsible_user?: User;
-  checklist?: Checklist[];
 }
 
 export const tasksApiSlice = apiSlice.injectEndpoints({

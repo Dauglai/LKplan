@@ -106,6 +106,10 @@ class CommentAPIListCreate(generics.ListCreateAPIView):
             raise NotFound({"error": "Task not found."})
         serializer.save(author=self.request.user.profile, task=task)
 
+class CommentAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthenticated,)
 
 class CommentAPIView(APIView):
     permission_classes = [IsAuthenticated]

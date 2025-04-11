@@ -9,7 +9,7 @@ import { getInitials } from "Features/utils/getInitials";
 import { useNotification } from 'Widgets/Notification/Notification';
 import ProjectForm from "./ProjectForm";
 import Modal from "Widgets/Modal/Modal";
-import ActionMenu from 'Components/Common/ActionMenu';
+import ActionMenu from 'Components/Sections/ActionMenu';
 import ListTable from "Components/Sections/ListTable";
 
 interface ProjectsTableProps {

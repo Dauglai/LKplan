@@ -1,4 +1,5 @@
 import { apiSlice  } from 'App/api/apiSlice.ts';
+import dayjs from 'dayjs';
 
 export interface Event {
   event_id?: number;
@@ -9,6 +10,7 @@ export interface Event {
   link: string | null;
   start: string | null;
   end: string | null;
+  end_app: string | null;
   supervisor: number;
   creator: number;
   stage: string;
@@ -27,6 +29,7 @@ const eventApi = apiSlice.injectEndpoints({
           ...event,
           start: event.start ? new Date(event.start) : null,
           end: event.end ? new Date(event.end) : null,
+          end_app: event.end_app ? new Date(event.end_app) : null,
         }));
       },
     }),
@@ -40,25 +43,34 @@ const eventApi = apiSlice.injectEndpoints({
         ...response,
         start: response.start ? new Date(response.start) : null,
         end: response.end ? new Date(response.end) : null,
+        end_app: response.end_app ? new Date(response.end_app) : null,
       }),
     }),
     createEvent: builder.mutation<Event, Omit<Event, 'id'>>({
-      query: (newEvent) => ({ // Создаем новое мероприятие
-        url: '/api/events/create/',
-        method: 'POST',
-        body: {
-          ...newEvent,
-          start: newEvent.start ? new Date(newEvent.start).toISOString().split('T')[0] : null,
-          end: newEvent.end ? new Date(newEvent.end).toISOString().split('T')[0] : null,
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          
-        },
-        withCredentials: true,  
-      }),
+      query: (newEvent) => {
+        const formatDate = (value?: string | null) => {
+          const parsed = dayjs(value, 'DD.MM.YYYY', true);
+          return parsed.isValid() ? parsed.format('YYYY-MM-DD') : null;
+        };
+    
+        return {
+          url: '/api/events/create/',
+          method: 'POST',
+          body: {
+            ...newEvent,
+            start: formatDate(newEvent.start),
+            end: formatDate(newEvent.end),
+            end_app: formatDate(newEvent.end_app),
+          },
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        };
+      },
       invalidatesTags: ['Event'],
     }),
+    
     updateEvent: builder.mutation<Event, { id: number; data: Omit<Event, 'id'> }>({
       query: ({ id, data }) => ({   // Обновляем мероприятие
         url: `/api/events/${id}`,
@@ -105,4 +117,5 @@ export const {
   usePartialUpdateEventMutation,
   useDeleteEventMutation,
 } = eventApi;
+
 

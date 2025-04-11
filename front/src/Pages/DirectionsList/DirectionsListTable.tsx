@@ -6,7 +6,7 @@ import { Direction } from 'Features/ApiSlices/directionSlice';
 import { Link } from 'react-router-dom';
 import DirectionForm from "./DirectionForm";
 import Modal from "Widgets/Modal/Modal";
-import ActionMenu from 'Components/Common/ActionMenu';
+import ActionMenu from 'Components/Sections/ActionMenu';
 import ListTable from "Components/Sections/ListTable";
 
 interface DirectionsTableProps {

@@ -6,7 +6,7 @@ import { useDeleteEventMutation } from "Features/ApiSlices/eventSlice";
 import { useNotification } from 'Widgets/Notification/Notification';
 import EventForm from "./EventForm/EventForm";
 import Modal from "Widgets/Modal/Modal";
-import ActionMenu from "Components/Common/ActionMenu";
+import ActionMenu from "Components/Sections/ActionMenu";
 import ListTable from "Components/Sections/ListTable";
 
 interface EventsTableProps {

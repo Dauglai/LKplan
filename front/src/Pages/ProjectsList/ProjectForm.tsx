@@ -3,8 +3,11 @@ import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
 import { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import UsersSelector from 'Widgets/Selectors/UsersSelector';
+import UserSelector from 'Widgets/Selectors/UserSelector';
 import BackButton from 'Widgets/BackButton/BackButton';
+import NameInputField from 'Components/Forms/NameInputField';
+import DescriptionInputField from 'Components/Forms/DescriptioninputField';
+import CloseIcon from 'assets/icons/close.svg?react';
 
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 
@@ -34,7 +37,7 @@ export default function ProjectForm({
     name: '',
     description: '',
     supervisorSet: null,
-    curators: [],
+    curators: 0,
     creator: 0,
     project_id: 0,
   });
@@ -99,7 +102,7 @@ export default function ProjectForm({
     }));
   };
 
-  const handleCuratorsChange = (selected: number[]) => {
+  const handleCuratorChange = (selected: number) => {
     setNewProject((prev) => ({
       ...prev,
       curators: selected,
@@ -108,8 +111,6 @@ export default function ProjectForm({
 
   const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
 
     setNewProject((prev) => ({
       ...prev,
@@ -127,14 +128,14 @@ export default function ProjectForm({
 
   return (
     <div className="FormContainer">
-      <form 
-        className="ProjectForm Form"
-        onSubmit={existingProject ? handleUpdateProject : handleProject}>
-
-        <div className="FormHeader">
+      <div className="FormHeader">
           <BackButton />
           <h2>{existingProject ? 'Редактирование проекта' : 'Добавление проекта'}</h2>
         </div>
+
+      <form 
+        className="ProjectForm Form"
+        onSubmit={existingProject ? handleUpdateProject : handleProject}>
 
         <DirectionSelector
           selectedDirectionId={newProject.directionSet}
@@ -142,33 +143,30 @@ export default function ProjectForm({
         />
 
         <div className="NameContainer">
-          <input
-            type="text"
+          <NameInputField
             name="name"
-            placeholder="Название проекта*"
             value={newProject.name}
             onChange={handleInputChange}
-            className="Name TextField FormField"
+            placeholder="Название проекта"
+            required
           />
-          <textarea
-            placeholder="Описание проекта"
-            className="Description TextField FormField"
+          <DescriptionInputField
             name="description"
             value={newProject.description}
             onChange={handleTextArea}
+            placeholder="Описание проекта"
           />
         </div>
 
-        <UsersSelector
+        <UserSelector
           selectedUsersId={newProject.curators || null}
-          onChange={handleCuratorsChange}
-          label="Добавить куратора*"
+          onChange={handleCuratorChange}
+          label="Добавить куратора"
         />
 
         <div className="FormButtons">
           <button className="primary-btn" type="submit" disabled={isUpdating}>
-            {existingProject ? 'Обновить' : 'Создать'}
-            <ChevronRightIcon width="24" height="24" strokeWidth="1" />
+            {existingProject ? 'Обновить проект' : 'Создать проект'}
           </button>
           <button
             className="primary-btn"
@@ -181,15 +179,26 @@ export default function ProjectForm({
         </div>
       </form>
 
-      <div className="DirectionList">
-        <h3>Созданные проекты:</h3>
-        {stepProjects.projects.map((project) => (
-          <div key={project.id} className="DirectionItem">
-            <span>{project.name}</span>
-            <button onClick={() => handleRemoveProject(project.project_id)}>Удалить</button>
-          </div>
-        ))}
-      </div>
+      { 
+        stepProjects.projects && stepProjects.projects.length > 0 && (
+        <div className="ProjectList">
+          <h3>Созданные проекты:</h3>
+          <ul className='SelectedList'>
+            {stepProjects.projects.map((project) => (
+              <li key={project.project_id} className="SelectedListItem">
+                {project.name}
+                <CloseIcon
+                  className="RemoveIcon"
+                  width="16"
+                  height="16"
+                  strokeWidth="1.5"
+                  onClick={() => handleRemoveProject(project.project_id)}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

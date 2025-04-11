@@ -44,7 +44,7 @@ export default function UserSelector({
         ? `${users.find(user => user.user_id === selectedUserId)?.surname} ${
             users.find(user => user.user_id === selectedUserId)?.name
             } ${users.find(user => user.user_id === selectedUserId)?.patronymic}`
-        : 'Выбрать пользователя*';
+        : 'Выбрать куратора';
 
     return (
     <div className="UserSelector">

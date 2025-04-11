@@ -9,6 +9,10 @@ import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addDirection, removeDirection } from 'Features/store/eventSetupSlice';
 import BackButton from 'Widgets/BackButton/BackButton';
+import NameInputField from 'Components/Forms/NameInputField';
+import DescriptionInputField from 'Components/Forms/DescriptioninputField';
+import "Styles/FormSelectorStyle.scss";
+import CloseIcon from 'assets/icons/close.svg?react';
 
 export default function DirectionForm({ 
   existingDirection,
@@ -59,10 +63,8 @@ export default function DirectionForm({
     }
   };
 
-  const handleTextAtea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
 
     setNewDirection((prev) => ({
       ...prev,
@@ -80,8 +82,7 @@ export default function DirectionForm({
 
   return (
     <div className="FormContainer">
-      <form className="Form DirectionForm" onSubmit={existingDirection ? handleUpdateDirection : handleDirection}>
-        <div className="FormHeader">
+      <div className="FormHeader">
           <BackButton />
           <div className="">
             <h2>{existingDirection ? 'Редактирование направления' : 'Добавление направления'}</h2>
@@ -89,29 +90,27 @@ export default function DirectionForm({
           </div>
         </div>
 
+      <form className="Form DirectionForm" onSubmit={existingDirection ? handleUpdateDirection : handleDirection}>
+
         <div className="NameContainer">
-          <input
-            type="text"
+          <NameInputField
             name="name"
             value={newDirection.name}
             onChange={handleInputChange}
+            placeholder="Название направления"
             required
-            placeholder="Название направления*"
-            className="Name TextField FormField"
           />
-          <textarea
-            placeholder="Описание"
-            className="Description TextField FormField"
+          <DescriptionInputField
             name="description"
             value={newDirection.description}
-            onInput={handleTextAtea}
+            onChange={handleTextArea}
+            placeholder="Описание направления"
           />
         </div>
 
         <div className="FormButtons">
           <button className="primary-btn" type="submit" disabled={isUpdating}>
-            {existingDirection ? 'Обновить' : 'Создать'}
-            <ChevronRightIcon width="24" height="24" strokeWidth="1" />
+            {existingDirection ? 'Обновить' : 'Создать направление'}
           </button>
 
           <button
@@ -119,21 +118,33 @@ export default function DirectionForm({
             type="button"
             onClick={handleNextStep}
           >
-            Далее
+            Настройка проектов
             <ChevronRightIcon width="24" height="24" strokeWidth="1" />
           </button>
         </div>
       </form>
 
-      <div className="DirectionList">
-        <h3>Созданные направления:</h3>
-        {stepDirections.directions.map((direction) => (
-          <div key={direction.id} className="DirectionItem">
-            <span>{direction.name}</span>
-            <button onClick={() => handleRemoveDirection(direction.id)}>Удалить</button>
+      {
+        stepDirections.directions && stepDirections.directions.length > 0 && (
+          <div className="DirectionList">
+            <h3>Созданные направления:</h3>
+            <ul className="SelectedList">
+              {stepDirections.directions.map((direction) => (
+                <li key={direction.id} className="SelectedListItem">
+                  {direction.name}
+                  <CloseIcon
+                    className="RemoveIcon"
+                    width="16"
+                    height="16"
+                    strokeWidth="1.5"
+                    onClick={() => handleRemoveDirection(direction.id)}
+                  />
+                </li>
+              ))}
+            </ul>
           </div>
-        ))}
-      </div>
+        )
+      }
     </div>
   );
 }

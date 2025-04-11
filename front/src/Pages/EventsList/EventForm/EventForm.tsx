@@ -7,11 +7,13 @@ import { Event } from 'Features/ApiSlices/eventSlice';
 import SpecializationSelector from 'Widgets/Selectors/SpecializationSelector';
 import StageSelector from 'Widgets/Selectors/StageSelector';
 import UserSelector from 'Widgets/Selectors/UserSelector';
-import DateRangePicker from 'Widgets/fields/DateRangePicker';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import LinkIcon from 'assets/icons/link.svg?react'
 import BackButton from 'Widgets/BackButton/BackButton';
 import './EventForm.scss';
+import NameInputField from 'Components/Forms/NameInputField';
+import DescriptionInputField from 'Components/Forms/DescriptioninputField';
+import DateInputField from 'Components/Forms/DateInputField';
 
 /**
  * Компонент формы для создания или редактирования мероприятия.
@@ -39,6 +41,7 @@ export default function EventForm({
     stage: 'Редактирование',
     start: '',
     end: '',
+    end_app: '',
     specializations: [] as number[],
     statuses: [1] as number[],
     event_id: 0,
@@ -54,13 +57,11 @@ export default function EventForm({
         event_id: existingEvent.event_id,
         name: existingEvent.name,
         description: existingEvent.description,
-        link: existingEvent.link,
         stage: existingEvent.stage,
         start: existingEvent.start ? new Date(existingEvent.start).toISOString().split('T')[0] : '',
         end: existingEvent.end ? new Date(existingEvent.end).toISOString().split('T')[0] : '',
-        specializations: existingEvent.specializations,
-        statuses: existingEvent.statuses,
-        supervisor: existingEvent.supervisor,
+        end_app: existingEvent.end_app ? new Date(existingEvent.end_app).toISOString().split('T')[0] : '',
+        specializations: existingEvent.s,
         creator: existingEvent.creator
       });
     } else {
@@ -88,8 +89,6 @@ export default function EventForm({
    */
   const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
 
     setNewEvent((prev) => ({
       ...prev,
@@ -111,18 +110,6 @@ export default function EventForm({
   };
 
   /**
-   * Обработчик изменений для выбора статусов.
-   * @param {number[]} selected - Выбранные статусы.
-   */
-  const handleStatusesChange = (selected: number[]) => {
-    setNewEvent((prev) => ({
-      ...prev,
-      statuses: selected,
-    }));
-    dispatch(updateEventField({ field: 'statuses', value: selected }));
-  };
-
-  /**
    * Обработчик изменений для выбора стадии мероприятия.
    * @param {string} selected - Выбранная стадия.
    */
@@ -134,32 +121,31 @@ export default function EventForm({
     dispatch(updateEventField({ field: 'stage', value: selected }));
   };
 
-  /**
-   * Обработчик изменений для выбора руководителя.
-   * @param {number} selected - ID выбранного руководителя.
-   */
-  const handleSupervisorChange = (selected: number) => {
-    setNewEvent((prev) => ({
-      ...prev,
-      supervisor: selected,
-    }));
-    dispatch(updateEventField({ field: 'supervisor', value: selected }));
-  };
 
-  /**
-   * Обработчик изменений для выбора даты начала и окончания мероприятия.
-   * @param {string} startDate - Дата начала мероприятия.
-   * @param {string} endDate - Дата окончания мероприятия.
-   */
-  const handleDateChange = (startDate: string, endDate: string) => {
+  const handleStartDateChange = (startDate: string) => {
     setNewEvent((prev) => ({
       ...prev,
       start: startDate,
-      end: endDate,
     }));
     dispatch(updateEventField({ field: 'start', value: startDate }));
+  };
+
+  const handleEndDateChange = (endDate: string) => {
+    setNewEvent((prev) => ({
+      ...prev,
+      end: endDate, 
+    }));
     dispatch(updateEventField({ field: 'end', value: endDate }));
   };
+
+  const handleEndAppDateChange = (endAppDate: string) => {
+    setNewEvent((prev) => ({
+      ...prev,
+      end_app: endAppDate, // Обновляем только end
+    }));
+    dispatch(updateEventField({ field: 'end_app', value: endAppDate }));
+  };
+
 
   /**
    * Обработчик для перехода на следующий шаг (настройка направлений).
@@ -170,28 +156,26 @@ export default function EventForm({
 
   return (
     <div className="FormContainer">
-      <form className="EventForm Form">
-        <div className="FormHeader">
+      <div className="FormHeader">
           <BackButton />
           <h2>{existingEvent ? 'Редактирование мероприятия' : 'Добавление мероприятия'}</h2>
         </div>
+        
+      <form className="EventForm Form">
 
         <div className="NameContainer">
-          <input
-            type="text"
+          <NameInputField
             name="name"
-            className="Name FormField"
             value={newEvent.name}
             onChange={handleInputChange}
+            placeholder="Название мероприятия"
             required
-            placeholder="Название мероприятия*"
           />
-          <textarea
+          <DescriptionInputField
             name="description"
             value={newEvent.description}
             onChange={handleTextArea}
             placeholder="Описание мероприятия"
-            className="Description FormField"
           />
         </div>
 
@@ -205,27 +189,33 @@ export default function EventForm({
           onChange={handleStageChange}
         />
 
-        <UserSelector
-          selectedUserId={newEvent.supervisor}
-          onChange={handleSupervisorChange}
-        />
-
-        <DateRangePicker
-          startDate={newEvent.start}
-          endDate={newEvent.end}
-          onChange={handleDateChange}
-        />
-
-        <div className="LinkField FormField">
-          <input
-            type="text"
-            placeholder="Ссылка на орг. чат"
-            className="LinkInput"
-            name="link"
-            value={newEvent.link}
-            onChange={handleInputChange}
+        <div className='DateRangeContainer'>
+          <DateInputField
+            name="start"
+            value={newEvent.start}
+            onChange={handleStartDateChange}
+            placeholder="Дата начала"
+            required
+            withPlaceholder={true}
           />
-          <LinkIcon width="16" height="16" strokeWidth="1" />
+
+          <DateInputField
+            name="end"
+            value={newEvent.end}
+            onChange={handleEndDateChange}
+            placeholder="Дата завершения"
+            required
+            withPlaceholder={true}
+          />
+
+          <DateInputField
+            name="end_app"
+            value={newEvent.end_app}
+            onChange={handleEndAppDateChange}
+            placeholder="Срок приема заявок"
+            required
+            withPlaceholder={true}
+          />
         </div>
 
         <div className="FormButtons">
@@ -234,7 +224,7 @@ export default function EventForm({
             type="button"
             onClick={handleNextStep} // Переход к следующему шагу
           >
-            Далее
+            Настройка направлений
             <ChevronRightIcon width="24" height="24" strokeWidth="1" />
           </button>
         </div>

@@ -13,14 +13,11 @@ const initialState: EventSetupState = {
     stepEvent: {
         name: '',
         description: '',
-        link: '',
         stage: 'Редактирование',  // Начальная стадия мероприятия
         start: '',
         end: '',
+        end_app: '',
         specializations: [],
-        statuses: [1],  // Статус мероприятия по умолчанию
-        supervisor: 2,  // Ответственный за мероприятие
-        creator: 2  // Создатель мероприятия
     },
     stepDirections: { directions: [] },  // Направления (по умолчанию пустой массив)
     stepProjects: { projects: [] },  // Проекты (по умолчанию пустой массив)

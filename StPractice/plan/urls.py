@@ -9,7 +9,7 @@ urlpatterns = [
 
     # 🔹 Комментарии
     path('tasks/<int:pk>/comments/', CommentAPIListCreate.as_view()),  # Список и создание
-    #path('comments/<int:pk>/', CommentAPIUpdate.as_view()),  # Редактирование и удаление
+    path('comments/<int:pk>/', CommentAPIUpdate.as_view()),  # Редактирование и удаление
 
     # 🔹 Чек-листы
     path('tasks/<int:pk>/checklists/', ChecklistAPIListCreate.as_view()),  # Список и создание

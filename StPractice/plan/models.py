@@ -58,7 +58,7 @@ class Meeting(models.Model):
 class Task(models.Model):
     creator = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name="tasks_creators",verbose_name="Создатель задачи")
     project = models.ForeignKey(Project,on_delete=models.CASCADE,verbose_name="Проект")
-    status = models.ForeignKey(Stage,on_delete=models.CASCADE,verbose_name="Статус" )
+    status = models.ForeignKey(Stage,on_delete=models.CASCADE,verbose_name="Статус", related_name="current_stage")
     name = models.CharField(verbose_name="Название",max_length=256)
     description = models.TextField(verbose_name="Описание", max_length=10000)
     responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
@@ -86,7 +86,7 @@ class Checklist(models.Model):
 
 
 class ChecklistItem(models.Model):
-    checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
+    checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE, related_name="items")
     description = models.CharField(verbose_name="Описание пункта", max_length=500)
     is_completed = models.BooleanField(verbose_name="Выполнено", default=False)
     responsible = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True)

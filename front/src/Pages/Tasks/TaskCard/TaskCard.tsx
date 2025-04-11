@@ -8,126 +8,77 @@ import {
   Button,
   Checkbox,
   List,
-  message, Form,
+  message, Form, Progress, Card,
 
 } from 'antd';
 import moment from 'moment';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useUpdateTaskMutation } from 'Features/Auth/api/tasksApiSlice.ts';
 import "./TaskCard.css";
 import {
   useGetCheckListsByTaskQuery,
-  useCreateCheckListMutation,
-  useUpdateCheckListMutation,
-  useDeleteCheckListMutation,
-  useGetCheckListItemsQuery,
-  useCreateCheckListItemMutation,
-  useUpdateCheckListItemMutation,
-  useDeleteCheckListItemMutation,
 } from 'Features/Auth/api/CheckListApiSlice.ts';
+import TaskChecklist from 'Pages/Tasks/TaskCard/TaskChecklist.tsx';
+import TaskComments from 'Pages/Tasks/TaskCard/TaskComments.tsx';
+//import { getCurrentUserId } from 'Features/utils/auth.ts';
+
+
 
 const { Option } = Select;
 
 const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
-  const [formData, setFormData] = useState(selectedTask || {});
+  const [formData, setFormData] = useState(selectedTask);
   const [updateTask] = useUpdateTaskMutation(); // API для обновления задачи
   const id = selectedTask?.key ? selectedTask.key : null;
+  const [editingDeadline, setEditingDeadline] = useState(false);
+  //const currentUserId = getCurrentUserId();
 
   // Чек-листы
   const { data: checkLists, refetch: refetchCheckLists } = useGetCheckListsByTaskQuery(id, {
     skip: !id, // Пропуск запроса, если id нет
   });
-  const [createCheckList] = useCreateCheckListMutation();
-  const [updateCheckList] = useUpdateCheckListMutation();
-  const [deleteCheckList] = useDeleteCheckListMutation();
 
-  // Пункты чек-листов
-  const { data: checkListItems, refetch: refetchCheckListItems } = useGetCheckListItemsQuery(id, {
-    skip: !id, // Пропуск запроса, если id нет
-  });
-
-  const safeCheckLists = Array.isArray(checkLists) ? checkLists : [];
-  const safeCheckListItems = Array.isArray(checkListItems) ? checkListItems : [];
-
-
-  const [createCheckListItem] = useCreateCheckListItemMutation();
-  const [updateCheckListItem] = useUpdateCheckListItemMutation();
-  const [deleteCheckListItem] = useDeleteCheckListItemMutation();
 
   useEffect(() => {
     if (selectedTask) {
       setFormData(selectedTask);
-      //refetchCheckLists();
+      refetchCheckLists();
     }
   }, [selectedTask]);
 
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  const handleInputChange = async (field, value) => {
+    let updatedData = {
+      ...formData,
+      [field]: value,
+    };
 
-  const handleSave = async () => {
-    try {
-      await updateTask({ id: formData.id, data: formData }).unwrap();
-      message.success('Задача обновлена');
-      onClose();
-    } catch (error) {
-      message.error('Ошибка обновления задачи');
+    // Преобразуем дату, если есть
+    if (updatedData.end) {
+      const parsedDate = moment(updatedData.end, moment.ISO_8601, true);
+      updatedData.end = parsedDate.isValid()
+        ? parsedDate.toISOString()
+        : moment(updatedData.end, "YYYY-MM-DD").toISOString();
     }
-  };
 
-  const handleAddCheckList = async () => {
-    try {
-      await createCheckList({ taskId: id, data: { description: 'Новый чек-лист' } }).unwrap();
-      message.success('Чек-лист добавлен');
-      refetchCheckLists();
-    } catch (error) {
-      message.error('Ошибка добавления чек-листа');
-    }
-  };
+    // Обновляем локально
+    setFormData(updatedData );
 
-  const handleUpdateCheckList = async (checkListId, data) => {
-    try {
-      await updateCheckList({ checkListId, data }).unwrap();
-      refetchCheckLists();
-    } catch (error) {
-      message.error('Ошибка обновления чек-листа');
-    }
-  };
+    let cleanedData = {};
+    if (field == "stage")
+      cleanedData = { status: value.id }
+    if (field == "assignee")
+      cleanedData = {responsible_user: value.user_id}
+    if (field == "name")
+      cleanedData = {name: value}
+    if (field == "end")
+      cleanedData = {end: value}
 
-  const handleDeleteCheckList = async (checkListId) => {
     try {
-      await deleteCheckList(checkListId).unwrap();
-      message.success('Чек-лист удален');
-      refetchCheckLists();
+      await updateTask({ id: formData.key, data: cleanedData }).unwrap();
+      message.success("Задача обновлена");
     } catch (error) {
-      message.error('Ошибка удаления чек-листа');
-    }
-  };
-
-  const handleToggleCheckListItem = async (item) => {
-    try {
-      await updateCheckListItem({ itemId: item.id, data: { is_checked: !item.is_checked } }).unwrap();
-      refetchCheckListItems();
-    } catch (error) {
-      message.error('Ошибка обновления пункта чек-листа');
-    }
-  };
-
-  const handleAddCheckListItem = async (checkListId) => {
-    try {
-      await createCheckListItem({ checkListId, data: { description: 'Новый пункт', is_checked: false } }).unwrap();
-      refetchCheckListItems();
-    } catch (error) {
-      message.error('Ошибка добавления пункта');
-    }
-  };
-
-  const handleDeleteCheckListItem = async (itemId) => {
-    try {
-      await deleteCheckListItem(itemId).unwrap();
-      message.success('Пункт удален');
-      refetchCheckListItems();
-    } catch (error) {
-      message.error('Ошибка удаления пункта');
+      console.error("Ошибка:", error);
+      message.error("Ошибка при обновлении задачи");
     }
   };
 
@@ -137,14 +88,7 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
       title="Редактирование задачи"
       visible={visible}
       onCancel={onClose}
-      footer={[
-        <Button key="cancel" onClick={onClose}>
-          Отмена
-        </Button>,
-        <Button key="save" type="primary" onClick={handleSave}>
-          Сохранить
-        </Button>,
-      ]}
+      footer={[]}
     >
       {formData && (
         <Descriptions column={1} bordered>
@@ -159,9 +103,15 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
 
           <Descriptions.Item label="Статус">
             <Select
-              value={formData.stage}
+              value={formData.stage.id}
               style={{ width: "100%" }}
-              onChange={(value) => handleInputChange("stage", value)}
+              onChange={(value) =>
+                handleInputChange(
+                  "stage",
+                  stages.find((a) => a.id === value)
+                )
+              }
+              onClick={(e) => e.stopPropagation()}
             >
               {stages.map((statusOption) => (
                 <Option key={statusOption.id} value={statusOption.id}>
@@ -171,23 +121,45 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
             </Select>
           </Descriptions.Item>
 
+
           <Descriptions.Item label="Дедлайн">
-            <DatePicker style={{ width: "100%" }} />
+            {editingDeadline ? (
+              <DatePicker
+                style={{ width: "100%" }}
+                onChange={(date) => {
+                  const isoString = date?.format("YYYY-MM-DD");
+                  handleInputChange("end", isoString);
+                  setEditingDeadline(false); // Скрыть после выбора
+                }}
+              />
+            ) : (
+              <>
+              {formData.end}
+                <Button
+                  type="link"
+                  onClick={() => setEditingDeadline(true)}
+                  style={{ marginLeft: 8, padding: 0 }}
+                >
+                  Изменить
+                </Button>
+              </>
+            )}
           </Descriptions.Item>
 
           <Descriptions.Item label="Исполнитель">
             <Select
-              value={formData.assignee?.id}
+              value={formData.assignee?.user_id}
               style={{ width: "100%" }}
               onChange={(value) =>
                 handleInputChange(
                   "assignee",
-                  assignees.find((a) => a.id === value)
+                  assignees.find((a) => a.user_id === value)
                 )
               }
+              placeholder="Выберите исполнителя"
             >
               {assignees.map((user) => (
-                <Option key={user.id} value={user.id}>
+                <Option key={user.user_id} value={user.user_id}>
                   {user.surname} {user.name}
                 </Option>
               ))}
@@ -195,62 +167,13 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
           </Descriptions.Item>
 
           <Descriptions.Item label="Чек-листы">
-            <List
-              dataSource={safeCheckLists}
-              renderItem={(checkList) => (
-                <List.Item className="checklist-item">
-                  <Checkbox
-                    checked={checkList.is_completed}
-                    onChange={() =>
-                      handleUpdateCheckList(checkList.id, {
-                        is_completed: !checkList.is_completed,
-                      })
-                    }
-                  >
-                    {checkList.description}
-                  </Checkbox>
-                  <Button
-                    type="link"
-                    onClick={() => handleDeleteCheckList(checkList.id)}
-                  >
-                    Удалить
-                  </Button>
-                  <List
-                    dataSource={safeCheckListItems}
-                    renderItem={(item) => (
-                      <List.Item className="checklist-item">
-                        <Checkbox
-                          checked={item.is_checked}
-                          onChange={() => handleToggleCheckListItem(item)}
-                        >
-                          {item.description}
-                        </Checkbox>
-                        <Button
-                          type="link"
-                          onClick={() => handleDeleteCheckListItem(item.id)}
-                        >
-                          Удалить
-                        </Button>
-                      </List.Item>
-                    )}
-                  />
-                  <Button
-                    type="dashed"
-                    onClick={() => handleAddCheckListItem(checkList.id)}
-                  >
-                    Добавить пункт
-                  </Button>
-                </List.Item>
-              )}
-            />
-            <Button
-              type="dashed"
-              style={{ width: "100%", marginTop: "10px" }}
-              onClick={handleAddCheckList}
-            >
-              Добавить чек-лист
-            </Button>
+            <TaskChecklist taskId={formData?.key} assignees={assignees} />
           </Descriptions.Item>
+
+          <Descriptions.Item label="Комментарии">
+            <TaskComments taskId={formData?.key} currentUserId={1} />
+          </Descriptions.Item>
+
         </Descriptions>
       )}
     </Modal>

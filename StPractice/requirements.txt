@@ -52,3 +52,4 @@ typing_extensions==4.12.2
 tzdata==2024.2
 uritemplate==4.1.1
 urllib3==2.3.0
+django-oauth-toolkit

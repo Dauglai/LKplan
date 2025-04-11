@@ -35,16 +35,22 @@ interface Profile {
   patronymic: string;
 }
 
+interface Stage {
+  id: number;
+  name: string;
+}
+
 interface Task {
   key: string;
   name: string;
   sprint: string;
   status: string;
-  stage: string;
+  stage: Stage;
   end: string;
   assignee: Profile;
   children?: Task[]; // Подзадачи
 }
+
 
 interface RemoveTaskResult {
   updatedChildren: Task[];

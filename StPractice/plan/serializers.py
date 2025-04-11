@@ -8,11 +8,11 @@ from .models import *
 class CheckListItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChecklistItem
-        fields = ['id', 'description', 'is_completed']
+        fields = '__all__'
 
 
 class CheckListSerializer(serializers.ModelSerializer):
-    checklistItems = CheckListItemSerializer(many=True, read_only=True)
+    checklistItems = CheckListItemSerializer(many=True, read_only=True, source='items')
 
     class Meta:
         model = Checklist
@@ -20,9 +20,11 @@ class CheckListSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author_info = ProfileSerializer(read_only=True, source="author")
+
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ['id', 'author_info', 'content', 'task', 'file', 'author']
 
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
@@ -69,18 +71,17 @@ class TeamSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     creator = ProfileSerializer(read_only=True)
-    checklist = CheckListSerializer(many=True, required=False)
     comment_set = CommentSerializer(many=True, read_only=True)
     resp_user = ProfileSerializer(read_only=True, source='responsible_user')
     project_info = ProjectSerializer(read_only=True, source='project')
     subtasks = serializers.SerializerMethodField()
-    stage = serializers.CharField(source='stage.name', read_only=True)
+    stage = StageSerializer(read_only=True, source='status')
 
     class Meta:
         model = Task
         fields = [
             'id', 'project', 'name', 'start', 'end', 'description', 'creator', 'status', 'comment_set', 'parent_task',
-            'responsible_user', 'checklist', 'resp_user', 'project_info', 'subtasks', 'stage'
+            'responsible_user', 'resp_user', 'project_info', 'subtasks', 'stage'
         ]
 
     def get_subtasks(self, obj):

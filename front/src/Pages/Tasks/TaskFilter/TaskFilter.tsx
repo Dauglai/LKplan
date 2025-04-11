@@ -1,7 +1,6 @@
 import React from "react";
 import { Select, Input, DatePicker } from "antd";
-import { useGetUsersQuery } from 'Features/ApiSlices/userSlice.ts';
-import { useGetProjectByIdQuery, useGetProjectsQuery } from 'Features/ApiSlices/projectSlice.ts';
+
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;

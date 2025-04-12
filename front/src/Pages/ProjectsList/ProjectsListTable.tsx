@@ -91,9 +91,8 @@ export default function ProjectsListTable({ projects, role }: ProjectsTableProps
         render: (project: Project) => (
           <span>{project.directionSet.name}</span>
         ),
-        sortKey: 'directionSet.name',
       },
-      {
+      /*{
         header: 'Куратор',
         render: (project: Project) => (
           <div>
@@ -104,7 +103,7 @@ export default function ProjectsListTable({ projects, role }: ProjectsTableProps
             ))}
           </div>
         ),
-      },
+      },*/
       {
         header: 'Команды',
         render: (project: Project) => (

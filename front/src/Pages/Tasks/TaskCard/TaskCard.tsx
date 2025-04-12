@@ -13,11 +13,11 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useUpdateTaskMutation } from 'Features/Auth/api/tasksApiSlice.ts';
+import { useUpdateTaskMutation } from 'Features/ApiSlices/tasksApiSlice';
 import "./TaskCard.css";
 import {
   useGetCheckListsByTaskQuery,
-} from 'Features/Auth/api/CheckListApiSlice.ts';
+} from 'Features/ApiSlices/checkListApiSlice';
 import TaskChecklist from 'Pages/Tasks/TaskCard/TaskChecklist.tsx';
 import TaskComments from 'Pages/Tasks/TaskCard/TaskComments.tsx';
 //import { getCurrentUserId } from 'Features/utils/auth.ts';

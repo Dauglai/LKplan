@@ -13,6 +13,8 @@ import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';
 import "Styles/FormSelectorStyle.scss";
 import CloseIcon from 'assets/icons/close.svg?react';
+import UserSelector from 'Widgets/Selectors/UserSelector';
+import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 
 export default function DirectionForm({ 
   existingDirection,
@@ -21,6 +23,7 @@ export default function DirectionForm({
 }): JSX.Element {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { data: user, isLoading } = useGetUserQuery();
   const [updateDirection, { isLoading: isUpdating }] = useUpdateDirectionMutation();
   const { stepEvent } = useSelector((state: any) => state.event);
   const { showNotification } = useNotification();
@@ -29,6 +32,7 @@ export default function DirectionForm({
   const [newDirection, setNewDirection] = useState({
     name: '',
     description: '',
+    leader_id: existingDirection?.leader_id || null,
   });
 
   useEffect(() => {
@@ -45,10 +49,17 @@ export default function DirectionForm({
     }));
   };
 
+  const handleCuratorChange = (userId: number) => {
+    setNewDirection((prev) => ({
+      ...prev,
+      leader_id: userId, 
+    }));
+  };
+
   const handleDirection = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newDirection.name.trim()) {
-      setNewDirection({ name: '', description: '' });
+      setNewDirection({ name: '', description: '', leader_id: user?.user_id});
       showNotification('Направление создано!', 'success');
       dispatch(addDirection(newDirection));  // Сохраняем в хранилище
     }
@@ -107,6 +118,12 @@ export default function DirectionForm({
             placeholder="Описание направления"
           />
         </div>
+
+        <UserSelector
+          selectedUserId={newDirection.leader_id || null}
+          onChange={handleCuratorChange}
+          label="Добавить руководителя"
+        />
 
         <div className="FormButtons">
           <button className="primary-btn" type="submit" disabled={isUpdating}>

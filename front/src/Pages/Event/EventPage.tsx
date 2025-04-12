@@ -3,7 +3,6 @@ import { useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
-import { getInitials } from "Features/utils/getInitials";
 import BackButton from "Widgets/BackButton/BackButton";
 import 'Styles/InfoPageStyle.scss';
 import { useEffect } from 'react';
@@ -44,8 +43,7 @@ export default function EventPage(): JSX.Element {
                     <ul className="EventInfoList ListInfo">
                         <li><strong>Дата начала: </strong>{event.start ? new Date(event.start).toLocaleDateString() : "-"}</li>
                         <li><strong>Дата окончания: </strong>{event.end ? new Date(event.end).toLocaleDateString() : "-"}</li>
-                        <li><strong>Ссылка на орг.чат: </strong><Link to={event.link}>{event.link ? event.link : "-"}</Link></li>
-                        <li><strong>Руководитель: </strong><Link to={`/profile/${event.supervisorOne.user_id}`}>{event.supervisorOne.surname} {getInitials(event.supervisorOne.name, event.supervisorOne.patronymic)}</Link></li>
+                        <li><strong>Срок приема заявок: </strong>{event.end_app ? new Date(event.end_app).toLocaleDateString() : "-"}</li>
                         <li><strong>Текущий этап: </strong>{event.stage}</li>
                     </ul>
                 <div className="EventDescription InfoDescription">{event?.description}</div>

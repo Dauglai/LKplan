@@ -1,7 +1,6 @@
 import { Event } from "Features/ApiSlices/eventSlice";
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from "react-router-dom";
-import { getInitials } from "Features/utils/getInitials";
 import { useDeleteEventMutation } from "Features/ApiSlices/eventSlice";
 import { useNotification } from 'Widgets/Notification/Notification';
 import EventForm from "./EventForm/EventForm";
@@ -80,6 +79,8 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
     return <span className="NullMessage">Мероприятия не найдены</span>;
   }
 
+  console.log(events)
+
   // Колонки для таблицы
   const columns = [
     {
@@ -106,15 +107,6 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
       ),
       sortKey: 'end',
     },
-    {
-      header: 'Организатор',
-      render: (event: Event) => (
-        <Link to={`/profile/${event.creator.user_id}`} className="LinkCell">
-          {event.creator.surname} {getInitials(event.creator.name, event.creator.patronymic)}
-        </Link>
-      ),
-      text: 'Нажмите на организатора для просмотра детальной информации',
-    },
     role === "Организатор" && {
       header: 'Статус',
       render: (event: Event) => (
@@ -124,12 +116,24 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
       ),
       sortKey: 'stage',
     },
-    role === "Практикант" && {
+    /*role === "Практикант" && {
       header: '',
       render: (event: Event) => (
         <button onClick={() => navigate(`submit/${event.event_id}`)} className="primary-btn">
           Подать заявку
         </button>
+      )
+    },*/
+    role === "Практикант" && {
+      header: 'Список направлений',
+      render: (event: Event) => (
+        <ul>
+          {event.directions.map((direction) => (
+            <li key={direction.id}>
+                {direction.name}
+            </li>
+          ))}
+        </ul>
       )
     },
     {

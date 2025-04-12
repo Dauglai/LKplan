@@ -20,7 +20,7 @@ import {
   useCreateCheckListItemMutation,
   useUpdateCheckListItemMutation,
   useDeleteCheckListItemMutation,
-} from 'Features/Auth/api/CheckListApiSlice.ts';
+} from 'Features/ApiSlices/checkListApiSlice';
 import moment from 'moment';
 
 const { Option } = Select;

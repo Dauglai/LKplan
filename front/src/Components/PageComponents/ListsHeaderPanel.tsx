@@ -48,17 +48,19 @@ export default function ListsHeaderPanel({
     searchPlaceholder = "Поиск по названию",
     link,
     }: ListsHeaderProps): JSX.Element {
-    const [search, setSearch] = useState("");
-    const navigate = useNavigate(); 
+    const [search, setSearch] = useState(""); // Локальное состояние строки поиска
+    const navigate = useNavigate(); // Навигация по маршрутам
 
+    // Обработка поиска
     const handleSearch = (value: string) => {
         setSearch(value);
         onSearch(value);
     };
 
+    // Обработка нажатия на кнопку добавления
     const handleAddButtonClick = () => {
         if (link) {
-          navigate(link); // если ссылка передана, переходим по ней
+        navigate(link);
         }
     };
 

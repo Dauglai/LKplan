@@ -8,17 +8,14 @@ import BackButton from 'Widgets/BackButton/BackButton';
 import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';
 import CloseIcon from 'assets/icons/close.svg?react';
-
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
-
 import 'Styles/FormStyle.scss'
-
 import React, { useState } from 'react';
 import { 
   Project,
   useUpdateProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { addProject, updateProjects, removeProject } from 'Features/store/eventSetupSlice'; // Импортируем нужные экшены
+import { addProject, updateProjects, removeProject } from 'Features/store/eventSetupSlice';
 
 export default function ProjectForm({ 
   existingProject,
@@ -33,6 +30,7 @@ export default function ProjectForm({
   const navigate = useNavigate();
   
   const [newProject, setNewProject] = useState({
+    direction: 0,
     directionSet: 0,
     name: '',
     description: '',
@@ -66,7 +64,15 @@ export default function ProjectForm({
   const handleProject = async (e: React.FormEvent) => {
       e.preventDefault();
       if (newProject.name.trim()) {
-        setNewProject({ directionSet: 0, name: '', description: '', supervisorSet: null, curators: [], creator: 0 });
+        setNewProject((prev) => ({
+          ...prev,
+          name: '',
+          description: '',
+          curators: [],
+          creator: 0,
+          supervisorSet: null,
+        }));
+        
         showNotification('Проект создан!', 'success');
         dispatch(addProject(newProject));
       }
@@ -123,7 +129,7 @@ export default function ProjectForm({
   };
 
   const handleRemoveProject = (id: string) => {
-    dispatch(removeProject(id));  // Удаляем проект по id
+    dispatch(removeProject(id)); 
   };
 
   return (
@@ -138,7 +144,6 @@ export default function ProjectForm({
         onSubmit={existingProject ? handleUpdateProject : handleProject}>
 
         <DirectionSelector
-          selectedDirectionId={newProject.directionSet}
           onChange={handleDirectionChange}
         />
 
@@ -158,11 +163,11 @@ export default function ProjectForm({
           />
         </div>
 
-        <UserSelector
-          selectedUsersId={newProject.curators || null}
+        {/*<UserSelector
+          selectedUserId={newProject.curators || null}
           onChange={handleCuratorChange}
           label="Добавить куратора"
-        />
+        />*/}
 
         <div className="FormButtons">
           <button className="primary-btn" type="submit" disabled={isUpdating}>

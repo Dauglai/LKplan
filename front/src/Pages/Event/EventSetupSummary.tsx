@@ -33,9 +33,11 @@ const EventSetupSummary = () => {
     try {
       // Сначала создаем мероприятие
       const eventResponse = await createEvent(stepEvent).unwrap();
-      const event = eventResponse.event_id;  // Получаем ID созданного мероприятия
+      const event = eventResponse.id;  // Получаем ID созданного мероприятия
 
       setStatus('Создание направлений...');
+      
+      console.log(stepDirections)
 
       // Обновляем направления, добавляя eventId в каждое направление
       const updatedDirections = stepDirections.directions.map((direction: any) => ({
@@ -43,25 +45,44 @@ const EventSetupSummary = () => {
         event,  // Добавляем id мероприятия в каждое направление
       }));
 
+      console.log(updatedDirections)
+
       // После успешного создания мероприятия создаем направления
       const directionPromises = updatedDirections.map((direction: any) =>
         createDirection(direction).unwrap()
       );
       const directionResponses = await Promise.all(directionPromises);
 
+      console.log(directionResponses);
+
       setStatus('Создание проектов...');
 
+      // Теперь обновляем проекты, заменяя временные id направлений на реальные
       const updatedProjects = stepProjects.projects.map((project: any) => {
-        const directionId = project.direction;
-        const createdDirection = directionResponses.find(
-          (res: any) => res.id === directionId
-        );
-        return {
-          ...project,
-          direction: createdDirection?.id || directionId, // Прикрепляем ID нового направления
-        };
-      });
+        const tempDirectionId = project.direction;
 
+        // Ищем направление в stepDirections, чтобы найти название
+        const directionToUpdate = stepDirections.directions.find(
+          (direction: any) => direction.id === tempDirectionId
+        );
+
+        if (directionToUpdate) {
+          // Находим соответствующий реальный ID из directionResponses по названию
+          const realDirection = directionResponses.find(
+            (res: any) => res.name === directionToUpdate.name
+          );
+
+          // Если нашли реальный ID, подставляем его
+          return {
+            ...project,
+            direction: realDirection?.id || tempDirectionId, // Если реальный ID не найден, оставляем временный
+          };
+        }
+
+        // Если не нашли направление с таким ID, оставляем временный ID
+        return project;
+      });
+    
       // Затем создаем проекты
       const projectPromises = updatedProjects.map((project: any) =>
         createProject(project).unwrap()

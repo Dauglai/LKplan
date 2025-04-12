@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Table } from 'antd';
 import InfoCircle from "Components/Common/InfoCircle";
-import ArrowDownIcon from 'assets/icons/arrow-down.svg?react';
 import 'Styles/components/Sections/ListTableStyles.scss';
 
 interface TableColumn<T> {
@@ -9,7 +8,7 @@ interface TableColumn<T> {
   render: (row: T) => JSX.Element;
   sortKey?: keyof T;
   text?: string;
-  width?: string | number; // Добавляем пропс для ширины колонок
+  width?: string | number;
 }
 
 interface TableProps<T> {
@@ -17,6 +16,28 @@ interface TableProps<T> {
   columns: TableColumn<T>[];
 }
 
+/**
+ * Универсальная таблица с поддержкой сортировки данных.
+ * Таблица отображает переданные данные с возможностью сортировки по указанным колонкам.
+ * Также поддерживает рендеринг пользовательских колонок с помощью настроек `render`.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <ListTable
+ *   data={data}
+ *   columns={[
+ *     { header: 'Название', sortKey: 'name', render: (record) => record.name },
+ *     { header: 'Возраст', sortKey: 'age', render: (record) => record.age },
+ *   ]}
+ * />
+ *
+ * @param {Object} props - Свойства компонента.
+ * @param {T[]} props.data - Массив данных для отображения в таблице.
+ * @param {Column<T>[]} props.columns - Массив объектов, описывающих колонки таблицы, включая настройки сортировки и рендеринга.
+ *
+ * @returns {JSX.Element} Компонент таблицы с данными и функциональностью сортировки.
+ */
 export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Element {
   const [sortConfig, setSortConfig] = useState<{ key: keyof T | null; direction: 'asc' | 'desc' | null }>({
     key: columns[0]?.sortKey || null, direction: 'asc',
@@ -39,6 +60,7 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
     return 0;
   });
 
+  // Обработчик клика по заголовку колонки для смены направления сортировки
   const handleSort = (key: keyof T) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -47,20 +69,10 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
     setSortConfig({ key, direction });
   };
 
+  // Настройка колонок для таблицы
   const tableColumns = columns.map((col) => ({
     title: (
       <div className="HeaderCell">
-        {/*{col.sortKey && sortConfig.key === col.sortKey && (
-          <span className="SortIcon">
-            {sortConfig.direction === 'asc' ? 
-                <ArrowDownIcon width="16" height="16" strokeWidth="1" className="ArrowUp"/> : 
-                <ArrowDownIcon width="16" height="16" strokeWidth="1"/>}
-            
-          </span>
-        )}
-        {col.sortKey && sortConfig.key !== col.sortKey && (
-          <span>↕</span>
-        )}*/}
         {col.header}
         {col.text && <InfoCircle text={col.text} />}
       </div>

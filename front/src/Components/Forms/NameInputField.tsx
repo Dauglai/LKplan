@@ -2,58 +2,53 @@ import { Input, Form } from 'antd';
 import { useState } from 'react';
 import 'Styles/FormStyle.scss';
 
-/**
- * Props для компонента `NameInputField`.
- * Используется для текстового ввода (например, имени мероприятия).
- */
-
 interface NameInputFieldProps {
-  name: string; // Уникальное имя поля, используется для идентификации внутри формы.
-  value: string; // Текущее значение поля.
-
-  /**
-   * Обработчик изменения значения поля.
-   * Получает событие ввода и передаёт его наверх.
-   */
+  name: string;
+  value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string; // Подсказка внутри поля, отображается когда поле пустое.
-  required?: boolean; // Флаг обязательности поля.
-  withPlaceholder?: boolean; // Определяет, должен ли placeholder отображаться при фокусировке или наличии значения.
+  placeholder?: string;
+  required?: boolean;
+  withPlaceholder?: boolean;
 }
 
 /**
- * Универсальное текстовое поле ввода с валидацией и лейблом.
- * Использует `Form.Item` и `Input` из Ant Design.
+ * Компонент текстового поля для ввода названия.
+ * Поддерживает динамический плейсхолдер, валидацию обязательности и отображение подписи поверх поля.
  *
  * @component
  * @example
- * ```tsx
  * <NameInputField
- *   name="eventName"
- *   label="Название мероприятия"
- *   value={event.name}
+ *   name="title"
+ *   value={title}
  *   onChange={handleChange}
- *   placeholder="Введите название"
- *   required
+ *   placeholder="Название"
+ *   required={true}
+ *   withPlaceholder={true}
  * />
- * ```
  *
- * @param {NameInputFieldProps} props - Пропсы компонента.
- * @returns {JSX.Element} Компонент поля ввода.
+ * @param {Object} props - Пропсы компонента.
+ * @param {string} props.name - Имя поля в форме.
+ * @param {string} props.value - Текущее значение поля.
+ * @param {(e: React.ChangeEvent<HTMLInputElement>) => void} props.onChange - Обработчик изменения текста.
+ * @param {string} [props.placeholder] - Текст плейсхолдера.
+ * @param {boolean} [props.required=false] - Является ли поле обязательным.
+ * @param {boolean} [props.withPlaceholder=false] - Показывать ли текст-подсказку над полем при фокусе или наличии значения.
+ *
+ * @returns {JSX.Element} JSX-элемент текстового поля ввода названия.
  */
 
 export default function NameInputField({
-    name,
-    value,
-    onChange,
-    placeholder,
-    required = false,
-    withPlaceholder = false,
-}: NameInputFieldProps) : JSX.Element {
-  const [isFocused, setIsFocused] = useState(false);
-  
-  const handleFocus = () => setIsFocused(true);
-  const handleBlur = () => setIsFocused(false);
+  name,
+  value,
+  onChange,
+  placeholder,
+  required = false,
+  withPlaceholder = false,
+}: NameInputFieldProps): JSX.Element {
+  const [isFocused, setIsFocused] = useState(false); // Состояние, отслеживающее фокус поля
+
+  const handleFocus = () => setIsFocused(true); // Устанавливает состояние фокуса
+  const handleBlur = () => setIsFocused(false); // Снимает состояние фокуса
 
   return (
     <Form.Item
@@ -65,14 +60,14 @@ export default function NameInputField({
         name={name}
         value={value}
         onChange={onChange}
-        placeholder={isFocused || value ? "" : (required && placeholder ? `${placeholder} *` : placeholder)}
+        placeholder={isFocused || value ? "" : (required && placeholder ? `${placeholder} *` : placeholder)} // Плейсхолдер исчезает при фокусе или наличии значения
         className="Name FormField"
         onFocus={handleFocus}
         onBlur={handleBlur}
       />
       {withPlaceholder && (isFocused || value) && (
-        <div className="InputText">{placeholder}</div>
+        <div className="InputText">{placeholder}</div> // Отображает подсказку над полем
       )}
     </Form.Item>
   );
-};
+}

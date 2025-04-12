@@ -8,6 +8,7 @@
     
     border-radius: $border-radius;
     background-color: $white;
+    box-sizing: border-box;
 
     .FormHeader {
       display: flex;
@@ -208,6 +209,7 @@
 
 .DirectionList, .ProjectList {
   margin-top: 32px;
+  width: 596px;
 
   h3 {
     margin-bottom: 16px;

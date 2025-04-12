@@ -2,8 +2,10 @@ import 'Styles/components/Sections/ListTableStyles.scss';
 import { useState, useEffect, useRef } from 'react';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
+import { useGetUsersQuery } from 'Features/ApiSlices/userSlice';
 import { Direction } from 'Features/ApiSlices/directionSlice';
 import { Link } from 'react-router-dom';
+import { getInitials } from "Features/utils/getInitials";
 import DirectionForm from "./DirectionForm";
 import Modal from "Widgets/Modal/Modal";
 import ActionMenu from 'Components/Sections/ActionMenu';
@@ -34,6 +36,7 @@ interface DirectionsTableProps {
 export default function DirectionsListTable({ directions, onDelete }: DirectionsTableProps): JSX.Element {
     const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
     const { data: projects, isLoading: isLoadingProjects } = useGetProjectsQuery();
+    const { data: users, isLoading, error } = useGetUsersQuery();
 
     const [openMenu, setOpenMenu] = useState<number | null>(null);
     const [selectedDirection, setSelectedDirection] = useState<Direction | null>(null);
@@ -113,6 +116,8 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
         return projects?.filter((project) => project.directionSet.id === directionId) || [];
     };
 
+    console.log(users)
+
     // Генерация колонок для таблицы
   const columns = [
     {
@@ -130,6 +135,25 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
       ),
       sortKey: 'event',
       text: 'Нажмите на мероприятие для подробностей',
+    },
+    {
+      header: 'Руководитель',
+      render: (direction: Direction) => {
+        // Ищем пользователя по ID руководителя
+        const leader = users?.find(user => user.user_id === direction.leader);
+  
+        // Если нашли, выводим фамилию и инициалы, если нет — выводим сообщение о том, что руководитель не найден
+        if (leader) {
+          return (
+            <Link to={`/profile/${leader.user_id}`} className="LinkCell">
+              {leader.surname} {getInitials(leader.name, leader.patronymic)}
+            </Link>
+          );
+        } else {
+          return 'Руководитель не найден';
+        }
+      },
+      text: 'Нажмите на руководителя для просмотра детальной информации',
     },
     {
       header: 'Проекты',

@@ -164,19 +164,35 @@ export default function EventForm({
       <form className="EventForm Form">
 
         <div className="NameContainer">
-          <NameInputField
+          {/*<NameInputField
             name="name"
             value={newEvent.name}
             onChange={handleInputChange}
             placeholder="Название мероприятия"
             required
+          />*/}
+
+          <input 
+            name="name"
+            value={newEvent.name}
+            onChange={handleInputChange}
+            placeholder="Название мероприятия *"
+            required
+            className="Name FormField"
           />
-          <DescriptionInputField
+          <textarea
             name="description"
             value={newEvent.description}
             onChange={handleTextArea}
             placeholder="Описание мероприятия"
+            className="Description FormField"
           />
+          {/*<DescriptionInputField
+            name="description"
+            value={newEvent.description}
+            onChange={handleTextArea}
+            placeholder="Описание мероприятия"
+          />*/}
         </div>
 
         <SpecializationSelector

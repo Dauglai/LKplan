@@ -15,6 +15,32 @@ interface DateInputFieldProps {
   withPlaceholder?: boolean;
 }
 
+/**
+ * Поле ввода даты на основе Ant Design DatePicker.
+ * Поддерживает кастомное отображение плейсхолдера, обязательность заполнения и передачу значения в формате строки.
+ * Отображает иконку календаря, а при включённом `withPlaceholder` показывает текст-подсказку поверх поля при фокусе или наличии значения.
+ *
+ * @component
+ * @example
+ * <DateInputField
+ *   name="startDate"
+ *   value={formValues.startDate}
+ *   onChange={(val) => setFormValues({ ...formValues, startDate: val })}
+ *   required
+ *   withPlaceholder
+ * />
+ *
+ * @param {Object} props - Пропсы компонента.
+ * @param {string} props.name - Имя поля формы.
+ * @param {string} props.value - Текущее значение поля в формате строки.
+ * @param {(date: string) => void} props.onChange - Функция, вызываемая при изменении значения.
+ * @param {string} [props.placeholder] - Текст плейсхолдера (по умолчанию: "Выберите дату").
+ * @param {boolean} [props.required] - Является ли поле обязательным (по умолчанию: false).
+ * @param {boolean} [props.withPlaceholder] - Показывать ли текст плейсхолдера поверх поля при фокусе/значении.
+ *
+ * @returns {JSX.Element} Компонент поля ввода даты.
+ */
+
 export default function DateInputField({
   name,
   value,
@@ -23,18 +49,19 @@ export default function DateInputField({
   required = false,
   withPlaceholder = false,
 }: DateInputFieldProps): JSX.Element {
-    const [isFocused, setIsFocused] = useState(false);
+    const [isFocused, setIsFocused] = useState(false); // Состояние фокуса поля ввода
 
-    const handleFocus = () => setIsFocused(true);
-    const handleBlur = () => setIsFocused(false);
+    const handleFocus = () => setIsFocused(true); // Обработчик фокуса: устанавливает состояние в true
+    const handleBlur = () => setIsFocused(false); // Обработчик потери фокуса: устанавливает состояние в false
 
-    const finalPlaceholder = required ? `${placeholder} *` : placeholder;
+    const finalPlaceholder = required ? `${placeholder} *` : placeholder; // Добавляет * к плейсхолдеру, если поле обязательное
 
-    const dateValue = value ? dayjs(value, "DD.MM.YYYY", true) : null;
+    const dateValue = value ? dayjs(value, "DD.MM.YYYY", true) : null; // Преобразует строковое значение в Dayjs-дату
 
     const handleDateChange = (date: Dayjs | null, dateString: string) => {
-        onChange(dateString); // Передаем строку в onChange
+        onChange(dateString); // Передаёт строковое значение даты во внешний обработчик
     };
+
 
     return (
         <Form.Item

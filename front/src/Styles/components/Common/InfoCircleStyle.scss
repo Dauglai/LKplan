@@ -1,0 +1,26 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.InfoCircleContainer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+// Кастомные стили для тултипа
+.ant-tooltip-inner {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: rgba(0, 0, 0, 0.75) !important;
+    color: #fff !important;
+    max-width: 200px;
+    text-align: center;
+}
+
+// Кастомизация треугольника
+.ant-tooltip-arrow::before,
+.ant-tooltip-arrow::after {
+    display: none;
+}

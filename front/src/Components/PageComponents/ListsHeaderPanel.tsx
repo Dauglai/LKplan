@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Modal from "Widgets/Modal/Modal";
+import { useNavigate } from 'react-router-dom'; 
 import PlusIcon from 'assets/icons/plus.svg?react';
 import PageSwitcher, { PageOption } from "Widgets/PageSwitcher/PageSwitcher";
 import BackButton from "Widgets/BackButton/BackButton";
@@ -11,8 +11,8 @@ interface ListsHeaderProps {
   onSearch: (search: string) => void;
   role?: string;
   PageOptions?: PageOption[];
-  SearchPlaceholder?: string;
-  FormComponent?: React.ElementType;
+  searchPlaceholder?: string;
+  link?: string;
 }
 
 /**
@@ -27,8 +27,7 @@ interface ListsHeaderProps {
  *   onSearch={handleSearch}
  *   role="Организатор"
  *   PageOptions={pageOptions}
- *   SearchPlaceholder="Поиск по названию"
- *   FormComponent={FormComponent}
+ *   searchPlaceholder="Поиск по названию"
  * />
  *
  * @param {Object} props - Свойства компонента.
@@ -36,8 +35,8 @@ interface ListsHeaderProps {
  * @param {Function} props.onSearch - Функция, которая вызывается при изменении значения в поисковом поле.
  * @param {string} [props.role] - Роль пользователя. Используется для отображения кнопки добавления только для организатора.
  * @param {PageOption[]} [props.PageOptions] - Опции для переключателя страниц.
- * @param {string} [props.SearchPlaceholder="Поиск по названию"] - Текст, который будет отображаться в поле поиска.
- * @param {React.ElementType} [props.FormComponent] - Компонент формы, который будет отображаться в модальном окне при нажатии кнопки "Добавить".
+ * @param {string} [props.searchPlaceholder="Поиск по названию"] - Текст, который будет отображаться в поле поиска.
+ * @param {string} [props.link] - Ссылка, на которую будет происходить переход после нажатия кнопки Создать +.
  * @returns {JSX.Element} Компонент заголовка списка с поиском и добавлением.
  */
 
@@ -46,46 +45,46 @@ export default function ListsHeaderPanel({
     onSearch,
     role,
     PageOptions,
-    SearchPlaceholder = "Поиск по названию",
-    FormComponent,
+    searchPlaceholder = "Поиск по названию",
+    link,
     }: ListsHeaderProps): JSX.Element {
-    const [search, setSearch] = useState("");
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [search, setSearch] = useState(""); // Локальное состояние строки поиска
+    const navigate = useNavigate(); // Навигация по маршрутам
 
+    // Обработка поиска
     const handleSearch = (value: string) => {
         setSearch(value);
         onSearch(value);
     };
-      
 
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
+    // Обработка нажатия на кнопку добавления
+    const handleAddButtonClick = () => {
+        if (link) {
+        navigate(link);
+        }
+    };
 
     return (
         <header className="ListsHeaderPanel HeaderPanel">
         <div className="LeftHeaderPanel">
             <BackButton />
             <h2 className="HeaderPanelTitle">{title}</h2>
-            {role === "Организатор" && 
+            {role === "Организатор" && link &&
                 <PlusIcon 
                 width="18" 
                 height="18" 
                 strokeWidth="1"
-                onClick={openModal}
+                onClick={handleAddButtonClick}
                 className="AddButton lfp-btn"
             />}
         </div>
-
-        <Modal isOpen={isModalOpen} onClose={closeModal}>
-            {FormComponent && <FormComponent closeModal={closeModal} />}
-        </Modal>
 
         <div className="RightHeaderPanel">
             <UniversalInput
                 value={search}
                 onChange={handleSearch}
                 type="text"
-                placeholder={SearchPlaceholder}
+                placeholder={searchPlaceholder}
                 withPlaceholder={true}
             />
 

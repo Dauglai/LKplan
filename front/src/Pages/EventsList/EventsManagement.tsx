@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useGetEventsQuery } from "Features/ApiSlices/eventSlice";
+import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
 import EventsListTable from "./EventsListTable";
-import EventForm from "./EventForm/EventForm";
-import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 import { CRMPageOptions } from "Widgets/PageSwitcher/CRMPageOptions";
+import { normalizeSearchQuery, filterItemsBySearch } from "Features/utils/searchUtils";
 
 /**
  * Компонент для управления мероприятиями.
@@ -19,32 +19,47 @@ import { CRMPageOptions } from "Widgets/PageSwitcher/CRMPageOptions";
  * @returns {JSX.Element} Компонент для управления мероприятиями.
  */
 export default function EventsManagement(): JSX.Element {
-  const { data: events = [], isLoading } = useGetEventsQuery();
-  const { data: user, isLoading: isUserLoading } = useGetUserQuery();
-  const [search, setSearch] = useState("");
+  const { data: events = [], isLoading } = useGetEventsQuery(); // Получение списка мероприятий с сервера.
+  const { data: user, isLoading: isUserLoading } = useGetUserQuery(); // Получение информации о текущем пользователе.
+  const [search, setSearch] = useState(""); // Состояние для хранения строки поиска.
+
 
   useEffect(() => {
-    document.title = 'Мероприятия - MeetPoint';
+    document.title = 'Мероприятия - MeetPoint'; // Устанавливает заголовок страницы при монтировании компонента.
   }, []);
 
+  /**
+   * Обработчик изменения строки поиска.
+   * Преобразует значение в нижний регистр и обновляет состояние.
+   * 
+   * @param {string} searchValue - Значение поискового запроса.
+   */
   const handleSearch = (searchValue: string) => {
-    setSearch(searchValue.toLowerCase());
+    setSearch(normalizeSearchQuery(searchValue));
   };
 
-  const filteredEvents = events
-    .filter((event) => event.name.toLowerCase().includes(search))
+  /**
+   * Фильтрация списка мероприятий по названию.
+   * Если название мероприятия содержит подстроку из поиска, оно отображается.
+   */
 
-  if (isLoading) return <div>Загрузка...</div>;
+  const filteredEvents = filterItemsBySearch(events, search, "name");
+
+   
+  if (isLoading || isUserLoading) return <div>Загрузка...</div>;  // Отображение индикатора загрузки, если данные еще не загружены.
 
   return (
     <div className="EventsContainer ListTableContainer">
+      {/* Панель заголовка со строкой поиска и настройками страницы */}
       <ListsHeaderPanel
         title="Мероприятия"
         onSearch={handleSearch}
         role={user.role}
         PageOptions={CRMPageOptions}
-        FormComponent={EventForm}
+        link="/event-setup"
       />
+
+      {/* Таблица с мероприятиями */}
       <EventsListTable events={filteredEvents} role={user.role}/>
     </div>
   );

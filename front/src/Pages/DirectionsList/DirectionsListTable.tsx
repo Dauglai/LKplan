@@ -2,20 +2,41 @@ import 'Styles/components/Sections/ListTableStyles.scss';
 import { useState, useEffect, useRef } from 'react';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
+import { useGetUsersQuery } from 'Features/ApiSlices/userSlice';
 import { Direction } from 'Features/ApiSlices/directionSlice';
 import { Link } from 'react-router-dom';
+import { getInitials } from "Features/utils/getInitials";
 import DirectionForm from "./DirectionForm";
 import Modal from "Widgets/Modal/Modal";
-import MoreIcon from 'assets/icons/more.svg?react';
+import ActionMenu from 'Components/Sections/ActionMenu';
+import ListTable from "Components/Sections/ListTable";
 
 interface DirectionsTableProps {
   directions: Direction[];
   onDelete: (id: number) => void;
 }
 
+/**
+ * Компонент для отображения списка направлений с возможностью редактирования и удаления.
+ * Отображает данные о направлениях, связанными с мероприятиями и проектами.
+ * Для каждого направления доступны действия редактирования и удаления.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <DirectionsListTable directions={directionsData} onDelete={handleDelete} />
+ *
+ * @param {Object} props - Пропсы компонента.
+ * @param {Direction[]} props.directions - Список направлений для отображения.
+ * @param {function} props.onDelete - Функция для удаления направления.
+ *
+ * @returns {JSX.Element} Компонент для отображения списка направлений.
+ */
+
 export default function DirectionsListTable({ directions, onDelete }: DirectionsTableProps): JSX.Element {
     const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
     const { data: projects, isLoading: isLoadingProjects } = useGetProjectsQuery();
+    const { data: users, isLoading, error } = useGetUsersQuery();
 
     const [openMenu, setOpenMenu] = useState<number | null>(null);
     const [selectedDirection, setSelectedDirection] = useState<Direction | null>(null);
@@ -37,6 +58,10 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
         setOpenMenu(openMenu === id ? null : id);
     };
 
+    /**
+   * Открыть модальное окно для редактирования направления.
+   * @param {number} id - ID направления для редактирования.
+   */
     const handleEdit = (id: number) => {
         const directionToEdit = directions.find((dir) => dir.id === id);
         if (directionToEdit) {
@@ -44,11 +69,20 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
           setIsModalOpen(true);
         }
     };
+
+    /**
+   * Закрыть модальное окно редактирования направления.
+   */
     
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedDirection(null);
     };
+
+    /**
+   * Удалить направление по ID.
+   * @param {number} id - ID направления для удаления.
+   */
 
     const handleDelete = (id: number) => {
         onDelete(id);
@@ -63,62 +97,107 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
         return <span className="NullMessage">Направления не найдены</span>;
     }
 
+    /**
+   * Получить название мероприятия по ID.
+   * @param {number} eventId - ID мероприятия.
+   * @returns {string} Название мероприятия.
+   */
     const getEventName = (eventId: number): string => {
         const event = events?.find((event) => event.event_id === eventId);
         return event ? event.name : 'Не указано';
     };
 
+    /**
+   * Получить список проектов, связанных с направлением.
+   * @param {number} directionId - ID направления.
+   * @returns {Array} Список проектов для данного направления.
+   */
     const getProjectsForDirection = (directionId: number) => {
-        return projects?.filter((project) => project.direction.id === directionId) || [];
+        return projects?.filter((project) => project.directionSet.id === directionId) || [];
     };
 
-    return (
-        <table className="DirectionsListTable ListTable">
-            <thead>
-                <tr>
-                <th>Название</th>
-                <th>Мероприятие</th>
-                <th>Проекты</th>
-                <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {directions.map((direction) => (
-                <tr key={direction.id}>
-                    <td>{direction.name}</td>
-                    <td><Link to={`/event/${direction.event}`} className="HiglightCell">{getEventName(direction.event)}</Link></td>
-                    <td>
-                        <ul>
-                            {getProjectsForDirection(direction.id).map((project) => (
-                            <li key={project.project_id}>
-                                <Link to={`/project/${project.project_id}`}>{project.name}</Link>
-                            </li>
-                            ))}
-                        </ul>
-                    </td>
-                    <td>
-                        <MoreIcon 
-                            width="16" 
-                            height="16" 
-                            strokeWidth="1"
-                            onClick={() => toggleMenu(direction.id)}
-                            className="ThreeDotsButton"
-                        />
-                        {openMenu === direction.id && (
-                            <ul ref={menuRef} className="ActionsMenu">
-                            <li onClick={() => handleEdit(direction.id)}>Редактировать</li>
-                            <li onClick={() => handleDelete(direction.id)}>Удалить</li>
-                            </ul>
-                        )}
-                    </td>
-                </tr>
-                ))}
-            </tbody>
-            {isModalOpen && (
-                <Modal isOpen={isModalOpen} onClose={closeModal}>
-                    <DirectionForm closeModal={closeModal} existingDirection={selectedDirection} />
-                </Modal>
-            )}
-        </table>
-    );
+    console.log(users)
+
+    // Генерация колонок для таблицы
+  const columns = [
+    {
+      header: 'Название',
+      render: (direction: Direction) => direction.name,
+      sortKey: 'name',
+      text: 'Название направления',
+    },
+    {
+      header: 'Мероприятие',
+      render: (direction: Direction) => (
+        <Link to={`/event/${direction.event}`} className="HiglightCell">
+          {getEventName(direction.event)}
+        </Link>
+      ),
+      sortKey: 'event',
+      text: 'Нажмите на мероприятие для подробностей',
+    },
+    {
+      header: 'Руководитель',
+      render: (direction: Direction) => {
+        // Ищем пользователя по ID руководителя
+        const leader = users?.find(user => user.user_id === direction.leader);
+  
+        // Если нашли, выводим фамилию и инициалы, если нет — выводим сообщение о том, что руководитель не найден
+        if (leader) {
+          return (
+            <Link to={`/profile/${leader.user_id}`} className="LinkCell">
+              {leader.surname} {getInitials(leader.name, leader.patronymic)}
+            </Link>
+          );
+        } else {
+          return 'Руководитель не найден';
+        }
+      },
+      text: 'Нажмите на руководителя для просмотра детальной информации',
+    },
+    {
+      header: 'Проекты',
+      render: (direction: Direction) => (
+        <ul>
+          {getProjectsForDirection(direction.id).map((project) => (
+            <li key={project.project_id}>
+              <Link to={`/project/${project.project_id}`} className="LinkCell">
+                {project.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ),
+      text: 'Нажмите на проект из списка, чтобы узнать подробнее',
+    },
+    {
+      header: '',
+      render: (direction: Direction) => (
+        <ActionMenu 
+          actions={actions(direction)} 
+          onClose={() => setOpenMenu(null)} />
+      ),
+    },
+  ];
+
+  /**
+   * Генерация списка действий для каждой строки таблицы.
+   * @param {Direction} direction - Направление для генерации действий.
+   * @returns {Array} Список действий для меню.
+   */
+  const actions = (direction: Direction) => [
+    { label: 'Редактировать', onClick: () => handleEdit(direction.id) },
+    { label: 'Удалить', onClick: () => handleDelete(direction.id) },
+  ];
+
+  return (
+    <>
+      <ListTable data={directions} columns={columns} />
+      {isModalOpen && (
+        <Modal isOpen={isModalOpen} onClose={closeModal}>
+          <DirectionForm closeModal={closeModal} existingDirection={selectedDirection} />
+        </Modal>
+      )}
+    </>
+  );
 }

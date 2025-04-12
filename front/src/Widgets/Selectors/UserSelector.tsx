@@ -5,11 +5,13 @@ import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 interface UserSelectorProps {
     selectedUserId: number | null;
     onChange: (userId: number) => void;
+    label: string;
 }
 
 export default function UserSelector({
     selectedUserId,
     onChange,
+    label,
 }: UserSelectorProps): JSX.Element {
     const { data: users, isLoading, error } = useGetUsersQuery();
     const [isOpen, setIsOpen] = useState(false);
@@ -44,7 +46,7 @@ export default function UserSelector({
         ? `${users.find(user => user.user_id === selectedUserId)?.surname} ${
             users.find(user => user.user_id === selectedUserId)?.name
             } ${users.find(user => user.user_id === selectedUserId)?.patronymic}`
-        : 'Выбрать пользователя*';
+        : label;
 
     return (
     <div className="UserSelector">

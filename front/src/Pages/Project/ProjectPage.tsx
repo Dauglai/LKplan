@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 export default function ProjectPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const { data: project, isLoading: isProjectLoading } = useGetProjectByIdQuery(Number(id));
-  const { data: direction, isLoading: isDirectionLoading } = useGetDirectionByIdQuery(project?.direction.id || 0, {
+  const { data: direction, isLoading: isDirectionLoading } = useGetDirectionByIdQuery(project?.directionSet.id || 0, {
     skip: !project,
   });
   const { data: event, isLoading: isEventLoading } = useGetEventByIdQuery(direction?.event || 0, {

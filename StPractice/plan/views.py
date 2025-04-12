@@ -31,7 +31,7 @@ class ProfileSearchAPIView(generics.ListAPIView):
 
 class TaskFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains') # Фильтрация по названию
-    status = filters.CharFilter(field_name='status', lookup_expr='iexact') # Фильтрация по статусу
+    status = filters.CharFilter(field_name='status', lookup_expr='exact') # Фильтрация по статусу
     creator = filters.NumberFilter(field_name='creator__user_id') # Фильтрация по создателю
     responsible_user = filters.NumberFilter(field_name='responsible_user__user_id') # Фильтрация по проекту
     project = filters.NumberFilter(field_name='project__id') # Фильтрация по проекту
@@ -207,18 +207,26 @@ class ProjectAPICreate(generics.CreateAPIView):
     serializer_class = ProjectCreateSerializer
     permission_classes = (IsAuthenticated,)
 
+    def perform_create(self, serializer):
+        project = serializer.save()
 
-class TeamAPIList(generics.ListAPIView):
+        # Этапы по умолчанию
+        default_stages = [
+            {"name": "Запланировано", "position": 1, "color": "Серый"},
+            {"name": "В работе", "position": 2, "color": "Жёлтый"},
+            {"name": "На проверке", "position": 3, "color": "Красный"},
+            {"name": "Завершено", "position": 4, "color": "Зелёный"},
+        ]
+
+        # Создаём стадии
+        for stage_data in default_stages:
+            Stage.objects.create(project=project, **stage_data)
+
+
+class TeamAPIListCreate(generics.ListCreateAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
     permission_classes = (IsAuthenticated,)
-
-
-class TeamAPICreate(generics.CreateAPIView):
-    queryset = Team.objects.all()
-    serializer_class = TeamCreateSerializer
-    permission_classes = (IsAuthenticated,)
-
 
 class TeamAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Team.objects.all()

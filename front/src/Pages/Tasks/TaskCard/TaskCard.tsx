@@ -20,6 +20,7 @@ import {
 } from 'Features/Auth/api/CheckListApiSlice.ts';
 import TaskChecklist from 'Pages/Tasks/TaskCard/TaskChecklist.tsx';
 import TaskComments from 'Pages/Tasks/TaskCard/TaskComments.tsx';
+import { CalendarOutlined } from '@ant-design/icons';
 //import { getCurrentUserId } from 'Features/utils/auth.ts';
 
 
@@ -72,15 +73,21 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
       cleanedData = {name: value}
     if (field == "end")
       cleanedData = {end: value}
+    if (field == "start")
+      cleanedData = {start: value}
+    if (field == "description")
+      cleanedData = {description: value}
 
     try {
       await updateTask({ id: formData.key, data: cleanedData }).unwrap();
-      message.success("Задача обновлена");
+      if (field != "description" || field == "name")
+        message.success("Задача обновлена");
     } catch (error) {
       console.error("Ошибка:", error);
       message.error("Ошибка при обновлении задачи");
     }
   };
+
 
   return (
     <Modal
@@ -91,17 +98,59 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
       footer={[]}
     >
       {formData && (
-        <Descriptions column={1} bordered>
-          <Descriptions.Item label="Название">
+        <div className="task-form-content">
+
+          <div className="task-block">
+            <h3>Название</h3>
             <Input
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
             />
-          </Descriptions.Item>
+          </div>
 
-          <Descriptions.Item label="Проект">{formData.sprint}</Descriptions.Item>
+          <div className="task-block">
+            <h3>Описание</h3>
+            <Input.TextArea
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              rows={3}
+            />
+          </div>
 
-          <Descriptions.Item label="Статус">
+          <div className="task-row">
+            <div className="task-col">
+              <h3>Дата начала</h3>
+              <DatePicker
+                style={{ width: "100%" }}
+                onChange={(date) =>
+                  handleInputChange("start", date?.format("YYYY-MM-DD"))
+                }
+              />
+            </div>
+            <div className="task-col">
+              <h3>Дата окончания</h3>
+              <DatePicker
+                style={{ width: "100%" }}
+                onChange={(date) =>
+                  handleInputChange("end", date?.format("YYYY-MM-DD"))
+                }
+              />
+            </div>
+          </div>
+
+          {/* <div className="task-row">
+        <div className="task-col">
+          <h3>Ответственный</h3>
+          <Select placeholder="Выберите" style={{ width: "100%" }} />
+        </div>
+        <div className="task-col">
+          <h3>Исполнители</h3>
+          <Select mode="multiple" placeholder="Выберите" style={{ width: "100%" }} />
+        </div>
+      </div> */}
+
+          <div className="task-block">
+            <h3>Статус</h3>
             <Select
               value={formData.stage.id}
               style={{ width: "100%" }}
@@ -111,70 +160,24 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
                   stages.find((a) => a.id === value)
                 )
               }
-              onClick={(e) => e.stopPropagation()}
             >
-              {stages.map((statusOption) => (
-                <Option key={statusOption.id} value={statusOption.id}>
-                  {statusOption.name}
-                </Option>
+              {stages.map((s) => (
+                <Option key={s.id} value={s.id}>{s.name}</Option>
               ))}
             </Select>
-          </Descriptions.Item>
+          </div>
 
-
-          <Descriptions.Item label="Дедлайн">
-            {editingDeadline ? (
-              <DatePicker
-                style={{ width: "100%" }}
-                onChange={(date) => {
-                  const isoString = date?.format("YYYY-MM-DD");
-                  handleInputChange("end", isoString);
-                  setEditingDeadline(false); // Скрыть после выбора
-                }}
-              />
-            ) : (
-              <>
-              {formData.end}
-                <Button
-                  type="link"
-                  onClick={() => setEditingDeadline(true)}
-                  style={{ marginLeft: 8, padding: 0 }}
-                >
-                  Изменить
-                </Button>
-              </>
-            )}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Исполнитель">
-            <Select
-              value={formData.assignee?.user_id}
-              style={{ width: "100%" }}
-              onChange={(value) =>
-                handleInputChange(
-                  "assignee",
-                  assignees.find((a) => a.user_id === value)
-                )
-              }
-              placeholder="Выберите исполнителя"
-            >
-              {assignees.map((user) => (
-                <Option key={user.user_id} value={user.user_id}>
-                  {user.surname} {user.name}
-                </Option>
-              ))}
-            </Select>
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Чек-листы">
+          <div className="task-block">
+            <h3>Чек-листы</h3>
             <TaskChecklist taskId={formData?.key} assignees={assignees} />
-          </Descriptions.Item>
+          </div>
 
-          <Descriptions.Item label="Комментарии">
+          <div className="task-block">
+            <h3>Комментарии</h3>
             <TaskComments taskId={formData?.key} currentUserId={1} />
-          </Descriptions.Item>
+          </div>
 
-        </Descriptions>
+        </div>
       )}
     </Modal>
   );

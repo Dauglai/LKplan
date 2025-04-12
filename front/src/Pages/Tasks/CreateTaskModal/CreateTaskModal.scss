@@ -1,1 +1,66 @@
-.CreateTaskModal {}
+.create-task-modal {
+  .ant-modal-content {
+    border-radius: 10px;
+    background-color: #f8f9fb;
+    padding: 24px;
+  }
+
+  .ant-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .create-task-form {
+    .ant-form-item-label > label {
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .ant-input,
+    .ant-picker,
+    .ant-select-selector {
+      background-color: #f4f6fa !important;
+      border: 1px solid #d1d5db !important;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .ant-select-selector {
+      padding: 4px 11px !important;
+    }
+
+    .ant-picker-input > input::placeholder,
+    .ant-input::placeholder,
+    .ant-select-selection-placeholder {
+      color: #9ca3af;
+    }
+
+    .ant-input-textarea {
+      resize: none;
+    }
+
+    .create-task-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+
+      .ant-btn {
+        height: 36px;
+        padding: 0 20px;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .ant-btn-primary {
+        background-color: #5c8db9;
+        border-color: #5c8db9;
+
+        &:hover {
+          background-color: #507da3;
+          border-color: #507da3;
+        }
+      }
+    }
+  }
+}

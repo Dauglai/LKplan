@@ -22,7 +22,6 @@ urlpatterns = [
     path('project/create/', ProjectAPICreate.as_view()),
     path('project/', ProjectAPIList.as_view()),
     path('project/<int:pk>', ProjectAPIUpdate.as_view()),
-    path('teams/', TeamAPIList.as_view()),
-    path('teams/create/', TeamAPICreate.as_view()),
+    path('teams/', TeamAPIListCreate.as_view()),
     path('teams/<int:pk>/', TeamAPIUpdate.as_view()),
 ]

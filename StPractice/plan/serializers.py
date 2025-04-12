@@ -70,21 +70,29 @@ class TeamSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    creator = ProfileSerializer(read_only=True)
+    author = ProfileSerializer(read_only=True, source="creator")
     comment_set = CommentSerializer(many=True, read_only=True)
     resp_user = ProfileSerializer(read_only=True, source='responsible_user')
     project_info = ProjectSerializer(read_only=True, source='project')
     subtasks = serializers.SerializerMethodField()
     stage = StageSerializer(read_only=True, source='status')
+    team = serializers.SerializerMethodField()
 
     class Meta:
         model = Task
         fields = [
-            'id', 'project', 'name', 'start', 'end', 'description', 'creator', 'status', 'comment_set', 'parent_task',
-            'responsible_user', 'resp_user', 'project_info', 'subtasks', 'stage'
+            'id', 'project', 'name', 'start', 'end', 'description', 'status', 'comment_set', 'parent_task',
+            'responsible_user', 'resp_user', 'project_info', 'subtasks', 'stage', 'author', 'team'
         ]
 
     def get_subtasks(self, obj):
         """Метод для получения подзадач"""
         subtasks = obj.subtasks.all()  # Доступ к подзадачам через related_name
         return TaskSerializer(subtasks, many=True).data  # Сериализуем подзадачи
+
+
+    def get_team(self, obj):
+        team = obj.project.team_set.filter(students=obj.creator).first()
+        if team:
+            return TeamSerializer(team).data
+        return None

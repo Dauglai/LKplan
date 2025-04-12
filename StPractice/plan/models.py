@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.utils.termcolors import RESET
 from crm.models import Profile, Direction
@@ -62,7 +64,7 @@ class Task(models.Model):
     name = models.CharField(verbose_name="Название",max_length=256)
     description = models.TextField(verbose_name="Описание", max_length=10000)
     responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
-    start = models.DateTimeField(auto_now_add=True,verbose_name="Дата создания")
+    start = models.DateTimeField(verbose_name="Дата создания", default= datetime.now())
     end = models.DateTimeField(verbose_name="Время закрытия задачи", blank=True,null=True)
     parent_task = models.ForeignKey(
         "self",

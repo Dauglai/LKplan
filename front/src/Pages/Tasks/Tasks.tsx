@@ -8,12 +8,14 @@ import {
   Select,
   message,
   Modal,
+  Checkbox,
   Descriptions, Avatar,
 } from 'antd';
 import { LeftOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
 import './Tasks.scss';
 import CreateTaskModal from './CreateTaskModal';
 import { TaskFormValues } from './CreateTaskModal/CreateTaskModal.typings';
+import tableOptionIcon from '/src/assets/icons/table_optionb.svg';
 
 
 import {
@@ -26,6 +28,7 @@ import { useParams } from 'react-router-dom';
 import TaskCard from 'Pages/Tasks/TaskCard/TaskCard.tsx';
 import TaskFilters from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
 import TaskFilter from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
+import PlanButton from '../../Components/PlanButton/PlanButton.tsx';
 
 
 interface Profile {
@@ -107,6 +110,16 @@ const Tasks = () => {
     page_size: limit,
     sort: filter.sort,
   });
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'ascend' | 'descend' | null>(null);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([
+    'name',
+    'sprint',
+    'status',
+    'end',
+    'assignee',
+    'team'
+  ]);
 
   useEffect(() => {
     if (data) {
@@ -151,15 +164,21 @@ const Tasks = () => {
     return data.map((task) => ({
       key: String(task.id),
       name: task.name || `Задача ${task.id}`,
-      sprint: task.project ? `Проект ${task.project}` : "Без проекта",
+      description: task.description || ``,
+      sprint: task.project ? `${task.project_info.name}` : "Без проекта",
+      direction: task.project ? `${task.project_info.directionSet.name}` : "Без направления",
       status: task.status,
       stage: task.stage,
+      team: task.team ? `${task.team.name}` : "Без команды",
+      start: task.start ? new Date(task.start).toLocaleDateString() : "Нет срока",
       end: task.end ? new Date(task.end).toLocaleDateString() : "Нет срока",
       assignee: task.resp_user
       ? task.resp_user
       : null,
+      author: task.author
+        ? task.author
+        : null,
       children: task.subtasks ? transformTasksData(task.subtasks) : [],
-      checklist: task.checklist?.map((item) => item.description) || [],
     }));
   };
 
@@ -183,7 +202,7 @@ const Tasks = () => {
       description: newTask.description,
       end: newTask.deadline,
       responsible_user: newTask.assignee,
-      status: newTask.status,
+      status: stages[0].id,
     });
     setDataSource([...dataSource, taskWithKey]);
     console.log(dataSource);
@@ -311,14 +330,6 @@ const Tasks = () => {
     return { updatedChildren: updatedData, removedTask };
   };
 
-  const [filters, setFilters] = useState({});
-  const [sortOrder, setSortOrder] = useState({ columnKey: null, order: null });
-
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
-  };
-
-
   const addTaskToParent = (
     data: Task[],
     task: Task,
@@ -341,25 +352,6 @@ const Tasks = () => {
     });
   };
 
-  // Сортировка по статусу
-  const handleStatusSort = () => {
-    const statusIndex = (status: string) => statuses.indexOf(status);
-
-    const sortData = (data: Task[]): Task[] =>
-      [...data]
-        .sort((a, b) => {
-          const comparison = statusIndex(a.status) - statusIndex(b.status);
-          return filterDirection === 'asc' ? comparison : -comparison;
-        })
-        .map((item) => ({
-          ...item,
-          children: item.children ? sortData(item.children) : undefined,
-        }));
-
-    const sortedData = sortData(dataSource);
-    setDataSource(sortedData);
-    setFilterDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-  };
 
   // Открытие модального окна с информацией о задаче
   const handleRowClick = (record: Task) => {
@@ -378,22 +370,56 @@ const Tasks = () => {
     setSelectedTask(null);
   };
 
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    setSortColumn(sorter.field);
+    setSortOrder(sorter.order);
+  };
+
+  const columnOptions = [
+    { label: 'Название', value: 'name' },
+    { label: 'Статус', value: 'status' },
+    { label: 'Направление', value: 'direction' },
+    { label: 'Проект', value: 'sprint' },
+    { label: 'Команда', value: 'team' },
+    { label: 'Постановщик', value: 'author' },
+    { label: 'Ответсвенный', value: 'assignee' },
+    { label: 'Дата начала', value: 'start' },
+    { label: 'Дата окончания', value: 'end' },
+  ];
+
+  useEffect(() => {
+    const savedColumns = localStorage.getItem('visibleColumns');
+    if (savedColumns) {
+      setVisibleColumns(JSON.parse(savedColumns));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('visibleColumns', JSON.stringify(visibleColumns));
+  }, [visibleColumns]);
+
+
+
+  const handleColumnChange = (checkedValues: string[]) => {
+    setVisibleColumns(checkedValues);
+  };
+
   const columns = [
     {
       title: 'Название',
       dataIndex: 'name',
       key: 'name',
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      sortOrder: sortColumn === 'name' ? sortOrder : null,
+
       render: (text: string) => <strong>{text}</strong>,
-    },
-    {
-      title: 'Проект',
-      dataIndex: 'sprint',
-      key: 'sprint',
     },
     {
       title: 'Статус',
       dataIndex: 'status',
       key: 'status',
+      sorter: (a, b) => a.status - b.status,
+      sortOrder: sortColumn === 'status' ? sortOrder : null,
       render: (status: string, record: Task) => (
         <Select
           value={status}
@@ -402,29 +428,52 @@ const Tasks = () => {
           onClick={(e) => e.stopPropagation()}
         >
           {stages.map((statusOption) => (
-            <Option
-              key={statusOption.id}
-              value={statusOption.id}
-            >
+            <Option key={statusOption.id} value={statusOption.id}>
               {statusOption.name}
             </Option>
           ))}
         </Select>
       ),
     },
+
     {
-      title: 'Дедлайн',
-      dataIndex: 'end',
-      key: 'end',
+      title: 'Направление',
+      dataIndex: 'direction',
+      key: 'direction',
+      sorter: (a, b) => a.direction?.localeCompare(b.direction || ''),
+      sortOrder: sortColumn === 'direction' ? sortOrder : null,
     },
+
     {
-      title: 'Исполнитель',
-      dataIndex: 'assignee',
-      key: 'assignee',
-      render: (assignee) =>
-        assignee ? (
+      title: 'Проект',
+      dataIndex: 'sprint',
+      key: 'sprint',
+      sorter: (a, b) => a.sprint?.localeCompare(b.sprint || ''),
+      sortOrder: sortColumn === 'sprint' ? sortOrder : null,
+    },
+
+    {
+      title: 'Команда',
+      dataIndex: 'team',
+      key: 'team',
+      sorter: (a, b) => a.team?.localeCompare(b.team || ''),
+      sortOrder: sortColumn === 'team' ? sortOrder : null,
+    },
+
+    {
+      title: 'Постановщик',
+      dataIndex: 'author',
+      key: 'author',
+      sorter: (a, b) => {
+        const nameA = a.author?.surname + a.author?.name || '';
+        const nameB = b.author?.surname + b.author?.name || '';
+        return nameA.localeCompare(nameB);
+      },
+      sortOrder: sortColumn === 'author' ? sortOrder : null,
+      render: (author) =>
+        author ? (
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {assignee.surname} {assignee.name} {assignee.patronymic}
+            {author.surname} {author.name}
           </div>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center' }}>Не назначен</div>
@@ -432,15 +481,47 @@ const Tasks = () => {
     },
 
     {
+      title: 'Ответственный',
+      dataIndex: 'assignee',
+      key: 'assignee',
+      sorter: (a, b) => {
+        const nameA = a.assignee?.surname + a.assignee?.name || '';
+        const nameB = b.assignee?.surname + b.assignee?.name || '';
+        return nameA.localeCompare(nameB);
+      },
+      sortOrder: sortColumn === 'assignee' ? sortOrder : null,
+      render: (assignee) =>
+        assignee ? (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {assignee.surname} {assignee.name}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center' }}>Не назначен</div>
+        ),
+    },
+    {
+      title: 'Дата начала',
+      dataIndex: 'start',
+      key: 'start',
+      sorter: (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
+      sortOrder: sortColumn === 'start' ? sortOrder : null,
+    },
+
+    {
+      title: 'Дата окончания',
+      dataIndex: 'end',
+      key: 'end',
+      sorter: (a, b) => new Date(a.end).getTime() - new Date(b.end).getTime(),
+      sortOrder: sortColumn === 'end' ? sortOrder : null,
+    },
+    {
       title: 'Действия',
       key: 'actions',
       render: (_: any, record: Task) => (
         <Dropdown
           overlay={
             <Menu>
-              <Menu.Item
-                onClick={(info) => handleMakeSubtask(record.key, info)}
-              >
+              <Menu.Item onClick={(info) => handleMakeSubtask(record.key, info)}>
                 Сделать подзадачей
               </Menu.Item>
               <Menu.Item onClick={(info) => handleDeleteRow(record.key, info)}>
@@ -449,8 +530,7 @@ const Tasks = () => {
             </Menu>
           }
           trigger={['click']}
-          // @ts-ignore
-          onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()} // Останавливаем всплытие события клика
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
         >
           <Button icon={<MoreOutlined />} />
         </Dropdown>
@@ -458,42 +538,70 @@ const Tasks = () => {
     },
   ];
 
+  const filteredColumns = columns
+    .filter(col => !col.key || visibleColumns.includes(col.key))
+    .map(col => ({
+      ...col,
+      onHeaderCell: () => ({ title: '' })  // убираем подсказку
+    }));
+
   return (
     <div className="Tasks">
       <div className="Tasks-Header">
         <div className="Tasks-Header-Heading">
-          <div>
-            <p>Название проекта {projectData?.name || 'Загрузка...'}</p>
-            <h2>{<LeftOutlined />} Все задачи</h2>
-          </div>
-          <Button
+          <PlanButton
             onClick={() => setIsModalCreateTaskVisible(true)}
-            type="primary"
-            icon={<PlusOutlined />}
-          ></Button>{' '}
+          >
+            <a>Создать</a>
+            <PlusOutlined />
+          </PlanButton>
         </div>
 
-        <div className="Tasks-Header-Search">
-          <TaskFilter filter={filter} setFilter={setFilter} stages={stages} users={assignees} projectData={projectList} />
+        <div className="task-filter-wrapper">
+          <TaskFilter
+            filter={filter}
+            setFilter={setFilter}
+            stages={stages}
+            users={assignees}
+            projectData={projectList}
+          />
+        </div>
+        <div >
+          <Dropdown
+            overlay={
+              <div className="column-settings-dropdown">
+                <Checkbox.Group
+                  options={columnOptions}
+                  value={visibleColumns}
+                  onChange={handleColumnChange}
+                />
+              </div>
+            }
+            trigger={['click']}
+            placement="bottomLeft"
+          >
+            <img src={tableOptionIcon} alt="Настройка таблицы" className="table-settings-icon" />
+          </Dropdown>
         </div>
         <div className="Tasks-Header-Buttons">
-          <Button type="default">Гант</Button>
-          <Button type="default">Канбан</Button>
-          <Button type="primary">Список</Button>
+          <PlanButton type="default">Гант</PlanButton>
+          <PlanButton type="default">Канбан</PlanButton>
+          <PlanButton type="primary">Список</PlanButton>
         </div>
       </div>
       <Table
-        columns={columns}
+        columns={filteredColumns}
         dataSource={dataSource}
         rowKey="id"
         onRow={(record) => ({
           onClick: () => handleRowClick(record),
         })}
+        onChange={handleTableChange}
         expandable={{
           childrenColumnName: 'children',
           rowExpandable: (record) => !!record.children,
         }}
-        pagination={{ position: ['none', 'none'] }}
+        pagination={false}
       />
       <Modal
         title="Выберите родительскую задачу"

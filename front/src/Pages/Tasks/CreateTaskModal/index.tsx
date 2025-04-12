@@ -1,6 +1,6 @@
 import { FC } from 'react';
-
 import moment from 'moment';
+import { Modal, Form, Input, Select, DatePicker, Button, Space, Row, Col } from 'antd';
 
 import {
   CreateTaskModalProps,
@@ -9,17 +9,15 @@ import {
 
 import './CreateTaskModal.scss';
 
-import { Modal, Form, Input, Select, DatePicker, Button, Space } from 'antd';
-
 const { Option } = Select;
 
 const CreateTaskModal: FC<CreateTaskModalProps> = ({
-  visible,
-  onCreate,
-  onCancel,
-  statuses,
-  assignees,
-}) => {
+                                                     visible,
+                                                     onCreate,
+                                                     onCancel,
+                                                     statuses,
+                                                     assignees,
+                                                   }) => {
   const [form] = Form.useForm<TaskFormValues>();
 
   const handleCreate = () => {
@@ -28,11 +26,11 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
       .then((values) => {
         const formattedValues = {
           ...values,
+          start: moment(values.start).format('YYYY-MM-DD'),
           deadline: moment(values.deadline).format('YYYY-MM-DD'),
         };
         form.resetFields();
         onCreate(formattedValues);
-        console.log(values);
       })
       .catch((info) => {
         console.error('Ошибка при валидации формы:', info);
@@ -42,17 +40,18 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
   return (
     <Modal
       title="Создать задачу"
-      open={visible} // Заменили `visible` на `open`
+      open={visible}
       onCancel={onCancel}
       footer={null}
+      className="create-task-modal"
     >
       <Form
         form={form}
         layout="vertical"
         name="createTaskForm"
         initialValues={{ status: 'Новое' }}
+        className="create-task-form"
       >
-        {/* Название */}
         <Form.Item
           name="name"
           label="Название задачи"
@@ -61,77 +60,71 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
           <Input placeholder="Введите название" />
         </Form.Item>
 
-        {/* Название */}
         <Form.Item
           name="description"
-          label="Описание"
-          rules={[{ required: true, message: 'Опишите задачу' }]}
+          label="Описание задачи"
+          rules={[{ required: true, message: 'Добавьте описание' }]}
         >
-          <Input placeholder="Введите название" />
+          <Input.TextArea rows={3} placeholder="Добавьте описание" />
         </Form.Item>
 
-        {/* Спринт */}
-        <Form.Item
-          name="sprint"
-          label="Спринт"
-          rules={[{ required: true, message: 'Укажите спринт' }]}
-        >
-          <Input placeholder="Введите название спринта" />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              name="start"
+              label="Дата начала"
+              rules={[{ required: true, message: 'Выберите дату начала' }]}
+            >
+              <DatePicker placeholder="день.месяц.год" style={{ width: '100%' }} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="deadline"
+              label="Дата окончания"
+              rules={[{ required: true, message: 'Выберите дату окончания' }]}
+            >
+              <DatePicker placeholder="день.месяц.год" style={{ width: '100%' }} />
+            </Form.Item>
+          </Col>
+        </Row>
 
-        {/* Статус */}
-        <Form.Item
-          name="status"
-          label="Статус"
-          rules={[{ required: true, message: 'Выберите статус задачи' }]}
-        >
-          <Select placeholder="Выберите статус">
-            {statuses.map((status) => (
-              <Option key={status.id} value={status.id}>
-                {status.name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              name="assignee"
+              label="Ответственный"
+              rules={[{ required: true, message: 'Выберите ответственного' }]}
+            >
+              <Select placeholder="Выберите ответственного">
+                {assignees?.map((a) => (
+                  <Option key={a.user_id} value={a.user_id}>
+                    {a.surname} {a.name} {a.patronymic}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name="executors" label="Исполнители">
+              <Select mode="multiple" placeholder="Добавьте исполнителей">
+                {assignees?.map((a) => (
+                  <Option key={a.user_id} value={a.user_id}>
+                    {a.surname} {a.name} {a.patronymic}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
 
-        {/* Дедлайн */}
-        <Form.Item
-          name="deadline"
-          label="Дедлайн"
-          rules={[{ required: true, message: 'Выберите дату дедлайна' }]}
-        >
-          <DatePicker
-            style={{ width: '100%' }}
-          />
-        </Form.Item>
-
-        {/* Исполнитель */}
-        <Form.Item
-          name="assignee"
-          label="Исполнитель"
-          rules={[{ required: true, message: 'Выберите исполнителя' }]}
-        >
-          <Select placeholder="Выберите исполнителя">
-            {assignees && assignees.length > 0 ? (
-              assignees.map((assignee) => (
-                <Option key={assignee.user_id} value={assignee.user_id}>
-                  {assignee.surname} {assignee.name} {assignee.patronymic}
-                </Option>
-              ))
-            ) : (
-              <Option disabled>Нет доступных исполнителей</Option>
-            )}
-          </Select>
-        </Form.Item>
-
-        {/* Кнопки управления */}
         <Form.Item>
-          <Space style={{ display: 'flex', justifyContent: 'end' }}>
+          <div className="create-task-footer">
             <Button onClick={onCancel}>Отмена</Button>
             <Button type="primary" onClick={handleCreate}>
               Создать
             </Button>
-          </Space>
+          </div>
         </Form.Item>
       </Form>
     </Modal>

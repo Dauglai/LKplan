@@ -22,7 +22,13 @@ import {
   useDeleteCheckListItemMutation,
 } from 'Features/Auth/api/CheckListApiSlice.ts';
 import moment from 'moment';
-
+import {
+  EditOutlined,
+  CalendarOutlined,
+  UserOutlined,
+  CheckOutlined,
+  CloseOutlined, DeleteOutlined,
+} from '@ant-design/icons';
 const { Option } = Select;
 import { Dropdown, Menu, Divider } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
@@ -67,7 +73,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
     }
   };
 
-  const handleUpdateCheckListItemField = async (itemId: number, field: 'datetime' | 'responsible', value: any) => {
+  const handleUpdateCheckListItemField = async (itemId: number, field: 'datetime' | 'responsible' | 'description', value: any) => {
     try {
       await updateCheckListItem({
         itemId: itemId,
@@ -130,6 +136,34 @@ const TaskChecklist = ({ taskId, assignees }) => {
     // тут можно вызвать API, если порядок сохраняется на бэке
   };
 
+  const [editingItemId, setEditingItemId] = useState<number | null>(null);
+  const [editingField, setEditingField] = useState<'description' | 'datetime' | 'responsible' | null>(null);
+  const [editedValue, setEditedValue] = useState<any>('');
+
+  const startEditing = (itemId: number, field: 'description' | 'datetime' | 'responsible', value: any) => {
+    setEditingItemId(itemId);
+    setEditingField(field);
+    setEditedValue(value);
+  };
+
+  const resetEditing = () => {
+    setEditingItemId(null);
+    setEditingField(null);
+    setEditedValue('');
+  };
+
+  const [editingCheckListId, setEditingCheckListId] = useState<number | null>(null);
+  const [editedTitle, setEditedTitle] = useState('');
+
+  const handleUpdateCheckListTitle = async (id: number, title: string) => {
+    try {
+      await updateCheckList({ checkListId: id, data: { description: title } }).unwrap();
+      refetchCheckLists();
+    } catch {
+      message.error('Ошибка обновления названия чек-листа');
+    }
+  };
+
   return (
     <>
       <List
@@ -142,7 +176,28 @@ const TaskChecklist = ({ taskId, assignees }) => {
 
           return (
             <Card
-              title={checkList.description}
+              title={
+                editingCheckListId === checkList.id ? (
+                  <Input
+                    value={editedTitle}
+                    onChange={(e) => setEditedTitle(e.target.value)}
+                    onBlur={() => {
+                      handleUpdateCheckListTitle(checkList.id, editedTitle);
+                      setEditingCheckListId(null);
+                    }}
+                    autoFocus
+                  />
+                ) : (
+                  <div
+                    onClick={() => {
+                      setEditedTitle(checkList.description);
+                      setEditingCheckListId(checkList.id);
+                    }}
+                  >
+                    {checkList.description}
+                  </div>
+                )
+              }
               extra={
                 <Button danger size="small" onClick={() => handleDeleteCheckList(checkList.id)}>
                   Удалить
@@ -154,7 +209,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
               <Progress percent={percent} size="small" style={{ marginBottom: 10 }} />
 
               <DragDropContext onDragEnd={(result) => handleDragEnd(result, checkList)}>
-                <Droppable droppableId={`checklist-${checkList.id}`}>
+                <Droppable droppableId={`${checkList.id}`}>
                   {(provided) => (
                     <div {...provided.droppableProps} ref={provided.innerRef}>
                       {checkList.checklistItems.map((item, index) => (
@@ -166,77 +221,58 @@ const TaskChecklist = ({ taskId, assignees }) => {
                               {...provided.dragHandleProps}
                               style={{
                                 display: 'flex',
-                                alignItems: 'center',
                                 justifyContent: 'space-between',
-                                marginBottom: 8,
+                                alignItems: 'center',
                                 padding: 8,
+                                marginBottom: 8,
                                 border: '1px solid #eee',
                                 borderRadius: 4,
                                 background: '#fafafa',
                                 ...provided.draggableProps.style,
                               }}
                             >
-                              <div style={{ flex: 1 }}>
-                                <Checkbox
-                                  checked={item.is_completed}
-                                  onChange={() => handleToggleCheckListItem(item)}
-                                >
-                                  {item.description}
-                                </Checkbox>
+                              <Checkbox
+                                checked={item.is_completed}
+                                onChange={() => handleToggleCheckListItem(item)}
+                                style={{ marginRight: 8 }}
+                              />
 
-                                {/* Показываем дату и исполнителя, если есть */}
-                                <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
-                                  {item.datetime && (
-                                    <div>📅 {moment(item.datetime).format('DD.MM.YYYY')}</div>
-                                  )}
-                                  {item.responsible && (
-                                    <div>
-                                      👤 {
-                                      assignees.find(user => user.user_id === item.responsible)?.surname
-                                    } {
-                                      assignees.find(user => user.user_id === item.responsible)?.name
-                                    }
-                                    </div>
-                                  )}
-                                </div>
+                              {/* Центр — описание */}
+                              <div style={{ flex: 1 }}>
+                                {editingItemId === item.id && editingField === 'description' ? (
+                                  <Input
+                                    size="small"
+                                    value={editedValue}
+                                    onChange={(e) => setEditedValue(e.target.value)}
+                                    onBlur={() => {
+                                      handleUpdateCheckListItemField(item.id, 'description', editedValue);
+                                      resetEditing();
+                                    }}
+                                    autoFocus
+                                    style={{ maxWidth: 200 }}
+                                  />
+                                ) : (
+                                  <div onClick={() => startEditing(item.id, 'description', item.description)}>
+                                    {item.description || 'Без названия'}
+                                  </div>
+                                )}
                               </div>
 
-                              <Popover
-                                placement="bottomRight" // 👈 Отображается снизу
-                                trigger="click"
-                                overlayInnerStyle={{
-                                  padding: 10,
-                                  width: 220,
-                                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                                }}
-                                content={
-                                  <div onClick={(e) => e.stopPropagation()}>
-                                    <Button
-                                      danger
-                                      size="small"
-                                      onClick={() => handleDeleteCheckListItem(item.id)}
-                                      style={{ width: '100%', marginBottom: 8 }}
-                                    >
-                                      🗑️ Удалить
-                                    </Button>
-
-                                    <DatePicker
-                                      placeholder="Крайний срок"
-                                      size="small"
-                                      style={{ width: '100%', marginBottom: 8 }}
-                                      onChange={(date) =>
-                                        handleUpdateCheckListItemField(item.id, 'datetime', date ? date.format('YYYY-MM-DD') : null)
-                                      }
-                                    />
-
+                              {/* Правая часть */}
+                              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                                {/* Ответственный */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                  {editingItemId === item.id && editingField === 'responsible' ? (
                                     <Select
-                                      placeholder="Ответственный"
                                       size="small"
+                                      style={{ width: 140 }}
                                       value={item.responsible || undefined}
-                                      style={{ width: '100%' }}
-                                      onChange={(value) =>
-                                        handleUpdateCheckListItemField(item.id, 'responsible', value)
-                                      }
+                                      onChange={(value) => {
+                                        handleUpdateCheckListItemField(item.id, 'responsible', value);
+                                        resetEditing();
+                                      }}
+                                      onBlur={resetEditing}
+                                      autoFocus
                                     >
                                       {assignees.map((user) => (
                                         <Select.Option key={user.user_id} value={user.user_id}>
@@ -244,11 +280,47 @@ const TaskChecklist = ({ taskId, assignees }) => {
                                         </Select.Option>
                                       ))}
                                     </Select>
-                                  </div>
-                                }
-                              >
-                                <Button type="text" icon={<EllipsisOutlined />} />
-                              </Popover>
+                                  ) : (
+                                    <div onClick={() => startEditing(item.id, 'responsible', item.responsible)}>
+                                      {assignees.find(user => user.user_id === item.responsible)?.surname || 'Не назначен'}
+                                    </div>
+                                  )}
+                                  <UserOutlined
+                                    onClick={() => startEditing(item.id, 'responsible', item.responsible)}
+                                    style={{ color: '#5C8DB9', cursor: 'pointer' }}
+                                  />
+                                </div>
+
+                                {/* Дата */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                  {editingItemId === item.id && editingField === 'datetime' ? (
+                                    <DatePicker
+                                      size="small"
+                                      onChange={(date) => {
+                                        handleUpdateCheckListItemField(item.id, 'datetime', date ? date.format('YYYY-MM-DD') : null);
+                                        resetEditing();
+                                      }}
+                                      autoFocus
+                                    />
+                                  ) : (
+                                    <div onClick={() => startEditing(item.id, 'datetime', item.datetime)}>
+                                      {item.datetime ? moment(item.datetime).format('DD.MM.YYYY') : 'Без срока'}
+                                    </div>
+                                  )}
+                                  <CalendarOutlined
+                                    onClick={() => startEditing(item.id, 'datetime', item.datetime)}
+                                    style={{ color: '#5C8DB9', cursor: 'pointer' }}
+                                  />
+                                </div>
+
+                                {/* Удалить */}
+                                <Button
+                                  type="text"
+                                  icon={<DeleteOutlined />}
+                                  onClick={() => handleDeleteCheckListItem(item.id)}
+                                  style={{ color: '#ff4d4f' }}
+                                />
+                              </div>
                             </div>
                           )}
                         </Draggable>
@@ -259,6 +331,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
                 </Droppable>
               </DragDropContext>
 
+              {/* Добавление нового пункта */}
               {checkList.checklistItems.length === 0 || addingItemForChecklistId === checkList.id ? (
                 <div style={{ marginTop: 10 }}>
                   <Input
@@ -273,16 +346,17 @@ const TaskChecklist = ({ taskId, assignees }) => {
                     type="primary"
                     block
                     onClick={() => handleAddCheckListItem(checkList.id)}
+                    style={{ backgroundColor: '#5C8DB9', color: 'white' }}
                   >
                     Добавить пункт
                   </Button>
                 </div>
               ) : (
                 <Button
-                  type="dashed"
+                  type="primary"
                   onClick={() => setAddingItemForChecklistId(checkList.id)}
                   block
-                  style={{ marginTop: 10 }}
+                  style={{ marginTop: 10, backgroundColor: '#5C8DB9', color: 'white' }}
                 >
                   Добавить пункт
                 </Button>

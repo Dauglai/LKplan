@@ -1,4 +1,32 @@
 .task-modal {
+    .task-form-content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .task-block {
+        display: flex;
+        flex-direction: column;
+
+        h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+    }
+
+    .task-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .task-col {
+        flex: 1;
+    }
+
 
     width: 1000px !important; /* шире окно */
     .ant-modal-content {

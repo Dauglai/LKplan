@@ -86,7 +86,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
     {
       header: 'Название',
       render: (event: Event) => (
-        <Link to={role === "Организатор" ? `/event/${event.event_id}` : `/events/submit/${event.event_id}`} className="LinkCell">
+        <Link to={`/event/${event.event_id}`} className="LinkCell">
           {event.name}
         </Link>
       ),

@@ -5,7 +5,6 @@ import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { Project, useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useNavigate, Link } from "react-router-dom";
-import { getInitials } from "Features/utils/getInitials";
 import { useNotification } from 'Widgets/Notification/Notification';
 import ProjectForm from "./ProjectForm";
 import Modal from "Widgets/Modal/Modal";

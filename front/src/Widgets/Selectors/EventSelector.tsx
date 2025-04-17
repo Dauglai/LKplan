@@ -1,61 +1,45 @@
-import { useState } from 'react';
-import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
+import { Event, useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
+import { Select, Spin } from 'antd';
+
+const { Option } = Select;
 
 interface EventSelectorProps {
-  selectedEventId: number | null;
-  onChange: (eventId: number) => void;
+  selectedEvent: Event | null;
+  onChange: (event: Event) => void;
 }
 
 export default function EventSelector({
-  selectedEventId,
+  selectedEvent,
   onChange,
 }: EventSelectorProps): JSX.Element {
-  const { data: events, isLoading, error } = useGetEventsQuery();
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleSelectEvent = (eventId: number) => {
-    onChange(eventId);
-  };
+  const { data: events, isLoading } = useGetEventsQuery();
 
   if (isLoading) {
-    return <div className="EventSelector">Загрузка мероприятий...</div>;
+    return <Spin />;
   }
 
-  if (error || !events || events.length === 0) {
-    return <div className="EventSelector">Мероприятия не найдены</div>;
+  if (!events || events.length === 0) {
+    return <div>Мероприятия не найдены</div>;
   }
-
-  const selectedEventName = events.find(event => event.event_id === selectedEventId)?.name || 'Выбрать мероприятие*';
 
   return (
-    <div className="EventSelector">
-      <div
-        className="ListField FormField"
-        onClick={() => setIsOpen(prev => !prev)}
-      >
-        <p>{selectedEventName}</p>
-        <ChevronRightIcon
-          width="20"
-          height="20"
-          strokeWidth="1"
-          className={`ChevronDown ${isOpen ? 'open' : ''}`}
-        />
-
-        {isOpen && (
-          <div className="DropdownList">
-            {events.map(event => (
-              <div
-                key={event.event_id}
-                className={`DropdownItem ${selectedEventId === event.event_id ? 'selected' : ''}`}
-                onClick={() => handleSelectEvent(event.event_id)}
-              >
-                {event.name}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <Select
+      value={selectedEvent?.id ?? undefined}
+      onChange={(id) => {
+        const selected = events.find((e) => e.event_id === id);
+        if (selected) onChange(selected);
+      }}
+      placeholder="Выберите мероприятие"
+      style={{ width: '100%' }}
+      optionFilterProp="children"
+      showSearch
+    >
+      {events.map((event) => (
+        <Option key={event.event_id} value={event.event_id}>
+          {event.name}
+        </Option>
+      ))}
+    </Select>
   );
 }
+

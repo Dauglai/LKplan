@@ -4,18 +4,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useNotification } from 'Widgets/Notification/Notification';
 import { getInitials } from "Features/utils/getInitials";
 import { useDeleteApplicationMutation } from 'Features/ApiSlices/applicationSlice';
-import Modal from 'Widgets/Modal/Modal';
-import RequestDetails from './RequestDetails';
+import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
+import RequestDetailsWrapper from './RequestDetailsWrapper';
 import { Application } from 'Features/ApiSlices/applicationSlice';
-import MoreIcon from 'assets/icons/more.svg?react';
+import ListTable from 'Components/Sections/ListTable';
+import MagnifierIcon from 'assets/icons/magnifier.svg?react';
 
 
 interface RequestsListTableProps {
     requests: Application[];
+    role: string;
 }
 
-export default function RequestsListTable({ requests }: RequestsListTableProps): JSX.Element {
+export default function RequestsListTable({ requests, role }: RequestsListTableProps): JSX.Element {
     const [openMenu, setOpenMenu] = useState<number | null>(null);
+    const { data: projects = [], isLoading } = useGetProjectsQuery(); // Получение списка проектов с сервера.
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState<Application | null>(null);
     const [deleteRequest] = useDeleteApplicationMutation();
@@ -34,9 +37,10 @@ export default function RequestsListTable({ requests }: RequestsListTableProps):
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const toggleMenu = (id: number) => {
-        setOpenMenu(openMenu === id ? null : id);
-    };
+    const handleCloseMenu = () => setOpenMenu(null); // Закрывает открытое меню действий.
+
+    const getProjectById = (id: number) => projects.find(project => project.project_id === id);
+
 
     const handleDelete = async (id: number) => {
         await deleteRequest(id);
@@ -54,82 +58,86 @@ export default function RequestsListTable({ requests }: RequestsListTableProps):
         setSelectedRequest(null);
     };
 
-    if (requests.length === 0) {
-        return <span className="NullMessage">Заявки не найдены</span>;
-    }
+    const columns = [
+        {
+            header: 'ФИО',
+            render: (request: Application) => (
+                <Link to={`/profile/${request.user.user_id}`} className="LinkCell">
+                    {request.user.surname} {getInitials(request.user.name, request.user.patronymic)}
+                </Link>
+            ),
+            sortKey: 'user.surname',
+        },
+        {
+            header: 'Мероприятие',
+            render: (request: Application) => (
+                <Link to={`/event/${request.event.id}`} className="HiglightCell LinkCell">
+                    {request.event.name}
+                </Link>
+            ),
+            sortKey: 'event.name',
+            text: 'Нажмите на мероприятие для подробностей',
+        },
+        {
+            header: 'Проект',
+            render: (request: Application) => {
+              const project = getProjectById(request.project);
+              return project ? (
+                <Link to={`/project/${project.project_id}`} className="HiglightCell LinkCell">
+                  {project.name}
+                </Link>
+              ) : (
+                <span className="HiglightCell">Проект не найден</span>
+              );
+            },
+            text: 'Нажмите на проект для подробностей',        
+        },          
+        {
+            header: 'Статус',
+            render: (request: Application) => (
+                <span className="HiglightCell">{request.status.name}</span>
+            ),
+            sortKey: 'status.name',
+        },
+        {
+            header: 'Специализация',
+            render: (request: Application) => (
+                <span className="HiglightCell">{request.specialization.name}</span>
+            ),
+            sortKey: 'specialization.name',
+        },
+        {
+            header: 'Команда',
+            render: (request: Application) =>
+                request.team ? (
+                    <Link to={`/team/${request.team.id}`} className="LinkCell">
+                        {request.team.name}
+                    </Link>
+                ) : (
+                    'Не указана'
+                ),
+        },
+        {
+            header: '',
+            render: (request: Application) => (
+                <MagnifierIcon
+                    width="24"
+                    height="24"
+                    strokeWidth="1"
+                    onClick={() => openModal(request)}/>
+            )
+        },
+    ];
 
     return (
-        <table className="RequestsListTable ListTable">
-            <thead>
-                <tr>
-                    <th>ФИО</th>
-                    <th>Мероприятие</th>
-                    <th>Проект</th>
-                    <th>Статус</th>
-                    <th>Специализация</th>
-                    <th>Команда</th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {requests.map((request) => (
-                    <tr key={request.id}>
-                        <td>
-                            <Link to={`/profile/${request.user.user_id}`} className="LinkCell">{request.user.surname} {getInitials(request.user.name, request.user.patronymic)}</Link>
-                        </td>
-                        <td>
-                            <Link to={`/event/${request.event.id}`} className="HiglightCell LinkCell">
-                                {request.event.name}
-                            </Link>
-                        </td>
-                        <td>
-                            <Link to={`/project/${request.project.project_id}`} className="HiglightCell LinkCell">
-                                {request.project.name}
-                            </Link>
-                        </td>
-                        <td>
-                            <span className="HiglightCell">{request.status.name}</span>
-                        </td>
-                        <td>
-                            <span className="HiglightCell">{request.specialization.name}</span>
-                        </td>
-                        <td>{request.team ? 
-                            <Link to={`/team/${request.team.id}`} className="LinkCell">
-                                {request.team.name}
-                            </Link>
-                        : 'Не указана'}</td>
-                        <td className="ButtonsColumn">
-                            <button
-                                onClick={() => openModal(request)}
-                                className="primary-btn">
-                                Заявка
-                            </button>
-                        </td>
-                        <td>
-                            <MoreIcon 
-                                width="16" 
-                                height="16" 
-                                strokeWidth="1"
-                                onClick={() => toggleMenu(request.id)}
-                                className="ThreeDotsButton"
-                            />
-                            {openMenu === request.id && (
-                                <ul ref={menuRef} className="ActionsMenu">
-                                    <li onClick={() => navigate(`/profile/${request.id}`)}>Профиль</li>
-                                    <li onClick={() =>  openModal(request)}>Информация</li>
-                                    {/*<li onClick={() => handleDelete(request.id)}>Удалить</li>*/}
-                                </ul>
-                            )}
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
+        <>
+            <ListTable
+                data={requests}
+                columns={columns}
+            />
             {isModalOpen && selectedRequest && (
-                <Modal isOpen={isModalOpen} onClose={closeModal}>
-                    <RequestDetails closeModal={closeModal} request={selectedRequest} />
-                </Modal>
+                <RequestDetailsWrapper onClose={closeModal} request={selectedRequest} open={isModalOpen}/>
             )}
-        </table>
+        </>
     );
 }

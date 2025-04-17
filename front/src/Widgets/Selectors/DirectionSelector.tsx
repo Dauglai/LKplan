@@ -8,7 +8,7 @@ interface DirectionSelectorProps {
     label?: string;
   }
   
-  export default function DirectionSelector({
+export default function DirectionSelector({
     onChange,
     label = "Выбрать направление *",  // Текст по умолчанию
   }: DirectionSelectorProps): JSX.Element {
@@ -69,5 +69,5 @@ interface DirectionSelectorProps {
         </div>
       </div>
     );
-  }
+}
   

@@ -5,11 +5,10 @@ import { useNotification } from 'Widgets/Notification/Notification';
 import { getInitials } from "Features/utils/getInitials";
 import { useDeleteApplicationMutation } from 'Features/ApiSlices/applicationSlice';
 import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
-import Modal from 'Widgets/Modal/Modal';
-import RequestDetails from './RequestDetails';
+import RequestDetailsWrapper from './RequestDetailsWrapper';
 import { Application } from 'Features/ApiSlices/applicationSlice';
 import ListTable from 'Components/Sections/ListTable';
-import ActionMenu from 'Components/Sections/ActionMenu';
+import MagnifierIcon from 'assets/icons/magnifier.svg?react';
 
 
 interface RequestsListTableProps {
@@ -121,25 +120,14 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
         {
             header: '',
             render: (request: Application) => (
-                <ActionMenu 
-                actions={actions(request)} 
-                onClose={handleCloseMenu}
-                role={role}
-                />
+                <MagnifierIcon
+                    width="24"
+                    height="24"
+                    strokeWidth="1"
+                    onClick={() => openModal(request)}/>
             )
         },
     ];
-
-    /**
-         * Генерация списка действий для каждой строки таблицы.
-         * @param {Application} request - Заявка для генерации действий.
-         * @returns {Array} Список действий для меню.
-         */
-      
-        const actions = (request: Application) => [
-          { label: 'Профиль', onClick: () => navigate(`/profile/${request.user.user_id}`)},
-          { label: 'Подробная информация', onClick: () => openModal(request)},
-        ];
 
     return (
         <>
@@ -148,9 +136,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
                 columns={columns}
             />
             {isModalOpen && selectedRequest && (
-                <Modal isOpen={isModalOpen} onClose={closeModal}>
-                    <RequestDetails closeModal={closeModal} request={selectedRequest} />
-                </Modal>
+                <RequestDetailsWrapper onClose={closeModal} request={selectedRequest} open={isModalOpen}/>
             )}
         </>
     );

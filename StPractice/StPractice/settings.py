@@ -97,6 +97,9 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+SOCIAL_AUTH_SANITIZE_REDIRECTS = False  # Отключает проверку внутренних URL
+SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS = ['https://meetuppoint.ru']  # Белый список доменов
+
 # Google configuration
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('GOOGLE_CLIENT_ID')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('GOOGLE_SECRET')
@@ -105,11 +108,17 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'https://www.googleapis.com/auth/userinfo.profile',
 ]
 
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'https://meetuppoint.ru/auth/callback/'
+
 SOCIAL_AUTH_VK_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_VK_OAUTH2_KEY')
 SOCIAL_AUTH_VK_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_VK_OAUTH2_SECRET')
-
+VK_CONFIG = {
+    'ACCESS_TOKEN': os.getenv('VK_CONFIG_ACCESS_TOKEN'),
+    'API_VERSION': '5.199'
+}
 SOCIAL_AUTH_TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+
 SOCIAL_AUTH_URL_NAMESPACE = 'social'  # Соответствует namespace в urls.py
 from datetime import timedelta
 
@@ -121,16 +130,26 @@ SIMPLE_JWT = {
 }
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "https://meetuppoint.ru",
+    'https://crm.meetuppoint.ru',
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',  # React фронтенд
+    'https://meetuppoint.ru',
+    'https://crm.meetuppoint.ru',
 ]
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000',
+                        "https://meetuppoint.ru",
+                        'https://crm.meetuppoint.ru', ]
 SESSION_COOKIE_HTTPONLY = True  # Безопасность куки
-SESSION_COOKIE_SAMESITE = 'Lax'
-
+SESSION_COOKIE_SAMESITE = 'None'  # Для кросс-доменных запросов
+SESSION_COOKIE_SECURE = True  # Только HTTPS
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
 ROOT_URLCONF = 'StPractice.urls'
 
 TEMPLATES = [
@@ -204,3 +223,14 @@ LOGIN_REDIRECT_URL = "/api/profile/"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Настройки почты для Beget
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.beget.com'  # SMTP-сервер Beget
+EMAIL_PORT = 465  # Порт для SSL
+EMAIL_USE_SSL = True  # Использовать SSL (для порта 465)
+EMAIL_HOST_USER = 'no-reply@meetuppoint.ru'  # Ваш email на Beget
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Пароль от почты
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Email отправителя по умолчанию
+SERVER_EMAIL = EMAIL_HOST_USER  # Для уведомлений админам

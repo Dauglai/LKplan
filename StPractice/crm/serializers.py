@@ -1,3 +1,4 @@
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from .models import *
 from django.contrib.auth.models import User
@@ -13,6 +14,13 @@ class TelegramMessageSerializer(serializers.Serializer):
     )
 
 
+class VKMessageSerializer(serializers.Serializer):
+    recipient_id = serializers.IntegerField(required=True)
+    message = serializers.CharField(required=True, max_length=4096)
+    keyboard = serializers.JSONField(required=False)
+    attachment = serializers.CharField(required=False)
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
 
@@ -23,7 +31,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            email=validated_data['username'],
         )
         return user
 
@@ -100,9 +109,19 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
 
 
 class DirectionSerializer(serializers.ModelSerializer):
+    leader_id = serializers.PrimaryKeyRelatedField(
+        queryset=Profile.objects.all(),
+        source='leader',
+        write_only=True,
+        required=False
+    )
+
     class Meta:
         model = Direction
-        fields = '__all__'
+        fields = ['id', 'event', 'name', 'description', 'leader', 'leader_id']
+        extra_kwargs = {
+            'leader': {'read_only': True}
+        }
 
 
 class EventAppSerializer(serializers.ModelSerializer):
@@ -161,7 +180,7 @@ class TrueAnswerSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
-    creator = ProfileSerializer(read_only=True)
+    # creator = ProfileSerializer(read_only=True)
 
     specializationsSet = SpecializationSerializer(read_only=True, many=True, source="specializations")
     statusesSet = Status_AppSerializer(read_only=True, many=True, source="statuses")
@@ -171,19 +190,20 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ["creator",
-                  "name",
+        fields = [
+            "name",
 
-                  "specializations",
+            "specializations",
 
-                  "description",
+            "description",
 
-                  "stage",
-                  "start",
-                  "end",
-                  "specializationsSet",
-                  "statusesSet", "directions",
-                  "applications", "event_id"]
+            "stage",
+            "start",
+            "end",
+            "end_app",
+            "specializationsSet",
+            "statusesSet", "directions",
+            "applications", "event_id"]
 
 
 class EventCreateSerializer(serializers.ModelSerializer):
@@ -193,7 +213,16 @@ class EventCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = '__all__'
+        fields = ["id",
+                  "name",
+
+                  "specializations",
+
+                  "description",
+
+                  "stage",
+                  "start",
+                  "end", "end_app"]
 
 
 class StatusSerializer(serializers.ModelSerializer):
@@ -293,3 +322,37 @@ class FunctionOrderSerializer(serializers.ModelSerializer):
         """Пересчет порядковых номеров"""
         qs = FunctionOrder.objects.filter(status_order=status_order).exclude(pk=exclude_pk)
         qs.filter(position__gte=new_position).update(position=models.F('position') + 1)
+
+
+class OrgChatSerializer(serializers.ModelSerializer):
+    event = serializers.PrimaryKeyRelatedField(
+        queryset=Event.objects.all(),
+        help_text="ID связанного мероприятия"
+    )
+
+    class Meta:
+        model = OrgChat
+        fields = [
+            'id',
+            'event',
+            'type',
+            'name',
+            'description',
+            'link'
+        ]
+        extra_kwargs = {
+            'type': {'help_text': "Тип чата: ВК или ТГ"},
+            'link': {'max_length': 100}
+        }
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    new_password = serializers.CharField(
+        write_only=True,
+        validators=[validate_password]
+    )

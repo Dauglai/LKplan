@@ -2,7 +2,6 @@
 @import 'Styles/variables';
 
 .InfoPage {
-    width: 1160px;
 
     .InfoHeader {
         margin-bottom: 24px;
@@ -86,8 +85,6 @@
 
         .InfoContent * {
             @include text1;
-            margin-bottom: 12px;
-            display: block;
         }
     }
 }

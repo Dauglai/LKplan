@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useGetUsersQuery } from 'Features/ApiSlices/userSlice';
 import { useGetSpecializationsQuery } from 'Features/ApiSlices/specializationSlice';
 import BackButton from "Widgets/BackButton/BackButton";
-import 'Styles/InfoPageStyle.scss';
+import 'Styles/pages/common/InfoPageStyle.scss';
 import { useEffect } from 'react';
 import { getInitials } from 'Features/utils/getInitials';
 

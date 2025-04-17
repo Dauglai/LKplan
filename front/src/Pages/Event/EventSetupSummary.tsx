@@ -5,12 +5,14 @@ import { useCreateEventMutation } from 'Features/ApiSlices/eventSlice';
 import { useCreateDirectionMutation } from 'Features/ApiSlices/directionSlice';
 import { useCreateProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { resetEvent } from 'Features/store/eventSetupSlice';
+import { useNotification } from 'Widgets/Notification/Notification';
 import BackButton from 'Widgets/BackButton/BackButton';
 import "Styles/FormStyle.scss";
 
 const EventSetupSummary = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   // Получаем данные из Redux
   const { stepEvent, stepDirections, stepProjects } = useSelector((state: any) => state.event);
@@ -35,59 +37,59 @@ const EventSetupSummary = () => {
       const eventResponse = await createEvent(stepEvent).unwrap();
       const event = eventResponse.id;  // Получаем ID созданного мероприятия
 
-      setStatus('Создание направлений...');
+      if (stepDirections) {
+        setStatus('Создание направлений...');
       
-      console.log(stepDirections)
+        // Обновляем направления, добавляя eventId в каждое направление
+        const updatedDirections = stepDirections.directions.map((direction: any) => ({
+          ...direction,
+          event,  // Добавляем id мероприятия в каждое направление
+        }));
 
-      // Обновляем направления, добавляя eventId в каждое направление
-      const updatedDirections = stepDirections.directions.map((direction: any) => ({
-        ...direction,
-        event,  // Добавляем id мероприятия в каждое направление
-      }));
-
-      console.log(updatedDirections)
-
-      // После успешного создания мероприятия создаем направления
-      const directionPromises = updatedDirections.map((direction: any) =>
-        createDirection(direction).unwrap()
-      );
-      const directionResponses = await Promise.all(directionPromises);
-
-      console.log(directionResponses);
-
-      setStatus('Создание проектов...');
-
-      // Теперь обновляем проекты, заменяя временные id направлений на реальные
-      const updatedProjects = stepProjects.projects.map((project: any) => {
-        const tempDirectionId = project.direction;
-
-        // Ищем направление в stepDirections, чтобы найти название
-        const directionToUpdate = stepDirections.directions.find(
-          (direction: any) => direction.id === tempDirectionId
+        
+        // После успешного создания мероприятия создаем направления
+        const directionPromises = updatedDirections.map((direction: any) =>
+          createDirection(direction).unwrap()
         );
+        const directionResponses = await Promise.all(directionPromises);
 
-        if (directionToUpdate) {
-          // Находим соответствующий реальный ID из directionResponses по названию
-          const realDirection = directionResponses.find(
-            (res: any) => res.name === directionToUpdate.name
+
+        if (stepProjects) {
+          setStatus('Создание проектов...');
+
+          // Теперь обновляем проекты, заменяя временные id направлений на реальные
+          const updatedProjects = stepProjects.projects.map((project: any) => {
+            const tempDirectionId = project.direction;
+
+            // Ищем направление в stepDirections, чтобы найти название
+            const directionToUpdate = stepDirections.directions.find(
+              (direction: any) => direction.id === tempDirectionId
+            );
+
+            if (directionToUpdate) {
+              // Находим соответствующий реальный ID из directionResponses по названию
+              const realDirection = directionResponses.find(
+                (res: any) => res.name === directionToUpdate.name
+              );
+
+              // Если нашли реальный ID, подставляем его
+              return {
+                ...project,
+                direction: realDirection?.id || tempDirectionId, // Если реальный ID не найден, оставляем временный
+              };
+            }
+
+            // Если не нашли направление с таким ID, оставляем временный ID
+            return project;
+          });
+        
+          // Затем создаем проекты
+          const projectPromises = updatedProjects.map((project: any) =>
+            createProject(project).unwrap()
           );
-
-          // Если нашли реальный ID, подставляем его
-          return {
-            ...project,
-            direction: realDirection?.id || tempDirectionId, // Если реальный ID не найден, оставляем временный
-          };
+          await Promise.all(projectPromises);
         }
-
-        // Если не нашли направление с таким ID, оставляем временный ID
-        return project;
-      });
-    
-      // Затем создаем проекты
-      const projectPromises = updatedProjects.map((project: any) =>
-        createProject(project).unwrap()
-      );
-      await Promise.all(projectPromises);
+      }
 
       setStatus('Все данные успешно сохранены!');
 
@@ -96,9 +98,10 @@ const EventSetupSummary = () => {
 
       // Перенаправляем на страницу с успехом
       navigate('/events');
-    } catch (err) {
-      setError('Произошла ошибка при отправке данных.');
-      console.error('Ошибка при отправке данных:', err);
+    } catch (error) {
+      setError(`Произошла ошибка при отправке данных. ${error.status} ${error.data[0]}`);
+      console.error(`Ошибка при отправке данных: ${error.status} ${error.data[0]}`);
+      showNotification(`Ошибка при отправке данных: ${error.status} ${error.data[0]}`, 'error');
     } finally {
       setLoading(false);
     }

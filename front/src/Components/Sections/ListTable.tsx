@@ -39,26 +39,28 @@ interface TableProps<T> {
  * @returns {JSX.Element} Компонент таблицы с данными и функциональностью сортировки.
  */
 export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Element {
-  const [sortConfig, setSortConfig] = useState<{ key: keyof T | null; direction: 'asc' | 'desc' | null }>({
-    key: columns[0]?.sortKey || null, direction: 'asc',
+  const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: 'asc' | 'desc' | null }>({
+    key: columns[0]?.sortKey || null,
+    direction: 'asc',
   });
+
+  const getValue = (obj: any, path: string): any => {
+    return path.split('.').reduce((acc, part) => acc?.[part], obj);
+  };
+  
 
   // Сортировка данных на основе конфигурации сортировки
   const sortedData = [...data].sort((a, b) => {
     if (!sortConfig.key) return 0;
-
-    const getValue = (obj: T, key: keyof T) => {
-      const keys = key.split('.'); // Для вложенных объектов
-      return keys.reduce((acc, curr) => acc && acc[curr], obj);
-    };
-
+  
     const aValue = getValue(a, sortConfig.key);
     const bValue = getValue(b, sortConfig.key);
-
+  
     if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
     if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
     return 0;
   });
+  
 
   // Обработчик клика по заголовку колонки для смены направления сортировки
   const handleSort = (key: keyof T) => {
@@ -80,13 +82,15 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
     dataIndex: col.sortKey,
     key: col.sortKey as string,
     render: (text: any, record: T) => col.render(record),
-    sorter: col.sortKey ? (a: T, b: T) => {
-      const aValue = a[col.sortKey as keyof T];
-      const bValue = b[col.sortKey as keyof T];
-      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    } : undefined,
+    sorter: col.sortKey
+      ? (a: T, b: T) => {
+          const aValue = getValue(a, col.sortKey as string);
+          const bValue = getValue(b, col.sortKey as string);
+          if (aValue < bValue) return -1;
+          if (aValue > bValue) return 1;
+          return 0;
+        }
+      : undefined,
     width: col.width, // Применяем ширину
   }));
 

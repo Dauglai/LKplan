@@ -125,6 +125,7 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
       render: (direction: Direction) => direction.name,
       sortKey: 'name',
       text: 'Название направления',
+      width: '200px',
     },
     {
       header: 'Мероприятие',
@@ -135,6 +136,7 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
       ),
       sortKey: 'event',
       text: 'Нажмите на мероприятие для подробностей',
+      width: '200px',
     },
     {
       header: 'Руководитель',
@@ -154,6 +156,7 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
         }
       },
       text: 'Нажмите на руководителя для просмотра детальной информации',
+      width: '200px',
     },
     {
       header: 'Проекты',

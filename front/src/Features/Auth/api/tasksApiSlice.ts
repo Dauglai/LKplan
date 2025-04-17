@@ -83,15 +83,6 @@ export const tasksApiSlice = apiSlice.injectEndpoints({
       transformResponse: (response: { results: Task[] }) => response.results,
       providesTags: ['Task'],
     }),
-
-    /*    getAllTasks: builder.query<{ results: Task[] }, void>({
-      query: () => ({
-        url: '/api/tasks/',
-        withCredentials: true,
-      }),
-      transformResponse: (response: { results: Task[] }) => response.results,
-      providesTags: ['Task'],
-    }), */
     createTask: builder.mutation<Task, Partial<Task>>({
       query: (task) => ({
         url: '/api/tasks/create/',
@@ -128,8 +119,7 @@ export const tasksApiSlice = apiSlice.injectEndpoints({
         method: 'DELETE',
         withCredentials: true,
       }),
-      transformResponse: (response: { results: Comment[] }) => response.results,
-      providesTags: ['Comment'],
+      invalidatesTags: (result, error, itemId) => [{ type: 'Task', id: itemId }],
     }),
   }),
 });

@@ -4,6 +4,18 @@
     background-color: #f8f9fb;
     padding: 24px;
   }
+  .ql-container {
+    min-height: 160px;
+    border-radius: 6px;
+  }
+
+  .ql-toolbar {
+    border-radius: 6px 6px 0 0;
+  }
+
+  .ql-editor {
+    min-height: 120px;
+  }
 
   .ant-modal-title {
     font-size: 18px;

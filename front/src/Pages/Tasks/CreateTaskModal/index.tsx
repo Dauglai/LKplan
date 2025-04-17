@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 import moment from 'moment';
 import { Modal, Form, Input, Select, DatePicker, Button, Space, Row, Col } from 'antd';
 
@@ -8,6 +8,9 @@ import {
 } from './CreateTaskModal.typings';
 
 import './CreateTaskModal.scss';
+import TaskEditor from 'Pages/Tasks/TaskCard/TaskEditor.tsx';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const { Option } = Select;
 
@@ -65,7 +68,25 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
           label="Описание задачи"
           rules={[{ required: true, message: 'Добавьте описание' }]}
         >
-          <Input.TextArea rows={3} placeholder="Добавьте описание" />
+          <Form.Item name="description" noStyle>
+            <ReactQuill
+              theme="snow"
+              style={{ height: '200px', marginBottom: '40px' }}
+              modules={{
+                toolbar: [
+                  [{ font: [] }, { size: [] }],
+                  ['bold', 'italic', 'underline', 'strike'],
+                  [{ color: [] }, { background: [] }],
+                  [{ script: 'sub' }, { script: 'super' }],
+                  [{ align: [] }],
+                  [{ list: 'ordered' }, { list: 'bullet' }],
+                  ['link', 'image'],
+                  ['clean'],
+                ],
+              }}
+              onChange={(value) => form.setFieldsValue({ description: value })}
+            />
+          </Form.Item>
         </Form.Item>
 
         <Row gutter={16}>
@@ -75,7 +96,10 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
               label="Дата начала"
               rules={[{ required: true, message: 'Выберите дату начала' }]}
             >
-              <DatePicker placeholder="день.месяц.год" style={{ width: '100%' }} />
+              <DatePicker
+                placeholder="день.месяц.год"
+                style={{ width: '100%' }}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -84,7 +108,10 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
               label="Дата окончания"
               rules={[{ required: true, message: 'Выберите дату окончания' }]}
             >
-              <DatePicker placeholder="день.месяц.год" style={{ width: '100%' }} />
+              <DatePicker
+                placeholder="день.месяц.год"
+                style={{ width: '100%' }}
+              />
             </Form.Item>
           </Col>
         </Row>

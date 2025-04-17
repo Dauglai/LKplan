@@ -8,6 +8,7 @@ import {
 import { Button, Input, List, Popconfirm, message, Upload } from 'antd';
 import { UploadOutlined, EditOutlined, DeleteOutlined, SaveOutlined, CloseOutlined, PaperClipOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';
+import PlanButton from '../../../Components/PlanButton/PlanButton.tsx';
 
 interface Props {
   taskId: number;
@@ -32,6 +33,8 @@ const TaskComments: React.FC<Props> = ({ taskId, currentUserId }) => {
       const formData = new FormData();
       formData.append('content', newComment);
       if (file) formData.append('file', file);
+      formData.append('task', taskId);
+      formData.append('author', currentUserId);
 
       await createComment({
         taskId,
@@ -48,7 +51,9 @@ const TaskComments: React.FC<Props> = ({ taskId, currentUserId }) => {
 
   const handleSaveEdit = async (id: number) => {
     try {
-      await updateComment({ id, data: { content: editedContent } }).unwrap();
+      await updateComment({ id, data: {
+        content: editedContent,
+      } }).unwrap();
       setEditingCommentId(null);
       refetch();
     } catch {
@@ -67,8 +72,6 @@ const TaskComments: React.FC<Props> = ({ taskId, currentUserId }) => {
 
   return (
     <div style={{ marginTop: 24 }}>
-      <h3>Комментарии</h3>
-
       <List
         dataSource={comments}
         renderItem={(comment) => (
@@ -82,11 +85,11 @@ const TaskComments: React.FC<Props> = ({ taskId, currentUserId }) => {
               comment.author === currentUserId
                 ? editingCommentId === comment.id
                   ? [
-                    <Button icon={<SaveOutlined />} onClick={() => handleSaveEdit(comment.id)} />,
-                    <Button icon={<CloseOutlined />} onClick={() => setEditingCommentId(null)} />,
+                    <PlanButton icon={<SaveOutlined />} onClick={() => handleSaveEdit(comment.id)} />,
+                    <PlanButton icon={<CloseOutlined />} onClick={() => setEditingCommentId(null)} />,
                   ]
                   : [
-                    <Button icon={<EditOutlined />} onClick={() => {
+                    <PlanButton icon={<EditOutlined />} onClick={() => {
                       setEditingCommentId(comment.id);
                       setEditedContent(comment.content);
                     }} />,
@@ -154,9 +157,9 @@ const TaskComments: React.FC<Props> = ({ taskId, currentUserId }) => {
         </Button>
       </Upload>
 
-      <Button type="primary" onClick={handleAddComment}>
+      <PlanButton type="primary" onClick={handleAddComment}>
         Добавить
-      </Button>
+      </PlanButton>
     </div>
   );
 };

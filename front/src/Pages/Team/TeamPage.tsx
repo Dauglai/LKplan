@@ -7,6 +7,9 @@ import MoreIcon from 'assets/icons/more.svg?react';
 import BackButton from "Widgets/BackButton/BackButton";
 import 'Styles/InfoPageStyle.scss';
 import 'Styles/components/Sections/ListTableStyles.scss';
+import { useGetUserQuery } from 'Features/ApiSlices/userSlice.ts';
+import  './TeamCard.scss'
+import { Button, Input, Table } from 'antd';
 
 export default function TeamPage() {
     const { teamId } = useParams();
@@ -15,6 +18,10 @@ export default function TeamPage() {
     const [openMenu, setOpenMenu] = useState<number | null>(null);
     const menuRef = useRef<HTMLUListElement | null>(null);
     const navigate = useNavigate();
+    const { data: team, isLoading: teamLoading, error: teamError } = useGetTeamByIdQuery(teamIdNumber, { skip: isNaN(teamIdNumber) });
+    const { data: specializations } = useGetSpecializationsQuery();
+    const currentUser = useGetUserQuery()
+    const isCurator = currentUser?.id === team?.curator;
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -27,9 +34,38 @@ export default function TeamPage() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Запросы
-    const { data: team, isLoading: teamLoading, error: teamError } = useGetTeamByIdQuery(teamIdNumber, { skip: isNaN(teamIdNumber) });
-    const { data: specializations } = useGetSpecializationsQuery();
+    const [isEditing, setIsEditing] = useState(false);
+    const [editableTeam, setEditableTeam] = useState({
+        name: team?.name || '',
+        chat_link: team?.chat_link || 'Нет ссылки',
+        curator: {
+            full_name: `${team?.curator_info?.surname} ${team?.curator_info?.name} ${team?.curator_info?.patronymic}`  || '',
+            telegram: team?.curator_info?.telegram || 'Нет телеграмма',
+        },
+    });
+
+    const handleChange = (field: string, value: string) => {
+        setEditableTeam(prev => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
+
+    const handleCuratorChange = (field: string, value: string) => {
+        setEditableTeam(prev => ({
+            ...prev,
+            curator: {
+                ...prev.curator,
+                [field]: value,
+            },
+        }));
+    };
+
+    const handleSave = () => {
+        // сюда вставим PATCH-запрос
+        setIsEditing(false);
+    };
+
 
     useEffect(() => {
         document.title = team ? `${team.name} - MeetPoint` : "Страница команды - MeetPoint";
@@ -56,71 +92,106 @@ export default function TeamPage() {
     }
 
     return (
-      <div className="TeamInfoPage InfoPage">
-          <div className="TeamInfoHeader InfoHeader">
-              <BackButton />
-              <div className="InfoHeaderTitleContainer">
-                  <h2>{team?.name}</h2>
-                  {team?.project_info?.id && (
-                    <Link to={`/project/${team.project_info.id}`}>{team.project_info.name}</Link>
+      <div className="TeamCard">
+          <div className="Tabs">
+              <Button className="Tab active">Информация</Button>
+              <Button className="Tab">Результаты</Button>
+              <Button className="Tab">Собрания</Button>
+          </div>
+
+          <div className="TeamForm">
+              <div className="FormGroup">
+                  <label>Название команды</label>
+                  {isEditing && isCurator ? (
+                    <input
+                      type="text"
+                      value={editableTeam.name}
+                      onChange={e => handleChange('name', e.target.value)}
+                    />
+                  ) : (
+                    <div className="TextBlock">{editableTeam.name}</div>
+                  )}
+              </div>
+
+              <div className="FormGroup curator-group">
+                  <label>Куратор</label>
+                  <div className="TwoColumns">
+                      {isEditing && isCurator ? (
+                        <>
+                            <Input
+                              type="text"
+                              value={editableTeam.curator.full_name}
+                              onChange={e => handleCuratorChange('full_name', e.target.value)}
+                            />
+                            <Input
+                              type="text"
+                              value={editableTeam.curator.telegram}
+                              onChange={e => handleCuratorChange('telegram', e.target.value)}
+                            />
+                        </>
+                      ) : (
+                        <>
+                            <div className="TextBlock">{editableTeam.curator.full_name}</div>
+                            <div className="TextBlock">{editableTeam.curator.telegram}</div>
+                        </>
+                      )}
+                  </div>
+              </div>
+
+              <div className="FormGroup">
+                  <label>Ссылка на чат</label>
+                  {isEditing && isCurator ? (
+                    <input
+                      type="text"
+                      value={editableTeam.chat_link}
+                      onChange={e => handleChange('chat_link', e.target.value)}
+                    />
+                  ) : (
+                    <div className="TextBlock Link">{editableTeam.chat_link}</div>
                   )}
               </div>
           </div>
-          <table className="TeamMembersTable ListTable">
+
+          <Table className="TeamMembersTable">
               <thead>
               <tr>
-                  <th>ФИО</th>
+                  <th>Фамилия</th>
+                  <th>Имя</th>
+                  <th>Отчество</th>
+                  <th>Роль</th>
                   <th>Телеграм</th>
-                  <th>Вконтакте</th>
-                  <th>Курс</th>
-                  <th>Email</th>
-                  <th></th>
+                  <th>Группа</th>
+                  {isCurator && <th>Действия</th>}
               </tr>
               </thead>
               <tbody>
-              {team?.students_info?.map((student) => (
+              {team.students_info.map(student => (
                 <tr key={student.id}>
-                    <td>
-                        <Link to={`/profile/${student.id}`} className="LinkCell">
-                            {student.surname} {getInitials(student.name, student.patronymic)}
-                        </Link>
-                    </td>
-                    <td>
-                        {student.telegram ? (
-                          <a href={`https://t.me/${student.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="LinkCell">
-                              {student.telegram}
-                          </a>
-                        ) : '-'}
-                    </td>
-                    <td>
-                        {student.vk ? (
-                          <a href={student.vk} target="_blank" rel="noopener noreferrer" className="LinkCell">
-                              {student.vk}
-                          </a>
-                        ) : '-'}
-                    </td>
-                    <td>{student.course ?? '-'}</td>
-                    <td>
-                        <a href={`mailto:${student.email}`} className="LinkCell">{student.email}</a>
-                    </td>
-                    <td>
-                        <MoreIcon
-                          width="16"
-                          height="16"
-                          strokeWidth="1"
-                          onClick={() => toggleMenu(student.id)}
-                          className="ThreeDotsButton"
-                        />
-                        {openMenu === student.id && (
-                          <ul ref={menuRef} className="ActionsMenu">
-                              <li onClick={() => navigate(`/profile/${student.id}`)}>Подробнее</li>
-                          </ul>
-                        )}
-                    </td>
+                    <td>{student.surname}</td>
+                    <td>{student.name}</td>
+                    <td>{student.patronymic}</td>
+                    <td>{student.role}</td>
+                    <td>{student.telegram}</td>
+                    <td>{student.group}</td>
+                    {isCurator && (
+                      <td>
+                          <button>✏</button>
+                          <button>Удалить</button>
+                      </td>
+                    )}
                 </tr>
               ))}
               </tbody>
-          </table>
+          </Table>
+
+          {isCurator && (
+            <div className="ActionsRow">
+                <button className="delete">Удалить</button>
+                <button className="save" onClick={isEditing ? handleSave : () => setIsEditing(true)}>
+                    {isEditing ? 'Сохранить' : 'Редактировать'}
+                </button>
+            </div>
+          )}
       </div>
     );
 }

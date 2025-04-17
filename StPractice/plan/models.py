@@ -16,6 +16,7 @@ class Project(models.Model):
 
 class Result(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    # team = models.ForeignKey(Team, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Название ссылки",max_length=100)
     link = models.CharField(verbose_name="Ссылка",max_length=10000)
 
@@ -23,9 +24,10 @@ class Result(models.Model):
 class Team(models.Model):
     curator = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='curator')
     name = models.CharField(verbose_name="Название", max_length=100)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True) #убрать null
     students = models.ManyToManyField(Profile, blank=True, related_name="teams")
     is_agreed = models.BooleanField(default=False)
+    #chat = models.CharField(verbose_name="Ссылка на командный чат", max_length=1000, null=True, blank=True)
 
     def __str__(self):
         return f'{self.name}'

@@ -62,8 +62,6 @@ class TeamSerializer(serializers.ModelSerializer):
     project_info = ProjectSerializer( read_only=True)
     curator_info = ProfileSerializer(read_only=True, source="curator")
 
-
-
     class Meta:
         model = Team
         fields = ['id', 'name', 'students_info', 'project', 'curator_info', 'is_agreed', 'curator', 'students', 'project_info']

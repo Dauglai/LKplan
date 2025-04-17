@@ -29,6 +29,7 @@ import TaskCard from 'Pages/Tasks/TaskCard/TaskCard.tsx';
 import TaskFilters from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
 import TaskFilter from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
 import PlanButton from '../../Components/PlanButton/PlanButton.tsx';
+import moment from 'moment';
 
 
 interface Profile {
@@ -63,16 +64,7 @@ interface RemoveTaskResult {
 const { Option } = Select;
 
 const Tasks = () => {
-  /*const assignees = [
-    { id: 1, name: 'Иван Иванов' },
-    { id: 2, name: 'Анна Смирнова' },
-    { id: 3, name: 'Алексей Павлов' },
-  ];
-*/
-  const statuses = ['Новое', 'В работе', 'На проверке', 'Выполнено'];
-
   const [dataSource, setDataSource] = useState<Task[]>([]);
-  const [filterDirection, setFilterDirection] = useState('asc');
   const [isModalVisible, setIsModalVisible] = useState(false); // Статус модального окна
   const [isModalTaskVisible, setIsModalTaskVisible] = useState(false); // Статус модального окна задачи
   const [isModalCreateTaskVisible, setIsModalCreateTaskVisible] =
@@ -118,7 +110,8 @@ const Tasks = () => {
     'status',
     'end',
     'assignee',
-    'team'
+    'team',
+    'actions'
   ]);
 
   useEffect(() => {
@@ -170,8 +163,8 @@ const Tasks = () => {
       status: task.status,
       stage: task.stage,
       team: task.team ? `${task.team.name}` : "Без команды",
-      start: task.start ? new Date(task.start).toLocaleDateString() : "Нет срока",
-      end: task.end ? new Date(task.end).toLocaleDateString() : "Нет срока",
+      start: task.start, // ISO-строка
+      end: task.end,
       assignee: task.resp_user
       ? task.resp_user
       : null,
@@ -385,6 +378,7 @@ const Tasks = () => {
     { label: 'Ответсвенный', value: 'assignee' },
     { label: 'Дата начала', value: 'start' },
     { label: 'Дата окончания', value: 'end' },
+    { lable: 'Действия', value: 'actions'}
   ];
 
   useEffect(() => {
@@ -505,6 +499,7 @@ const Tasks = () => {
       key: 'start',
       sorter: (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
       sortOrder: sortColumn === 'start' ? sortOrder : null,
+      render: (value) => value ? moment(value).format('DD.MM.YYYY') : 'Нет срока',
     },
 
     {
@@ -513,6 +508,7 @@ const Tasks = () => {
       key: 'end',
       sorter: (a, b) => new Date(a.end).getTime() - new Date(b.end).getTime(),
       sortOrder: sortColumn === 'end' ? sortOrder : null,
+      render: (value) => value ? moment(value).format('DD.MM.YYYY') : 'Нет срока',
     },
     {
       title: 'Действия',
@@ -549,12 +545,12 @@ const Tasks = () => {
     <div className="Tasks">
       <div className="Tasks-Header">
         <div className="Tasks-Header-Heading">
-          <PlanButton
+          <Button
             onClick={() => setIsModalCreateTaskVisible(true)}
           >
             <a>Создать</a>
             <PlusOutlined />
-          </PlanButton>
+          </Button>
         </div>
 
         <div className="task-filter-wrapper">
@@ -593,6 +589,7 @@ const Tasks = () => {
         columns={filteredColumns}
         dataSource={dataSource}
         rowKey="id"
+        showSorterTooltip={false}
         onRow={(record) => ({
           onClick: () => handleRowClick(record),
         })}

@@ -1,0 +1,55 @@
+/* TaskChecklist.css */
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #fafafa;
+    border: 1px solid #eee;
+    margin-bottom: 8px;
+    transition: background-color 0.2s ease;
+    font-size: 13px;
+}
+
+.checklist-item:hover {
+    background-color: #f0f0f0;
+    box-shadow: 0 0 0 1px #dcdcdc;
+}
+
+.checklist-item-description {
+    flex: 1;
+    cursor: pointer;
+    padding: 0 8px;
+    font-size: 14px;
+}
+
+.checklist-item-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    color: #7a7a7a;
+    font-size: 12px;
+}
+
+.checklist-buttons-small {
+    font-size: 12px;
+    height: 20px;
+    padding: 0 10px;
+}
+
+.checklist-add-button {
+    font-size: 12px !important;
+    height: 28px !important;
+    padding: 0 12px !important;
+}
+
+.three-dots-menu {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #7a7a7a;
+    cursor: pointer;
+    font-size: 13px;
+}

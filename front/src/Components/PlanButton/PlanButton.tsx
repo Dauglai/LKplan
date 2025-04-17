@@ -4,18 +4,14 @@ import classNames from 'classnames';
 import styles from './PlanButton.module.scss';
 
 interface PlanButtonProps extends ButtonProps {
-  variant?: 'primary' | 'default';
+  variant?: 'primary-btn-plan';
 }
 
-const PlanButton: React.FC<PlanButtonProps> = ({ variant = 'primary', className, ...rest }) => {
+const PlanButton: React.FC<PlanButtonProps> = ({ variant = 'primary-btn-plan', className, ...rest }) => {
   return (
     <Button
       {...rest}
-      className={classNames(
-        styles.planButton,
-        variant === 'default' && styles.default,
-        className
-      )}
+      className={'primary-btn-plan'}
     />
   );
 };

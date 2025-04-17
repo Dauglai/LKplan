@@ -45,3 +45,48 @@
       cursor: default;
     }
 }
+
+@mixin primary-btn-plan {
+  @include text1;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  height: 40px;
+  position: relative;
+
+  border-radius: $border-radius;
+  border: none;
+  background-color: #5C8DB9;
+  transition: background 0.3s ease;
+
+  cursor: pointer;
+
+  &:hover {
+    background-blend-mode: multiply;
+  }
+
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(#5C8DB9, 0.3);
+    border-radius: inherit;
+    opacity: 0;
+    transition: all .5s;
+  }
+
+  &:hover:before {
+    opacity: 1;
+  }
+
+  &:disabled {
+    background-color: $grey;
+    cursor: default;
+  }
+}

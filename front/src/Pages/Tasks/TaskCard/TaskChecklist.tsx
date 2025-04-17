@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import './CheckListStyles.css';
+import { CheckListItemCheckbox } from './CheckListItemCheckbox';
+
 import {
   List,
   Button,
@@ -8,7 +11,7 @@ import {
   Checkbox,
   DatePicker,
   Select,
-  message, Popover,
+  message,
 } from 'antd';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import {
@@ -32,11 +35,10 @@ import {
 const { Option } = Select;
 import { Dropdown, Menu, Divider } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
+import PlanButton from '../../../Components/PlanButton/PlanButton.tsx';
 
 const TaskChecklist = ({ taskId, assignees }) => {
   const { data: checkLists, refetch: refetchCheckLists } = useGetCheckListsByTaskQuery(taskId, { skip: !taskId });
-  const { data: checkListItems, refetch: refetchCheckListItems } = useGetCheckListItemsQuery(taskId, { skip: !taskId });
-
   const [createCheckList] = useCreateCheckListMutation();
   const [updateCheckList] = useUpdateCheckListMutation();
   const [deleteCheckList] = useDeleteCheckListMutation();
@@ -45,11 +47,15 @@ const TaskChecklist = ({ taskId, assignees }) => {
   const [deleteCheckListItem] = useDeleteCheckListItemMutation();
 
   const [newCheckListTitle, setNewCheckListTitle] = useState('');
-  const [newItemValues, setNewItemValues] = useState({ description: '', deadline: null, assignee: null });
+  const [newItemValues, setNewItemValues] = useState({
+    description: '',
+    responsible: null,
+    datetime: null,
+  });
   const [addingItemForChecklistId, setAddingItemForChecklistId] = useState<number | null>(null);
 
   const refetchAll = async () => {
-    await Promise.all([refetchCheckListItems(), refetchCheckLists()]);
+    await Promise.all([refetchCheckLists()]);
   };
 
   const handleAddCheckList = async () => {
@@ -79,7 +85,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
         itemId: itemId,
         data: { [field]: value },
       }).unwrap();
-      await Promise.all([refetchCheckListItems(), refetchCheckLists()]); // 👈 обновляем только пункты
+      await Promise.all([refetchCheckLists()]); // 👈 обновляем только пункты
     } catch {
       message.error('Ошибка обновления пункта чек-листа');
     }
@@ -91,7 +97,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
         itemId: item.id,
         data: { is_completed: !item.is_completed },
       }).unwrap();
-      await Promise.all([refetchCheckListItems(), refetchCheckLists()]);
+      await Promise.all([refetchCheckLists()]);
     } catch {
       message.error('Ошибка обновления пункта чек-листа');
     }
@@ -105,24 +111,25 @@ const TaskChecklist = ({ taskId, assignees }) => {
         data: {
           checklist: checkListId,
           description: newItemValues.description,
+          responsible: newItemValues.responsible,
           datetime: newItemValues.datetime,
-          assignee: newItemValues.assignee,
           is_completed: false,
         },
       }).unwrap();
-      setNewItemValues({ description: '', deadline: null, assignee: null });
+      setNewItemValues({ description: '', responsible: null, datetime: null });
       setAddingItemForChecklistId(null);
-      await Promise.all([refetchCheckListItems(), refetchCheckLists()]);
+      await Promise.all([ refetchCheckLists()]);
     } catch {
       message.error('Ошибка при добавлении элемента');
     }
   };
 
+
   const handleDeleteCheckListItem = async (itemId) => {
     try {
       await deleteCheckListItem(itemId).unwrap();
       message.success('Пункт удален');
-      await Promise.all([refetchCheckListItems(), refetchCheckLists()]);
+      await Promise.all([ refetchCheckLists()]);
     } catch {
       message.error('Ошибка удаления пункта');
     }
@@ -199,24 +206,39 @@ const TaskChecklist = ({ taskId, assignees }) => {
                 )
               }
               extra={
-                <Button danger size="small" onClick={() => handleDeleteCheckList(checkList.id)}>
+                <Button
+                  danger
+                  size="small"
+                  onClick={() => handleDeleteCheckList(checkList.id)}
+                >
                   Удалить
                 </Button>
               }
               style={{ marginBottom: 16 }}
               bodyStyle={{ padding: 16 }}
             >
-              <Progress percent={percent} size="small" style={{ marginBottom: 10 }} />
+              <Progress
+                percent={percent}
+                size="small"
+                style={{ marginBottom: 10 }}
+              />
 
-              <DragDropContext onDragEnd={(result) => handleDragEnd(result, checkList)}>
+              <DragDropContext
+                onDragEnd={(result) => handleDragEnd(result, checkList)}
+              >
                 <Droppable droppableId={`${checkList.id}`}>
                   {(provided) => (
                     <div {...provided.droppableProps} ref={provided.innerRef}>
                       {checkList.checklistItems.map((item, index) => (
-                        <Draggable key={item.id} draggableId={`${item.id}`} index={index}>
+                        <Draggable
+                          key={item.id}
+                          draggableId={`${item.id}`}
+                          index={index}
+                        >
                           {(provided) => (
                             <div
                               ref={provided.innerRef}
+                              className="checklist-item"
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               style={{
@@ -231,95 +253,186 @@ const TaskChecklist = ({ taskId, assignees }) => {
                                 ...provided.draggableProps.style,
                               }}
                             >
-                              <Checkbox
+                              <CheckListItemCheckbox
                                 checked={item.is_completed}
                                 onChange={() => handleToggleCheckListItem(item)}
-                                style={{ marginRight: 8 }}
                               />
 
                               {/* Центр — описание */}
-                              <div style={{ flex: 1 }}>
-                                {editingItemId === item.id && editingField === 'description' ? (
+                              <div className="checklist-item-description">
+                                {editingItemId === item.id &&
+                                editingField === 'description' ? (
                                   <Input
                                     size="small"
                                     value={editedValue}
-                                    onChange={(e) => setEditedValue(e.target.value)}
+                                    onChange={(e) =>
+                                      setEditedValue(e.target.value)
+                                    }
                                     onBlur={() => {
-                                      handleUpdateCheckListItemField(item.id, 'description', editedValue);
+                                      handleUpdateCheckListItemField(
+                                        item.id,
+                                        'description',
+                                        editedValue
+                                      );
                                       resetEditing();
                                     }}
                                     autoFocus
                                     style={{ maxWidth: 200 }}
                                   />
                                 ) : (
-                                  <div onClick={() => startEditing(item.id, 'description', item.description)}>
+                                  <div
+                                    onClick={() =>
+                                      startEditing(
+                                        item.id,
+                                        'description',
+                                        item.description
+                                      )
+                                    }
+                                  >
                                     {item.description || 'Без названия'}
                                   </div>
                                 )}
                               </div>
 
                               {/* Правая часть */}
-                              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  gap: 12,
+                                  alignItems: 'center',
+                                }}
+                              >
                                 {/* Ответственный */}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                  {editingItemId === item.id && editingField === 'responsible' ? (
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4,
+                                  }}
+                                >
+                                  {editingItemId === item.id &&
+                                  editingField === 'responsible' ? (
                                     <Select
                                       size="small"
                                       style={{ width: 140 }}
                                       value={item.responsible || undefined}
                                       onChange={(value) => {
-                                        handleUpdateCheckListItemField(item.id, 'responsible', value);
+                                        handleUpdateCheckListItemField(
+                                          item.id,
+                                          'responsible',
+                                          value
+                                        );
                                         resetEditing();
                                       }}
                                       onBlur={resetEditing}
                                       autoFocus
                                     >
                                       {assignees.map((user) => (
-                                        <Select.Option key={user.user_id} value={user.user_id}>
+                                        <Select.Option
+                                          key={user.user_id}
+                                          value={user.user_id}
+                                        >
                                           {user.surname} {user.name}
                                         </Select.Option>
                                       ))}
                                     </Select>
                                   ) : (
-                                    <div onClick={() => startEditing(item.id, 'responsible', item.responsible)}>
-                                      {assignees.find(user => user.user_id === item.responsible)?.surname || 'Не назначен'}
+                                    <div
+                                      onClick={() =>
+                                        startEditing(
+                                          item.id,
+                                          'responsible',
+                                          item.responsible
+                                        )
+                                      }
+                                    >
+                                      {assignees.find(
+                                        (user) =>
+                                          user.user_id === item.responsible
+                                      )?.surname || 'Не назначен'}
                                     </div>
                                   )}
                                   <UserOutlined
-                                    onClick={() => startEditing(item.id, 'responsible', item.responsible)}
-                                    style={{ color: '#5C8DB9', cursor: 'pointer' }}
+                                    onClick={() =>
+                                      startEditing(
+                                        item.id,
+                                        'responsible',
+                                        item.responsible
+                                      )
+                                    }
+                                    style={{
+                                      color: '#5C8DB9',
+                                      cursor: 'pointer',
+                                    }}
                                   />
                                 </div>
 
                                 {/* Дата */}
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                  {editingItemId === item.id && editingField === 'datetime' ? (
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4,
+                                  }}
+                                >
+                                  {editingItemId === item.id &&
+                                  editingField === 'datetime' ? (
                                     <DatePicker
                                       size="small"
                                       onChange={(date) => {
-                                        handleUpdateCheckListItemField(item.id, 'datetime', date ? date.format('YYYY-MM-DD') : null);
+                                        handleUpdateCheckListItemField(
+                                          item.id,
+                                          'datetime',
+                                          date
+                                            ? date.format('YYYY-MM-DD')
+                                            : null
+                                        );
                                         resetEditing();
                                       }}
                                       autoFocus
                                     />
                                   ) : (
-                                    <div onClick={() => startEditing(item.id, 'datetime', item.datetime)}>
-                                      {item.datetime ? moment(item.datetime).format('DD.MM.YYYY') : 'Без срока'}
+                                    <div
+                                      onClick={() =>
+                                        startEditing(
+                                          item.id,
+                                          'datetime',
+                                          item.datetime
+                                        )
+                                      }
+                                    >
+                                      {item.datetime
+                                        ? moment(item.datetime).format(
+                                            'DD.MM.YYYY'
+                                          )
+                                        : 'Без срока'}
                                     </div>
                                   )}
                                   <CalendarOutlined
-                                    onClick={() => startEditing(item.id, 'datetime', item.datetime)}
-                                    style={{ color: '#5C8DB9', cursor: 'pointer' }}
+                                    onClick={() =>
+                                      startEditing(
+                                        item.id,
+                                        'datetime',
+                                        item.datetime
+                                      )
+                                    }
+                                    style={{
+                                      color: '#5C8DB9',
+                                      cursor: 'pointer',
+                                    }}
                                   />
                                 </div>
 
                                 {/* Удалить */}
-                                <Button
-                                  type="text"
-                                  icon={<DeleteOutlined />}
-                                  onClick={() => handleDeleteCheckListItem(item.id)}
-                                  style={{ color: '#ff4d4f' }}
-                                />
+                                <div
+                                  className="three-dots-menu"
+                                  onClick={() =>
+                                    handleDeleteCheckListItem(item.id)
+                                  }
+                                >
+                                  <EllipsisOutlined />
+                                  удалить
+                                </div>
                               </div>
                             </div>
                           )}
@@ -332,34 +445,87 @@ const TaskChecklist = ({ taskId, assignees }) => {
               </DragDropContext>
 
               {/* Добавление нового пункта */}
-              {checkList.checklistItems.length === 0 || addingItemForChecklistId === checkList.id ? (
-                <div style={{ marginTop: 10 }}>
+              {checkList.checklistItems.length === 0 ||
+              addingItemForChecklistId === checkList.id ? (
+                <div
+                  style={{
+                    marginTop: 10,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                  }}
+                >
+                  {/* Название пункта */}
                   <Input
                     placeholder="Название пункта"
                     value={newItemValues.description}
                     onChange={(e) =>
-                      setNewItemValues((prev) => ({ ...prev, description: e.target.value }))
+                      setNewItemValues((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
                     }
-                    style={{ marginBottom: 8 }}
                   />
-                  <Button
-                    type="primary"
-                    block
-                    onClick={() => handleAddCheckListItem(checkList.id)}
-                    style={{ backgroundColor: '#5C8DB9', color: 'white' }}
-                  >
-                    Добавить пункт
-                  </Button>
+
+                  {/* Нижняя строка: Добавить + Ответственный + Дата */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {/* Кнопка Добавить */}
+                    <Button
+                      type="primary"
+                      onClick={() => handleAddCheckListItem(checkList.id)}
+                      style={{ backgroundColor: '#5C8DB9', color: 'white' }}
+                    >
+                      Добавить
+                    </Button>
+
+                    {/* Ответственный */}
+                    <Select
+                      placeholder="Ответственный"
+                      size="small"
+                      style={{ width: 150 }}
+                      value={newItemValues.responsible || undefined}
+                      onChange={(value) =>
+                        setNewItemValues((prev) => ({
+                          ...prev,
+                          responsible: value,
+                        }))
+                      }
+                      allowClear
+                    >
+                      {assignees.map((user) => (
+                        <Select.Option key={user.user_id} value={user.user_id}>
+                          {user.surname} {user.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+
+                    {/* Крайний срок */}
+                    <DatePicker
+                      size="small"
+                      value={
+                        newItemValues.datetime
+                          ? moment(newItemValues.datetime)
+                          : null
+                      }
+                      onChange={(date) =>
+                        setNewItemValues((prev) => ({
+                          ...prev,
+                          datetime: date ? date.format('YYYY-MM-DD') : null,
+                        }))
+                      }
+                      placeholder="Крайний срок"
+                    />
+                  </div>
                 </div>
               ) : (
-                <Button
+                <PlanButton
                   type="primary"
                   onClick={() => setAddingItemForChecklistId(checkList.id)}
                   block
-                  style={{ marginTop: 10, backgroundColor: '#5C8DB9', color: 'white' }}
+                  style={{ backgroundColor: '#5C8DB9', color: 'white', width: 150 }}
                 >
                   Добавить пункт
-                </Button>
+                </PlanButton>
               )}
             </Card>
           );
@@ -372,9 +538,9 @@ const TaskChecklist = ({ taskId, assignees }) => {
           onChange={(e) => setNewCheckListTitle(e.target.value)}
           style={{ marginBottom: 8 }}
         />
-        <Button type="primary" onClick={handleAddCheckList} block>
+        <PlanButton type="primary" onClick={handleAddCheckList} block style={{ backgroundColor: '#5C8DB9', color: 'white', width: 150 }}>
           Создать чек-лист
-        </Button>
+        </PlanButton>
       </div>
     </>
   );

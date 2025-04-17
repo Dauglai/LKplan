@@ -45,7 +45,7 @@ export default function ListsHeaderPanel({
     onSearch,
     role,
     PageOptions,
-    searchPlaceholder = "Поиск по названию",
+    searchPlaceholder = "Поиск",
     link,
     }: ListsHeaderProps): JSX.Element {
     const [search, setSearch] = useState(""); // Локальное состояние строки поиска

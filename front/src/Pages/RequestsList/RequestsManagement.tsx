@@ -16,6 +16,15 @@ export default function RequestsManagement(): JSX.Element {
     }, []);
   
     const handleSearch = (value: string) => setSearch(value.toLowerCase());
+
+    const filteredRequests = requests
+         .filter((request) => {
+             const { user } = request;
+             const fullName = `${user.surname} ${user.name} ${user.patronymic}`.toLowerCase();
+             const matchesSearch = fullName.includes(search);
+             return matchesSearch;
+         })
+
   
     if (isLoading) return <div>Загрузка...</div>;
   
@@ -28,7 +37,7 @@ export default function RequestsManagement(): JSX.Element {
                 //role={user.role}
                 //PageOptions={CRMPageOptions}
             />
-            <RequestsListTable requests={requests} role={user.role}/>
+            <RequestsListTable requests={filteredRequests} role={user.role}/>
         </div>
     );
 }

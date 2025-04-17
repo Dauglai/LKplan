@@ -28,17 +28,17 @@ export default function UsersSelector({
     );
   }, [users, search]);
 
-  const handleToggleUser = (userId: number) => {
-    if (selectedUsersId.includes(userId)) {
-      onChange(selectedUsersId.filter(id => id !== userId));
+  const handleToggleUser = (user_id: number) => {
+    if (selectedUsersId.includes(user_id)) {
+      onChange(selectedUsersId.filter(id => id !== user_id));
     } else {
-      onChange([...selectedUsersId, userId]);
+      onChange([...selectedUsersId, user_id]);
     }
     setIsOpen(false);
   };
 
-  const handleRemoveUser = (userId: number) => {
-    onChange(selectedUsersId.filter(id => id !== userId));
+  const handleRemoveUser = (user_id: number) => {
+    onChange(selectedUsersId.filter(id => id !== user_id));
   };
 
   if (isLoading) {
@@ -89,17 +89,17 @@ export default function UsersSelector({
 
       {selectedUserNames.length > 0 && (
         <ul className="SelectedUsers SelectedList">
-          {selectedUsersId.map(userId => {
-            const user = users.find(user => user.user_id === userId);
+          {selectedUsersId.map(user_id => {
+            const user = users.find(user => user.user_id === user_id);
             return user ? (
-              <li className="SelectedListItem" key={userId}>
+              <li className="SelectedListItem" key={user_id}>
                 {`${user.surname} ${user.name} ${user.patronymic}`}
                 <CloseIcon
                   className="RemoveIcon"
                   width="16"
                   height="16"
                   strokeWidth="1.5"
-                  onClick={() => handleRemoveUser(userId)}
+                  onClick={() => handleRemoveUser(user_id)}
                 />
               </li>
             ) : null;

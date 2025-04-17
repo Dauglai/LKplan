@@ -7,6 +7,40 @@
   gap: 16px;
 }
 
+.Selector {
+  height: 40px;
+  border-radius: $border-radius;
+  border-color: $grey;
+  width: 100%;
+
+  :global {
+    .ant-select-selector {
+      @include text2;
+      height: 40px;
+      padding: 12px;
+      border-color: $grey;
+    }
+  
+    .DropdownItem {
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  
+    .ant-select-dropdown {
+      border: 1px solid $grey;
+      border-radius: 4px;
+      box-shadow: none;
+    }
+  
+    .ant-select-item-option-selected {
+      color: $black !important; 
+    }
+  }
+
+  
+}
+
 .FormField {
     display: flex;
     justify-content: space-between;
@@ -67,9 +101,11 @@
     display: flex;
     justify-content: start;
     align-items: center;
-    height: 40px;
-    padding: 24px 12px;
+    min-height: 40px;
+    padding: 12px;
     gap: 8px;
+    flex-wrap: wrap;
+    max-width: 100%;
 
     border-radius: $border-radius;
     border: 1px solid $grey;

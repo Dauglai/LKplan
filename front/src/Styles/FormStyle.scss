@@ -8,6 +8,41 @@
     
     border-radius: $border-radius;
     background-color: $white;
+    box-sizing: border-box;
+
+    .FormHeader {
+      display: flex;
+      justify-content: start;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .ModalCloseButton {
+        cursor: pointer;
+      }
+    }
+
+    .FormStage {
+      margin-bottom: 24px;
+
+      h3 {
+        margin-bottom: 8px;
+      }
+
+      p {
+        @include text1;
+        margin-bottom: 4px;
+      }
+    }
+
+    .FormButtons {
+      display: flex;
+      justify-content: end;
+      gap: 12px;
+
+      .primary-btn {
+        @include primary-btn;
+      }
+    }
 }
 
 .FormField {
@@ -23,10 +58,30 @@
   border: 1px solid $grey;
 
   outline: none;
+  box-shadow: none;
 
   svg {
     color: $black;
   }
+
+  &:focus,
+  &:focus-visible,
+  &:focus-within {
+    outline: none;
+    box-shadow: none;
+    border: 1px solid $grey;
+  }
+
+  &:hover {
+    border-color:  $grey;
+    box-shadow: none;
+  }
+
+  &::placeholder {
+    color: $black !important;
+    opacity: 1;
+  }
+
 }
 
 .Form {
@@ -35,23 +90,13 @@
     gap: 16px;
     width: 596px;
 
-    .ModalFormHeader {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      .ModalCloseButton {
-        cursor: pointer;
-      }
-    }
-
     .NameContainer {
       width: 100%;
 
       .Name {
         width: 100%;
         border-radius: $border-radius $border-radius 0 0;
-        border-bottom: none;
+        border-bottom: none;    
       }
 
       .Description {
@@ -103,4 +148,74 @@
         @include primary-btn;
       }
     }
+
+    .InputWrapper {
+      .ant-input, .ant-picker-input, .ant-picker  {
+        font-size: 0.75rem;
+        font-weight: 400;
+        line-height: 0.9375rem;
+        color: $black !important;
+        font-family: 'Montserrat', sans-serif;
+        font-variant-numeric: lining-nums;
+      }
+
+      position: relative;
+      margin-bottom: 0;
+  
+      .FormField {
+          &:focus {
+              outline: none;
+              border-color: $grey;
+          }
+      }
+  
+      .InputText {
+          @include text2;
+          position: absolute;
+          top: -14px;
+          left: 4px;
+      }
+    } 
+
+    .DateRangeContainer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+
+      .InputWrapper {
+        width: 100%;
+        flex: 1;
+        max-width: 288px;
+
+          .DateInput {
+            input {
+              @include text2;
+      
+              background: none;
+              color: $black;
+              outline: none;
+              position: relative;
+
+              &::placeholder {
+                color: $black !important;
+                opacity: 1;
+              }
+            }
+        }
+      }
+    }
 } 
+
+.DirectionList, .ProjectList {
+  margin-top: 32px;
+  width: 596px;
+
+  h3 {
+    margin-bottom: 16px;
+  }
+
+  .SelectedListItem {
+    cursor: pointer;
+  }
+}

@@ -1,42 +1,65 @@
 import { useEffect, useState } from "react";
 import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
-import ProjectsHeaderPanel from "./ProjectsHeaderPanel";
 import ProjectsListTable from "./ProjectsListTable";
 import 'Styles/components/Sections/ListTableStyles.scss';
+import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
+import { useGetUserQuery } from "Features/ApiSlices/userSlice";
+import { CRMPageOptions } from "Widgets/PageSwitcher/CRMPageOptions";
+
+/**
+ * Компонент для управления проектами.
+ * Загружает и отображает список проектов с возможностью поиска.
+ * Использует компонент для отображения заголовка с панелью поиска.
+ *
+ * @component
+ * @example
+ * // Пример использования:
+ * <ProjectsManagement />
+ *
+ * @returns {JSX.Element} Компонент для управления проектами.
+ */
 
 export default function ProjectsManagement(): JSX.Element {
-  const { data: Projects = [], isLoading } = useGetProjectsQuery();
-  const [search, setSearch] = useState("");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const { data: projects = [], isLoading } = useGetProjectsQuery(); // Получение списка проектов с сервера.
+  const { data: user, isLoading: isUserLoading } = useGetUserQuery(); // Получение информации о текущем пользователе.
+  const [search, setSearch] = useState(""); // Состояние для хранения строки поиска.
 
   useEffect(() => {
-      document.title = 'Проекты - MeetPoint';
+    document.title = 'Проекты - MeetPoint'; // Устанавливает заголовок страницы при монтировании компонента.
   }, []);
 
+  /**
+   * Обработчик изменения строки поиска.
+   * Преобразует значение в нижний регистр и обновляет состояние.
+   * 
+   * @param {string} searchValue - Значение поискового запроса.
+   */
   const handleSearch = (searchValue: string) => {
-    setSearch(searchValue.toLowerCase());
+    setSearch(searchValue.toLowerCase()); // Преобразует строку поиска в нижний регистр.
   };
 
-  const handleSort = (order: "asc" | "desc") => {
-    setSortOrder(order);
-  };
+  /**
+   * Фильтрация списка проектов по названию.
+   * Если название проекта содержит подстроку из поиска, оно отображается.
+   */
+  const filteredProjects = projects.filter((project) =>
+    project.name.toLowerCase().includes(search)
+  );
 
-  const filteredProjects = Projects
-    .filter((project) => project.name.toLowerCase().includes(search))
-    .sort((a, b) =>
-      sortOrder === "asc"
-        ? a.name.localeCompare(b.name)
-        : b.name.localeCompare(a.name)
-    );
-
-  if (isLoading) return <div>Загрузка...</div>;
-
-  console.log(filteredProjects);
+  if (isLoading) return <div>Загрузка...</div>;  // Отображение индикатора загрузки, если данные еще не загружены.
 
   return (
     <div className="ProjectsContainer ListTableContainer">
-      <ProjectsHeaderPanel onSearch={handleSearch} onSort={handleSort} />
-      <ProjectsListTable projects={filteredProjects} />
+      {/* Панель заголовка со строкой поиска и настройками страницы */}
+      <ListsHeaderPanel
+        title="Проекты"
+        onSearch={handleSearch}
+        role={user.role}
+        PageOptions={CRMPageOptions}
+      />
+      
+      {/* Таблица с проектами */}
+      <ProjectsListTable projects={filteredProjects} role={user.role}/>
     </div>
   );
-};
+}

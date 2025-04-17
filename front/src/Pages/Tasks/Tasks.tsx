@@ -21,7 +21,7 @@ import tableOptionIcon from '/src/assets/icons/table_optionb.svg';
 import {
   useCreateTaskMutation, useDeleteTaskMutation,
   useGetAllTasksQuery, useUpdateTaskMutation,
-} from 'Features/Auth/api/tasksApiSlice';
+} from 'Features/ApiSlices/tasksApiSlice';
 import { useGetUsersQuery } from 'Features/ApiSlices/userSlice.ts';
 import { useGetProjectByIdQuery, useGetProjectsQuery } from 'Features/ApiSlices/projectSlice.ts';
 import { useParams } from 'react-router-dom';

@@ -2,121 +2,121 @@ import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
 import { useEffect } from 'react';
-import UsersSelector from 'Widgets/Selectors/UsersSelector';
-
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
+import { useNavigate } from "react-router-dom";
+import UserSelector from 'Widgets/Selectors/UserSelector';
+import BackButton from 'Widgets/BackButton/BackButton';
+import NameInputField from 'Components/Forms/NameInputField';
+import DescriptionInputField from 'Components/Forms/DescriptioninputField';
 import CloseIcon from 'assets/icons/close.svg?react';
-
+import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import 'Styles/FormStyle.scss'
-
 import React, { useState } from 'react';
 import { 
-  Project, 
-  useCreateProjectMutation,
+  Project,
   useUpdateProjectMutation } from 'Features/ApiSlices/projectSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { addProject, updateProjects, removeProject } from 'Features/store/eventSetupSlice';
 
 export default function ProjectForm({ 
-  closeModal,
   existingProject,
 }:{
-  closeModal: () => void; 
-  existingProject?: Project;}): JSX.Element {
+  existingProject?: Project;
+}): JSX.Element {
   const { data: user } = useGetUserQuery();
-  const [createProject, { isLoading: isCreating }] = useCreateProjectMutation();
   const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
+  const { stepProjects } = useSelector((state: any) => state.event);
   const { showNotification } = useNotification();
+  const dispatch = useDispatch(); // Для использования экшенов Redux
+  const navigate = useNavigate();
   
-    const [newProject, setNewProject] = useState({
-      direction: 0,
-      name: '',
-      description: '',
-      supervisorSet: null,
-      curators: [],
-      creator: 0,
-      project_id: 0,
-    });
+  const [newProject, setNewProject] = useState({
+    direction: 0,
+    directionSet: 0,
+    name: '',
+    description: '',
+    supervisorSet: null,
+    curators: 0,
+    creator: 0,
+    project_id: 0,
+  });
 
-    useEffect(() => {
-        if (existingProject) {
-          setNewProject({
-            direction: existingProject.direction.id,
-            name: existingProject.name,
-            description: existingProject.description,
-            curators: existingProject.curators,
-            creator: existingProject.creator,
-            project_id: existingProject.project_id,
-        });
-        }
-      }, [existingProject]);
-  
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      setNewProject((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    };
-  
-    const handleCreateProject = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (existingProject) {
+      setNewProject({
+        directionSet: existingProject.directionSet.id,
+        name: existingProject.name,
+        description: existingProject.description,
+        curators: existingProject.curatorsSet,
+        creator: existingProject.creator,
+        project_id: existingProject.project_id,
+      });
+    }
+  }, [existingProject]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setNewProject((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleProject = async (e: React.FormEvent) => {
       e.preventDefault();
-
-      const projectData = {
-        ...newProject,
-        creator: user.user_id,
-      };
-
-      try {
-        await createProject(projectData).unwrap();
-        setNewProject({ direction: 0, name: '', description: '', supervisorSet: null, curators: [], creator: 0, project_id: 0, });
+      if (newProject.name.trim()) {
+        setNewProject((prev) => ({
+          ...prev,
+          name: '',
+          description: '',
+          curators: [],
+          creator: 0,
+          supervisorSet: null,
+        }));
+        
         showNotification('Проект создан!', 'success');
-        closeModal();
-      } catch (error) {
-        console.error('Ошибка при создании проекта:', error);
-        showNotification(`Ошибка при создании проекта: ${error.status} ${error.data.stage}`, 'error');
+        dispatch(addProject(newProject));
       }
     };
 
-    const handleUpdateProject = async (e: React.FormEvent) => {
-        e.preventDefault();
+  const handleUpdateProject = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-        const projectData = {
-          ...newProject,
-          creator: user.user_id,
-          supervisorSet: user.user_id,
-        };
-        
-        if (newProject.name.trim()) {
-          try {
-            await updateProject({ id: projectData.project_id, data: projectData }).unwrap();
-            showNotification('Проект обновлен!', 'success');
-            closeModal();
-          } catch (error) {
-            showNotification(`Ошибка при обновлении проекта: ${error.status} ${error.stage}`, 'error');
-          }
-        } else {
-          showNotification('Пожалуйста, заполните все поля!', 'error');
-        }
+    const projectData = {
+      ...newProject,
+      creator: user.user_id,
+      supervisorSet: user.user_id,
     };
 
-    const handleDirectionChange = (selected: number) => {
-      setNewProject((prev) => ({
-        ...prev,
-        direction: selected,
-      }));
-    };
+    if (newProject.name.trim()) {
+      try {
+        await updateProject({ id: projectData.project_id, data: projectData }).unwrap();
+        // Обновляем проект в Redux
+        dispatch(updateProjects(projectData));
+        showNotification('Проект обновлен!', 'success');
+      } catch (error) {
+        showNotification(`Ошибка при обновлении проекта: ${error.status} ${error.stage}`, 'error');
+      }
+    } else {
+      showNotification('Пожалуйста, заполните все поля!', 'error');
+    }
+  };
 
-    const handleCuratorsChange = (selected: number[]) => {
-      setNewProject((prev) => ({
-        ...prev,
-        curators: selected,
-      }));
-    };
-    
+  const handleDirectionChange = (selected: number) => {
+    setNewProject((prev) => ({
+      ...prev,
+      direction: selected,
+    }));
+  };
+
+  const handleCuratorChange = (selected: number) => {
+    setNewProject((prev) => ({
+      ...prev,
+      curators: selected,
+    }));
+  };
 
   const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
 
     setNewProject((prev) => ({
       ...prev,
@@ -124,51 +124,86 @@ export default function ProjectForm({
     }));
   };
 
+  const handleNextStep = () => {
+    navigate("/event-setup-save")
+  };
+
+  const handleRemoveProject = (id: string) => {
+    dispatch(removeProject(id)); 
+  };
+
   return (
     <div className="FormContainer">
-        <form 
-          className="ProjectForm Form"
-          onSubmit={existingProject ? handleUpdateProject : handleCreateProject}>
+      <div className="FormHeader">
+          <BackButton />
+          <h2>{existingProject ? 'Редактирование проекта' : 'Добавление проекта'}</h2>
+        </div>
 
-          <div className="ModalFormHeader">
-            <h2>{existingProject ? 'Редактирование проекта' : 'Добавление проекта'}</h2>
-            <CloseIcon width="24" height="24" strokeWidth="1" onClick={closeModal} className="ModalCloseButton"/>
-          </div>
+      <form 
+        className="ProjectForm Form"
+        onSubmit={existingProject ? handleUpdateProject : handleProject}>
 
-          <DirectionSelector
-            selectedDirectionId={newProject.direction}
-            onChange={handleDirectionChange}
+        <DirectionSelector
+          onChange={handleDirectionChange}
+        />
+
+        <div className="NameContainer">
+          <NameInputField
+            name="name"
+            value={newProject.name}
+            onChange={handleInputChange}
+            placeholder="Название проекта"
+            required
           />
-
-          <div className="NameContainer">
-            <input
-              type="text"
-              name="name"
-              placeholder='Название проекта*'
-              value={newProject.name}
-              onChange={handleInputChange}
-              className="Name TextField FormField"/>
-            <textarea
-              placeholder='Описание проекта'
-              className="Description TextField FormField"
-              name="description"
-              value={newProject.description}
-              onChange={handleTextArea}/>
-          </div>
-
-          <UsersSelector
-            selectedUsersId={newProject.curators || null}
-            onChange={handleCuratorsChange}
-            label='Добавить куратора*'
+          <DescriptionInputField
+            name="description"
+            value={newProject.description}
+            onChange={handleTextArea}
+            placeholder="Описание проекта"
           />
+        </div>
 
-          <div className="FormButtons">
-            <button className="primary-btn" type="submit" disabled={isCreating || isUpdating}>
-              {existingProject ? 'Обновить' : 'Создать'}
-              <ChevronRightIcon width="24" height="24" strokeWidth="1"/>
-            </button>
-          </div>
-        </form>
+        {/*<UserSelector
+          selectedUserId={newProject.curators || null}
+          onChange={handleCuratorChange}
+          label="Добавить куратора"
+        />*/}
+
+        <div className="FormButtons">
+          <button className="primary-btn" type="submit" disabled={isUpdating}>
+            {existingProject ? 'Обновить проект' : 'Создать проект'}
+          </button>
+          <button
+            className="primary-btn"
+            type="button"
+            onClick={handleNextStep} // Переход к следующему шагу
+          >
+            Далее
+            <ChevronRightIcon width="24" height="24" strokeWidth="1" />
+          </button>
+        </div>
+      </form>
+
+      { 
+        stepProjects.projects && stepProjects.projects.length > 0 && (
+        <div className="ProjectList">
+          <h3>Созданные проекты:</h3>
+          <ul className='SelectedList'>
+            {stepProjects.projects.map((project) => (
+              <li key={project.project_id} className="SelectedListItem">
+                {project.name}
+                <CloseIcon
+                  className="RemoveIcon"
+                  width="16"
+                  height="16"
+                  strokeWidth="1.5"
+                  onClick={() => handleRemoveProject(project.project_id)}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

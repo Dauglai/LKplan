@@ -4,7 +4,7 @@ import {
   useCreateCommentMutation,
   useUpdateCommentMutation,
   useDeleteCommentMutation,
-} from 'Features/Auth/api/CommentApiSlice';
+} from 'Features/ApiSlices/commentApiSlice';
 import { Button, Input, List, Popconfirm, message, Upload } from 'antd';
 import { UploadOutlined, EditOutlined, DeleteOutlined, SaveOutlined, CloseOutlined, PaperClipOutlined } from '@ant-design/icons';
 import type { UploadFile } from 'antd/es/upload/interface';

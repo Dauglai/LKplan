@@ -5,7 +5,7 @@ import { useGetSpecializationsQuery } from 'Features/ApiSlices/specializationSli
 import { getInitials } from 'Features/utils/getInitials';
 import MoreIcon from 'assets/icons/more.svg?react';
 import BackButton from "Widgets/BackButton/BackButton";
-import 'Styles/InfoPageStyle.scss';
+import 'Styles/pages/common/InfoPageStyle.scss';
 import 'Styles/components/Sections/ListTableStyles.scss';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice.ts';
 import  './TeamCard.scss'

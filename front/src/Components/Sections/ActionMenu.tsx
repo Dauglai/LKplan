@@ -1,5 +1,6 @@
-import { useState, useRef, MouseEvent, useEffect } from 'react';
+import { Dropdown, Menu } from "antd";
 import MoreIcon from 'assets/icons/more.svg?react';
+import "Styles/components/Common/ActionMenuStyle.scss"
 
 
 interface ActionMenuProps {
@@ -35,46 +36,27 @@ interface ActionMenuProps {
  */
 
 export default function ActionMenu({ actions, onClose, role }: ActionMenuProps): JSX.Element {
-    const [open, setOpen] = useState(false);
-    const menuRef = useRef<HTMLUListElement | null>(null);
-
-    const filteredActions = actions.filter(action => 
-        !action.requiredRole || action.requiredRole === role
+    // Фильтруем действия по роли
+    const filteredActions = actions.filter(
+      (action) => !action.requiredRole || action.requiredRole === role
     );
-
-    const toggleMenu = () => {
-        setOpen(prev => !prev);
-    };
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-          if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-            setOpen(false);
-          }
-        };
-    
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
+  
+    // Формируем элементы меню
+    const menu = (
+      <Menu onClick={onClose} className="ActionsMenu">
+        {filteredActions.map((action, index) => (
+          <Menu.Item key={index} onClick={action.onClick}>
+            {action.label}
+          </Menu.Item>
+        ))}
+      </Menu>
+    );
+  
     return (
-        <>
-            <MoreIcon 
-                        width="16" 
-                        height="16" 
-                        strokeWidth="1"
-                        onClick={() => toggleMenu()}
-                        className="ThreeDotsButton"
-                />
-            {open && (
-                <ul ref={menuRef} className="ActionsMenu">
-                {filteredActions.map((action, index) => (
-                    <li key={index} onClick={() => { action.onClick(); onClose(); }}>
-                    {action.label}
-                    </li>
-                ))}
-                </ul>
-            )}
-        </>
+      <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+        <span className="ThreeDotsButton">
+          <MoreIcon width="16" height="16" strokeWidth="1" />
+        </span>
+      </Dropdown>
     );
-};
+  }

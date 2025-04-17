@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import UserSelector from 'Widgets/Selectors/UserSelector';
 import BackButton from 'Widgets/BackButton/BackButton';
 import NameInputField from 'Components/Forms/NameInputField';
-import DescriptionInputField from 'Components/Forms/DescriptioninputField';
+import DescriptionInputField from 'Components/Forms/DescriptionInputField.tsx';
 import CloseIcon from 'assets/icons/close.svg?react';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import 'Styles/FormStyle.scss'

@@ -5,7 +5,7 @@ import 'Styles/components/Sections/ListTableStyles.scss';
 import { useNotification } from 'Widgets/Notification/Notification';
 import { filterItemsBySearch } from "Features/utils/searchUtils";
 import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
-import { CRMPageOptions } from "Widgets/PageSwitcher/CRMPageOptions";
+import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions.tsx";
 import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 
 /**

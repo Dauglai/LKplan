@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addDirection, removeDirection } from 'Features/store/eventSetupSlice';
 import BackButton from 'Widgets/BackButton/BackButton';
 import NameInputField from 'Components/Forms/NameInputField';
-import DescriptionInputField from 'Components/Forms/DescriptioninputField';
+import DescriptionInputField from 'Components/Forms/DescriptionInputField.tsx';
 import "Styles/FormSelectorStyle.scss";
 import CloseIcon from 'assets/icons/close.svg?react';
 import UserSelector from 'Widgets/Selectors/UserSelector';

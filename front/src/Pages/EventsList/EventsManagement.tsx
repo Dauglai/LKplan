@@ -3,7 +3,7 @@ import { useGetEventsQuery } from "Features/ApiSlices/eventSlice";
 import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
 import EventsListTable from "./EventsListTable";
-import { CRMPageOptions } from "Widgets/PageSwitcher/CRMPageOptions";
+import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions.tsx";
 import { normalizeSearchQuery, filterItemsBySearch } from "Features/utils/searchUtils";
 
 /**

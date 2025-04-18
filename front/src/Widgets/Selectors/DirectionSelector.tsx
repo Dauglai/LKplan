@@ -1,73 +1,73 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import "Styles/FormSelectorStyle.scss"
 
-interface DirectionSelectorProps {
-    onChange: (directionId: number) => void;
-    label?: string;
-  }
-  
-export default function DirectionSelector({
-    onChange,
-    label = "Выбрать направление *",  // Текст по умолчанию
-  }: DirectionSelectorProps): JSX.Element {
-    const { stepDirections } = useSelector((state: any) => state.event || []);
-    const [isOpen, setIsOpen] = useState(false);
-    const [selectedDirectionId, setSelectedDirectionId] = useState<number | null>(null); // Начальное значение null
-  
-    // Функция, которая вызывается при выборе направления
-    const handleSelectDirection = (directionId: number) => {
-      setSelectedDirectionId(directionId);  // Обновляем состояние выбранного направления
-      onChange(directionId);  // Передаем обновленный id наверх
-    };
-  
-    const directions = stepDirections?.directions || [];
-  
-    // Отображаем название выбранного направления или текст по умолчанию
-    const selectedDirectionName =
-      selectedDirectionId !== null
-        ? directions.find((direction) => direction.id === selectedDirectionId)?.name
-        : label;
-  
-    return (
-      <div className="DirectionSelector">
-        <div
-          className="ListField FormField"
-          onClick={() => setIsOpen((prev) => !prev)} // Открываем/закрываем список
-        >
-          <p>{selectedDirectionName}</p> {/* Отображаем название выбранного направления */}
-          <ChevronRightIcon
-            width="20"
-            height="20"
-            strokeWidth="1"
-            className={`ChevronDown ${isOpen ? 'open' : ''}`}
-          />
-        
-  
-            {/* Дропдаун со списком направлений */}
-            {isOpen && directions.length > 0 && (
-            <div className="DropdownList">
-                {directions.map((direction) => (
-                <div
-                    key={direction.id}
-                    className={`DropdownItem ${selectedDirectionId === direction.id ? 'selected' : ''}`}
-                    onClick={() => handleSelectDirection(direction.id)} // Выбираем направление при клике
-                >
-                    {direction.name}
-                </div>
-                ))}
-            </div>
-            )}
-    
-            {/* Если направлений нет */}
-            {isOpen && directions.length === 0 && (
-            <div className="DropdownList">
-                <p>Нет доступных направлений</p>
-            </div>
-            )}
-        </div>
-      </div>
-    );
+import { Select, Spin } from 'antd';
+import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
+
+const { Option } = Select;
+
+interface Direction {
+  id: number;
+  name: string;
 }
+
+interface DirectionSelectorProps {
+  onChange: (direction: Direction) => void;
+  value?: number;
+  sourceType: 'local' | 'remote';
+  placeholder?: string;
+}
+
+export default function DirectionSelector({
+  onChange,
+  value,
+  sourceType,
+  placeholder = 'Выбрать направление *',
+}: DirectionSelectorProps): JSX.Element {
+  const [options, setOptions] = useState<Direction[]>([]);
+  const { data: remoteDirections, isLoading } = useGetDirectionsQuery(undefined, {
+    skip: sourceType !== 'remote',
+  });
+  const localDirections = useSelector((state: any) => state.event?.stepDirections?.directions || []);
+
+  useEffect(() => {
+    if (sourceType === 'remote' && remoteDirections) {
+      setOptions(remoteDirections);
+    }
+    if (sourceType === 'local') {
+      setOptions(localDirections);
+    }
+  }, [sourceType, remoteDirections, localDirections]);
+
+  const handleChange = (id: number) => {
+    const selected = options.find((dir) => dir.id === id);
+    if (selected) {
+      onChange(selected);
+    }
+  };
+
+  if (isLoading) return <Spin />;
+
+  return (
+    <Select
+      showSearch
+      value={value}
+      onChange={handleChange}
+      placeholder={placeholder}
+      style={{ width: '100%' }}
+      optionFilterProp="children"
+      filterOption={(input, option) =>
+        (option?.children as string).toLowerCase().includes(input.toLowerCase())
+      }
+    >
+      {options.map((direction) => (
+        <Option key={direction.id} value={direction.id}>
+          {direction.name}
+        </Option>
+      ))}
+    </Select>
+  );
+}
+
   

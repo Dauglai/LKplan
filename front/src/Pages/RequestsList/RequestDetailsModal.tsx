@@ -5,13 +5,15 @@ import EventSelector from 'Widgets/Selectors/EventSelector';
 import StatusAppSelector from 'Widgets/Selectors/StatusAppSelector';
 import ProjectSelector from 'Widgets/Selectors/ProjectSelector';
 import TeamSelector from 'Widgets/Selectors/TeamSelector';
+import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
 const { Text } = Typography;
 
 interface RequestDetailsProps {
   request: Application;
+  onClose: () => void;
 }
 
-export default function RequestDetailsModal({ request }: RequestDetailsProps): JSX.Element {
+export default function RequestDetailsModal({ request, onClose }: RequestDetailsProps): JSX.Element {
   const [partialUpdateApplication] = usePartialUpdateApplicationMutation();
   const [isEditing, setIsEditing] = useState(false);
   const [statusApp, setStatusApp] = useState(request.status);
@@ -23,19 +25,19 @@ export default function RequestDetailsModal({ request }: RequestDetailsProps): J
     const updateData: any = {};
   
     if (statusApp.id !== request.status.id) {
-      updateData.status = statusApp.id;
+      updateData.status = statusApp.id?.toString();
     }
   
-    if (event.id !== request.event.id) {
-      updateData.event = event.id;
+    if (event.event_id !== request.event.id) {
+      updateData.event = event.event_id?.toString();
     }
 
-    if (project.id !== request.project) {
+    if (project && project.id !== request.project) {
       updateData.project = project.id;
     }
 
 
-    if (team.id !== request.team.id) {
+    if (team && team.id !== request.team.id) {
       updateData.team = team.id;
     }
   

@@ -1,6 +1,7 @@
 import { Team, useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { Select, Spin } from 'antd';
 const { Option } = Select;
+import "Styles/FormSelectorStyle.scss";
 
 interface TeamSelectorProps {
   selectedTeam?: Team | null;

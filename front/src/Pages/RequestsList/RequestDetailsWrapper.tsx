@@ -31,11 +31,11 @@ export default function RequestDetailsWrapper({ request, open, onClose }: Reques
       >
         <div className="ModalContent">
           <div className="ModalLeft ModalSide">
-            <RequestDetailsModal request={request} />
+            <RequestDetailsModal request={request} onClose={onClose}/>
           </div>
           {request.message && (
             <div className="ModalRight ModalSide">
-              <RequestMessageModal request={request} />
+              <RequestMessageModal request={request} onClose={onClose}/>
             </div>
           )}
         </div>

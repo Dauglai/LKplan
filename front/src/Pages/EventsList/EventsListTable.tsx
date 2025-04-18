@@ -115,6 +115,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
         </span>
       ),
       sortKey: 'stage',
+      autoFilters: true,
     },
     /*role === "Практикант" && {
       header: '',

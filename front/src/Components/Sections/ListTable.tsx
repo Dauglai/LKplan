@@ -9,6 +9,9 @@ interface TableColumn<T> {
   sortKey?: keyof T;
   text?: string;
   width?: string | number;
+  onFilter?: (value: string | number, record: T) => boolean;
+  filters?: { text: string; value: string | number }[];
+  autoFilters?: boolean;
 }
 
 interface TableProps<T> {
@@ -72,27 +75,51 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
   };
 
   // Настройка колонок для таблицы
-  const tableColumns = columns.map((col) => ({
-    title: (
-      <div className="HeaderCell">
-        {col.header}
-        {col.text && <InfoCircle text={col.text} />}
-      </div>
-    ),
-    dataIndex: col.sortKey,
-    key: col.sortKey as string,
-    render: (text: any, record: T) => col.render(record),
-    sorter: col.sortKey
-      ? (a: T, b: T) => {
-          const aValue = getValue(a, col.sortKey as string);
-          const bValue = getValue(b, col.sortKey as string);
-          if (aValue < bValue) return -1;
-          if (aValue > bValue) return 1;
-          return 0;
-        }
-      : undefined,
-    width: col.width, // Применяем ширину
-  }));
+  const tableColumns = columns.map((col) => {
+    let filters = col.filters;
+    let onFilter = col.onFilter;
+  
+    // Автоматическое формирование фильтров
+    if (col.autoFilters && sortConfig.key) {
+      const uniqueValues = Array.from(
+        new Set(data.map((item) => getValue(item, col.sortKey as string)))
+      ).filter((v) => v !== undefined && v !== null);
+  
+      filters = uniqueValues.map((val) => ({
+        text: String(val),
+        value: val,
+      }));
+  
+      onFilter = (value, record) => getValue(record, col.sortKey as string) === value;
+    }
+  
+    return {
+      title: (
+        <div className="HeaderCell">
+          {col.header}
+          {col.text && <InfoCircle text={col.text} />}
+        </div>
+      ),
+      dataIndex: col.sortKey,
+      key: col.sortKey as string,
+      render: (text: any, record: T) => col.render(record),
+      filters,
+      onFilter,
+      sorter: col.sortKey
+        ? (a: T, b: T) => {
+            const aValue = getValue(a, col.sortKey as string);
+            const bValue = getValue(b, col.sortKey as string);
+            if (aValue < bValue) return -1;
+            if (aValue > bValue) return 1;
+            return 0;
+          }
+        : undefined,
+      width: col.width,
+      filterSearch: true,
+      
+    };
+  });
+  
 
   return (
     <Table
@@ -102,6 +129,14 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
       pagination={false} // Добавляем пагинацию (если нужно, можно настроить)
       className="UniversalListTable"
       showSorterTooltip={false}
+      locale={{
+        filterTitle: 'Фильтр',
+        filterConfirm: 'ОК',
+        filterReset: 'Сброс',
+        filterEmptyText: 'Нет фильтров',
+        emptyText: 'Нет данных',
+        filterSearchPlaceholder: 'Поиск',
+      }}
     />
   );
 }

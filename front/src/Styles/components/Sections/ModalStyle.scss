@@ -16,7 +16,12 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        
+
+        &.direction {
+          > div {
+            max-width: calc(100% - 115px);
+          }
+        }
 
         > span {
           margin: 0;
@@ -26,7 +31,7 @@
 
         > div {
           height: 22px;
-          max-width: calc(100% - 63px);
+          max-width: calc(100% - 65px);
         }
       }
     }

@@ -25,7 +25,7 @@ export default function EventSelector({
 
   return (
     <Select
-      value={selectedEvent?.id ?? undefined}
+      value={selectedEvent?.event_id ?? undefined}
       onChange={(id) => {
         const selected = events.find((e) => e.event_id === id);
         if (selected) onChange(selected);

@@ -17,7 +17,7 @@
     .ant-select-selector {
       @include text2;
       height: 40px;
-      padding: 12px;
+      padding: 8px;
       border-color: $grey;
     }
   
@@ -31,10 +31,24 @@
       border: 1px solid $grey;
       border-radius: 4px;
       box-shadow: none;
+      max-width: 100%;
+      word-wrap: break-word;
+      white-space: normal;
+    }
+
+    .ant-select-item-option-content {
+      white-space: normal;
+      word-break: break-word;
     }
   
     .ant-select-item-option-selected {
       color: $black !important; 
+    }
+
+    .ant-select-selection-item {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
   }
 

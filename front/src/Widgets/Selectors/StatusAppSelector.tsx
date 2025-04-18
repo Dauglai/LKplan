@@ -2,6 +2,7 @@ import { StatusApp, useGetStatusesAppQuery } from 'Features/ApiSlices/statusAppS
 import "Styles/FormSelectorStyle.scss";
 import { Select, Spin } from 'antd';
 const { Option } = Select;
+import "Styles/FormSelectorStyle.scss";
 
 
 interface StatusAppSelectorProps {

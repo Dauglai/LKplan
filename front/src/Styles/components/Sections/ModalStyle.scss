@@ -9,12 +9,14 @@
     &.ModalLeft {
       flex: 1.4;
       padding-right: 18px;
+      max-width: 320px;
 
       .ListItemWithSelector {
         width: 100%;
         display: flex;
         align-items: center;
         gap: 8px;
+        
 
         > span {
           margin: 0;
@@ -24,6 +26,7 @@
 
         > div {
           height: 22px;
+          max-width: calc(100% - 63px);
         }
       }
     }

@@ -2,6 +2,7 @@
 import { Project, useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
 import { Select, Spin } from 'antd';
 const { Option } = Select;
+import "Styles/FormSelectorStyle.scss";
 
 interface ProjectSelectorProps {
   selectedProject?: Project | null;
@@ -33,9 +34,9 @@ export default function ProjectSelector({
         if (selected) onChange(selected);
       }}
       placeholder={label}
-      style={{ width: '100%' }}
       optionFilterProp="children"
       showSearch
+      className="Selector"
     >
       {projects.map((project) => (
         <Option key={project.project_id} value={project.project_id}>

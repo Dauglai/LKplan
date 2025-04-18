@@ -1,5 +1,6 @@
 import { Event, useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { Select, Spin } from 'antd';
+import "Styles/FormSelectorStyle.scss";
 
 const { Option } = Select;
 

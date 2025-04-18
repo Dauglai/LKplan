@@ -9,9 +9,10 @@ const { TextArea } = Input;
 
 interface RequestMessageProps {
   request: Application;
+  onClose: () => void;
 }
 
-export default function RequestMessageModal({ request }: RequestMessageProps): JSX.Element {
+export default function RequestMessageModal({ request, onClose }: RequestMessageProps): JSX.Element {
   const [reply, setReply] = useState('');
   const [sendReply, { isLoading }] = usePartialUpdateApplicationMutation();
   const { showNotification } = useNotification();

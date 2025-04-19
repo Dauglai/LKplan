@@ -40,13 +40,12 @@ const teamApi = apiSlice.injectEndpoints({
       invalidatesTags: ['Team'],
     }),
     updateTeam: builder.mutation<Team, { id: number; data: Omit<Team, 'id'> }>({
-      query: ({ id, ...data }) => ({
+      query: ({ id, data }) => ({
         url: `/api/teams/${id}/`,
         method: 'PUT',
         body: data,
         headers: {
           'Content-Type': 'application/json',
-
         },
         withCredentials: true,
       }),

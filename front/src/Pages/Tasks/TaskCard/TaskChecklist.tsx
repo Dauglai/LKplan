@@ -60,7 +60,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
 
   const handleAddCheckList = async () => {
     try {
-      await createCheckList({ taskId, data: { description: newCheckListTitle } }).unwrap();
+      await createCheckList({ taskId, data: { name: newCheckListTitle } }).unwrap();
       message.success('Чек-лист добавлен');
       setNewCheckListTitle('');
       refetchCheckLists();

@@ -5,6 +5,17 @@ from crm.serializers import ProfileSerializer, DirectionSerializer
 from .models import *
 
 
+class MeetingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Meeting
+        fields = '__all__'
+
+class ResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Result
+        fields = ['name', 'link', 'team']
+
+
 class CheckListItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChecklistItem
@@ -16,7 +27,7 @@ class CheckListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Checklist
-        fields = ['id', 'checklistItems', 'description']
+        fields = ['id', 'checklistItems', 'name']
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -64,7 +75,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ['id', 'name', 'students_info', 'project', 'curator_info', 'is_agreed', 'curator', 'students', 'project_info']
+        fields = ['id', 'name', 'students_info', 'project', 'curator_info', 'is_agreed', 'curator', 'students', 'project_info', 'chat']
 
 
 class TaskSerializer(serializers.ModelSerializer):

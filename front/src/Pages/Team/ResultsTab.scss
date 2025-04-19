@@ -1,0 +1,47 @@
+.ResultsTab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .AddButton {
+    align-self: flex-start;
+  }
+
+  .ResultsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ResultRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f7f8fa;
+    border-radius: 8px;
+    padding: 8px 12px;
+
+    .ResultTitle {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .ResultInput {
+      flex: 3;
+    }
+
+    .Icon {
+      cursor: pointer;
+      font-size: 18px;
+      transition: 0.2s ease;
+
+      &:hover {
+        color: #40a9ff;
+      }
+    }
+
+    .CopyIcon {
+      margin-left: auto;
+    }
+  }
+}

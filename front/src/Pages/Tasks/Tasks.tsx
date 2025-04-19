@@ -369,7 +369,6 @@ const Tasks = () => {
   };
 
   const columnOptions = [
-    { label: 'Название', value: 'name' },
     { label: 'Статус', value: 'status' },
     { label: 'Направление', value: 'direction' },
     { label: 'Проект', value: 'sprint' },
@@ -378,7 +377,7 @@ const Tasks = () => {
     { label: 'Ответсвенный', value: 'assignee' },
     { label: 'Дата начала', value: 'start' },
     { label: 'Дата окончания', value: 'end' },
-    { lable: 'Действия', value: 'actions'}
+
   ];
 
   useEffect(() => {

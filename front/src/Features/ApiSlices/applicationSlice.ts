@@ -1,16 +1,21 @@
 import { apiSlice } from 'App/api/apiSlice.ts';
+import { StatusApp } from './statusAppSlice';
+import { Event } from './eventSlice';
+import { Project } from './projectSlice';
+import { Direction } from './directionSlice';
+import { Team } from './teamSlice';
 
 export interface Application {
   id: number;
   user: number; 
-  project: number; 
-  event: number | null;
-  direction: number | null;
+  project: Project | null; 
+  event: Event;
+  direction: Direction | null;
   specialization: number | null;
-  team: number | null;
+  team: Team | null;
   message: string | null;
   dateTime: Date;
-  status: number;
+  status: StatusApp;
   is_link: boolean;
   is_approved: boolean;
   comment: string | null;
@@ -33,7 +38,7 @@ const applicationApi = apiSlice.injectEndpoints({
     }),
     getApplicationById: builder.query<Application, number>({
         query: (id) => ({
-          url: `/api/application/${id}/`,  // Получение заявки по id
+          url: `/api/application/${id}`,  // Получение заявки по id
           withCredentials: true,}
         ),
         providesTags: ['Application'],
@@ -56,7 +61,7 @@ const applicationApi = apiSlice.injectEndpoints({
     }),
     updateApplication: builder.mutation<Application, { id: number; data: Omit<Application, 'id' | 'datetime'> }>({
       query: ({ id, ...data }) => ({   // Обновление заявки
-        url: `/api/application/${id}/`,
+        url: `/api/application/${id}`,
         method: 'PUT',
         body: data,
         headers: {
@@ -69,7 +74,7 @@ const applicationApi = apiSlice.injectEndpoints({
     }),
     partialUpdateApplication: builder.mutation<Application, { id: number; data: Partial<Omit<Application, 'id' | 'datetime'>> }>({
       query: ({ id, ...data }) => ({
-        url: `/api/application/${id}/`, // Обновление заявки
+        url: `/api/application/${id}`, // Обновление заявки
         method: 'PATCH',
         body: data,
         headers: {

@@ -1,0 +1,46 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.ModalContent {
+  display: flex;
+
+  .ModalSide {
+
+    &.ModalLeft {
+      flex: 1.4;
+      padding-right: 18px;
+      max-width: 320px;
+
+      .ListItemWithSelector {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+
+        > span {
+          margin: 0;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        > div {
+          height: 22px;
+          max-width: calc(100% - 63px);
+        }
+      }
+    }
+  
+    &.ModalRight {
+      flex: 1.8;
+      padding-left: 18px;
+    }
+
+    .Buttons {
+      width: 100%;
+      justify-content: end;
+    }
+
+  }
+}
+

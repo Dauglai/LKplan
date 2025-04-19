@@ -1,8 +1,21 @@
 import json
+import time
+from datetime import datetime
+
+from django.core.mail import send_mail
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.utils import timezone
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, viewsets, pagination
+from rest_framework_simplejwt.tokens import RefreshToken
+from social_django.views import complete
+
 from .serializers import *
 from .models import *
 from .permissions import *
@@ -14,7 +27,20 @@ from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import httpx
+import requests
 from django.conf import settings
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .utils import generate_password_reset_token
+
+
+def get_jwt_tokens(user):
+    token = RefreshToken.for_user(user)
+    return {
+        'refresh': str(token),
+        'access': str(token.access_token),
+    }
 
 
 class TelegramBotAPI(APIView):
@@ -65,6 +91,88 @@ class TelegramBotAPI(APIView):
                 "status": "error",
                 "detail": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def bot_webhook(request):
+    data = request.data  # Данные от пользователя (JSON, FormData и т.д.)
+    user_message = data.get('text', '')
+
+    # Обработка сообщения (логика бота)
+    response_text = f"Вы написали: {user_message}"
+
+    return Response({'response': response_text})
+
+
+class VKMessagesAPI(APIView):
+    """
+    API для отправки сообщений через ВКонтакте
+    POST /api/vk/send-message/
+    {
+        "recipient_id": 123456789,
+        "message": "Текст сообщения",
+        "keyboard": {"buttons": [...]},  # опционально
+        "attachment": "photo123_456"     # опционально
+    }
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = VKMessageSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        data = serializer.validated_data
+        vk_config = settings.VK_CONFIG
+
+        try:
+            response = self.send_vk_message(
+                recipient_id=data['recipient_id'],
+                message=data['message'],
+                keyboard=data.get('keyboard'),
+                attachment=data.get('attachment'),
+                access_token=vk_config['ACCESS_TOKEN'],
+                api_version=vk_config['API_VERSION']
+            )
+
+            if 'error' in response:
+                return Response(response['error'], status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({'message_id': response['response']}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def send_vk_message(self, recipient_id, message, access_token, api_version, **kwargs):
+        params = {
+            'access_token': access_token,
+            'v': api_version,
+            'random_id': self.generate_random_id(),
+            'message': message,
+        }
+
+        # Определяем тип получателя
+        if recipient_id > 2000000000:
+            params['peer_id'] = recipient_id  # для бесед
+        else:
+            params['user_id'] = recipient_id  # для пользователей
+
+        if kwargs.get('keyboard'):
+            params['keyboard'] = json.dumps(kwargs['keyboard'])
+
+        if kwargs.get('attachment'):
+            params['attachment'] = kwargs['attachment']
+
+        response = requests.post(
+            'https://api.vk.com/method/messages.send',
+            params=params
+        )
+        return response.json()
+
+    @staticmethod
+    def generate_random_id():
+        return int(time.time() * 1000)
 
 
 class NumberInFilter(BaseInFilter, filters.NumberFilter):
@@ -129,20 +237,17 @@ class EventAPICreate(generics.CreateAPIView):
     serializer_class = EventCreateSerializer
     permission_classes = (IsAuthenticated,)
 
-    def perform_create(self, serializer):
-        serializer.save(creator=self.request.user.profile)
-
 
 class EventAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
 
 class EventAPIDestroy(generics.RetrieveDestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
 
 class DirectionAPIViews(viewsets.ModelViewSet):
@@ -197,13 +302,13 @@ class ApplicationAPICreate(generics.CreateAPIView):
 class ApplicationAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationUpdateSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
 
 class ApplicationAPIDestroy(generics.RetrieveDestroyAPIView):
     queryset = Application.objects.all()
     serializer_class = ApplicationSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
 
 # class App_reviewAPIViews(viewsets.ModelViewSet):
@@ -245,10 +350,11 @@ class ProfileAPI(generics.ListAPIView):
 
 
 class ProfileAPIUpdate(generics.RetrieveUpdateAPIView):
+    # queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
-    def get_object(self):
+    def get_queryset(self):
         # Возвращает профиль текущего пользователя
         return Profile.objects.get(user=self.request.user)
 
@@ -259,6 +365,8 @@ class ProfilesAPIList(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     filter_backends = [SearchFilter]
     search_fields = ['name', 'surname', 'course']
+
+
 #
 #
 # # Импорт необходимых модулей
@@ -432,4 +540,269 @@ class ProfilesAPIList(generics.ListAPIView):
 
 class ProfilesAPIUpdate(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
+
+
+class OrgChatCreateAPIView(generics.CreateAPIView):
+    queryset = OrgChat.objects.all()
+    serializer_class = OrgChatSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class OrgChatListAPIView(generics.ListAPIView):
+    queryset = OrgChat.objects.all()
+    serializer_class = OrgChatSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class OrgChatDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = OrgChat.objects.all()
+    serializer_class = OrgChatSerializer
+    permission_classes = [IsAuthenticated]
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def google_auth_callback(request):
+    user = request.user
+    # Генерация токена (JWT)
+    tokens = get_jwt_tokens(user)
+
+    # Перенаправление на фронтенд с токеном
+    frontend_url = f'https://meetuppoint.ru/login-success?access={tokens["access"]}&refresh={tokens["refresh"]}'
+    return redirect(frontend_url)
+
+
+@permission_classes([AllowAny])
+class EmailVerificationView(APIView):
+    @swagger_auto_schema(
+        operation_description="Верификация email по токену",
+        manual_parameters=[
+            openapi.Parameter(
+                'token',
+                openapi.IN_QUERY,
+                description="Токен верификации, отправленный на email",
+                type=openapi.TYPE_STRING,
+                required=True
+            )
+        ],
+        responses={
+            302: openapi.Response(
+                description="Перенаправление на страницу статуса верификации",
+                examples={
+                    "application/json": {
+                        "redirect": "https://meetuppoint.ru/email-verified?status={success|expired|invalid}"
+                    }
+                }
+            )
+        }
+    )
+    def get(self, request):
+
+        token = request.GET.get('token')
+        try:
+            contact = Contact.objects.get(verified_token=token, type="Почта")
+
+            # Проверка срока действия токена (24 часа)
+            if (timezone.now() - contact.token_created_at).total_seconds() > 86400:
+                return redirect('https://meetuppoint.ru/email-verified?status=expired')
+
+            contact.is_verified = True
+            contact.verified_token = None
+            contact.token_created_at = None
+            contact.save()
+            return redirect('https://meetuppoint.ru/email-verified?status=success')
+
+        except Contact.DoesNotExist:
+            return redirect('https://meetuppoint.ru/email-verified?status=invalid')
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        operation_description="""
+        Запрос на сброс пароля. При успешном запросе на указанный email будет отправлена ссылка для сброса пароля.
+        Ссылка действительна в течение 1 часа.
+
+        Требования к email:
+        - Должен быть валидным email адресом
+        - Должен соответствовать зарегистрированному пользователю
+        """,
+
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['email'],
+            properties={
+                'email': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    format='email',
+                    description="Email пользователя для сброса пароля",
+                    example="user@example.com"
+                )
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Письмо для сброса пароля отправлено",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'status': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Статус операции",
+                            example="reset email sent"
+                        )
+                    }
+                )
+            ),
+            404: openapi.Response(
+                description="Пользователь не найден",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Сообщение об ошибке",
+                            example="User not found"
+                        )
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Неверные входные данные",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'email': openapi.Schema(
+                            type=openapi.TYPE_ARRAY,
+                            items=openapi.Schema(type=openapi.TYPE_STRING),
+                            description="Ошибки валидации email"
+                        )
+                    }
+                )
+            )
+        }
+    )
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data['email']
+        try:
+            user = User.objects.get(username=email)
+            profile = Profile.objects.get(user=user)
+
+            # Генерация и сохранение токена
+            profile.password_reset_token = generate_password_reset_token()
+            profile.password_reset_token_created = timezone.now()
+            profile.save()
+
+            # Отправка письма
+            reset_url = '/password-reset/confirm/' + f'?token={profile.password_reset_token}'
+            full_url = f"https://meetuppoint.ru{reset_url}"
+
+            send_mail(
+                'Восстановление пароля',
+                f'Для сброса пароля перейдите по ссылке: {full_url}',
+                'no-reply@meetuppoint.ru',
+                recipient_list=[email],
+                fail_silently=False,
+            )
+
+            return Response({'status': 'reset email sent'})
+
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=404)
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        operation_description="Подтверждение сброса пароля по токену",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['token', 'new_password'],
+            properties={
+                'token': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Токен сброса пароля, полученный по email",
+                    example="nH1NveX7WYUDhQXYG7fvSTuWED4bHCciY43XpOC4m6utZMKosljUcrHBmX3mm2mac"
+                ),
+                'new_password': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    format='password',
+                    description="Новый пароль (должен соответствовать требованиям безопасности)",
+                    min_length=8,
+                    example="SecurePassword123!"
+                )
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Пароль успешно обновлен",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'status': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Статус операции",
+                            example="password updated"
+                        )
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Ошибки при сбросе пароля",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Сообщение об ошибке",
+                            enum=['Token expired', 'Invalid token', 'Invalid password'],
+                            example="Token expired"
+                        ),
+                        'details': openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            description="Детали ошибок валидации",
+                            properties={
+                                'new_password': openapi.Schema(
+                                    type=openapi.TYPE_ARRAY,
+                                    items=openapi.Schema(type=openapi.TYPE_STRING),
+                                    description="Ошибки валидации пароля"
+                                )
+                            }
+                        )
+                    }
+                )
+            )
+        }
+    )
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        token = serializer.validated_data['token']
+        new_password = serializer.validated_data['new_password']
+
+        try:
+            profile = Profile.objects.get(password_reset_token=token)
+            user = profile.user
+
+            # Проверка срока действия токена
+            if (timezone.now() - profile.password_reset_token_created).total_seconds() > 3600:
+                return Response({'error': 'Token expired'}, status=400)
+
+            # Обновление пароля
+            user.set_password(new_password)
+            profile.password_reset_token = None
+            profile.password_reset_token_created = None
+            user.save()
+            profile.save()
+
+            return Response({'status': 'password updated'})
+
+        except User.DoesNotExist or Profile.DoesNotExist:
+            return Response({'error': 'Invalid token'}, status=400)

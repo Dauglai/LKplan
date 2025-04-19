@@ -1,13 +1,12 @@
 import { Event } from "Features/ApiSlices/eventSlice";
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from "react-router-dom";
-import { getInitials } from "Features/utils/getInitials";
 import { useDeleteEventMutation } from "Features/ApiSlices/eventSlice";
 import { useNotification } from 'Widgets/Notification/Notification';
 import EventForm from "./EventForm/EventForm";
 import Modal from "Widgets/Modal/Modal";
-import ActionMenu from "Components/Common/ActionMenu";
-import ListTable from "Components/Sections/ListsTable";
+import ActionMenu from "Components/Sections/ActionMenu";
+import ListTable from "Components/Sections/ListTable";
 
 interface EventsTableProps {
   events: Event[];
@@ -33,16 +32,14 @@ interface EventsTableProps {
 
 export default function EventsListTable({ events, role }: EventsTableProps): JSX.Element {
   const navigate = useNavigate();
-  const [openMenu, setOpenMenu] = useState<number | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deleteEvent] = useDeleteEventMutation();
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const { showNotification } = useNotification();
+  const [openMenu, setOpenMenu] = useState<number | null>(null); // Состояние для отслеживания открытого меню действий
+  const [isModalOpen, setIsModalOpen] = useState(false); // Состояние для отслеживания модального окна
+  const [deleteEvent] = useDeleteEventMutation(); // Мутация для удаления мероприятия
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null); // Выбранное мероприятие для редактирования
+  const { showNotification } = useNotification(); // Хук для отображения уведомлений
 
-  /**
-   * Закрыть открытое меню действий.
-   */
-  const handleCloseMenu = () => setOpenMenu(null);
+
+  const handleCloseMenu = () => setOpenMenu(null); // Закрывает открытое меню действий.
 
   /**
    * Удалить мероприятие по ID.
@@ -82,12 +79,14 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
     return <span className="NullMessage">Мероприятия не найдены</span>;
   }
 
+  console.log(events)
+
   // Колонки для таблицы
   const columns = [
     {
       header: 'Название',
       render: (event: Event) => (
-        <Link to={role === "Организатор" ? `/event/${event.event_id}` : `/events/submit/${event.event_id}`} className="LinkCell">
+        <Link to={`/event/${event.event_id}`} className="LinkCell">
           {event.name}
         </Link>
       ),
@@ -108,16 +107,6 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
       ),
       sortKey: 'end',
     },
-    {
-      header: 'Организатор',
-      render: (event: Event) => (
-        <Link to={`/profile/${event.creator.user_id}`} className="LinkCell">
-          {event.creator.surname} {getInitials(event.creator.name, event.creator.patronymic)}
-        </Link>
-      ),
-      sortKey: 'creator.surname',
-      text: 'Нажмите на организатора для просмотра детальной информации',
-    },
     role === "Организатор" && {
       header: 'Статус',
       render: (event: Event) => (
@@ -127,12 +116,24 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
       ),
       sortKey: 'stage',
     },
-    role === "Практикант" && {
+    /*role === "Практикант" && {
       header: '',
       render: (event: Event) => (
         <button onClick={() => navigate(`submit/${event.event_id}`)} className="primary-btn">
           Подать заявку
         </button>
+      )
+    },*/
+    role === "Практикант" && {
+      header: 'Список направлений',
+      render: (event: Event) => (
+        <ul>
+          {event.directions.map((direction) => (
+            <li key={direction.id}>
+                {direction.name}
+            </li>
+          ))}
+        </ul>
       )
     },
     {
@@ -166,7 +167,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
       />
       {isModalOpen && (
         <Modal isOpen={isModalOpen} onClose={closeModal}>
-          <EventForm closeModal={closeModal} existingEvent={selectedEvent} />
+          <EventForm closeModal={closeModal} existingEvent={selectedEvent} /> {/* Модальное окно для редактирования мероприятия */}
         </Modal>
       )}
     </>

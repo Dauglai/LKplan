@@ -5,17 +5,18 @@ import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { Project, useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useNavigate, Link } from "react-router-dom";
-import { getInitials } from "Features/utils/getInitials";
 import { useNotification } from 'Widgets/Notification/Notification';
 import ProjectForm from "./ProjectForm";
 import Modal from "Widgets/Modal/Modal";
-import MoreIcon from 'assets/icons/more.svg?react';
+import ActionMenu from 'Components/Sections/ActionMenu';
+import ListTable from "Components/Sections/ListTable";
 
 interface ProjectsTableProps {
   projects: Project[];
+  role: string;
 }
 
-export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.Element {
+export default function ProjectsListTable({ projects, role }: ProjectsTableProps): JSX.Element {
   const { data: directions, isLoading: isLoadingDirections } = useGetDirectionsQuery();
   const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
   const { data: teams, isLoading: isLoadingTeams } = useGetTeamsQuery();
@@ -27,20 +28,7 @@ export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.
   const [openMenu, setOpenMenu] = useState<number | null>(null); 
   const menuRef = useRef<HTMLUListElement | null>(null); 
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setOpenMenu(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const toggleMenu = (id: number) => {
-    setOpenMenu(openMenu === id ? null : id);
-  };
+  const handleCloseMenu = () => setOpenMenu(null); // Закрывает открытое меню действий.
 
   const handleEdit = (id: number) => {
     const projectToEdit = projects.find((project) => project.project_id === id);
@@ -80,58 +68,88 @@ export default function ProjectsListTable({ projects}: ProjectsTableProps): JSX.
     const event = events?.find(event => event.event_id === direction?.event);
     return event ? event.event_id : '';
   };
+  
+  // Колонки для таблицы
+    const columns = [
+      {
+        header: 'Название',
+        render: (project: Project) => (
+          <Link to={`/project/${project.project_id}`} className="LinkCell">{project.name}</Link>
+        ),
+        sortKey: 'name',
+      },
+      {
+        header: 'Мероприятие',
+        render: (project: Project) => (
+          <Link to={`/event/${getEventId(project.directionSet.id)}`} className="HiglightCell LinkCell">{getEventName(project.directionSet.id)}</Link>
+        ),
+        text: 'Нажмите на мероприятие для подробностей',
+      },
+      {
+        header: 'Направление',
+        render: (project: Project) => (
+          <span>{project.directionSet.name}</span>
+        ),
+      },
+      /*{
+        header: 'Куратор',
+        render: (project: Project) => (
+          <div>
+            {project.curatorsSet.map(curator => (
+              <Link to={`/profile/${curator.user_id}`} className="LinkCell">
+                {curator.surname} {getInitials(curator.name, curator.patronymic)}
+              </Link>
+            ))}
+          </div>
+        ),
+      },*/
+      {
+        header: 'Команды',
+        render: (project: Project) => (
+          <ul>
+            {teams?.map((team) => {
+              if (team.project === project.project_id) {
+                return <li><Link to={`/team/${team.id}`}>{team.name}</Link></li>
+              }
+            })}
+          </ul>
+        ),
+        text: 'Нажмите на команду из списка, чтобы ознакомиться подробнее',
+      },
+      {
+        header: '',
+        render: (project: Project) => (
+          <ActionMenu 
+            actions={actions(project)} 
+            onClose={handleCloseMenu}
+            role={role}
+          />
+        )
+      }
+    ].filter(Boolean);
+  
+    /**
+     * Генерация списка действий для каждой строки таблицы.
+     * @param {Project} project - Проект для генерации действий.
+     * @returns {Array} Список действий для меню.
+     */
+  
+    const actions = (project: Project) => [
+      { label: 'Редактировать', onClick: () => handleEdit(project.project_id), requiredRole: 'Организатор' },
+      { label: 'Удалить', onClick: () => handleDelete(project.project_id), requiredRole: 'Организатор' },
+    ];
 
   return (
-    <table className="ProjectsListTable ListTable">
-      <thead>
-        <tr>
-          <th>Название</th>
-          <th>Мероприятие</th>
-          <th>Куратор</th>
-          <th>Команды</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {projects.map((project) => (
-          <tr key={project.project_id}>
-            <td><Link to={`/project/${project.project_id}`} className="LinkCell">{project.name}</Link></td>
-            <td><Link to={`/event/${getEventId(project.direction.id)}`} className=" HiglightCell LinkCell">{getEventName(project.direction.id)}</Link></td>
-            <td>{project.curatorsSet.map(curator => 
-              <Link to={`/profile/${curator.user_id}`} className="LinkCell">{curator.surname} {getInitials(curator.name, curator.patronymic)}</Link>)}</td>
-            <td>
-              <ul>
-                {teams?.map((team) => {
-                  if (team.project === project.project_id) {
-                    return <li><Link to={`/team/${team.id}`}>{team.name}</Link></li>
-                  }
-                })}
-              </ul>
-            </td>
-            <td>
-              <MoreIcon 
-                width="16" 
-                height="16" 
-                strokeWidth="1"
-                onClick={() => toggleMenu(project.project_id)}
-                className="ThreeDotsButton"
-              />
-              {openMenu === project.project_id && (
-                <ul ref={menuRef} className="ActionsMenu">
-                  <li onClick={() => navigate(`/project/${project.project_id}`)}>Подробнее</li>
-                  {/*<li onClick={() => handleEdit(project.project_id)}>Редактировать</li>*/}
-                  <li onClick={() => handleDelete(project.project_id)}>Удалить</li>
-                </ul>
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
+    <>
+      <ListTable
+        data={projects}
+        columns={columns}
+      />
       {isModalOpen && (
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <ProjectForm closeModal={closeModal} existingProject={selectedProject} />
         </Modal>
       )}
-    </table>
+    </>
   );
 }

@@ -24,6 +24,8 @@ class Profile(models.Model):
     university = models.CharField(verbose_name="Название университета", max_length=100, null=True, blank=True)
     vk = models.CharField(verbose_name="Ссылка VK", max_length=100, null=True, blank=True)
     job = models.CharField(verbose_name="Место работы", max_length=100, null=True, blank=True)
+    password_reset_token = models.CharField(max_length=65, blank=True, null=True)
+    password_reset_token_created = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.surname} {self.name} {self.patronymic}'
@@ -39,9 +41,12 @@ class Contact(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     type = models.CharField(verbose_name="Тип контакта", choices=CONTACT_CHOISES, max_length=100)
     data = models.CharField(verbose_name="Реквезит", max_length=100, )
+    is_verified = models.BooleanField(default=False, verbose_name="Статус верификации")
+    verified_token = models.CharField(verbose_name="Токен верификации", max_length=100, null=True, blank=True)
+    token_created_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f'{self.profile.name}{self.type} {self.data}'
+        return f'{self.profile.name}: {self.data} ({self.type})'
 
 
 class Role(models.Model):
@@ -117,6 +122,14 @@ class Direction(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='directions')
     name = models.CharField(verbose_name="Название направления", max_length=100)
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
+    leader = models.ForeignKey(
+        Profile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Руководитель направления",
+        related_name='directions'
+    )
 
     def __str__(self):
         return f'{self.name}'

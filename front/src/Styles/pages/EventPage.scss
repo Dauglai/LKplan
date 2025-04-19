@@ -2,7 +2,7 @@
 @import 'Styles/variables';
 @import 'Styles/buttons';
 
-.RequestContainer {
+.EventContainer {
     width: 1160px;
     display: flex;
     flex-direction: row;
@@ -11,9 +11,6 @@
     align-items: start;
 
     .EventInfo {
-        background-image: 
-            linear-gradient(45deg, rgba(255, 165, 0, 0.5), rgba(255, 165, 0, 0)),
-            url("assets/student background.png");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -22,8 +19,7 @@
         padding: 32px;
 
         .EventDescription {
-            @include h4;
-            color: $white;
+            @include text1;
         }
 
         .SpecializationsList {

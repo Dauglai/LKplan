@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import {
   useGetResultsQuery,
   useCreateResultMutation
-} from 'Features/Auth/api/resultApiSlice.ts';
+} from 'Features/ApiSlices/resultApiSlice.ts';
 
 import './ResultsTab.scss';
 

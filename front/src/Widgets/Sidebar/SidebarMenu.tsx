@@ -1,3 +1,4 @@
+
 import './SidebarMenu.scss';
 
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +10,8 @@ import TableIcon from 'assets/icons/table.svg?react';
 import BriefCaseIcon from 'assets/icons/briefcase.svg?react';
 import { User } from 'Features/ApiSlices/userSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
+import { useGetApplicationsQuery, useGetUserApplicationsQuery } from 'Features/ApiSlices/applicationSlice.ts';
+import { Tag } from 'antd';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -19,15 +22,37 @@ interface SidebarProps {
 export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JSX.Element {
   const navigate = useNavigate();
   const { data: teams } = useGetTeamsQuery();
+  const { data: applications, isLoading } = useGetUserApplicationsQuery(user.user_id);
+
 
   const handleNavigation = (path: string) => {
     navigate(path);
     onClose();
   };
 
-  const userTeam = teams?.find((team) => 
+  const userTeam = teams?.find((team) =>
     team.students.includes(user.user_id)
   );
+
+  // 🔽 Мероприятия пользователя
+  const dynamicEventSections = applications?.filter(app => app.is_approved).map((application) => {
+    const myTeam = teams?.find(
+      (team) => team.project === application.project && team.students.includes(user.user_id)
+    );
+
+    return {
+      title: application.event.name,
+      icon: (
+        <Tag color="#d9d9d9" style={{ marginRight: 8 }}>{`M${application.id}`}</Tag>
+      ),
+      items: [
+        ...(myTeam ? [{ label: 'Моя команда', path: `/teams/${myTeam.id}` }] : []),
+        { label: 'Список задач', path: `/projects/${application.project}/tasks` },
+        { label: 'Канбан-доска', path: `/projects/${application.project}/kanban` },
+        { label: 'Диаграмма Ганта', path: `/projects/${application.project}/gantt` },
+      ],
+    };
+  }) || [];
 
   const adminMenu = [
     {
@@ -45,9 +70,9 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
         { label: 'Команды', path: '/teams' },
-        { label: 'Список задач', path: `/projects/:project_id/tasks` },
       ],
     },
+    ...dynamicEventSections,
   ];
 
   const studentMenu = [
@@ -62,13 +87,12 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       title: 'Планировщик',
       icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
-        ...(userTeam ? [{ label: 'Моя команда', path: `/team/${userTeam.id}` }] : []),
+        ...(userTeam ? [{ label: 'Моя команда', path: `/teams/${userTeam.id}` }] : []),
         { label: 'Команды', path: '/teams' },
-        { label: 'Список задач', path: `/projects/:project_id/tasks` },
       ],
     },
+    ...dynamicEventSections, //  вставляем мероприятия
   ];
-  
 
   const menu = user.role === 'Организатор' ? adminMenu : studentMenu;
 
@@ -115,4 +139,3 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
     </div>
   );
 }
-

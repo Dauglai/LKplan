@@ -5,7 +5,7 @@ interface User {
   email?: string;
   surname?: string;
   name?: string;
-  partonymic?: string;
+  partronymic?: string;
   course?: number;
   university?: string;
   vk?: string;

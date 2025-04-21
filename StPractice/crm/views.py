@@ -260,7 +260,7 @@ class ApplicationFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
     status = filters.CharFilter(field_name='status', lookup_expr='iexact')
     # deadline = filters.DateFilter(field_name='deadline')
-    # author = filters.NumberFilter(field_name='author__id')  # фильтр по автору
+    user = filters.NumberFilter(field_name='user__user_id')  # фильтр по автору
     created_after = filters.DateFilter(field_name='datetime', lookup_expr='gte')  # начальная дата
     created_before = filters.DateFilter(field_name='datetime', lookup_expr='lte')  # конечная дата
     is_approved = filters.BooleanFilter(field_name='is_approved')

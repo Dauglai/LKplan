@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { useGetTeamByIdQuery,  usePartialUpdateTeamMutation } from 'Features/ApiSlices/teamSlice';
-import 'Styles/InfoPageStyle.scss';
 import 'Styles/components/Sections/ListTableStyles.scss';
 import { useGetUserQuery, User } from 'Features/ApiSlices/userSlice.ts';
 import  './TeamCard.scss'

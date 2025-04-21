@@ -77,6 +77,8 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
       cleanedData = { name: value };
     if (field === "description")
       cleanedData = { description: value };
+    if (field === "performers")
+      cleanedData = { performers: value };
 
     try {
       await updateTask({ id: formData.key, data: cleanedData }).unwrap();
@@ -196,70 +198,88 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
             <div className="task-col">
               <label>Ответственный</label>
               <Select
-                value={formData.assignee.user_id}
+                value={formData.assignee?.user_id}
                 style={{ width: '100%' }}
                 onChange={(value) =>
                   handleInputChange(
                     'assignee',
-                    assignees.find((a) => a.user_id === value)
+                    assignees.find((a) => a.user_id === value),
                   )
                 }
-                placeholder="Выберите исполнителя"
+                placeholder="Выберите ответственного"
               >
-                {assignees && assignees.length > 0 ? (
+                {assignees?.length > 0 ? (
                   assignees.map((assignee) => (
                     <Option key={assignee.user_id} value={assignee.user_id}>
                       {assignee.surname} {assignee.name} {assignee.patronymic}
                     </Option>
                   ))
                 ) : (
-                  <Option disabled>Нет доступных исполнителей</Option>
+                  <Option disabled>Нет ответственного</Option>
                 )}
               </Select>
             </div>
+
             <div className="task-col">
               <label>Исполнители</label>
               <Select
                 mode="multiple"
-                placeholder="Выберите"
                 style={{ width: '100%' }}
-              />
+                value={formData.performers}
+                onChange={(selectedIds) =>
+                  handleInputChange('performers', selectedIds)
+                }
+                placeholder="Добавьте исполнителей"
+              >
+                {assignees?.length > 0 ? (
+                  assignees.map((assignee) => (
+                    <Option key={assignee.user_id} value={assignee.user_id}>
+                      {assignee.surname} {assignee.name} {assignee.patronymic}
+                    </Option>
+                  ))
+                ) : (
+                  <Option disabled>Нет исполнителей</Option>
+                )}
+              </Select>
             </div>
-          </div>
-
-          <div className="task-block">
-            <label>Статус</label>
-            <Select
-              value={formData.stage.id}
-              style={{ width: '100%' }}
-              onChange={(value) =>
-                handleInputChange(
-                  'stage',
-                  stages.find((a) => a.id === value)
-                )
-              }
-            >
-              {stages.map((s) => (
-                <Option key={s.id} value={s.id}>
-                  {s.name}
-                </Option>
-              ))}
-            </Select>
-          </div>
-
-          <div className="task-block">
-            <h3>Чек-листы</h3>
-            <TaskChecklist taskId={formData?.key} assignees={assignees} />
-          </div>
-
-          <div className="task-block">
-            <h3>Комментарии</h3>
-            <TaskComments taskId={formData?.key} currentUserId={1} />
-          </div>
         </div>
-      )}
-    </Modal>
-  );
-};
+
+        <div className="task-block">
+        <label>Статус</label>
+        <Select
+        value={formData.stage.id}
+      style={{ width: '100%' }}
+      onChange={(value) =>
+        handleInputChange(
+          'stage',
+          stages.find((a) => a.id === value),
+        )
+      }
+    >
+      {stages.map((s) => (
+        <Option key={s.id} value={s.id}>
+          {s.name}
+        </Option>
+      ))}
+    </Select>
+</div>
+
+  <div className="task-block">
+    <h3>Чек-листы</h3>
+    <TaskChecklist taskId={formData?.key} assignees={assignees} />
+  </div>;
+
+  <div className="task-block">
+    <h3>Комментарии</h3>
+    <TaskComments taskId={formData?.key} currentUserId={1} />
+  </div>
+</div>
+)
+}
+</Modal>
+)
+;
+}
+;
 
 export default TaskCard;

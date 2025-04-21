@@ -11,11 +11,13 @@ import {
   Checkbox,
   Descriptions, Avatar,
 } from 'antd';
+import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons';
 import { LeftOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
 import './Tasks.scss';
 import CreateTaskModal from './CreateTaskModal';
 import { TaskFormValues } from './CreateTaskModal/CreateTaskModal.typings';
 import tableOptionIcon from '/src/assets/icons/table_optionb.svg';
+import styles from './Table.module.scss';
 
 
 import {
@@ -52,7 +54,10 @@ interface Task {
   stage: Stage;
   end: string;
   assignee: Profile;
+  author: Profile;
+  performers: Profile[];
   children?: Task[]; // Подзадачи
+  parent_task: number;
 }
 
 
@@ -78,6 +83,7 @@ const Tasks = () => {
   const { data: projects, isLoading: isLoadingProjects } = useGetProjectsQuery();
   const projectList = projects || [];
   const { projectId } = useParams();
+  const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
   // @ts-ignore
   const { data: userData, isLoading, error } = useGetUsersQuery();
   const { data: projectData} = useGetProjectByIdQuery(projectId);
@@ -146,6 +152,14 @@ const Tasks = () => {
     return rootTasks;
   };
 
+  const handleExpand = (expanded: boolean, record: Task) => {
+    if (expanded) {
+      // Разрешаем раскрытие только одной задачи одновременно
+      setExpandedRowKeys([record.key]);
+    } else {
+      setExpandedRowKeys([]);
+    }
+  };
 
   useEffect(() => {
 		document.title = 'Список задач - MeetPoint';
@@ -171,7 +185,9 @@ const Tasks = () => {
       author: task.author
         ? task.author
         : null,
+      performers: task.performers,
       children: task.subtasks ? transformTasksData(task.subtasks) : [],
+      parent_task: task.parent_task
     }));
   };
 
@@ -195,13 +211,14 @@ const Tasks = () => {
       description: newTask.description,
       end: newTask.deadline,
       responsible_user: newTask.assignee,
-      status: stages[0].id,
+      performers: newTask.performers,
     });
     setDataSource([...dataSource, taskWithKey]);
     console.log(dataSource);
     message.success('Задача успешно создана!');
     setIsModalCreateTaskVisible(false);
   };
+
 
   // Рекурсивная функция для изменения статуса
   const updateStatus = (data: Task[], key: string, newStatus: string): Task[] => {
@@ -226,6 +243,19 @@ const Tasks = () => {
         }
         return item;
       });
+  };
+
+  const handleAddToStack = async (key: string) => {
+    try {
+      const firstStageId = stages[0].id;
+      await updateTask({ id: Number(key), data: { status: firstStageId } }).unwrap();
+
+      // если нужно — обнови список задач или стейт локально
+      message.success('Задача добавлена в стек');
+    } catch (err) {
+      console.error('Ошибка при добавлении задачи в стек:', err);
+      message.error('Ошибка при добавлении задачи в стек');
+    }
   };
 
   // Обработчик изменения статуса
@@ -413,20 +443,36 @@ const Tasks = () => {
       key: 'status',
       sorter: (a, b) => a.status - b.status,
       sortOrder: sortColumn === 'status' ? sortOrder : null,
-      render: (status: string, record: Task) => (
-        <Select
-          value={status}
-          style={{ width: 120 }}
-          onChange={(value) => handleChangeStatus(record.key, value)}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {stages.map((statusOption) => (
-            <Option key={statusOption.id} value={statusOption.id}>
-              {statusOption.name}
-            </Option>
-          ))}
-        </Select>
-      ),
+      render: (status: number | null, record: Task) => {
+        if (status === null) {
+          return (
+            <Button
+              type="dashed"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToStack(record.key);
+              }}
+            >
+              Добавить в стек
+            </Button>
+          );
+        }
+
+        return (
+          <Select
+            value={status}
+            style={{ width: 120 }}
+            onChange={(value) => handleChangeStatus(record.key, value)}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {stages.map((statusOption) => (
+              <Option key={statusOption.id} value={statusOption.id}>
+                {statusOption.name}
+              </Option>
+            ))}
+          </Select>
+        );
+      },
     },
 
     {
@@ -561,7 +607,7 @@ const Tasks = () => {
             projectData={projectList}
           />
         </div>
-        <div >
+        <div>
           <Dropdown
             overlay={
               <div className="column-settings-dropdown">
@@ -584,21 +630,40 @@ const Tasks = () => {
           <PlanButton type="primary">Список</PlanButton>
         </div>
       </div>
-      <Table
-        columns={filteredColumns}
-        dataSource={dataSource}
-        rowKey="id"
-        showSorterTooltip={false}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record),
-        })}
-        onChange={handleTableChange}
-        expandable={{
-          childrenColumnName: 'children',
-          rowExpandable: (record) => !!record.children,
-        }}
-        pagination={false}
-      />
+      <div className="Tasks-Table">
+        <Table
+          columns={filteredColumns}
+          dataSource={dataSource}
+          rowKey="key"
+          showSorterTooltip={false}
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record),
+          })}
+          onChange={handleTableChange}
+          expandable={{
+            expandedRowKeys,
+            onExpand: handleExpand,
+            childrenColumnName: 'children',
+            rowExpandable: (record) =>
+              !!record.children?.length && !record.parent_task,
+            expandIcon: ({ expanded, onExpand, record }) => {
+              if (record.parent_task) return null;
+              return (
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onExpand(record, e);
+                  }}
+                  style={{ cursor: 'pointer', marginRight: 8 }}
+                >
+          {expanded ? '−' : '+'}
+        </span>
+              );
+            },
+          }}
+          pagination={false}
+        />
+      </div>
       <Modal
         title="Выберите родительскую задачу"
         visible={isModalVisible}

@@ -35,6 +35,12 @@ class ResultFilter(filters.FilterSet):
         model = Result
         fields = '__all__'
 
+class TeamFilter(filters.FilterSet):
+    project = filters.NumberFilter(field_name='project__id')
+
+    class Meta:
+        model = Team
+        fields = '__all__'
 
 
 class TaskFilter(filters.FilterSet):
@@ -235,6 +241,8 @@ class TeamAPIListCreate(generics.ListCreateAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
     permission_classes = (IsAuthenticated,)
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TeamFilter
 
 class TeamAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Team.objects.all()

@@ -4,6 +4,7 @@ export interface TaskFormValues {
   status: number;
   deadline: string;
   assignee: number;
+  performers: number[];
 }
 
 export interface Assignee {

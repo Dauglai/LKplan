@@ -91,7 +91,7 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id', 'project', 'name', 'start', 'end', 'description', 'status', 'comment_set', 'parent_task',
-            'responsible_user', 'resp_user', 'project_info', 'subtasks', 'stage', 'author', 'team'
+            'responsible_user', 'resp_user', 'project_info', 'subtasks', 'stage', 'author', 'team', 'performers',
         ]
 
     def get_subtasks(self, obj):

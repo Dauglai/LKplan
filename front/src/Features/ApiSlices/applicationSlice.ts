@@ -4,6 +4,7 @@ import { Event } from './eventSlice';
 import { Project } from './projectSlice';
 import { Direction } from './directionSlice';
 import { Team } from './teamSlice';
+import { Result } from 'Features/ApiSlices/resultApiSlice.ts';
 
 export interface Application {
   id: number;
@@ -35,6 +36,14 @@ const applicationApi = apiSlice.injectEndpoints({
           dateTime: new Date(application.dateTime),
         }));
       },
+    }),
+    getUserApplications: builder.query<Application[], number>({
+      query: (user_id) => ({
+          url:`api/application/?user=${user_id}`,   // Получение списка заявок текущего пользователя
+          withCredentials: true,}
+      ),
+      providesTags: ['Application'],
+      transformResponse: (response: { results: Application[] }) => response.results,
     }),
     getApplicationById: builder.query<Application, number>({
         query: (id) => ({
@@ -99,6 +108,7 @@ const applicationApi = apiSlice.injectEndpoints({
 
 export const {
   useGetApplicationsQuery,
+  useGetUserApplicationsQuery,
   useGetApplicationByIdQuery,
   useCreateApplicationMutation,
   useUpdateApplicationMutation,

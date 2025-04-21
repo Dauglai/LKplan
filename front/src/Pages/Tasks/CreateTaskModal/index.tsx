@@ -1,14 +1,12 @@
 import React, { FC } from 'react';
 import moment from 'moment';
-import { Modal, Form, Input, Select, DatePicker, Button, Space, Row, Col } from 'antd';
+import { Modal, Form, Input, Select, DatePicker, Button, Row, Col } from 'antd';
 
 import {
   CreateTaskModalProps,
   TaskFormValues,
 } from './CreateTaskModal.typings';
-
 import './CreateTaskModal.scss';
-import TaskEditor from 'Pages/Tasks/TaskCard/TaskEditor.tsx';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -133,7 +131,7 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item name="executors" label="Исполнители">
+            <Form.Item name="performers" label="Исполнители">
               <Select mode="multiple" placeholder="Добавьте исполнителей">
                 {assignees?.map((a) => (
                   <Option key={a.user_id} value={a.user_id}>

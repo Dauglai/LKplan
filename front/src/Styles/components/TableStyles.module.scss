@@ -1,0 +1,78 @@
+.TableWrapper {
+  .ant-table-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    padding: 8px;
+
+    table {
+      font-size: 14px !important;
+      font-weight: 400 !important;
+      line-height: 1.4 !important;
+      color: #3D4452 !important;
+      padding: 0 !important;
+      background-color: #fff !important;
+      border-radius: 8px;
+      border-collapse: collapse !important;
+      border-spacing: 0 !important;
+      border-left: 1px solid #F7F9FB;
+      border-right: 1px solid #F7F9FB;
+
+      .ant-table-thead > tr > th {
+        background-color: #F7F9FB;
+        font-weight: 500;
+        font-size: 14px;
+        color: #3D4452;
+        padding: 12px;
+        position: relative;
+
+        .ant-table-column-sorters {
+          justify-content: start;
+        }
+
+        .ant-table-column-sorter {
+          opacity: 0;
+          transition: opacity 0.2s;
+          color: #858C9C;
+        }
+
+        &:hover .ant-table-column-sorter {
+          opacity: 1;
+        }
+
+        &.ant-table-column-has-sorters.ant-table-column-sort {
+          .ant-table-column-sorter {
+            color: #3D4452;
+            opacity: 1;
+          }
+        }
+      }
+
+      .ant-table-tbody {
+        > tr {
+          border-bottom: 1px solid #F0F0F0;
+
+          &:hover {
+            background-color: #FAFAFA;
+          }
+
+          td {
+            font-size: 14px;
+            padding: 12px;
+            text-align: left !important;
+            border-radius: 0 !important;
+            border: none !important;
+            background: transparent !important;
+          }
+        }
+      }
+    }
+  }
+
+  // Убираем лишние отступы между задачами и подзадачами
+  .ant-table-row-level-1 {
+    > td {
+      padding-top: 8px !important;
+      padding-bottom: 8px !important;
+    }
+  }
+}

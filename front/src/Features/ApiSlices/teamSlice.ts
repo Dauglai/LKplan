@@ -1,4 +1,5 @@
 import { apiSlice } from 'App/api/apiSlice.ts';
+import { Result } from 'Features/ApiSlices/resultApiSlice.ts';
 
 export interface Team {
   id: number;
@@ -18,6 +19,14 @@ const teamApi = apiSlice.injectEndpoints({
       transformResponse: (response: { count: number; next: string | null; previous: string | null; results: Team[] }) => {
         return response.results;
       },
+    }),
+    getProjectTeams: builder.query<Team[], void>({
+      query: (project_id) => ({
+          url:`/api/teams/?project=${project_id}`,   //получение списка команд проекта
+          withCredentials: true,}
+      ),
+      providesTags: ['Team'],
+      transformResponse: (response: { results: Team[] }) => response.results,
     }),
     getTeamById: builder.query<Team, number>({
       query: (id) => ({
@@ -77,6 +86,7 @@ const teamApi = apiSlice.injectEndpoints({
 
 export const {
   useGetTeamsQuery,
+  useGetProjectTeamsQuery,
   useGetTeamByIdQuery,
   useCreateTeamMutation,
   useUpdateTeamMutation,

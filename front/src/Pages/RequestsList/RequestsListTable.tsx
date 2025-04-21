@@ -91,6 +91,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
                 </Link>
             ),
             sortKey: 'user.surname',
+            width: "150px",
         },
         {
             header: 'Мероприятие',

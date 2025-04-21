@@ -4,21 +4,11 @@ import { RootState } from '../model/store.ts';
 
 import { setCredentials, logOut } from 'Features/Auth/model/authSlice.ts';
 
-// export function getCSRFToken() {
-//   const csrfToken = document.cookie
-//     .split('; ')
-//     .find((row) => row.startsWith('csrftoken'))
-//     ?.split('=')[1];
-//   return csrfToken;
-// }
-
 const baseQuery = fetchBaseQuery({
   baseUrl: baseURL,
   credentials: 'include',
-
   prepareHeaders: (headers, { getState }) => {
-    const state = getState() as RootState;
-    const token = state.auth.token;
+    const token = (getState() as RootState).auth.token;
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
@@ -26,20 +16,20 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
-const baseQueryWithReauth: typeof baseQuery = async (
-  args,
-  api,
-  extraOptions
-) => {
+const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
   let result = await baseQuery(args, api, extraOptions);
-  if (result.error && result.error.status === 403) {
-    const refreshToken = (api.getState() as RootState).auth.refresh;
+
+  if (result?.error?.status === 401 || result?.error?.status === 403) {
+    const state = api.getState() as RootState;
+    const refreshToken = state.auth.refresh;
+
     if (!refreshToken) {
       api.dispatch(logOut());
       return result;
     }
 
-    const refreshResult = await baseQuery(
+    // Пробуем обновить access токен
+    const refreshResponse = await baseQuery(
       {
         url: '/api/token/refresh/',
         method: 'POST',
@@ -49,14 +39,20 @@ const baseQueryWithReauth: typeof baseQuery = async (
       extraOptions
     );
 
-    if (refreshResult?.data) {
-      const user = (api.getState() as RootState).auth.user;
-      api.dispatch(setCredentials({ ...refreshResult.data, user }));
+    if (refreshResponse?.data) {
+      api.dispatch(setCredentials({
+        access: (refreshResponse.data as any).access,
+        refresh: refreshToken,
+      }));
+    
+      // Повторный запрос после обновления токена
       result = await baseQuery(args, api, extraOptions);
     } else {
       api.dispatch(logOut());
     }
+    
   }
+
   return result;
 };
 

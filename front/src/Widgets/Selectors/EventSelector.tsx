@@ -5,7 +5,7 @@ import "Styles/FormSelectorStyle.scss";
 const { Option } = Select;
 
 interface EventSelectorProps {
-  selectedEvent: Event | null;
+  selectedEvent?: Event | null;
   onChange: (event: Event) => void;
 }
 

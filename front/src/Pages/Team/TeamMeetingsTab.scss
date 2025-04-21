@@ -1,0 +1,57 @@
+.TeamMeetingsTab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+
+  .MeetingCard {
+    background: #f9f9fb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    border: 1px solid #e1e3e6;
+  }
+
+  .MeetingHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 16px;
+    margin-bottom: 10px;
+
+    .MeetingDate {
+      color: #7a7a7a;
+      min-width: 100px;
+    }
+
+    .MeetingTime {
+      color: #7a7a7a;
+      min-width: 60px;
+    }
+
+    .MeetingTitle {
+      font-weight: 500;
+      flex-grow: 1;
+    }
+  }
+
+  .MeetingActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .GoButton {
+      background-color: #e9f5ec;
+      color: #1a8741;
+    }
+
+    .NotGoButton {
+      background-color: #fae9e9;
+      color: #c73e3e;
+    }
+
+    .ReasonInput {
+      flex-grow: 1;
+      min-width: 200px;
+    }
+  }
+}

@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from django.db import models
 from django.utils.termcolors import RESET
 from crm.models import Profile, Direction
@@ -14,20 +13,23 @@ class Project(models.Model):
         return f'{self.name}'
 
 
-class Result(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    # team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    name = models.CharField(verbose_name="Название ссылки",max_length=100)
-    link = models.CharField(verbose_name="Ссылка",max_length=10000)
-
-
 class Team(models.Model):
     curator = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='curator')
     name = models.CharField(verbose_name="Название", max_length=100)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True) #убрать null
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     students = models.ManyToManyField(Profile, blank=True, related_name="teams")
     is_agreed = models.BooleanField(default=False)
-    #chat = models.CharField(verbose_name="Ссылка на командный чат", max_length=1000, null=True, blank=True)
+    chat = models.CharField(verbose_name="Ссылка на командный чат", max_length=1000, null=True, blank=True)
+    drive = models.CharField(verbose_name="Ссылка на гугл диск", max_length=1000, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.name}'
+
+class Result(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    is_final = models.BooleanField(verbose_name="Конечный результат", default=False)
+    name = models.CharField(verbose_name="Название ссылки",max_length=100)
+    link = models.CharField(verbose_name="Ссылка",max_length=10000)
 
     def __str__(self):
         return f'{self.name}'
@@ -54,20 +56,22 @@ class Meeting(models.Model):
     name = models.CharField(max_length=256, verbose_name="Название")
     description = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
     datetime = models.DateTimeField(verbose_name="Дата и время начала")
+    participants = models.ManyToManyField(Profile, related_name="participants", verbose_name="Участники")
 
     def __str__(self):
         return f'{self.name}'
 
 
 class Task(models.Model):
-    creator = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name="tasks_creators",verbose_name="Создатель задачи")
-    project = models.ForeignKey(Project,on_delete=models.CASCADE,verbose_name="Проект")
-    status = models.ForeignKey(Stage,on_delete=models.CASCADE,verbose_name="Статус", related_name="current_stage")
+    creator = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="tasks_creators", verbose_name="Создатель задачи")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="Проект")
+    status = models.ForeignKey(Stage, on_delete=models.CASCADE, verbose_name="Статус", related_name="current_stage", blank=True, null=True)
     name = models.CharField(verbose_name="Название",max_length=256)
     description = models.TextField(verbose_name="Описание", max_length=10000)
     responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
+    performers = models.ManyToManyField(Profile, related_name="performers", verbose_name="Исполнители")
     start = models.DateTimeField(verbose_name="Дата создания", default= datetime.now())
-    end = models.DateTimeField(verbose_name="Время закрытия задачи", blank=True,null=True)
+    end = models.DateTimeField(verbose_name="Время закрытия задачи", blank=True, null=True)
     parent_task = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,
@@ -82,11 +86,10 @@ class Task(models.Model):
 
 class Checklist(models.Model):
     task = models.ForeignKey(Task, related_name="checklist", on_delete=models.CASCADE)
-    name = models.CharField(verbose_name="Описание пункта", max_length=500)
-    description = models.CharField(verbose_name="Описание пункта", max_length=500)
+    name = models.CharField(verbose_name="Название", max_length=500)
 
     def __str__(self):
-        return f"{self.description}"
+        return f"{self.name}"
 
 
 class ChecklistItem(models.Model):
@@ -101,7 +104,9 @@ class ChecklistItem(models.Model):
 
 
 class Comment(models.Model):
-    task = models.ForeignKey(Task, related_name="comments", on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, related_name="comments", on_delete=models.CASCADE, null=True, blank=True)
+    meeting = models.ForeignKey(Meeting, related_name="comments", on_delete=models.CASCADE, null=True, blank=True)
+    is_go = models.BooleanField(verbose_name="Приду",default=False)
     author = models.ForeignKey(Profile, on_delete=models.CASCADE)
     content = models.TextField(verbose_name="Текст", max_length=10000)
-    file = models.FileField(verbose_name="Файл", upload_to="comments", null=True, blank=True)
+    datetime = models.DateTimeField(auto_now_add=True)

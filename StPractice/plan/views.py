@@ -28,6 +28,14 @@ class ProfileSearchAPIView(generics.ListAPIView):
     filter_backends = [SearchFilter]
     search_fields = ['name', 'surname']
 
+class ResultFilter(filters.FilterSet):
+    team = filters.NumberFilter(field_name='team__id')
+
+    class Meta:
+        model = Result
+        fields = '__all__'
+
+
 
 class TaskFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains') # Фильтрация по названию
@@ -231,4 +239,18 @@ class TeamAPIListCreate(generics.ListCreateAPIView):
 class TeamAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class ResultAPIListCreate(generics.ListCreateAPIView):
+    queryset = Result.objects.all()
+    serializer_class = ResultSerializer
+    permission_classes = (IsAuthenticated,)
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ResultFilter
+
+
+class ResultAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Result.objects.all()
+    serializer_class = ResultSerializer
     permission_classes = (IsAuthenticated,)

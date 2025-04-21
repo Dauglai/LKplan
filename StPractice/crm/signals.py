@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from crm.utils import generate_verification_token
 from plan.models import Profile
-from crm.models import Contact
+from crm.models import Contact, Role
 from django.core.mail import send_mail
 from django.urls import reverse
 
@@ -15,7 +15,17 @@ from django.urls import reverse
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        profile = Profile.objects.create(user=instance)
+        if instance.is_superuser:
+            Role.objects.get_or_create(user=profile,
+                                       role_type='admin',
+                                       content_type=None,
+                                       object_id=None)
+        else:
+            Role.objects.get_or_create(user=profile,
+                                       role_type='projectant',
+                                       content_type=None,
+                                       object_id=None)
 
 
 @receiver(post_save, sender=User)
@@ -25,13 +35,13 @@ def save_user_profile(sender, instance, **kwargs):
 
 @receiver(post_save, sender=User)
 def assign_email_address(sender, instance, **kwargs):
-    if sender.email:
+    if instance.email:
         Contact.objects.create(profile=Profile.objects.get(user=instance), type="Почта", data=instance.email, )
 
 
 @receiver(post_save, sender=Contact)
 def send_verification_email(sender, instance, created, **kwargs):
-    if created and not instance.is_verified:
+    if created and not instance.is_verified and not instance.profile.user.is_superuser:
         instance.verified_token = generate_verification_token()
         instance.token_created_at = timezone.now()
         instance.save()

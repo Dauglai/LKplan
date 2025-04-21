@@ -539,6 +539,7 @@ class ProfilesAPIList(generics.ListAPIView):
 #     filterset_fields = ['type_action', 'status']  # Автоматическая фильтрация
 
 class ProfilesAPIUpdate(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = (IsAuthenticated,)
 

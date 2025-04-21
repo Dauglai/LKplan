@@ -1,8 +1,12 @@
 import json
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from rest_framework.exceptions import ValidationError
+
+from crm.utils import has_role
 
 
 class Specialization(models.Model):
@@ -27,6 +31,18 @@ class Profile(models.Model):
     password_reset_token = models.CharField(max_length=65, blank=True, null=True)
     password_reset_token_created = models.DateTimeField(null=True, blank=True)
 
+    def is_admin(self):
+        return has_role(self, 'admin')
+
+    def is_organizer(self, event):
+        return has_role(self, 'organizer', event)
+
+    def is_direction_leader(self, direction):
+        return has_role(self, 'direction_leader', direction)
+
+    def is_curator(self, project):
+        return has_role(self, 'curator', project)
+
     def __str__(self):
         return f'{self.surname} {self.name} {self.patronymic}'
 
@@ -50,17 +66,50 @@ class Contact(models.Model):
 
 
 class Role(models.Model):
-    ROLE_CHOISES = (
-        ("Организатор", "Организатор"),
-        ("Руководитель", "Руководитель"),
-        ("Куратор", "Куратор"),
+    ROLE_TYPES = (
+        ('admin', 'Администратор'),
+        ('organizer', 'Организатор'),
+        ('direction_leader', 'Руководитель направления'),
+        ('curator', 'Куратор'),
+        ('projectant', 'Проектант'),
     )
-    name = models.CharField(verbose_name="Название роли", choices=ROLE_CHOISES, default='На согласовании',
-                            max_length=50)
-    users = models.ManyToManyField(Profile, related_name="users")
+
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    role_type = models.CharField(max_length=20, choices=ROLE_TYPES, default="projectant")
+
+    # Поля для GenericForeignKey
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        null=True,  # Для админов не требуется объект
+        blank=True
+    )
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        unique_together = [
+            # Для ролей, привязанных к объектам
+            ['user', 'role_type', 'content_type', 'object_id']
+        ]
 
     def __str__(self):
-        return f'{self.name}'
+        obj = f" ({self.content_object})" if self.content_object else ""
+        return f"{self.user} : {self.get_role_type_display()}{obj}"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        # Проверка для ролей, требующих привязки к объекту
+        if self.role_type in ['organizer', 'direction_leader', 'curator']:
+            if not self.content_object:
+                raise ValidationError(
+                    f"Роль {self.get_role_type_display()} требует привязки к объекту"
+                )
+
+        # Проверка для администратора
+        if self.role_type == 'admin' and self.content_object:
+            raise ValidationError("Администратор не может быть привязан к объекту")
 
 
 class Event(models.Model):

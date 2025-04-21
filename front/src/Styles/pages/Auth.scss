@@ -1,0 +1,117 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.Auth {
+  width: 600px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 11.5px 0px #d4d4d4;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &-Heading {
+    @include h1;
+  }
+
+  &-Text {
+    margin-top: 16px;
+  }
+
+  &-Form {
+    margin-block: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+
+    &-Item {
+      margin-bottom: 4px;
+
+      // Общие стили для обычного Input
+      .ant-input {
+        height: 40px;
+        border: 1px solid $grey;
+        border-radius: 8px;
+        padding: 4px 12px;
+        font-family: 'Montserrat', sans-serif !important;
+        font-size: 14px;
+        line-height: 1.4;
+
+        &:focus {
+          box-shadow: none;
+        }
+      }
+
+      // Для Input.Password — обёртка
+      .ant-input-password {
+        height: 40px;
+        border: 1px solid $grey;
+        border-radius: 8px;
+        padding: 0 12px;
+
+        display: flex;
+        align-items: center;
+
+        .ant-input {
+          border: none;
+          outline: none;
+          box-shadow: none;
+          height: 100%;
+          padding: 4px 0;
+          font-family: 'Montserrat', sans-serif !important;
+          font-size: 14px;
+        }
+
+        &:focus-within {
+          box-shadow: none;
+        }
+      }
+    }
+
+      &-Submit {
+        padding: 12px 0;
+        height: 40px;
+        @include h3;
+        font-weight: 400;
+        background: $yellow;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+  
+        &:active {
+          opacity: 0.7;
+        }
+      }
+
+      &-EmailSent {
+        text-align: center;
+        font-size: 16px; 
+    
+        .ant-typography {
+          font-weight: 500;
+          line-height: 1.5;
+        }
+    
+        strong {
+          font-weight: 600;
+          font-size: 17px; 
+        }
+      }
+
+      &-Link {
+        @include text1;
+        display: flex;
+        justify-content: space-between;
+
+        &:hover {
+          color: $black;
+        }
+      }
+    }
+
+    &-Link {
+      @include text1;
+      align-self: center;
+    }
+}

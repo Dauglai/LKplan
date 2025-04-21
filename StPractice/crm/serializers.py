@@ -63,7 +63,34 @@ class ProfileSerializer(serializers.ModelSerializer):
         ]
 
 
+class ContentTypeField(serializers.Field):
+    def to_representation(self, value):
+        if not value:
+            return None
+        # Преобразование объекта ContentType в строку "app_label.model"
+        return f"{value.app_label}.{value.model}"
+
+    def to_internal_value(self, data):
+        if not data:
+            return None
+        # Преобразование строки "app_label.model" в объект ContentType
+        try:
+            app_label, model = data.split('.')
+            content_type = ContentType.objects.get(
+                app_label=app_label,
+                model=model
+            )
+            return content_type
+        except (ValueError, ContentType.DoesNotExist):
+            raise serializers.ValidationError("Invalid content_type format. Use 'app_label.model'.")
+
+
 class RoleSerializer(serializers.ModelSerializer):
+    content_type = ContentTypeField(
+        required=False,
+        allow_null=True,
+    )
+
     class Meta:
         model = Role
         fields = '__all__'

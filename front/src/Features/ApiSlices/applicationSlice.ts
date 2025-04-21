@@ -5,6 +5,7 @@ import { Project } from './projectSlice';
 import { Direction } from './directionSlice';
 import { Team } from './teamSlice';
 import { Result } from 'Features/ApiSlices/resultApiSlice.ts';
+import { User } from './userSlice';
 
 export interface Application {
   id: number;
@@ -15,7 +16,7 @@ export interface Application {
   specialization: number | null;
   team: Team | null;
   message: string | null;
-  dateTime: Date;
+  date_sub: Date;
   status: StatusApp;
   is_link: boolean;
   is_approved: boolean;
@@ -82,7 +83,7 @@ const applicationApi = apiSlice.injectEndpoints({
       invalidatesTags: ['Application'],
     }),
     partialUpdateApplication: builder.mutation<Application, { id: number; data: Partial<Omit<Application, 'id' | 'datetime'>> }>({
-      query: ({ id, ...data }) => ({
+      query: ({ id, data }) => ({
         url: `/api/application/${id}`, // Обновление заявки
         method: 'PATCH',
         body: data,

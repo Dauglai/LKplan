@@ -10,7 +10,7 @@ router.register(r'direction', DirectionAPIViews)
 # router.register(r'app_review', App_reviewAPIViews)
 router.register(r'status_app', status_AppAPIViews)
 router.register(r'specialization', SpecializationAPIViews)
-# router.register(r'role', RoleAPIViews)
+router.register(r'role', RoleAPIViews)
 
 urlpatterns = [
     path('events/', EventAPIList.as_view()),

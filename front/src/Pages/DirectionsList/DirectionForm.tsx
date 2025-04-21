@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Direction,
+  useCreateDirectionMutation,
   useUpdateDirectionMutation} from 'Features/ApiSlices/directionSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
 import 'Styles/FormStyle.scss';
@@ -15,25 +16,32 @@ import "Styles/FormSelectorStyle.scss";
 import CloseIcon from 'assets/icons/close.svg?react';
 import UserSelector from 'Widgets/Selectors/UserSelector';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
+import EventSelector from 'Widgets/Selectors/EventSelector';
 
-export default function DirectionForm({ 
-  existingDirection,
-}: {
+type DirectionFormProps = {
+  mode: 'setup' | 'create' | 'edit';
   existingDirection?: Direction;
-}): JSX.Element {
+};
+
+export default function DirectionForm({
+  mode,
+  existingDirection,
+}: DirectionFormProps): JSX.Element {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { data: user, isLoading } = useGetUserQuery();
+  const { data: user } = useGetUserQuery();
+  const [createDirection] = useCreateDirectionMutation();
   const [updateDirection, { isLoading: isUpdating }] = useUpdateDirectionMutation();
-  const { stepEvent } = useSelector((state: any) => state.event);
+  const { stepEvent, stepDirections } = useSelector((state: any) => state.event);
   const { showNotification } = useNotification();
-  const { stepDirections } = useSelector((state: any) => state.event || []);
 
   const [newDirection, setNewDirection] = useState({
     name: '',
     description: '',
     leader_id: existingDirection?.leader_id || null,
+    event: existingDirection?.event_id || stepEvent?.id || null,
   });
+  
 
   useEffect(() => {
     if (existingDirection) {
@@ -43,65 +51,65 @@ export default function DirectionForm({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setNewDirection((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setNewDirection((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCuratorChange = (userId: number) => {
-    setNewDirection((prev) => ({
-      ...prev,
-      leader_id: userId, 
-    }));
+    setNewDirection((prev) => ({ ...prev, leader_id: userId }));
   };
 
-  const handleDirection = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newDirection.name.trim()) {
-      setNewDirection({ name: '', description: '', leader_id: user?.user_id});
-      showNotification('Направление создано!', 'success');
-      dispatch(addDirection(newDirection));  // Сохраняем в хранилище
+    if (!newDirection.name.trim()) return;
+
+    if (mode === 'setup') {
+      dispatch(addDirection({ ...newDirection, leader_id: user?.user_id }));
+      showNotification('Направление добавлено локально!', 'success');
+      setNewDirection({ name: '', description: '', leader_id: user?.user_id, event: stepEvent?.id });
     }
-  };
 
-  const handleUpdateDirection = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newDirection.name.trim()) {
+    if (mode === 'create') {
+      await createDirection(newDirection);
+      showNotification('Направление создано!', 'success');
+    }
+
+    if (mode === 'edit') {
       await updateDirection(newDirection);
       showNotification('Направление обновлено!', 'success');
-      dispatch(addDirection(newDirection));  // Сохраняем в хранилище
     }
-  };
-
-  const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const textarea = e.target;
-
-    setNewDirection((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
   };
 
   const handleNextStep = () => {
-    navigate("/projects-setup")
+    navigate('/projects-setup');
   };
 
   const handleRemoveDirection = (id: string) => {
-    dispatch(removeDirection(id));  // Удаляем направление по id
+    dispatch(removeDirection(id));
   };
 
   return (
     <div className="FormContainer">
       <div className="FormHeader">
-          <BackButton />
-          <div className="">
-            <h2>{existingDirection ? 'Редактирование направления' : 'Добавление направления'}</h2>
-            <p>{stepEvent.name}</p>
-          </div>
+        {mode === 'create' || mode === 'edit' ? <BackButton /> : null}
+        <div>
+          <h2>
+            {mode === 'edit'
+              ? 'Редактирование направления'
+              : 'Добавление направления'}
+          </h2>
+          <p>{mode === 'create' ? selectedEvent?.name : stepEvent?.name}</p>
         </div>
+      </div>
 
-      <form className="Form DirectionForm" onSubmit={existingDirection ? handleUpdateDirection : handleDirection}>
+      <form className="Form DirectionForm" onSubmit={handleSubmit}>
+      {mode === 'create' && (
+            <EventSelector
+              onChange={(event) =>
+                setNewDirection((prev) => ({ ...prev, event_id: event.id }))
+              }
+            />
+          )}
+
 
         <div className="NameContainer">
           <NameInputField
@@ -114,35 +122,37 @@ export default function DirectionForm({
           <DescriptionInputField
             name="description"
             value={newDirection.description}
-            onChange={handleTextArea}
+            onChange={handleInputChange}
             placeholder="Описание направления"
           />
         </div>
 
         <UserSelector
-          selectedUserId={newDirection.leader_id || null}
+          selectedUserId={newDirection.leader_id}
           onChange={handleCuratorChange}
           label="Добавить руководителя"
         />
 
         <div className="FormButtons">
           <button className="primary-btn" type="submit" disabled={isUpdating}>
-            {existingDirection ? 'Обновить' : 'Создать направление'}
+            {mode === 'edit' ? 'Обновить' : 'Создать направление'}
           </button>
 
-          <button
-            className="primary-btn"
-            type="button"
-            onClick={handleNextStep}
-          >
-            Настройка проектов
-            <ChevronRightIcon width="24" height="24" strokeWidth="1" />
-          </button>
+          {mode === 'setup' && (
+            <button
+              className="primary-btn"
+              type="button"
+              onClick={handleNextStep}
+            >
+              Настройка проектов
+              <ChevronRightIcon width="24" height="24" strokeWidth="1" />
+            </button>
+          )}
         </div>
       </form>
 
-      {
-        stepDirections.directions && stepDirections.directions.length > 0 && (
+      {mode === 'setup' &&
+        stepDirections?.directions?.length > 0 && (
           <div className="DirectionList">
             <h3>Созданные направления:</h3>
             <ul className="SelectedList">
@@ -160,8 +170,8 @@ export default function DirectionForm({
               ))}
             </ul>
           </div>
-        )
-      }
+        )}
     </div>
   );
 }
+

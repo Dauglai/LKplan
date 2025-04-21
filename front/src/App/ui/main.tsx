@@ -13,8 +13,8 @@ import RequireAuth from 'Shared/ui/requireAuth.tsx';
 import { RequireRole } from 'Shared/ui/RequireRole.tsx';
 import { NotificationProvider } from 'Widgets/Notification/Notification.tsx';
 
-import Login from 'Pages/Login/ui/Login.tsx';
-import Register from 'Pages/Register/ui/Register.tsx';
+import Login from 'Pages/Login/Login.tsx';
+import Register from 'Pages/Register/Register.tsx';
 import Profile from 'Pages/Profile/ui/Profile.tsx';
 import RequestsManagement from 'Pages/RequestsList/RequestsManagement.tsx';
 import Tasks from 'Pages/Tasks/Tasks.tsx';
@@ -33,6 +33,9 @@ import ProjectPage from 'Pages/Project/ProjectPage.tsx';
 import ProjectForm from 'Pages/ProjectsList/ProjectForm.tsx';
 import TeamPage from 'Pages/Team/TeamPage.tsx';
 import UsersProfilePage from 'Pages/UsersProfile/UsersProfilePage.tsx';
+import EmailVerifiedPage from 'Pages/Register/EmailVerified.tsx';
+import PasswordResetRequest from 'Pages/Login/PasswordResetRequest.tsx';
+import PasswordResetConfirm from 'Pages/Login/PasswordResetConfirm.tsx';
 
 const theme = {
   token: {
@@ -55,6 +58,9 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/" element={<App />}/>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/email-verified" element={<EmailVerifiedPage />} />
+                <Route path="/password-reset-request" element={<PasswordResetRequest />} />
+                <Route path="/password-reset/confirm" element={<PasswordResetConfirm />} />
                 <Route path="/" element={<RequireAuth />}>
 
                 {/* Доступ только админу */}
@@ -66,7 +72,7 @@ createRoot(document.getElementById('root')!).render(
                     <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
 
                     <Route path="/event-setup" element={<EventForm />} />
-                    <Route path="/directions-setup" element={<DirectionForm />} />
+                    <Route path="/directions-setup" element={<DirectionForm mode='setup'/>} />
                     <Route path="/projects-setup" element={<ProjectForm />} />
                     <Route path="/event-setup-save" element={<EventSetupSummary />} />
                   </Route>

@@ -104,7 +104,7 @@ export default function ProjectForm({
   const handleDirectionChange = (selected: number) => {
     setNewProject((prev) => ({
       ...prev,
-      direction: selected,
+      direction: selected.id,
     }));
   };
 
@@ -145,6 +145,7 @@ export default function ProjectForm({
 
         <DirectionSelector
           onChange={handleDirectionChange}
+          sourceType='local'
         />
 
         <div className="NameContainer">

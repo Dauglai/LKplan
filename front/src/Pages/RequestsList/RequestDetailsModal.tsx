@@ -1,11 +1,12 @@
 import { List, Typography, Button, Space } from 'antd';
 import { Application, usePartialUpdateApplicationMutation } from 'Features/ApiSlices/applicationSlice';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import EventSelector from 'Widgets/Selectors/EventSelector';
 import StatusAppSelector from 'Widgets/Selectors/StatusAppSelector';
 import ProjectSelector from 'Widgets/Selectors/ProjectSelector';
 import TeamSelector from 'Widgets/Selectors/TeamSelector';
 import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
+import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 const { Text } = Typography;
 
 interface RequestDetailsProps {
@@ -17,9 +18,12 @@ export default function RequestDetailsModal({ request, onClose }: RequestDetails
   const [partialUpdateApplication] = usePartialUpdateApplicationMutation();
   const [isEditing, setIsEditing] = useState(false);
   const [statusApp, setStatusApp] = useState(request.status);
-  const [event, setEvent] = useState(request.event);
+  const [direction, setDirection] = useState(request.direction);
+
   const [project, setProject] = useState(request.project);
   const [team, setTeam] = useState(request.team);
+  const [event, setEvent] = useState(request.event);
+
 
   const handleSave = async () => {
     const updateData: any = {};
@@ -33,12 +37,16 @@ export default function RequestDetailsModal({ request, onClose }: RequestDetails
     }
 
     if (project && project.id !== request.project) {
-      updateData.project = project.id;
+      updateData.project = project.id?.toString();
+    }
+
+    if (direction && direction.id !== request.direction) {
+      updateData.direction = direction.id?.toString();
     }
 
 
-    if (team && team.id !== request.team.id) {
-      updateData.team = team.id;
+    if (team && team.id !== request.team) {
+      updateData.team = team.id?.toString();
     }
   
     if (Object.keys(updateData).length > 0) {
@@ -57,17 +65,19 @@ export default function RequestDetailsModal({ request, onClose }: RequestDetails
   };
 
   const infoItems = [
-    { label: 'Статус', value: request.status.name },
-    { label: 'Мероприятие', value: request.event.name },
-    { label: 'Направление', value: request.direction?.name || 'Не указано' },
-    { label: 'Проект', value: request.project?.name || 'Не указан' },
-    { label: 'Команда', value: request.team?.name || 'Не указана' },
+    { label: 'Статус', value: statusApp.name },
+    { label: 'Время подачи', value: `${request.time_sub} ${request.date_sub}` },
+    { label: 'Мероприятие', value: event?.name || 'Не указано' },
+    { label: 'Направление', value: direction?.name || 'Не указано' },
+    { label: 'Проект', value: project?.name || 'Не указан' },
+    { label: 'Команда', value: team?.name || 'Не указана' },
     { label: 'Специальность', value: request.specialization?.name || 'Не указана' },
-    { label: 'Место работы', value: request.user.work_place || 'Не указано' },
-    { label: 'Учебное заведение', value: request.user.education_place || 'Не указано' },
+    { label: 'Место работы', value: request.user.job || 'Не указано' },
+    { label: 'Учебное заведение', value: request.user.university || 'Не указано' },
     { label: 'Ссылка в TG', value: request.user.telegram || 'Не указана' },
     { label: 'Ссылка в VK', value: request.user.vk || 'Не указана' },
   ];
+  
   
 
   return (
@@ -94,6 +104,15 @@ export default function RequestDetailsModal({ request, onClose }: RequestDetails
                 <EventSelector
                   selectedEvent={event}
                   onChange={(newEvent) => setEvent(newEvent)}
+                />
+              </div>
+            ) : label === 'Направление' && isEditing ? (
+              <div className="ListItemWithSelector direction">
+                <Text><strong>{label}:</strong></Text>
+                <DirectionSelector
+                  selectedDirection={direction}
+                  onChange={(newDirection) => setDirection(newDirection)}
+                  sourceType='remote'
                 />
               </div>
             ) : label === 'Проект' && isEditing ? (

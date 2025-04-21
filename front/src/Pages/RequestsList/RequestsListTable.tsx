@@ -1,5 +1,5 @@
 import 'Styles/components/Sections/ListTableStyles.scss';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useNotification } from 'Widgets/Notification/Notification';
 import { getInitials } from "Features/utils/getInitials";
@@ -9,6 +9,9 @@ import RequestDetailsWrapper from './RequestDetailsWrapper';
 import { Application } from 'Features/ApiSlices/applicationSlice';
 import ListTable from 'Components/Sections/ListTable';
 import MagnifierIcon from 'assets/icons/magnifier.svg?react';
+import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
+import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
+import dayjs from 'dayjs';
 
 
 interface RequestsListTableProps {
@@ -18,7 +21,9 @@ interface RequestsListTableProps {
 
 export default function RequestsListTable({ requests, role }: RequestsListTableProps): JSX.Element {
     const [openMenu, setOpenMenu] = useState<number | null>(null);
-    const { data: projects = [], isLoading } = useGetProjectsQuery(); // Получение списка проектов с сервера.
+    const { data: projects = []} = useGetProjectsQuery(); // Получение списка проектов с сервера.
+    const { data: events = [] } = useGetEventsQuery();
+    const { data: teams = [] } = useGetTeamsQuery();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState<Application | null>(null);
     const [deleteRequest] = useDeleteApplicationMutation();
@@ -39,8 +44,27 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
 
     const handleCloseMenu = () => setOpenMenu(null); // Закрывает открытое меню действий.
 
-    const getProjectById = (id: number) => projects.find(project => project.project_id === id);
+    const enrichedRequests = useMemo(() => {
+        return requests.map(request => {
+          const project = projects.find(p => p.project_id === request.project);
+          const event = events.find(e => e.event_id === request.event?.id);
+          const team = teams.find(t => t.id === request.team);
+          const date_sub = dayjs(request.date_sub).format('DD.MM.YYYY');
+          const time_sub = dayjs(request.date_sub).format('HH:mm');
+          const datetime_sub = request.date_sub;
 
+      
+          return {
+            ...request,
+            project,
+            event,
+            team,
+            date_sub,
+            time_sub,
+            datetime_sub
+          };
+        });
+      }, [requests, projects, events, teams]);
 
     const handleDelete = async (id: number) => {
         await deleteRequest(id);
@@ -67,30 +91,37 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
                 </Link>
             ),
             sortKey: 'user.surname',
+            width: "150px",
         },
         {
             header: 'Мероприятие',
-            render: (request: Application) => (
-                <Link to={`/event/${request.event.id}`} className="HiglightCell LinkCell">
+            render: (request: Application) => {
+                return request.event ? (
+                <Link to={`/event/${request.event.event_id}`} className="HiglightCell LinkCell">
                     {request.event.name}
                 </Link>
-            ),
+                ): (
+                    <span>Мероприятие не указано</span>
+                );
+            },
             sortKey: 'event.name',
+            autoFilters: true, 
             text: 'Нажмите на мероприятие для подробностей',
         },
         {
             header: 'Проект',
             render: (request: Application) => {
-              const project = getProjectById(request.project);
-              return project ? (
-                <Link to={`/project/${project.project_id}`} className="HiglightCell LinkCell">
-                  {project.name}
+              return request.project ? (
+                <Link to={`/project/${request.project.project_id}`} className="HiglightCell LinkCell">
+                  {request.project.name}
                 </Link>
               ) : (
-                <span className="HiglightCell">Проект не найден</span>
+                <span>Проект не указан</span>
               );
             },
-            text: 'Нажмите на проект для подробностей',        
+            sortKey: 'project.name',
+            text: 'Нажмите на проект для подробностей',  
+            autoFilters: true,      
         },          
         {
             header: 'Статус',
@@ -98,6 +129,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
                 <span className="HiglightCell">{request.status.name}</span>
             ),
             sortKey: 'status.name',
+            autoFilters: true,
         },
         {
             header: 'Специализация',
@@ -105,6 +137,14 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
                 <span className="HiglightCell">{request.specialization.name}</span>
             ),
             sortKey: 'specialization.name',
+            autoFilters: true,
+        },
+        {
+            header: 'Время подачи',
+            render: (request: Application) => (
+                <span className="HiglightCell">{request.time_sub} {request.date_sub}</span>
+            ),
+            sortKey: 'datetime_sub',
         },
         {
             header: 'Команда',
@@ -116,6 +156,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
                 ) : (
                     'Не указана'
                 ),
+                //sortKey: 'team.name',
         },
         {
             header: '',
@@ -132,7 +173,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
     return (
         <>
             <ListTable
-                data={requests}
+                data={enrichedRequests}
                 columns={columns}
             />
             {isModalOpen && selectedRequest && (

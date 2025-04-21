@@ -3,27 +3,22 @@ import { useSelector } from 'react-redux';
 import "Styles/FormSelectorStyle.scss"
 
 import { Select, Spin } from 'antd';
-import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
+import { Direction, useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 
 const { Option } = Select;
 
-interface Direction {
-  id: number;
-  name: string;
-}
-
 interface DirectionSelectorProps {
+  selectedDirection?: Direction | null;
   onChange: (direction: Direction) => void;
-  value?: number;
   sourceType: 'local' | 'remote';
-  placeholder?: string;
+  label?: string;
 }
 
 export default function DirectionSelector({
+  selectedDirection,
   onChange,
-  value,
   sourceType,
-  placeholder = 'Выбрать направление *',
+  label = 'Выбрать направление',
 }: DirectionSelectorProps): JSX.Element {
   const [options, setOptions] = useState<Direction[]>([]);
   const { data: remoteDirections, isLoading } = useGetDirectionsQuery(undefined, {
@@ -42,24 +37,23 @@ export default function DirectionSelector({
 
   const handleChange = (id: number) => {
     const selected = options.find((dir) => dir.id === id);
-    if (selected) {
-      onChange(selected);
-    }
+    if (selected) onChange(selected);
   };
 
   if (isLoading) return <Spin />;
 
+  if (!options || options.length === 0) {
+    return <div>Направления не найдены</div>;
+  }
+
   return (
     <Select
-      showSearch
-      value={value}
+      value={selectedDirection?.id ?? undefined}
       onChange={handleChange}
-      placeholder={placeholder}
-      style={{ width: '100%' }}
+      placeholder={label}
       optionFilterProp="children"
-      filterOption={(input, option) =>
-        (option?.children as string).toLowerCase().includes(input.toLowerCase())
-      }
+      showSearch
+      className="Selector"
     >
       {options.map((direction) => (
         <Option key={direction.id} value={direction.id}>

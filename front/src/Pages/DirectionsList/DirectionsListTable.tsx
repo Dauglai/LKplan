@@ -198,7 +198,7 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
       <ListTable data={directions} columns={columns} />
       {isModalOpen && (
         <Modal isOpen={isModalOpen} onClose={closeModal}>
-          <DirectionForm closeModal={closeModal} existingDirection={selectedDirection} />
+          <DirectionForm closeModal={closeModal} existingDirection={selectedDirection} mode="edit"/>
         </Modal>
       )}
     </>

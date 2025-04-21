@@ -13,6 +13,7 @@ interface ListsHeaderProps {
   PageOptions?: PageOption[];
   searchPlaceholder?: string;
   link?: string;
+  onAddClick?: () => void;
 }
 
 /**
@@ -47,6 +48,7 @@ export default function ListsHeaderPanel({
     PageOptions,
     searchPlaceholder = "Поиск",
     link,
+    onAddClick,
     }: ListsHeaderProps): JSX.Element {
     const [search, setSearch] = useState(""); // Локальное состояние строки поиска
     const navigate = useNavigate(); // Навигация по маршрутам
@@ -61,6 +63,8 @@ export default function ListsHeaderPanel({
     const handleAddButtonClick = () => {
         if (link) {
         navigate(link);
+        } else if (onAddClick) {
+            onAddClick();
         }
     };
 

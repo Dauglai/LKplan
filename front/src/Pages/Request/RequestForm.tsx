@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
-import { useGetTeamsQuery } from "Features/ApiSlices/teamSlice";
+import { Project, useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
+import { Team, useGetTeamsQuery } from "Features/ApiSlices/teamSlice";
 import ProjectSelector from "Widgets/Selectors/ProjectSelector";
 import SpecializationSelector from "Widgets/Selectors/SpecializationSelector";
 import DirectionSelector from "Widgets/Selectors/DirectionSelector";
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import TeamSelector from "Widgets/Selectors/TeamSelector";
+import { Direction, useGetDirectionsQuery } from "Features/ApiSlices/directionSlice";
 
 interface RequestFormProps {
   eventId: number;
@@ -14,12 +15,13 @@ interface RequestFormProps {
 }
 
 export default function RequestForm({ eventId, userId, onSubmit }: RequestFormProps): JSX.Element {
+  const { data: directions } = useGetDirectionsQuery();
   const { data: projects } = useGetProjectsQuery();
   const { data: teams } = useGetTeamsQuery();
 
-  const [selectedDirection, setSelectedDirection] = useState<number | null>(null);
-  const [selectedProject, setSelectedProject] = useState<number | null>(null);
-  const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
+  const [selectedDirection, setSelectedDirection] = useState<Direction | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [selectedSpecialization, setSelectedSpecialization] = useState<number[]>([]);
   const [message, setMessage] = useState<string>("");
 
@@ -29,30 +31,39 @@ export default function RequestForm({ eventId, userId, onSubmit }: RequestFormPr
       status: 1,
   });
 
+  console.log(directions)
+
+  const filteredDirections = directions?.filter(
+    (direction) => direction.event === eventId
+  );
+
   const filteredProjects = selectedDirection
-    ? projects?.filter((project) => project.direction.id === selectedDirection)
+    ? projects?.filter((project) => project.directionSet.id === selectedDirection.id)
     : projects;
 
   const filteredTeams = selectedProject
-    ? teams?.filter((team) => team.project === selectedProject)
+    ? teams?.filter((team) => team.project === selectedProject.project_id)
     : teams;
 
   useEffect(() => {
     if (selectedProject) {
-      const project = projects?.find((project) => project.project_id === selectedProject);
-      if (project) setSelectedDirection(project.direction.id);
+      const project = projects?.find((project) => project.id === selectedProject.id);
+      if (project) setSelectedDirection(project.directionSet);
     }
   }, [selectedProject, projects]);
 
   useEffect(() => {
     if (selectedTeam) {
-      const team = teams?.find((team) => team.id === selectedTeam);
+      const team = teams?.find((team) => team.id === selectedTeam.id);
       if (team) {
-        setSelectedProject(team.project);
-        const project = projects?.find((project) => project.project_id === team.project);
-        if (project) setSelectedDirection(project.direction.id);
+        const project = projects?.find((p) => p.project_id === team.project);
+        if (project) {
+          setSelectedProject(project);
+          setSelectedDirection(project.directionSet);
+        }
       }
     }
+    
   }, [selectedTeam, teams, projects]);
 
   const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -64,10 +75,10 @@ export default function RequestForm({ eventId, userId, onSubmit }: RequestFormPr
     };
 
   const handleSubmit = () => {
-    if (selectedProject) requestData.project = selectedProject;
-    if (selectedDirection) requestData.direction = selectedDirection;
+    if (selectedProject) requestData.project = selectedProject.project_id;
+    if (selectedDirection) requestData.direction = selectedDirection.id;
     if (selectedSpecialization) requestData.specialization = selectedSpecialization[0];
-    if (selectedTeam) requestData.team = selectedTeam;
+    if (selectedTeam) requestData.team = selectedTeam.id;
     if (message) requestData.message = message;
 
     onSubmit(requestData);
@@ -84,13 +95,15 @@ export default function RequestForm({ eventId, userId, onSubmit }: RequestFormPr
           selectedDirectionId={selectedDirection}
           onChange={setSelectedDirection}
           label="Выбрать направление"
+          sourceType="remote"
+          directions={filteredDirections}
         />
 
         <ProjectSelector
           selectedProjectId={selectedProject}
           onChange={setSelectedProject}
           projects={filteredProjects || []}
-          label="Выбрать проект*"
+          label="Выбрать проект"
         />
 
         <TeamSelector

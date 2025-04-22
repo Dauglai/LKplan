@@ -52,16 +52,19 @@ const userApi = apiSlice.injectEndpoints({
       providesTags: ['User'],
     }),
 
-    updateUser: builder.mutation<User, { data: Omit<User, 'user_id'> }>({
-      query: ({ data }) => ({
-        url: `/api/profile/update/`, // Обновление данных пользователя
-        method: 'PUT',
-        body: data,
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-      }),
-      invalidatesTags: ['User'],
-    }),
+    updateUser: builder.mutation<User, { user_id: number; data: Omit<User, 'user_id'> }>(
+      {
+        query: ({ user_id, data }) => ({
+          url: `/api/profile/update/${user_id}`,
+          method: 'PUT',
+          body: data,
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        }),
+        invalidatesTags: ['User'],
+      }
+    ),
+    
 
     partialUpdateUser: builder.mutation<User, { data: Partial<Omit<User, 'user_id'>> }>({
       query: ({ data }) => ({
@@ -79,6 +82,6 @@ const userApi = apiSlice.injectEndpoints({
 export const {
   useGetUserQuery,
   useGetUsersQuery,
-  useGetProfilesByIdsQuery, // ✅ Добавленный хук
+  useGetProfilesByIdsQuery,
   useUpdateUserMutation,
 } = userApi;

@@ -135,7 +135,7 @@ export default function ProjectsListTable({ projects, role }: ProjectsTableProps
      */
   
     const actions = (project: Project) => [
-      { label: 'Редактировать', onClick: () => handleEdit(project.project_id), requiredRole: 'Организатор' },
+      {/* label: 'Редактировать', onClick: () => handleEdit(project.project_id), requiredRole: 'Организатор' */},
       { label: 'Удалить', onClick: () => handleDelete(project.project_id), requiredRole: 'Организатор' },
     ];
 

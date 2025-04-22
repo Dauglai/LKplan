@@ -4,8 +4,8 @@
 
 .ListTableContainer {
     width: 1160px;
-    margin: 0 auto; /* Центрирование без отступов */
-    padding: 0; /* Убираем лишний отступ перед таблицей */
+    margin: 0 auto;
+    padding: 0;
 }
 
 .UniversalListTable, .ant-table-wrapper {
@@ -150,5 +150,9 @@
         text-align: center;
     }
 
-
+.PaginationContainer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
   

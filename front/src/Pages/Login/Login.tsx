@@ -51,7 +51,7 @@ export default function Auth(): JSX.Element {
           className="Auth-Form-Item"
           rules={[{ required: true, message: 'Пожалуйста, введите адрес электронной почты' }]}
         >
-          <Input placeholder="Имя пользователя" className="Auth-Form-Input"/>
+          <Input placeholder="Email" className="Auth-Form-Input"/>
         </Form.Item>
 
         <Form.Item
@@ -63,7 +63,7 @@ export default function Auth(): JSX.Element {
           <Input.Password placeholder="Пароль" className="Auth-Form-Input"/>
         </Form.Item>
 
-        <Link to="/password-reset-request" className="Auth-Form-Link">Не помню пароль</Link>
+        <Link to="/password-reset-request" className="Auth-Form-Link">Восстановить пароль</Link>
 
         <Form.Item className="Auth-Form-Item">
           <Button

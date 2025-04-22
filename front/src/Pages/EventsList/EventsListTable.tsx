@@ -156,7 +156,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
    */
 
   const actions = (event: Event) => [
-    { label: 'Редактировать', onClick: () => handleEdit(event.event_id), requiredRole: 'Организатор' },
+    {/* label: 'Редактировать', onClick: () => handleEdit(event.event_id), requiredRole: 'Организатор' */},
     { label: 'Удалить', onClick: () => handleDelete(event.event_id), requiredRole: 'Организатор' },
   ];
 

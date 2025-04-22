@@ -12,6 +12,7 @@ interface DirectionSelectorProps {
   onChange: (direction: Direction) => void;
   sourceType: 'local' | 'remote';
   label?: string;
+  directions: Direction[];
 }
 
 export default function DirectionSelector({
@@ -19,6 +20,7 @@ export default function DirectionSelector({
   onChange,
   sourceType,
   label = 'Выбрать направление',
+  directions,
 }: DirectionSelectorProps): JSX.Element {
   const [options, setOptions] = useState<Direction[]>([]);
   const { data: remoteDirections, isLoading } = useGetDirectionsQuery(undefined, {
@@ -27,13 +29,14 @@ export default function DirectionSelector({
   const localDirections = useSelector((state: any) => state.event?.stepDirections?.directions || []);
 
   useEffect(() => {
-    if (sourceType === 'remote' && remoteDirections) {
+    if (directions) {
+      setOptions(directions);
+    } else if (sourceType === 'remote' && remoteDirections) {
       setOptions(remoteDirections);
-    }
-    if (sourceType === 'local') {
+    } else if (sourceType === 'local') {
       setOptions(localDirections);
     }
-  }, [sourceType, remoteDirections, localDirections]);
+  }, [sourceType, remoteDirections, localDirections, directions]);
 
   const handleChange = (id: number) => {
     const selected = options.find((dir) => dir.id === id);

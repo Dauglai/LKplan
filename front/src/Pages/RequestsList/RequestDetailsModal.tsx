@@ -1,12 +1,11 @@
 import { List, Typography, Button, Space } from 'antd';
 import { Application, usePartialUpdateApplicationMutation } from 'Features/ApiSlices/applicationSlice';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import EventSelector from 'Widgets/Selectors/EventSelector';
 import StatusAppSelector from 'Widgets/Selectors/StatusAppSelector';
 import ProjectSelector from 'Widgets/Selectors/ProjectSelector';
 import TeamSelector from 'Widgets/Selectors/TeamSelector';
 import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
-import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 const { Text } = Typography;
 
 interface RequestDetailsProps {
@@ -97,7 +96,7 @@ export default function RequestDetailsModal({ request, onClose }: RequestDetails
                 />
               </div>
             ) : label === 'Мероприятие' && isEditing ? (
-              <div className="ListItemWithSelector">
+              <div className="ListItemWithSelector event ">
                 <Text>
                   <strong>{label}:</strong>
                 </Text>
@@ -116,7 +115,7 @@ export default function RequestDetailsModal({ request, onClose }: RequestDetails
                 />
               </div>
             ) : label === 'Проект' && isEditing ? (
-              <div className="ListItemWithSelector">
+              <div className="ListItemWithSelector project">
                 <Text><strong>{label}:</strong></Text>
                 <ProjectSelector
                   selectedProject={project}

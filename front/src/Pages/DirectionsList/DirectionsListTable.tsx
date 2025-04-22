@@ -6,10 +6,10 @@ import { useGetUsersQuery } from 'Features/ApiSlices/userSlice';
 import { Direction } from 'Features/ApiSlices/directionSlice';
 import { Link } from 'react-router-dom';
 import { getInitials } from "Features/utils/getInitials";
-import DirectionForm from "./DirectionForm";
 import Modal from "Widgets/Modal/Modal";
 import ActionMenu from 'Components/Sections/ActionMenu';
 import ListTable from "Components/Sections/ListTable";
+import EditDirectionForm from 'Pages/DirectionForm/EditDirectionForm';
 
 interface DirectionsTableProps {
   directions: Direction[];
@@ -189,7 +189,7 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
    * @returns {Array} Список действий для меню.
    */
   const actions = (direction: Direction) => [
-    { label: 'Редактировать', onClick: () => handleEdit(direction.id) },
+    {/* label: 'Редактировать', onClick: () => handleEdit(direction.id) */},
     { label: 'Удалить', onClick: () => handleDelete(direction.id) },
   ];
 
@@ -198,7 +198,7 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
       <ListTable data={directions} columns={columns} />
       {isModalOpen && (
         <Modal isOpen={isModalOpen} onClose={closeModal}>
-          <DirectionForm closeModal={closeModal} existingDirection={selectedDirection} mode="edit"/>
+          <EditDirectionForm direction={selectedDirection}/>
         </Modal>
       )}
     </>

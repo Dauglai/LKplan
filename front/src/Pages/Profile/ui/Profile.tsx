@@ -50,8 +50,15 @@ export default function Profile(): JSX.Element {
       const patronymic = patronymicParts.join(' ');
 
       await updateUser({
-        data: { ...data, surname, name, patronymic },
+        user_id: user.user_id,
+        data: {
+          ...data,
+          surname,
+          name,
+          patronymic,
+        },
       }).unwrap();
+      
 
       setIsButtonDisabled(true);
       showNotification('Данные успешно обновлены!', 'success');

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Table } from 'antd';
+import { Pagination,Table } from 'antd';
 import InfoCircle from "Components/Common/InfoCircle";
 import 'Styles/components/Sections/ListTableStyles.scss';
 
@@ -47,6 +47,9 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
     direction: 'asc',
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const getValue = (obj: any, path: string): any => {
     return path.split('.').reduce((acc, part) => acc?.[part], obj);
   };
@@ -63,6 +66,8 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
     if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
     return 0;
   });
+
+  const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   
 
   // Обработчик клика по заголовку колонки для смены направления сортировки
@@ -119,24 +124,50 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
       
     };
   });
+
+  const handlePageChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
+  };
   
 
   return (
-    <Table
-      dataSource={sortedData}
-      columns={tableColumns}
-      rowKey={(record, index) => index.toString()} // Применяем уникальный ключ для строк
-      pagination={false} // Добавляем пагинацию (если нужно, можно настроить)
-      className="UniversalListTable"
-      showSorterTooltip={false}
-      locale={{
-        filterTitle: 'Фильтр',
-        filterConfirm: 'ОК',
-        filterReset: 'Сброс',
-        filterEmptyText: 'Нет фильтров',
-        emptyText: 'Нет данных',
-        filterSearchPlaceholder: 'Поиск',
-      }}
-    />
+    <div className="ListTableContainer">
+      <Table
+        dataSource={paginatedData}
+        columns={tableColumns}
+        rowKey={(record, index) => index.toString()}
+        pagination={false} // Выключаем пагинацию на уровне таблицы
+        className="UniversalListTable"
+        showSorterTooltip={false}
+        locale={{
+          filterTitle: 'Фильтр',
+          filterConfirm: 'ОК',
+          filterReset: 'Сброс',
+          filterEmptyText: 'Нет фильтров',
+          emptyText: 'Нет данных',
+          filterSearchPlaceholder: 'Поиск',
+        }}
+      />
+
+      <div className='PaginationContainer'>  
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={sortedData.length}
+          onChange={handlePageChange}
+          showSizeChanger
+          pageSizeOptions={['10', '20', '30', '50']}
+          showTotal={(total) => `Всего ${total} записей`}
+          locale={{
+            items_per_page: '/ Записей на странице',
+            jump_to: 'Перейти к',
+            page: 'Страница',
+            prev_page: 'Предыдущая страница',
+            next_page: 'Следующая страница',
+          }}
+        />
+      </div>
+    </div>
   );
 }

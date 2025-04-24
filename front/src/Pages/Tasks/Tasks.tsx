@@ -12,7 +12,7 @@ import {
   Descriptions, Avatar,
 } from 'antd';
 import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons';
-import { LeftOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
+import { LeftOutlined, MinusOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
 import './Tasks.scss';
 import CreateTaskModal from './CreateTaskModal';
 import { TaskFormValues } from './CreateTaskModal/CreateTaskModal.typings';
@@ -32,6 +32,7 @@ import TaskFilters from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
 import TaskFilter from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
 import PlanButton from '../../Components/PlanButton/PlanButton.tsx';
 import moment from 'moment';
+import KanbanBoard from 'Pages/Tasks/KanbanBoard.tsx';
 
 
 interface Profile {
@@ -108,6 +109,7 @@ const Tasks = () => {
     page_size: limit,
     sort: filter.sort,
   });
+  const [viewMode, setViewMode] = useState<'list' | 'kanban' | 'gantt'>('list');
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'ascend' | 'descend' | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<string[]>([
@@ -399,6 +401,7 @@ const Tasks = () => {
   };
 
   const columnOptions = [
+    { label: 'Название', value: 'name' },
     { label: 'Статус', value: 'status' },
     { label: 'Направление', value: 'direction' },
     { label: 'Проект', value: 'sprint' },
@@ -407,7 +410,7 @@ const Tasks = () => {
     { label: 'Ответсвенный', value: 'assignee' },
     { label: 'Дата начала', value: 'start' },
     { label: 'Дата окончания', value: 'end' },
-
+    { label: 'Действия', value: 'actions' },
   ];
 
   useEffect(() => {
@@ -435,7 +438,12 @@ const Tasks = () => {
       sorter: (a, b) => a.name.localeCompare(b.name),
       sortOrder: sortColumn === 'name' ? sortOrder : null,
 
-      render: (text: string) => <strong>{text}</strong>,
+      render: (_: any, record: Task) => {
+        if (record.parent_task) {
+          return <span style={{ paddingLeft: '1.5em' }}>{record.name}</span>; // 4 пробела — эквивалентно ~1.5em
+        }
+        return <span>{record.name}</span>;
+      },
     },
     {
       title: 'Статус',
@@ -458,10 +466,16 @@ const Tasks = () => {
           );
         }
 
+        const currentStage = stages.find((s) => s.id === status);
+
         return (
           <Select
             value={status}
-            style={{ width: 120 }}
+            style={{
+              width: 140,
+              border: `2px solid ${currentStage?.color || '#ccc'}`,
+              borderRadius: 5,
+            }}
             onChange={(value) => handleChangeStatus(record.key, value)}
             onClick={(e) => e.stopPropagation()}
           >
@@ -515,7 +529,9 @@ const Tasks = () => {
             {author.surname} {author.name}
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center' }}>Не назначен</div>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            Не назначен
+          </div>
         ),
     },
 
@@ -535,16 +551,20 @@ const Tasks = () => {
             {assignee.surname} {assignee.name}
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center' }}>Не назначен</div>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            Не назначен
+          </div>
         ),
     },
     {
       title: 'Дата начала',
       dataIndex: 'start',
       key: 'start',
-      sorter: (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
+      sorter: (a, b) =>
+        new Date(a.start).getTime() - new Date(b.start).getTime(),
       sortOrder: sortColumn === 'start' ? sortOrder : null,
-      render: (value) => value ? moment(value).format('DD.MM.YYYY') : 'Нет срока',
+      render: (value) =>
+        value ? moment(value).format('DD.MM.YYYY') : 'Нет срока',
     },
 
     {
@@ -553,49 +573,52 @@ const Tasks = () => {
       key: 'end',
       sorter: (a, b) => new Date(a.end).getTime() - new Date(b.end).getTime(),
       sortOrder: sortColumn === 'end' ? sortOrder : null,
-      render: (value) => value ? moment(value).format('DD.MM.YYYY') : 'Нет срока',
+      render: (value) =>
+        value ? moment(value).format('DD.MM.YYYY') : 'Нет срока',
     },
     {
       title: 'Действия',
       key: 'actions',
       render: (_: any, record: Task) => (
-        <Dropdown
-          overlay={
-            <Menu>
-              <Menu.Item onClick={(info) => handleMakeSubtask(record.key, info)}>
-                Сделать подзадачей
-              </Menu.Item>
-              <Menu.Item onClick={(info) => handleDeleteRow(record.key, info)}>
-                Удалить строку
-              </Menu.Item>
-            </Menu>
-          }
-          trigger={['click']}
-          onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
-        >
-          <Button icon={<MoreOutlined />} />
-        </Dropdown>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Dropdown
+            overlay={
+              <Menu>
+                <Menu.Item
+                  onClick={(info) => handleMakeSubtask(record.key, info)}
+                >
+                  {record.parent_task ? 'Удалить из подзадач' : 'Сделать подзадачей'}
+                </Menu.Item>
+                <Menu.Item onClick={(info) => handleDeleteRow(record.key, info)}>
+                  Удалить строку
+                </Menu.Item>
+              </Menu>
+            }
+            trigger={['click']}
+            onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
+          >
+            <Button icon={<MoreOutlined />} />
+          </Dropdown>
+        </div>
       ),
-    },
+    }
   ];
 
   const filteredColumns = columns
-    .filter(col => !col.key || visibleColumns.includes(col.key))
-    .map(col => ({
+    .filter((col) => !col.key || visibleColumns.includes(col.key))
+    .map((col) => ({
       ...col,
-      onHeaderCell: () => ({ title: '' })  // убираем подсказку
+      onHeaderCell: () => ({ title: '' }), // убираем подсказку
     }));
 
   return (
     <div className="Tasks">
       <div className="Tasks-Header">
         <div className="Tasks-Header-Heading">
-          <Button
-            onClick={() => setIsModalCreateTaskVisible(true)}
-          >
+          <PlanButton onClick={() => setIsModalCreateTaskVisible(true)}>
             <a>Создать</a>
             <PlusOutlined />
-          </Button>
+          </PlanButton>
         </div>
 
         <div className="task-filter-wrapper">
@@ -621,49 +644,74 @@ const Tasks = () => {
             trigger={['click']}
             placement="bottomLeft"
           >
-            <img src={tableOptionIcon} alt="Настройка таблицы" className="table-settings-icon" />
+            <img
+              src={tableOptionIcon}
+              alt="Настройка таблицы"
+              className="table-settings-icon"
+            />
           </Dropdown>
         </div>
         <div className="Tasks-Header-Buttons">
-          <PlanButton type="default">Гант</PlanButton>
-          <PlanButton type="default">Канбан</PlanButton>
-          <PlanButton type="primary">Список</PlanButton>
+          <Button
+            type={viewMode === 'gantt' ? 'primary' : 'default'}
+            onClick={() => setViewMode('gantt')}
+          >
+            Гант
+          </Button>
+          <Button
+            type={viewMode === 'kanban' ? 'primary' : 'default'}
+            onClick={() => setViewMode('kanban')}
+          >
+            Канбан
+          </Button>
+          <Button
+            type={viewMode === 'list' ? 'primary' : 'default'}
+            onClick={() => setViewMode('list')}
+          >
+            Список
+          </Button>
         </div>
       </div>
-      <div className="Tasks-Table">
-        <Table
-          columns={filteredColumns}
-          dataSource={dataSource}
-          rowKey="key"
-          showSorterTooltip={false}
-          onRow={(record) => ({
-            onClick: () => handleRowClick(record),
-          })}
-          onChange={handleTableChange}
-          expandable={{
-            expandedRowKeys,
-            onExpand: handleExpand,
-            childrenColumnName: 'children',
-            rowExpandable: (record) =>
-              !!record.children?.length && !record.parent_task,
-            expandIcon: ({ expanded, onExpand, record }) => {
-              if (record.parent_task) return null;
-              return (
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onExpand(record, e);
-                  }}
-                  style={{ cursor: 'pointer', marginRight: 8 }}
-                >
-          {expanded ? '−' : '+'}
-        </span>
-              );
-            },
-          }}
-          pagination={false}
-        />
-      </div>
+      {viewMode === 'list' && (
+        <div className="Tasks-Table">
+          <Table
+            columns={filteredColumns}
+            dataSource={dataSource}
+            rowKey="key"
+            showSorterTooltip={false}
+            onRow={(record) => ({
+              onClick: () => handleRowClick(record),
+            })}
+            onChange={handleTableChange}
+            expandable={{
+              expandedRowKeys,
+              onExpand: handleExpand,
+              childrenColumnName: 'children',
+              rowExpandable: (record) =>
+                !!record.children?.length && !record.parent_task,
+              expandIcon: ({ expanded, onExpand, record }) => {
+                if (record.parent_task) return (<a>     </a>);
+                return (
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onExpand(record, e);
+                    }}
+                    style={{ cursor: 'pointer', marginRight: 8 }}
+                  >
+                    {record.children?.length==0 ? <a> </a> : expanded ? <MinusOutlined/>    : <PlusOutlined  />    }
+            </span>
+                );
+              },
+            }}
+            pagination={false}
+          />
+        </div>
+      )}
+
+      {viewMode === 'kanban' && <KanbanBoard stages={stages} tasks={dataSource}/>}
+      {viewMode === 'gantt' && <div>Здесь будет Гант</div>}
+
       <Modal
         title="Выберите родительскую задачу"
         visible={isModalVisible}

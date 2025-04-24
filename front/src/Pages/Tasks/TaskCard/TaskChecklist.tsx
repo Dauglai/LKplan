@@ -11,7 +11,7 @@ import {
   Checkbox,
   DatePicker,
   Select,
-  message,
+  message, Popconfirm,
 } from 'antd';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import {
@@ -29,6 +29,7 @@ import {
   EditOutlined,
   CalendarOutlined,
   UserOutlined,
+  UserDeleteOutlined,
   CheckOutlined,
   CloseOutlined, DeleteOutlined,
 } from '@ant-design/icons';
@@ -197,22 +198,23 @@ const TaskChecklist = ({ taskId, assignees }) => {
                 ) : (
                   <div
                     onClick={() => {
-                      setEditedTitle(checkList.description);
+                      setEditedTitle(checkList.name);
                       setEditingCheckListId(checkList.id);
                     }}
                   >
-                    {checkList.description}
+                    {checkList.name}
                   </div>
                 )
               }
               extra={
-                <Button
-                  danger
-                  size="small"
-                  onClick={() => handleDeleteCheckList(checkList.id)}
+                <Popconfirm
+                title="Удалить Чеклист?"
+                onConfirm={() => handleDeleteCheckList(checkList.id)}
+                okText="Да"
+                cancelText="Нет"
                 >
-                  Удалить
-                </Button>
+              <Button title={'Удалить'} icon={<DeleteOutlined />} />
+            </Popconfirm>
               }
               style={{ marginBottom: 16 }}
               bodyStyle={{ padding: 16 }}
@@ -245,11 +247,11 @@ const TaskChecklist = ({ taskId, assignees }) => {
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                padding: 8,
-                                marginBottom: 8,
-                                border: '1px solid #eee',
+                                padding: 1,
+                                marginBottom: 6,
+                                border: '1px solid #FCFCFD',
                                 borderRadius: 4,
-                                background: '#fafafa',
+                                background: 'white',
                                 ...provided.draggableProps.style,
                               }}
                             >
@@ -424,15 +426,20 @@ const TaskChecklist = ({ taskId, assignees }) => {
                                 </div>
 
                                 {/* Удалить */}
-                                <div
-                                  className="three-dots-menu"
-                                  onClick={() =>
-                                    handleDeleteCheckListItem(item.id)
+                                <Dropdown
+                                  trigger={['click']}
+                                  overlay={
+                                    <Menu>
+                                      <Menu.Item onClick={() => handleDeleteCheckListItem(item.id)}>
+                                        Удалить
+                                      </Menu.Item>
+                                    </Menu>
                                   }
                                 >
-                                  <EllipsisOutlined />
-                                  удалить
-                                </div>
+                                  <div className="three-dots-menu">
+                                    <EllipsisOutlined />
+                                  </div>
+                                </Dropdown>
                               </div>
                             </div>
                           )}
@@ -538,7 +545,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
           onChange={(e) => setNewCheckListTitle(e.target.value)}
           style={{ marginBottom: 8 }}
         />
-        <PlanButton type="primary" onClick={handleAddCheckList} block style={{ backgroundColor: '#5C8DB9', color: 'white', width: 150 }}>
+        <PlanButton type="primary" onClick={handleAddCheckList} block style={{ backgroundColor: '#5C8DB9', color: 'white', width: 170 }}>
           Создать чек-лист
         </PlanButton>
       </div>

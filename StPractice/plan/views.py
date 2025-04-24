@@ -35,6 +35,21 @@ class ResultFilter(filters.FilterSet):
         model = Result
         fields = '__all__'
 
+class MeetingFilter(filters.FilterSet):
+    participant = filters.NumberFilter(field_name='participants__user_id')
+    team = filters.NumberFilter(method='filter_by_team') # Фильтрация по команде
+
+    def filter_by_team(self, queryset, name, value):
+        # Фильтрация по команде
+        team = Team.objects.filter(id=value).first()
+        if not team:
+            return queryset.none()
+        return queryset.filter(project=team.project)
+
+    class Meta:
+        model = Meeting
+        fields = '__all__'
+
 class TeamFilter(filters.FilterSet):
     project = filters.NumberFilter(field_name='project__id')
 
@@ -261,4 +276,41 @@ class ResultAPIListCreate(generics.ListCreateAPIView):
 class ResultAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class MeetingAPIListCreate(generics.ListCreateAPIView):
+    queryset = Meeting.objects.all()
+    serializer_class = MeetingSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MeetingFilter
+
+
+class MeetingAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Meeting.objects.all()
+    serializer_class = MeetingSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class MeetingRespondAPIListCreate(generics.ListCreateAPIView):
+    queryset = MeetingRespond.objects.all()
+    serializer_class = MeetingRespondSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class MeetingRespondAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MeetingRespond.objects.all()
+    serializer_class = MeetingRespondSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class StageAPIListCreate(generics.ListCreateAPIView):
+    queryset = Stage.objects.all()
+    serializer_class = StageSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class StageAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Stage.objects.all()
+    serializer_class = StageSerializer
     permission_classes = (IsAuthenticated,)

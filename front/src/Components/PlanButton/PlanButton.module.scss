@@ -11,12 +11,30 @@
     justify-content: center;
     gap: 8px;
     box-shadow: none;
+    cursor: pointer;
     transition: background-color 0.3s, border-color 0.3s, color 0.3s;
 
     &:hover {
         background-color: #769FC2;
         border-color: #769FC2;
         color: #fff;
+    }
+
+    &:disabled {
+        background-color: #ccc;
+        border-color: #ccc;
+        cursor: not-allowed;
+    }
+}
+
+.primary-btn-plan {
+    background-color: #5C8DB9;
+    border-color: #5C8DB9;
+    color: #fff;
+
+    &:hover {
+        background-color: #769FC2;
+        border-color: #769FC2;
     }
 }
 
@@ -29,63 +47,5 @@
         background-color: #5C8DB9;
         color: #fff;
         border-color: #5C8DB9;
-    }
-}
-
-.ant-btn-variant-outlined{
-    background-color: #F7F8FA;
-    color: white;
-
-    &:hover {
-        background-color: #5C8DB9;
-        color: #fff;
-        border-color: #5C8DB9;
-    }
-}
-
-
-@mixin primary-btn-plan {
-    @include text1;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    height: 40px;
-    position: relative;
-
-    border-radius: $border-radius;
-    border: none;
-    background-color: #5C8DB9;
-    transition: background 0.3s ease;
-
-    cursor: pointer;
-
-    &:hover {
-        background-blend-mode: multiply;
-    }
-
-    &::before {
-        content: '';
-        display: block;
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background: rgba(#D292004D, 0.3);
-        border-radius: inherit;
-        opacity: 0;
-        transition: all .5s;
-    }
-
-    &:hover {
-        background-color: #5C8DB9;
-        color: #fff;
-        border-color: #5C8DB9;
-    }
-    &:disabled {
-        background-color: $grey;
-        cursor: default;
     }
 }

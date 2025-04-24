@@ -61,17 +61,24 @@ class Meeting(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+class MeetingRespond(models.Model):
+    meeting = models.ForeignKey(Meeting, on_delete=models.CASCADE, related_name="meeting")
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="author")
+    reason = models.TextField(verbose_name="Описание", max_length=10000, null=True, blank=True)
+    attending = models.BooleanField(verbose_name="Приду/Не приду", default=False)
+
 
 class Task(models.Model):
     creator = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="tasks_creators", verbose_name="Создатель задачи")
     project = models.ForeignKey(Project, on_delete=models.CASCADE, verbose_name="Проект")
-    status = models.ForeignKey(Stage, on_delete=models.CASCADE, verbose_name="Статус", related_name="current_stage", blank=True, null=True)
+    status = models.ForeignKey(Stage, on_delete=models.CASCADE, verbose_name="Статус", blank=True, null=True)
     name = models.CharField(verbose_name="Название",max_length=256)
     description = models.TextField(verbose_name="Описание", max_length=10000)
     responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
     performers = models.ManyToManyField(Profile, related_name="performers", verbose_name="Исполнители")
-    start = models.DateTimeField(verbose_name="Дата создания", default= datetime.now())
-    end = models.DateTimeField(verbose_name="Время закрытия задачи", blank=True, null=True)
+    creation = models.DateTimeField(auto_now_add=True)
+    start = models.DateTimeField(verbose_name="Дата создания", default=datetime.now())
+    end = models.DateTimeField(verbose_name="Время закрытия задачи")
     parent_task = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,

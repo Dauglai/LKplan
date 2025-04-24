@@ -10,6 +10,12 @@ class MeetingSerializer(serializers.ModelSerializer):
         model = Meeting
         fields = '__all__'
 
+class MeetingRespondSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MeetingRespond
+        fields = '__all__'
+
+
 class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
@@ -35,7 +41,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'author_info', 'content', 'task', 'file', 'author']
+        fields = ['id', 'author_info', 'content', 'task', 'author']
 
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
@@ -51,9 +57,14 @@ class TeamCreateSerializer(serializers.ModelSerializer):
 
 
 class StageSerializer(serializers.ModelSerializer):
+    taskIds = serializers.SerializerMethodField()
+
     class Meta:
         model = Stage
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'color', 'position', 'taskIds' ]
+
+    def get_taskIds(self, obj):
+        return list(obj.task_set.values_list('id', flat=True))
 
 
 class ProjectSerializer(serializers.ModelSerializer):

@@ -37,21 +37,29 @@
         margin-bottom: 16px;
     }
 
+    .task-row-title {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex: 1;
+    }
+
     .task-col {
         flex: 1;
     }
+
 
     .task-border {
         border: 1px solid #858C9C;
         border-radius: 10px;
         padding: 10px;
-
+        cursor: pointer;
     }
 
 
     width: 1000px !important; /* шире окно */
     .ant-modal-content {
-        background-color: #f9f9f9;
+        background-color: #FCFCFD;
         border-radius: 10px;
         padding: 20px;
     }

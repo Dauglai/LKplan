@@ -9,6 +9,7 @@ import {
 import './CreateTaskModal.scss';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import PlanButton from '../../../Components/PlanButton/PlanButton.tsx';
 
 const { Option } = Select;
 
@@ -145,10 +146,10 @@ const CreateTaskModal: FC<CreateTaskModalProps> = ({
 
         <Form.Item>
           <div className="create-task-footer">
-            <Button onClick={onCancel}>Отмена</Button>
-            <Button type="primary" onClick={handleCreate}>
+            <PlanButton type="default" style={{backgroundColor: '#DDDFE4', border: '#DDDFE4'}} onClick={onCancel}>Отмена</PlanButton>
+            <PlanButton type="primary" onClick={handleCreate}>
               Создать
-            </Button>
+            </PlanButton>
           </div>
         </Form.Item>
       </Form>

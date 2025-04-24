@@ -1,5 +1,4 @@
 import { apiSlice } from 'App/api/apiSlice.ts';
-import { Result } from 'Features/ApiSlices/resultApiSlice.ts';
 
 export interface Team {
   id: number;

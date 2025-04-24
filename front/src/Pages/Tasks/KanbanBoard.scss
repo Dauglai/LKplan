@@ -1,0 +1,139 @@
+.kanban-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.kanban-tabs button {
+  margin-left: 8px;
+}
+
+.kanban-board {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  min-height: 600px;
+}
+
+.kanban-column {
+  background: #f8f9fb;
+  border-radius: 8px;
+  padding: 8px;
+  width: 250px;
+  min-height: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.kanban-column-header {
+  margin-bottom: 8px;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .column-title {
+      font-weight: 600;
+    }
+
+    .column-menu-icon {
+      font-size: 16px;
+      color: #888;
+      cursor: pointer;
+    }
+  }
+
+  .column-color-line {
+    height: 2px;
+    margin-top: 4px;
+    border-radius: 4px;
+  }
+}
+
+.add-status-column {
+  color: #888;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    color: #1890ff;
+  }
+}
+
+.color-picker {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+
+  .color-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+
+    &.selected {
+      border-color: #000;
+    }
+  }
+}
+
+.modal-centered {
+  text-align: center;
+
+  h3 {
+    margin-top: 12px;
+    font-size: 18px;
+  }
+
+  p {
+    margin-top: 8px;
+    color: #555;
+  }
+
+  .anticon {
+    color: #e74c3c;
+  }
+}
+
+
+.kanban-task {
+  background: #fff;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+.task-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.task-subtasks {
+  font-size: 12px;
+  color: #999;
+}
+
+.task-date, .task-executor {
+  font-size: 12px;
+  color: #666;
+}
+
+.kanban-add-column {
+  padding: 8px;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: center;
+  margin-top: 28px;
+  color: #1677ff;
+  white-space: nowrap;
+}

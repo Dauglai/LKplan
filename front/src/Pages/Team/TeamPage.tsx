@@ -8,7 +8,8 @@ import { Button, Input} from 'antd';
 
 import TeamMembersTable from 'Pages/Team/TeamMembersTable.tsx';
 import ResultsTab from './ResultsTab';
-import AddStudentModal from './AddStudentModal'; // модалка выбора студентов
+import AddStudentModal from './AddStudentModal';
+import TeamMeetingsTab from 'Pages/Team/TeamMeetingsTab.tsx'; // модалка выбора студентов
 
 export default function TeamPage() {
     const { teamId } = useParams();
@@ -227,7 +228,11 @@ export default function TeamPage() {
           )}
 
           {activeTab === 'results' && (
-            <ResultsTab isCurator={isCurator} />
+            <ResultsTab />
+          )}
+
+          {activeTab === 'meetings' && (
+            <TeamMeetingsTab currentUser={currentUser.user_id}/>
           )}
       </div>
     );

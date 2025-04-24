@@ -85,11 +85,11 @@ const TaskComments: React.FC<Props> = ({ taskId, currentUserId }) => {
               comment.author === currentUserId
                 ? editingCommentId === comment.id
                   ? [
-                    <PlanButton icon={<SaveOutlined />} onClick={() => handleSaveEdit(comment.id)} />,
-                    <PlanButton icon={<CloseOutlined />} onClick={() => setEditingCommentId(null)} />,
+                    <Button icon={<SaveOutlined />} onClick={() => handleSaveEdit(comment.id)} />,
+                    <Button icon={<CloseOutlined />} onClick={() => setEditingCommentId(null)} />,
                   ]
                   : [
-                    <PlanButton icon={<EditOutlined />} onClick={() => {
+                    <Button icon={<EditOutlined />} onClick={() => {
                       setEditingCommentId(comment.id);
                       setEditedContent(comment.content);
                     }} />,
@@ -99,7 +99,7 @@ const TaskComments: React.FC<Props> = ({ taskId, currentUserId }) => {
                       okText="Да"
                       cancelText="Нет"
                     >
-                      <Button danger icon={<DeleteOutlined />} />
+                      <Button icon={<DeleteOutlined />} />
                     </Popconfirm>,
                   ]
                 : []
@@ -144,20 +144,11 @@ const TaskComments: React.FC<Props> = ({ taskId, currentUserId }) => {
         style={{ marginBottom: 8 }}
       />
 
-      <Upload
-        beforeUpload={(file) => {
-          setFile(file);
-          return false;
-        }}
-        showUploadList={file ? [{ uid: '1', name: file.name }] : []}
-        onRemove={() => setFile(null)}
+      <PlanButton
+        type="primary"
+        onClick={handleAddComment}
+        style={{ backgroundColor: '#5C8DB9', color: 'white', width: 120 }}
       >
-        <Button icon={<UploadOutlined />} style={{ marginBottom: 8 }}>
-          Прикрепить файл
-        </Button>
-      </Upload>
-
-      <PlanButton type="primary" onClick={handleAddComment}>
         Добавить
       </PlanButton>
     </div>

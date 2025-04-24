@@ -68,6 +68,10 @@ export const apiSlice = createApi({
     'Application',
     'AppReview',
     'Team',
+    'Meeting',
+    'Result',
+    'Task'
+
   ],
   endpoints: (builder) => ({}),
 });

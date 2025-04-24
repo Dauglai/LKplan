@@ -1,18 +1,19 @@
 import React from 'react';
-import { Button, ButtonProps } from 'antd';
 import classNames from 'classnames';
 import styles from './PlanButton.module.scss';
 
-interface PlanButtonProps extends ButtonProps {
-  variant?: 'primary-btn-plan';
+interface PlanButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary-btn-plan' | 'default';
 }
 
-const PlanButton: React.FC<PlanButtonProps> = ({ variant = 'primary-btn-plan', className, ...rest }) => {
+const PlanButton: React.FC<PlanButtonProps> = ({ variant = 'primary-btn-plan', className, children, ...rest }) => {
   return (
-    <Button
+    <button
       {...rest}
-      className={'primary-btn-plan'}
-    />
+      className={classNames(styles.planButton, variant && styles[variant], className)}
+    >
+      {children}
+    </button>
   );
 };
 

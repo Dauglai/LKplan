@@ -1,0 +1,13 @@
+.checklist-checkbox {
+  .ant-checkbox-inner {
+    border-color: #858C9C !important;
+    background-color: transparent;
+  }
+
+  .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #858C9C !important;
+    border-color: #858C9C !important;
+  }
+
+  margin-right: 8px; // отступ от края пункта
+}

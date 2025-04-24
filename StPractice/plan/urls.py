@@ -22,9 +22,19 @@ urlpatterns = [
     path('project/create/', ProjectAPICreate.as_view()),
     path('project/', ProjectAPIList.as_view()),
     path('project/<int:pk>', ProjectAPIUpdate.as_view()),
+
+    path('stages/', StageAPIListCreate.as_view()),
+    path('stages/<int:pk>/', StageAPIUpdate.as_view()),
+
     path('teams/', TeamAPIListCreate.as_view()),
     path('teams/<int:pk>/', TeamAPIUpdate.as_view()),
 
     path('results/', ResultAPIListCreate.as_view()),
     path('results/<int:pk>/', ResultAPIUpdate.as_view()),
+
+    path('meetings/', MeetingAPIListCreate.as_view()),
+    path('meetings/<int:pk>/', MeetingAPIUpdate.as_view()),
+    path('meetings/respond/', MeetingRespondAPIListCreate.as_view()),
+
+
 ]

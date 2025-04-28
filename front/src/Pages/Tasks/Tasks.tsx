@@ -9,7 +9,7 @@ import {
   message,
   Modal,
   Checkbox,
-  Descriptions, Avatar,
+  Descriptions, Avatar, Pagination,
 } from 'antd';
 import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons';
 import { LeftOutlined, MinusOutlined, MoreOutlined, PlusOutlined } from '@ant-design/icons';
@@ -33,6 +33,7 @@ import TaskFilter from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
 import PlanButton from '../../Components/PlanButton/PlanButton.tsx';
 import moment from 'moment';
 import KanbanBoard from 'Pages/Tasks/KanbanBoard.tsx';
+import { getPagesArray } from '../../Components/Pagination/page.ts';
 
 
 interface Profile {
@@ -94,7 +95,7 @@ const Tasks = () => {
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState({ sort: '', query: ''});
-  const { data: data = [] } = useGetAllTasksQuery({
+  const { data: data = [], refetch } = useGetAllTasksQuery({
     name: filter.query,
     status: filter.status,
     creator: filter.creator,
@@ -109,6 +110,8 @@ const Tasks = () => {
     page_size: limit,
     sort: filter.sort,
   });
+
+  const [totalPages, setTotalPages] = useState(0);
   const [viewMode, setViewMode] = useState<'list' | 'kanban' | 'gantt'>('list');
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'ascend' | 'descend' | null>(null);
@@ -196,8 +199,17 @@ const Tasks = () => {
   const handleMakeSubtask = (taskKey: string, info: any) => {
     info.domEvent.stopPropagation();
 
-    setSelectedTaskKey(taskKey);
-    setIsModalVisible(true);
+    const task = dataSource.find((t) => t.key === taskKey);
+
+    if (task?.parent_task) {
+      // Если уже подзадача — обнуляем parent_task
+      updateTaskParent(taskKey, null);
+    } else {
+
+      // Иначе — показываем модалку выбора родителя
+      setSelectedTaskKey(taskKey);
+      setIsModalVisible(true);
+    }
   };
 
   const handleCancel = () => {
@@ -282,6 +294,25 @@ const Tasks = () => {
       setDataSource(updatedData);
     } catch (error) {
       console.error('Ошибка удаления:', error);
+    }
+  };
+
+  const handleRemoveSubtask = async (taskKey: string, info: any) => {
+    info.domEvent.stopPropagation(); // чтобы не кликать по строке
+    try {
+      await updateTask({
+        id: Number(taskKey),
+        data: { parent_task: null }
+      }).unwrap();
+
+      // Локально убираем её из подзадач
+      const updated = deleteRow(dataSource, taskKey);
+      setDataSource(updated);
+
+      message.success('Задача удалена из подзадач');
+    } catch (err) {
+      console.error(err);
+      message.error('Не удалось удалить из подзадач');
     }
   };
 
@@ -585,17 +616,27 @@ const Tasks = () => {
             overlay={
               <Menu>
                 <Menu.Item
-                  onClick={(info) => handleMakeSubtask(record.key, info)}
+                  key="subtask"
+                  onClick={(info) =>
+                    record.parent_task
+                      ? handleRemoveSubtask(record.key, info)
+                      : handleMakeSubtask(record.key, info)
+                  }
                 >
-                  {record.parent_task ? 'Удалить из подзадач' : 'Сделать подзадачей'}
+                  {record.parent_task
+                    ? 'Удалить из подзадач'
+                    : 'Сделать подзадачей'}
                 </Menu.Item>
-                <Menu.Item onClick={(info) => handleDeleteRow(record.key, info)}>
-                  Удалить строку
+                <Menu.Item
+                  key="delete"
+                  onClick={(info) => handleDeleteRow(record.key, info)}
+                >
+                  Удалить задачу
                 </Menu.Item>
               </Menu>
             }
             trigger={['click']}
-            onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <Button icon={<MoreOutlined />} />
           </Dropdown>
@@ -610,6 +651,10 @@ const Tasks = () => {
       ...col,
       onHeaderCell: () => ({ title: '' }), // убираем подсказку
     }));
+
+  const changePage = (page) => {
+    setPage(page);
+  };
 
   return (
     <div className="Tasks">
@@ -653,6 +698,12 @@ const Tasks = () => {
         </div>
         <div className="Tasks-Header-Buttons">
           <Button
+            type={viewMode === 'list' ? 'primary' : 'default'}
+            onClick={() => setViewMode('list')}
+          >
+            Список
+          </Button>
+          <Button
             type={viewMode === 'gantt' ? 'primary' : 'default'}
             onClick={() => setViewMode('gantt')}
           >
@@ -663,12 +714,6 @@ const Tasks = () => {
             onClick={() => setViewMode('kanban')}
           >
             Канбан
-          </Button>
-          <Button
-            type={viewMode === 'list' ? 'primary' : 'default'}
-            onClick={() => setViewMode('list')}
-          >
-            Список
           </Button>
         </div>
       </div>
@@ -706,15 +751,31 @@ const Tasks = () => {
             }}
             pagination={false}
           />
+
+          {/*
+            Пагинация
+          <Pagination
+            pagesArray={getPagesArray(totalPages)}
+            page={page}
+            changePage={changePage}
+          />
+          */}
+
         </div>
       )}
 
-      {viewMode === 'kanban' && <KanbanBoard stages={stages} tasks={dataSource}/>}
+      {viewMode === 'kanban' && <KanbanBoard
+        stages={stages}
+        tasks={dataSource}
+        refetchTasks={refetch}
+        projectId={projectData.id}
+        assignees={assignees}/>
+      }
       {viewMode === 'gantt' && <div>Здесь будет Гант</div>}
 
       <Modal
         title="Выберите родительскую задачу"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={handleConfirmMove}
         onCancel={handleCancel}
         okText="Подтвердить"

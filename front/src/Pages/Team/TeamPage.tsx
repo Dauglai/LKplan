@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useGetTeamByIdQuery,  usePartialUpdateTeamMutation } from 'Features/ApiSlices/teamSlice';
 import 'Styles/components/Sections/ListTableStyles.scss';
 import { useGetUserQuery, User } from 'Features/ApiSlices/userSlice.ts';
@@ -9,7 +9,8 @@ import { Button, Input} from 'antd';
 import TeamMembersTable from 'Pages/Team/TeamMembersTable.tsx';
 import ResultsTab from './ResultsTab';
 import AddStudentModal from './AddStudentModal';
-import TeamMeetingsTab from 'Pages/Team/TeamMeetingsTab.tsx'; // модалка выбора студентов
+import TeamMeetingsTab from 'Pages/Team/TeamMeetingsTab.tsx';
+import PlanButton from '../../Components/PlanButton/PlanButton.tsx'; // модалка выбора студентов
 
 export default function TeamPage() {
     const { teamId } = useParams();
@@ -203,16 +204,16 @@ export default function TeamPage() {
                 {isCurator && (
                   <div className="ActionsRow">
                       {isEditing && (
-                        <button className="add" onClick={() => {
+                        <Button className="add" onClick={() => {
                             console.log('Открываем модалку');
                             setIsModalVisible(true);
                         }}>
                             Добавить участника
-                        </button>
+                        </Button>
                       )}
-                      <button className="save" onClick={isEditing ? handleSave : () => setIsEditing(true)}>
+                      <PlanButton className="save" onClick={isEditing ? handleSave : () => setIsEditing(true)}>
                           {isEditing ? 'Сохранить' : 'Редактировать'}
-                      </button>
+                      </PlanButton>
                   </div>
                 )}
 

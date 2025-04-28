@@ -53,6 +53,9 @@
     &-Buttons {
       display: flex;
       gap: 10px;
+      border: 2px solid #5C8DB9;
+      padding: 6px;
+      border-radius: 10px;
 
       .ant-btn {
         height: 32px;

@@ -165,7 +165,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
 
   const handleUpdateCheckListTitle = async (id: number, title: string) => {
     try {
-      await updateCheckList({ checkListId: id, data: { description: title } }).unwrap();
+      await updateCheckList({ checkListId: id, data: { name: title } }).unwrap();
       refetchCheckLists();
     } catch {
       message.error('Ошибка обновления названия чек-листа');
@@ -189,10 +189,11 @@ const TaskChecklist = ({ taskId, assignees }) => {
                   <Input
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
-                    onBlur={() => {
+                    onPressEnter={() => {
                       handleUpdateCheckListTitle(checkList.id, editedTitle);
                       setEditingCheckListId(null);
                     }}
+                    onBlur={() => setEditingCheckListId(null)}
                     autoFocus
                   />
                 ) : (
@@ -472,6 +473,11 @@ const TaskChecklist = ({ taskId, assignees }) => {
                         description: e.target.value,
                       }))
                     }
+                    onPressEnter={() => {
+                      if (newItemValues.description.trim() && !newItemValues.responsible && !newItemValues.datetime) {
+                        handleAddCheckListItem(checkList.id);
+                      }
+                    }}
                   />
 
                   {/* Нижняя строка: Добавить + Ответственный + Дата */}
@@ -480,6 +486,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
                     <Button
                       type="primary"
                       onClick={() => handleAddCheckListItem(checkList.id)}
+                      disabled={!newItemValues.description.trim() || (!newItemValues.responsible && !newItemValues.datetime)}
                       style={{ backgroundColor: '#5C8DB9', color: 'white' }}
                     >
                       Добавить

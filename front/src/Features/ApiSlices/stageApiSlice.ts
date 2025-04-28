@@ -31,10 +31,10 @@ const stageApi = apiSlice.injectEndpoints({
     }),
 
     createStage: builder.mutation<Stage, Omit<Stage, 'id'>>({
-      query: (newProject) => ({    // Создание нового проекта
+      query: (data) => ({    // Создание нового проекта
         url: '/api/stages/',
         method: 'POST',
-        body: newProject,
+        body: data,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -43,9 +43,9 @@ const stageApi = apiSlice.injectEndpoints({
       invalidatesTags: ['Stage'],
     }),
 
-    updateStage: builder.mutation<Stage, { id: number; data: Omit<Stage, 'id'> }>({
-      query: ({ id, ...data }) => ({  // Обновление проекта
-        url: `/api/stages/${id}`,
+    updateStage: builder.mutation<Stage, { id: number; data: Partial<Stage> }>({
+      query: ({ id, data }) => ({  // Обновление проекта
+        url: `/api/stages/${id}/`,
         method: 'PUT',
         body: data,
         headers: {
@@ -58,7 +58,7 @@ const stageApi = apiSlice.injectEndpoints({
 
     partialUpdateStage: builder.mutation<Stage, { id: number; data: Partial<Omit<Stage, 'id'>> }>({
       query: ({ id, ...data }) => ({ // Обновление проекта
-        url: `/api/stages/${id}`,
+        url: `/api/stages/${id}/`,
         method: 'PATCH',
         body: data,
         headers: {
@@ -71,7 +71,7 @@ const stageApi = apiSlice.injectEndpoints({
 
     deleteStage: builder.mutation<void, number>({
       query: (id) => ({
-        url: `/api/stages/${id}`,
+        url: `/api/stages/${id}/`,
         method: 'DELETE',
         withCredentials: true,
       }),

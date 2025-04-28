@@ -61,7 +61,7 @@ class StageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stage
-        fields = ['id', 'name', 'color', 'position', 'taskIds' ]
+        fields = ['id', 'name', 'color', 'position', 'taskIds', 'project']
 
     def get_taskIds(self, obj):
         return list(obj.task_set.values_list('id', flat=True))

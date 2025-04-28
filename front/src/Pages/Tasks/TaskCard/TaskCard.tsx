@@ -33,7 +33,7 @@ import TaskDescriptionEditor from 'Pages/Tasks/TaskCard/TaskEditor.tsx';
 
 const { Option } = Select;
 
-const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
+const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
     const [formData, setFormData] = useState(selectedTask);
     const [updateTask] = useUpdateTaskMutation(); // API для обновления задачи
     const id = selectedTask?.key ? selectedTask.key : null;
@@ -236,6 +236,13 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
                     <Select
                       value={formData.assignee?.user_id}
                       style={{ width: '100%' }}
+                      showSearch
+                      filterOption={(input, option) => {
+                        const assignee = assignees.find((a) => a.user_id === option?.value);
+                        if (!assignee) return false;
+                        const fullName = `${assignee.surname} ${assignee.name} ${assignee.patronymic}`.toLowerCase();
+                        return fullName.includes(input.toLowerCase());
+                      }}
                       onChange={(value) => {
                         handleInputChange(
                           'assignee',
@@ -248,12 +255,8 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
                     >
                       {assignees?.length > 0 ? (
                         assignees.map((assignee) => (
-                          <Option
-                            key={assignee.user_id}
-                            value={assignee.user_id}
-                          >
-                            {assignee.surname} {assignee.name}{' '}
-                            {assignee.patronymic}
+                          <Option key={assignee.user_id} value={assignee.user_id}>
+                            {assignee.surname} {assignee.name} {assignee.patronymic}
                           </Option>
                         ))
                       ) : (
@@ -283,6 +286,14 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
                     <Select
                       mode="multiple"
                       style={{ width: '100%' }}
+                      showSearch
+                      optionFilterProp="children"
+                      filterOption={(input, option) => {
+                        const assignee = assignees.find((a) => a.user_id === option?.value);
+                        if (!assignee) return false;
+                        const fullName = `${assignee.surname} ${assignee.name} ${assignee.patronymic}`.toLowerCase();
+                        return fullName.includes(input.toLowerCase());
+                      }}
                       value={formData.performers}
                       onChange={(selectedIds) => {
                         handleInputChange('performers', selectedIds);
@@ -293,12 +304,8 @@ const TaskCard = ({ selectedTask, visible, onClose, assignees, stages }) => {
                     >
                       {assignees?.length > 0 ? (
                         assignees.map((assignee) => (
-                          <Option
-                            key={assignee.user_id}
-                            value={assignee.user_id}
-                          >
-                            {assignee.surname} {assignee.name[0]}.{' '}
-                            {assignee.patronymic[0]}.
+                          <Option key={assignee.user_id} value={assignee.user_id}>
+                            {assignee.surname} {assignee.name[0]}. {assignee.patronymic[0]}.
                           </Option>
                         ))
                       ) : (

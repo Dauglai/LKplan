@@ -113,11 +113,11 @@ class TaskAPICreate(generics.CreateAPIView):
 class TaskAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
 class CommentAPIListCreate(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         task_id = self.kwargs.get('pk')
@@ -211,7 +211,26 @@ class ChecklistItemAPIListCreate(generics.ListCreateAPIView):
             checklist = Checklist.objects.get(pk=pk)
         except Checklist.DoesNotExist:
             raise NotFound({"error": "Checklist not found."})
-        serializer.save(checklist=checklist)
+
+        responsible = serializer.validated_data.get('responsible')
+        description = serializer.validated_data.get('description')
+        datetime = serializer.validated_data.get('datetime')
+        task = checklist.task  # <--- просто берем task из checklist
+
+        # Сохраняем пункт чеклиста
+        checklist_item = serializer.save(checklist=checklist)
+
+        # Если указан ответственный — создаем связанную подзадачу
+        if responsible:
+            Task.objects.create(
+                creator=self.request.user.profile,
+                name=description,
+                responsible_user=responsible,
+                end=datetime,
+                parent_task=task,
+                project=task.project,
+                # checklist_item=checklist_item  # если нужна связь задачи с пунктом
+            )
 
 
 class ChecklistItemAPIUpdate(generics.RetrieveUpdateDestroyAPIView):

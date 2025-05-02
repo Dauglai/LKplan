@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Popconfirm, Form, Space, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import './TeamMembersTable.scss';
+import PlanButton from '../../Components/PlanButton/PlanButton.tsx';
+import CustomTable from '../../Components/CustomTable/CustomTable.tsx';
+
+import './TeamMembersTable.scss'
 
 interface Student {
   user_id: number;
@@ -112,7 +115,7 @@ const TeamMembersTable: React.FC<TeamMembersTableProps> = ({
     },
     {
       title: 'Роль', // ← Заглушка: используем job
-      dataIndex: 'job', // ← было role
+      dataIndex: 'job', // role
       key: 'job',
       render: (text: string) => text || '—', // ← если нет job, показываем прочерк
     },
@@ -136,14 +139,13 @@ const TeamMembersTable: React.FC<TeamMembersTableProps> = ({
         const editable = isEditingRow(record);
         return editable ? (
           <Space>
-            <Button type="link" onClick={() => save(record.user_id)}>Сохранить</Button>
+            <PlanButton type="link" onClick={() => save(record.user_id)}>Сохранить</PlanButton>
             <Button type="link" onClick={cancel}>Отмена</Button>
           </Space>
         ) : (
           <Space>
-            <Button type="link" onClick={() => edit(record)}>✏</Button>
             <Popconfirm title="Удалить студента?" onConfirm={() => handleDelete(record.user_id)}>
-              <Button type="link" danger>Удалить</Button>
+              <PlanButton type="link" danger>Удалить</PlanButton>
             </Popconfirm>
           </Space>
         );
@@ -170,14 +172,8 @@ const TeamMembersTable: React.FC<TeamMembersTableProps> = ({
 
   return (
     <Form form={form} component={false}>
-      <Table
-        className="team-members-table"
-        bordered
-        components={{
-          body: {
-            cell: EditableCell,
-          },
-        }}
+      <CustomTable
+        components={{ body: { cell: EditableCell } }}
         dataSource={data}
         columns={mergedColumns}
         rowKey="user_id"

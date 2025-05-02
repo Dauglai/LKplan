@@ -53,10 +53,36 @@
 
 .task-filter-wrapper {
     display: flex;
-    gap: 12px;
     align-items: center;
     width: 100%;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    .task-filter-tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        max-width: 60%;
+    }
+
+    .filter-button {
+        height: 36px;
+        padding: 0 12px;
+        background-color: #5C8DB9;
+        color: #fff;
+        border: 1px solid #5C8DB9;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background-color: #769FC2;
+            border-color: #769FC2;
+        }
+    }
 }
+
 
 .task-filter-search {
     flex: 1;
@@ -68,24 +94,24 @@ input {
 }
 
 .filter-dropdown {
+    padding: 8px 12px;
     background-color: white;
-    padding: 12px;
     border-radius: 8px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-    min-width: 320px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 
-    .ant-select {
-        width: 100%;
-    }
-
+    .ant-select,
     .ant-picker-range {
         width: 100%;
     }
-}
 
+    .ant-select-selector:focus {
+        border-color: #5C8DB9 !important;
+        box-shadow: 0 0 0 2px rgba(92, 141, 185, 0.2);
+    }
+}
 .filter-button {
     height: 36px;
     padding: 0 16px;
@@ -94,4 +120,61 @@ input {
     border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
+}
+
+
+.task-filter-input-wrapper {
+    width: 100%;
+}
+
+.task-filter-input {
+    display: flex;
+    align-items: center;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 4px 8px;
+    height: 40px;
+    position: relative;
+    background-color: #fff;
+    transition: border-color 0.3s;
+    overflow-x: auto;
+
+    &:focus-within {
+        border-color: #5C8DB9;
+        box-shadow: 0 0 0 2px rgba(92, 141, 185, 0.2);
+    }
+
+    .task-filter-tags-inside {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        gap: 6px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+
+        .ant-tag {
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .task-filter-input-field {
+            border: none;
+            outline: none;
+            flex: 1;
+            min-width: 120px;
+            font-size: 14px;
+        }
+    }
+
+    .task-filter-icon {
+        font-size: 16px;
+        color: #5C8DB9;
+        margin-left: 8px;
+        cursor: pointer;
+        flex-shrink: 0;
+
+        &:hover {
+            color: #769FC2;
+        }
+    }
 }

@@ -98,7 +98,7 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
         cleanedData = { performers: value };
 
       try {
-        await updateTask({ id: formData.key, data: cleanedData }).unwrap();
+        await updateTask({ id: Number(formData.key), data: cleanedData }).unwrap();
         if (field !== "description" && field !== "name")
           message.success("Задача обновлена");
       } catch (error) {

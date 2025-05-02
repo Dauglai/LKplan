@@ -63,6 +63,7 @@ class TaskFilter(filters.FilterSet):
     status = filters.CharFilter(field_name='status', lookup_expr='exact') # Фильтрация по статусу
     creator = filters.NumberFilter(field_name='creator__user_id') # Фильтрация по создателю
     responsible_user = filters.NumberFilter(field_name='responsible_user__user_id') # Фильтрация по проекту
+    direction = filters.CharFilter(field_name='project__direction__id', lookup_expr='icontains')
     project = filters.NumberFilter(field_name='project__id') # Фильтрация по проекту
     deadline = filters.DateFilter(field_name='end') # Фильтрация по дедлайну
     created_after = filters.DateFilter(field_name='start', lookup_expr='gte')  # Начальная дата
@@ -82,7 +83,7 @@ class TaskFilter(filters.FilterSet):
         fields = [
             'name', 'status', 'deadline', 'creator',
             'responsible_user', 'project', 'created_after',
-            'created_before', 'task_id', 'team'
+            'created_before', 'task_id', 'team', 'direction'
         ]
 
 
@@ -215,7 +216,7 @@ class ChecklistItemAPIListCreate(generics.ListCreateAPIView):
         responsible = serializer.validated_data.get('responsible')
         description = serializer.validated_data.get('description')
         datetime = serializer.validated_data.get('datetime')
-        task = checklist.task  # <--- просто берем task из checklist
+        task = checklist.task
 
         # Сохраняем пункт чеклиста
         checklist_item = serializer.save(checklist=checklist)
@@ -242,6 +243,7 @@ class ChecklistItemAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
 class ProjectAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class ProjectAPIList(generics.ListAPIView):

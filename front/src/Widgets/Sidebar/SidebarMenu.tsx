@@ -47,9 +47,8 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       ),
       items: [
         ...(myTeam ? [{ label: 'Моя команда', path: `/teams/${myTeam.id}` }] : []),
-        { label: 'Список задач', path: `/projects/${application.project}/tasks` },
-        { label: 'Канбан-доска', path: `/projects/${application.project}/kanban` },
-        { label: 'Диаграмма Ганта', path: `/projects/${application.project}/gantt` },
+        { label: 'Список задач', path: `/projects/${application.project}/tasks?team=${myTeam?.id ?? ''}` },
+        { label: 'Канбан доска', path: `/projects/${application.project}/kanban?team=${myTeam?.id ?? ''}` }
       ],
     };
   }) || [];

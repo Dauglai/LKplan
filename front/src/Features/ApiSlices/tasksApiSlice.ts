@@ -80,7 +80,10 @@ export const tasksApiSlice = apiSlice.injectEndpoints({
         },
         withCredentials: true,
       }),
-      transformResponse: (response: { results: Task[] }) => response.results,
+      transformResponse: (response: { results: Task[]; count: number }) => ({
+        results: response.results,
+        count: response.count,
+      }),
       providesTags: ['Task'],
     }),
     createTask: builder.mutation<Task, Partial<Task>>({

@@ -279,15 +279,9 @@ export default function KanbanBoard({
 
   return (
     <>
-      <div className="kanban-header">
-        <Button icon={<PlusOutlined />} onClick={()=>setIsCreateModal(true)}>
-          Добавить статус
-        </Button>
-      </div>
-
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="kanban-board">
-          {dataState.columnOrder.map(colId => {
+          {dataState.columnOrder.map((colId) => {
             const col = dataState.columns[colId];
             return (
               <Droppable droppableId={col.id} key={col.id}>
@@ -306,32 +300,52 @@ export default function KanbanBoard({
                           <Draggable draggableId={t.id} index={idx} key={t.id}>
                             {(prov, snap) => (
                               <div
-                                className={`kanban-task ${snap.isDragging?'dragging':''}`}
+                                className={`kanban-task ${snap.isDragging ? 'dragging' : ''}`}
                                 ref={prov.innerRef}
                                 {...prov.draggableProps}
                               >
                                 {/* ячейка drag-handle */}
-                                <div {...prov.dragHandleProps} className="task-drag-handle">
+                                <div
+                                  {...prov.dragHandleProps}
+                                  className="task-drag-handle"
+                                >
                                   <MenuOutlined />
                                 </div>
-                                <div className="task-content" onClick={()=>handleTaskClick(t.id)}>
+                                <div
+                                  className="task-content"
+                                  onClick={() => handleTaskClick(taskKey)}
+                                >
                                   <div className="task-title">{t.title}</div>
-                                  <div className="task-subtasks">⇳ {t.subtasks}</div>
-                                  <div className="task-date">{t.startDate} – {t.endDate}</div>
-                                  <div className="task-executor">{t.executor}</div>
+                                  <div className="task-subtasks">
+                                    ⇳ {t.subtasks}
+                                  </div>
+                                  <div className="task-date">
+                                    {t.startDate} – {t.endDate}
+                                  </div>
+                                  <div className="task-executor">
+                                    {t.executor}
+                                  </div>
                                 </div>
                               </div>
                             )}
                           </Draggable>
-                        )
+                        );
                       })}
                       {provided.placeholder}
                     </div>
                   </div>
                 )}
               </Droppable>
-            )
+            );
           })}
+          <div className="kanban-header">
+            <Button
+              icon={<PlusOutlined />}
+              onClick={() => setIsCreateModal(true)}
+            >
+              Добавить статус
+            </Button>
+          </div>
         </div>
       </DragDropContext>
 
@@ -340,22 +354,22 @@ export default function KanbanBoard({
         title="Новый статус"
         open={isCreateModal}
         onOk={handleCreateStage}
-        onCancel={()=>setIsCreateModal(false)}
+        onCancel={() => setIsCreateModal(false)}
         okText="Создать"
         cancelText="Отмена"
       >
         <Input
           placeholder="Название"
           value={newStageName}
-          onChange={e=>setNewStageName(e.target.value)}
+          onChange={(e) => setNewStageName(e.target.value)}
         />
         <div className="color-picker">
-          {Object.entries(colorMap).map(([name,hex])=>(
+          {Object.entries(colorMap).map(([name, hex]) => (
             <div
               key={name}
-              className={`color-circle ${newStageColor===name?'selected':''}`}
-              style={{background:hex}}
-              onClick={()=>setNewStageColor(name)}
+              className={`color-circle ${newStageColor === name ? 'selected' : ''}`}
+              style={{ background: hex }}
+              onClick={() => setNewStageColor(name)}
             />
           ))}
         </div>
@@ -365,32 +379,32 @@ export default function KanbanBoard({
         title="Редактировать статус"
         open={isEditModal}
         onOk={handleEditStage}
-        onCancel={()=>setIsEditModal(false)}
+        onCancel={() => setIsEditModal(false)}
         okText="Сохранить"
         cancelText="Отмена"
       >
         <Input
           placeholder="Название"
           value={newStageName}
-          onChange={e=>setNewStageName(e.target.value)}
+          onChange={(e) => setNewStageName(e.target.value)}
         />
         <div className="color-picker">
-          {Object.entries(colorMap).map(([name,hex])=>(
+          {Object.entries(colorMap).map(([name, hex]) => (
             <div
               key={name}
-              className={`color-circle ${newStageColor===name?'selected':''}`}
-              style={{background:hex}}
-              onClick={()=>setNewStageColor(name)}
+              className={`color-circle ${newStageColor === name ? 'selected' : ''}`}
+              style={{ background: hex }}
+              onClick={() => setNewStageColor(name)}
             />
           ))}
         </div>
       </Modal>
 
       <Modal
-        title={<DeleteOutlined style={{ color:'#e74c3c', fontSize:24 }}/>}
+        title={<DeleteOutlined style={{ color: '#e74c3c', fontSize: 24 }} />}
         open={isDeleteModal}
         onOk={handleDeleteStage}
-        onCancel={()=>setIsDeleteModal(false)}
+        onCancel={() => setIsDeleteModal(false)}
         okText="Удалить"
         cancelText="Отмена"
       >
@@ -402,29 +416,12 @@ export default function KanbanBoard({
         <TaskCard
           visible={isTaskModal}
           selectedTask={dataState.fullTasks[selectedTaskKey]!}
-          onClose={()=>{ setIsTaskModal(false); setSelectedTaskKey(null); }}
+          onClose={() => {
+            setIsTaskModal(false);
+            setSelectedTaskKey(null);
+          }}
           stages={stages}
           assignees={assignees}
-          onUpdate={(upd) => {
-            //  после сохранения в карточке сразу обновляем отображение
-            setDataState(d => ({
-              ...d,
-              displayTasks: {
-                ...d.displayTasks,
-                [upd.key]: {
-                  ...d.displayTasks[upd.key],
-                  title: upd.name,
-                  executor: `${upd.assignee.surname} ${upd.assignee.name}`,
-                  startDate: upd.end ? moment(upd.end).format('DD.MM.YYYY') : 'Нет срока',
-                  endDate: upd.end ? moment(upd.end).format('DD.MM.YYYY') : 'Нет срока',
-                }
-              },
-              fullTasks: {
-                ...d.fullTasks,
-                [upd.key]: upd
-              }
-            }));
-          }}
         />
       )}
     </>

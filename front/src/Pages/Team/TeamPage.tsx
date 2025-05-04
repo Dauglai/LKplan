@@ -10,7 +10,8 @@ import TeamMembersTable from 'Pages/Team/TeamMembersTable.tsx';
 import ResultsTab from './ResultsTab';
 import AddStudentModal from './AddStudentModal';
 import TeamMeetingsTab from 'Pages/Team/TeamMeetingsTab.tsx';
-import PlanButton from '../../Components/PlanButton/PlanButton.tsx'; // модалка выбора студентов
+import PlanButton from '../../Components/PlanButton/PlanButton.tsx';
+import LinkField from '../../Components/LinkField/LinkField.tsx'; // модалка выбора студентов
 
 export default function TeamPage() {
     const { teamId } = useParams();
@@ -128,113 +129,144 @@ export default function TeamPage() {
         { id: 1, surname: "Тестов", name: "Тест", patronymic: "Тестович", role: "Тест", telegram: "@test", group: "Т-21" }
     ];
 
+    const handleCopy = async (text: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch (e) {
+            console.error('Ошибка при копировании ссылки:', e);
+        }
+    };
+
     return (
       <div className="TeamCard">
-          <div className="Tabs">
-              <Button className={activeTab === 'info' ? 'Tab active' : 'Tab'}
-                      onClick={() => setActiveTab('info')}>Информация</Button>
-              <Button className={activeTab === 'results' ? 'Tab active' : 'Tab'}
-                      onClick={() => setActiveTab('results')}>Результаты</Button>
-              <Button className={activeTab === 'meetings' ? 'Tab active' : 'Tab'}
-                      onClick={() => setActiveTab('meetings')}>Собрания</Button>
-          </div>
+        <div className="Tabs">
+          <Button
+            className={activeTab === 'info' ? 'Tab active' : 'Tab'}
+            onClick={() => setActiveTab('info')}
+          >
+            Информация
+          </Button>
+          <Button
+            className={activeTab === 'results' ? 'Tab active' : 'Tab'}
+            onClick={() => setActiveTab('results')}
+          >
+            Результаты
+          </Button>
+          <Button
+            className={activeTab === 'meetings' ? 'Tab active' : 'Tab'}
+            onClick={() => setActiveTab('meetings')}
+          >
+            Собрания
+          </Button>
+        </div>
 
-          {activeTab === 'info' && (
-            <>
-                <div className="TeamForm">
-                    <div className="FormGroup">
-                        <label>Название команды</label>
-                        {isEditing && isCurator ? (
-                          <input
-                            type="text"
-                            value={editableTeam.name}
-                            onChange={e => handleChange('name', e.target.value)}
-                          />
-                        ) : (
-                          <div className="TextBlock">{editableTeam.name}</div>
-                        )}
-                    </div>
-
-                    <div className="FormGroup curator-group">
-                        <label>Куратор</label>
-                        <div className="TwoColumns">
-                            {isEditing && isCurator ? (
-                              <>
-                                  <Input
-                                    type="text"
-                                    value={editableTeam.curator.full_name}
-                                    onChange={e => handleCuratorChange('full_name', e.target.value)}
-                                  />
-                                  <Input
-                                    type="text"
-                                    value={editableTeam.curator.telegram}
-                                    onChange={e => handleCuratorChange('telegram', e.target.value)}
-                                  />
-                              </>
-                            ) : (
-                              <>
-                                  <div className="TextBlock">{editableTeam.curator.full_name}</div>
-                                  <div className="TextBlock">{editableTeam.curator.telegram}</div>
-                              </>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="FormGroup">
-                        <label>Ссылка на чат</label>
-                        {isEditing && isCurator ? (
-                          <input
-                            type="text"
-                            value={editableTeam.chat}
-                            onChange={e => handleChange('chat_link', e.target.value)}
-                          />
-                        ) : (
-                          <div className="TextBlock Link">{editableTeam.chat}</div>
-                        )}
-                    </div>
-                </div>
-
-                <TeamMembersTable
-                  isCurator={isCurator}
-                  isEditing={isEditing}
-                  students={members}
-                  onUpdate={setMembers}
-                />
-
-                {isCurator && (
-                  <div className="ActionsRow">
-                      {isEditing && (
-                        <Button className="add" onClick={() => {
-                            console.log('Открываем модалку');
-                            setIsModalVisible(true);
-                        }}>
-                            Добавить участника
-                        </Button>
-                      )}
-                      <PlanButton className="save" onClick={isEditing ? handleSave : () => setIsEditing(true)}>
-                          {isEditing ? 'Сохранить' : 'Редактировать'}
-                      </PlanButton>
-                  </div>
+        {activeTab === 'info' && (
+          <>
+            <div className="TeamForm">
+              <div className="FormGroup">
+                <label>Название команды</label>
+                {isEditing && isCurator ? (
+                  <input
+                    type="text"
+                    value={editableTeam.name}
+                    onChange={(e) => handleChange('name', e.target.value)}
+                  />
+                ) : (
+                  <div className="TextBlock">{editableTeam.name}</div>
                 )}
+              </div>
 
-                <AddStudentModal
-                  visible={isModalVisible}
-                  onClose={() => {
-                      console.log('Закрываем модалку');
-                      setIsModalVisible(false);
-                  }}
-                  onAdd={handleAddStudents}
-                />
-            </>
-          )}
+              <div className="FormGroup curator-group">
+                <label>Куратор</label>
+                <div className="TwoColumns">
+                  {isEditing && isCurator ? (
+                    <>
+                      <Input
+                        type="text"
+                        value={editableTeam.curator.full_name}
+                        onChange={(e) =>
+                          handleCuratorChange('full_name', e.target.value)
+                        }
+                      />
+                      <Input
+                        type="text"
+                        value={editableTeam.curator.telegram}
+                        onChange={(e) =>
+                          handleCuratorChange('telegram', e.target.value)
+                        }
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <div className="TextBlock">
+                        {editableTeam.curator.full_name}
+                      </div>
+                      <div className="TextBlock">
+                        {editableTeam.curator.telegram}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
 
-          {activeTab === 'results' && (
-            <ResultsTab />
-          )}
+              <div className="FormGroup">
+                <label>Ссылка на чат</label>
+                  <LinkField
+                    title="Командный чат"
+                    value={editableTeam.chat}
+                    isEditing={isEditing && isCurator}
+                    onChange={(v) => handleChange('chat', v)}
+                    onClear={() => handleChange('chat', '')}
+                    onCopy={() => handleCopy(editableTeam.chat)}
+                  />
+              </div>
+            </div>
 
-          {activeTab === 'meetings' && (
-            <TeamMeetingsTab currentUser={currentUser.user_id}/>
-          )}
+            <TeamMembersTable
+              isCurator={isCurator}
+              isEditing={isEditing}
+              students={members}
+              onUpdate={setMembers}
+            />
+
+            {isCurator && (
+              <div className="ActionsRow">
+                {isEditing && (
+                  <Button
+                    className="add"
+                    onClick={() => {
+                      console.log('Открываем модалку');
+                      setIsModalVisible(true);
+                    }}
+                  >
+                    Добавить участника
+                  </Button>
+                )}
+                <PlanButton
+                  className="save"
+                  onClick={isEditing ? handleSave : () => setIsEditing(true)}
+                >
+                  {isEditing ? 'Сохранить' : 'Редактировать'}
+                </PlanButton>
+              </div>
+            )}
+
+            <AddStudentModal
+              visible={isModalVisible}
+              onClose={() => {
+                console.log('Закрываем модалку');
+                setIsModalVisible(false);
+              }}
+              onAdd={handleAddStudents}
+            />
+          </>
+        )}
+
+        {activeTab === 'results' && <ResultsTab />}
+
+        {activeTab === 'meetings' && (
+          <TeamMeetingsTab currentUser={currentUser.user_id} />
+        )}
       </div>
     );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   Table,
   Dropdown,
@@ -17,7 +17,7 @@ import './Tasks.scss';
 import CreateTaskModal from './CreateTaskModal';
 import { TaskFormValues } from './CreateTaskModal/CreateTaskModal.typings';
 import tableOptionIcon from '/src/assets/icons/table_optionb.svg';
-import styles from './Table.module.scss';
+
 
 
 import {
@@ -26,14 +26,16 @@ import {
 } from 'Features/ApiSlices/tasksApiSlice';
 import { useGetUsersQuery } from 'Features/ApiSlices/userSlice.ts';
 import { useGetProjectByIdQuery, useGetProjectsQuery } from 'Features/ApiSlices/projectSlice.ts';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import TaskCard from 'Pages/Tasks/TaskCard/TaskCard.tsx';
 import TaskFilters from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
 import TaskFilter from 'Pages/Tasks/TaskFilter/TaskFilter.tsx';
 import PlanButton from '../../Components/PlanButton/PlanButton.tsx';
 import moment from 'moment';
 import KanbanBoard from 'Pages/Tasks/KanbanBoard.tsx';
-import { getPagesArray } from '../../Components/Pagination/page.ts';
+import { getPageCount, getPagesArray } from '../../Components/Pagination/page.ts';
+import { skipToken } from '@reduxjs/toolkit/query';
+import { ViewModeButtons, ViewSwitchButtons } from '../../Components/NavButtons/ViewSwitchButtons.tsx';
 
 
 interface Profile {
@@ -52,6 +54,7 @@ interface Task {
   key: string;
   name: string;
   sprint: string;
+  direction: string;
   status: string;
   stage: Stage;
   end: string;
@@ -70,7 +73,7 @@ interface RemoveTaskResult {
 
 const { Option } = Select;
 
-const Tasks = () => {
+const Tasks = ({ team }: { team?: number }) => {
   const [dataSource, setDataSource] = useState<Task[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false); // Статус модального окна
   const [isModalTaskVisible, setIsModalTaskVisible] = useState(false); // Статус модального окна задачи
@@ -85,6 +88,8 @@ const Tasks = () => {
   const { data: projects, isLoading: isLoadingProjects } = useGetProjectsQuery();
   const projectList = projects || [];
   const { projectId } = useParams();
+  const [searchParams] = useSearchParams();
+  const teamId = searchParams.get('team') ? Number(searchParams.get('team')) : undefined;
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
   // @ts-ignore
   const { data: userData, isLoading, error } = useGetUsersQuery();
@@ -92,16 +97,19 @@ const Tasks = () => {
   const assignees = userData ? userData : [];
   const stages = projectData?.stages || [];
 //  const { data } = useGetAllTasksQuery();
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(1000);
   const [page, setPage] = useState(1);
-  const [filter, setFilter] = useState({ sort: '', query: ''});
-  const { data: data = [], refetch } = useGetAllTasksQuery({
+  const [filter, setFilter] = useState({ sort: '', query: '', team: teamId });
+  const [totalPages, setTotalPages] = useState(0);
+
+  const queryParams = page > totalPages && totalPages > 0 ? skipToken : {
     name: filter.query,
     status: filter.status,
-    creator: filter.creator,
+    creator: filter.author,
     responsible_user: filter.responsible_user,
+    direction: filter.direction,
     project: filter.project,
-    deadline: filter.deadline,
+    end: filter.end,
     created_after: filter.created_after,
     created_before: filter.created_before,
     task_id: filter.task_id,
@@ -109,10 +117,14 @@ const Tasks = () => {
     page,
     page_size: limit,
     sort: filter.sort,
+  };
+
+  const { data: data = { results: [], count: 0 }, refetch } = useGetAllTasksQuery(queryParams, {
+    skip: page === 0,
   });
 
-  const [totalPages, setTotalPages] = useState(0);
-  const [viewMode, setViewMode] = useState<'list' | 'kanban' | 'gantt'>('list');
+
+  const [viewMode, setViewMode] = useState<'tasks' | 'kanban' | 'gantt'>('tasks');
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'ascend' | 'descend' | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<string[]>([
@@ -124,33 +136,76 @@ const Tasks = () => {
     'team',
     'actions'
   ]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (data) {
-      const structuredTasks = organizeTasks(data);
-      setDataSource(transformTasksData(structuredTasks));
+    if (!data?.results || data.results.length === 0) return;
+
+    const structured = organizeTasks(data.results);
+    const transformed = transformTasksData(structured);
+
+    setDataSource(prev => {
+      if (page === 1) {
+        return transformed;
+      }
+      // Фильтруем дубликаты по ID
+      const existingIds = new Set(prev.map(task => task.key));
+      const newTasks = transformed.filter(task => !existingIds.has(task.key));
+
+      return [...prev, ...newTasks];
+    });
+  }, [data?.results, page]);
+
+
+  //обработчик количества задач
+  useEffect(() => {
+    if (data.count) {
+      setTotalPages(getPageCount(data.count, limit));
     }
-  }, [data]);
+  }, [data.count, limit]);
+
+  //смена фильтров
+  useLayoutEffect(() => {
+    setPage(1);
+    setDataSource([]);
+    setTotalPages(0);
+  }, [filter]);
+
+
+  //Обработчик скролла
+  useEffect(() => {
+    const handleScroll = () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+      const hasMoreData = data?.results?.length === limit;
+
+      if (nearBottom && page < totalPages && hasMoreData) {
+        setPage((prev) => prev + 1);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [page, totalPages, data?.results]);
+
 
   const organizeTasks = (tasks: Task[]): Task[] => {
     const taskMap: Record<string, Task> = {};
     const rootTasks: Task[] = [];
 
-    // Создаем глубокую копию
-    const tasksCopy = tasks.map(task => ({
-      ...task,
-      children: task.children || [], // Убедимся, что `children` массив, а не `undefined`
-    }));
-
-    tasksCopy.forEach((task) => {
-      taskMap[task.id] = task;
+    // Убедимся, что у всех есть children и key
+    tasks.forEach(task => {
+      taskMap[task.id] = { ...task, children: task.children || [] };
     });
 
-    tasksCopy.forEach((task) => {
+    tasks.forEach(task => {
       if (task.parent_task && taskMap[task.parent_task]) {
-        taskMap[task.parent_task].children.push(task);
+        // Убедимся, что не дублируем детей
+        const parent = taskMap[task.parent_task];
+        if (!parent.children.find(child => child.id === task.id)) {
+          parent.children.push(taskMap[task.id]);
+        }
       } else {
-        rootTasks.push(task);
+        rootTasks.push(taskMap[task.id]);
       }
     });
 
@@ -194,22 +249,6 @@ const Tasks = () => {
       children: task.subtasks ? transformTasksData(task.subtasks) : [],
       parent_task: task.parent_task
     }));
-  };
-
-  const handleMakeSubtask = (taskKey: string, info: any) => {
-    info.domEvent.stopPropagation();
-
-    const task = dataSource.find((t) => t.key === taskKey);
-
-    if (task?.parent_task) {
-      // Если уже подзадача — обнуляем parent_task
-      updateTaskParent(taskKey, null);
-    } else {
-
-      // Иначе — показываем модалку выбора родителя
-      setSelectedTaskKey(taskKey);
-      setIsModalVisible(true);
-    }
   };
 
   const handleCancel = () => {
@@ -275,13 +314,12 @@ const Tasks = () => {
   // Обработчик изменения статуса
   const handleChangeStatus = async (key: string, newStatus: string) => {
     try {
-      // Обновляем задачу на сервере
       await updateTask({ id: Number(key), data: { status: newStatus } }).unwrap();
-
-      // После успешного обновления меняем состояние локально
-      setDataSource((prevData) => updateStatus(prevData, key, newStatus));
+      message.success('Статус обновлён');
+      // Обновляем локально
+      setDataSource(prev => updateStatus(prev, key, newStatus));
     } catch (error) {
-      console.error('Ошибка обновления статуса:', error);
+      message.error('Ошибка обновления статуса');
     }
   };
 
@@ -294,6 +332,21 @@ const Tasks = () => {
       setDataSource(updatedData);
     } catch (error) {
       console.error('Ошибка удаления:', error);
+    }
+  };
+
+  const handleMakeSubtask = (taskKey: string, info: any) => {
+    info.domEvent.stopPropagation();
+
+    const task = dataSource.find((t) => t.key === taskKey);
+
+    if (task?.parent_task) {
+      // Если уже подзадача — обнуляем parent_task
+      updateTaskParent(taskKey, null);
+    } else {
+      // Иначе — показываем модалку выбора родителя
+      setSelectedTaskKey(taskKey);
+      setIsModalVisible(true);
     }
   };
 
@@ -432,7 +485,6 @@ const Tasks = () => {
   };
 
   const columnOptions = [
-    { label: 'Название', value: 'name' },
     { label: 'Статус', value: 'status' },
     { label: 'Направление', value: 'direction' },
     { label: 'Проект', value: 'sprint' },
@@ -441,7 +493,6 @@ const Tasks = () => {
     { label: 'Ответсвенный', value: 'assignee' },
     { label: 'Дата начала', value: 'start' },
     { label: 'Дата окончания', value: 'end' },
-    { label: 'Действия', value: 'actions' },
   ];
 
   useEffect(() => {
@@ -645,16 +696,16 @@ const Tasks = () => {
     }
   ];
 
+  const lockedColumns = ['name', 'actions'];
+
+  //отображение колонок
   const filteredColumns = columns
-    .filter((col) => !col.key || visibleColumns.includes(col.key))
+    .filter((col) => lockedColumns.includes(col.key) || visibleColumns.includes(col.key))
     .map((col) => ({
       ...col,
       onHeaderCell: () => ({ title: '' }), // убираем подсказку
     }));
 
-  const changePage = (page) => {
-    setPage(page);
-  };
 
   return (
     <div className="Tasks">
@@ -696,28 +747,13 @@ const Tasks = () => {
             />
           </Dropdown>
         </div>
-        <div className="Tasks-Header-Buttons">
-          <Button
-            type={viewMode === 'list' ? 'primary' : 'default'}
-            onClick={() => setViewMode('list')}
-          >
-            Список
-          </Button>
-          <Button
-            type={viewMode === 'gantt' ? 'primary' : 'default'}
-            onClick={() => setViewMode('gantt')}
-          >
-            Гант
-          </Button>
-          <Button
-            type={viewMode === 'kanban' ? 'primary' : 'default'}
-            onClick={() => setViewMode('kanban')}
-          >
-            Канбан
-          </Button>
-        </div>
+        <ViewModeButtons
+          activeMode={viewMode}
+          onChange={(mode) => navigate(`/projects/${projectId}/${mode}?team=${teamId ?? ''}`)}
+        />
+
       </div>
-      {viewMode === 'list' && (
+      {viewMode === 'tasks' && (
         <div className="Tasks-Table">
           <Table
             columns={filteredColumns}
@@ -735,7 +771,7 @@ const Tasks = () => {
               rowExpandable: (record) =>
                 !!record.children?.length && !record.parent_task,
               expandIcon: ({ expanded, onExpand, record }) => {
-                if (record.parent_task) return (<a>     </a>);
+                if (record.parent_task) return <a> </a>;
                 return (
                   <span
                     onClick={(e) => {
@@ -744,34 +780,33 @@ const Tasks = () => {
                     }}
                     style={{ cursor: 'pointer', marginRight: 8 }}
                   >
-                    {record.children?.length==0 ? <a> </a> : expanded ? <MinusOutlined/>    : <PlusOutlined  />    }
-            </span>
+                    {record.children?.length == 0 ? (
+                      <a> </a>
+                    ) : expanded ? (
+                      <MinusOutlined />
+                    ) : (
+                      <PlusOutlined />
+                    )}
+                  </span>
                 );
               },
             }}
             pagination={false}
           />
-
-          {/*
-            Пагинация
-          <Pagination
-            pagesArray={getPagesArray(totalPages)}
-            page={page}
-            changePage={changePage}
-          />
-          */}
-
         </div>
       )}
-
-      {viewMode === 'kanban' && <KanbanBoard
-        stages={stages}
-        tasks={dataSource}
-        refetchTasks={refetch}
-        projectId={projectData.id}
-        assignees={assignees}/>
-      }
+      {/*
+              {viewMode === 'kanban' && (
+        <KanbanBoard
+          stages={stages}
+          tasks={dataSource}
+          refetchTasks={refetch}
+          projectId={projectData.id}
+          assignees={assignees}
+        />
+      )}
       {viewMode === 'gantt' && <div>Здесь будет Гант</div>}
+      */}
 
       <Modal
         title="Выберите родительскую задачу"

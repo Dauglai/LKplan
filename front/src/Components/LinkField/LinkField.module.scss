@@ -1,0 +1,45 @@
+/* components/LinkField/LinkField.module.scss */
+.LinkField {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fcfcfd;
+  border: 1px solid #858c9c;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.Title {
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: #1d1f23;
+
+
+}
+
+.Input {
+  flex: 1;
+  background: transparent;
+  padding: 0 12px;
+  height: auto;
+
+}
+
+.Text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #1d1f23;
+}
+
+.Icon {
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.2s;
+  &:hover {
+    color: #40a9ff;
+  }
+}

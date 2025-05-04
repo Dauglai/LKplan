@@ -36,6 +36,7 @@ import UsersProfilePage from 'Pages/UsersProfile/UsersProfilePage.tsx';
 import EmailVerifiedPage from 'Pages/Register/EmailVerified.tsx';
 import PasswordResetRequest from 'Pages/Login/PasswordResetRequest.tsx';
 import PasswordResetConfirm from 'Pages/Login/PasswordResetConfirm.tsx';
+import KanbanPage from 'Pages/KanbanPage/KanbanPage.tsx';
 
 const theme = {
   token: {
@@ -90,6 +91,7 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/teams" element={<TeamsManagement />} />
                   <Route path="/teams/:teamId" element={<TeamPage />} />
                   <Route path="/projects/:projectId/tasks" element={<Tasks />} />
+                  <Route path="/projects/:projectId/kanban" element={<KanbanPage />} />
                 </Route>
             </Route>
             </Routes>

@@ -144,6 +144,10 @@
       .primary-btn {
         @include primary-btn;
       }
+
+      .secondary-btn {
+        @include secondary-btn;
+      }
     }
 
     .InputWrapper {
@@ -214,6 +218,10 @@
 
   .SelectedListItem {
     cursor: pointer;
+
+    &.editing {
+      background-color: #F0DDFF;
+    }
   }
 }
 

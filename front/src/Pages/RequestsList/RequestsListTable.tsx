@@ -11,23 +11,24 @@ import ListTable from 'Components/Sections/ListTable';
 import MagnifierIcon from 'assets/icons/magnifier.svg?react';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
+import { ChangeStatusModal } from "Components/PageComponents/ChangeStatusModal";
 import dayjs from 'dayjs';
 
 
 interface RequestsListTableProps {
     requests: Application[];
     role: string;
-    onSelectionChange?: (ids: number[]) => void;
+    onSelectRequests?: (request: Application[]) => void;
+    onOpenStatusModal?: (requests: Application[]) => void;
 }
 
-export default function RequestsListTable({ requests, role, onSelectionChange }: RequestsListTableProps): JSX.Element {
+export default function RequestsListTable({ requests, role, onSelectRequests, onOpenStatusModal}: RequestsListTableProps): JSX.Element {
     const [openMenu, setOpenMenu] = useState<number | null>(null);
     const { data: projects = []} = useGetProjectsQuery(); // Получение списка проектов с сервера.
     const { data: events = [] } = useGetEventsQuery();
     const { data: teams = [] } = useGetTeamsQuery();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState<Application | null>(null);
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [deleteRequest] = useDeleteApplicationMutation();
     const menuRef = useRef<HTMLUListElement | null>(null);
     const navigate = useNavigate();
@@ -43,14 +44,6 @@ export default function RequestsListTable({ requests, role, onSelectionChange }:
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    const rowSelection = {
-        selectedRowKeys,
-        onChange: (newSelectedRowKeys: React.Key[]) => {
-          setSelectedRowKeys(newSelectedRowKeys);
-          onSelectionChange?.(newSelectedRowKeys);
-        },
-      };
 
     const enrichedRequests = useMemo(() => {
         return requests.map(request => {
@@ -134,10 +127,16 @@ export default function RequestsListTable({ requests, role, onSelectionChange }:
         {
             header: 'Статус',
             render: (request: Application) => (
-                <span className="HiglightCell">{request.status.name}</span>
+                <span
+                    className="HiglightCell"
+                    onClick={() => onOpenStatusModal?.([request])}
+                    style={{ cursor: 'pointer'}}
+                    title="Изменить статус"
+                >{request.status.name}</span>
             ),
             sortKey: 'status.name',
             autoFilters: true,
+            text: 'Нажмите на статус для изменения',  
         },
         {
             header: 'Специализация',
@@ -187,7 +186,7 @@ export default function RequestsListTable({ requests, role, onSelectionChange }:
             <ListTable
                 data={enrichedRequests}
                 columns={columns}
-                rowSelection={rowSelection}
+                onSelectRows={(selected) => onSelectRequests?.(selected)}
             />
             {isModalOpen && selectedRequest && (
                 <RequestDetailsWrapper onClose={closeModal} request={selectedRequest} open={isModalOpen}/>

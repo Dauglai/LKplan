@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { useGetApplicationsQuery } from "Features/ApiSlices/applicationSlice";
+import { Application, useGetApplicationsQuery } from "Features/ApiSlices/applicationSlice";
 import RequestsListTable from "./RequestsListTable";
 import 'Styles/components/Sections/ListTableStyles.scss';
 import { useGetUserQuery } from "Features/ApiSlices/userSlice";
-import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
 import { ChangeStatusModal } from "Components/PageComponents/ChangeStatusModal";
 import { Button } from "antd";
 import BackButton from "Widgets/BackButton/BackButton";
@@ -12,7 +11,7 @@ import UniversalInput from "Components/Common/UniversalInput";
 export default function RequestsManagement(): JSX.Element {
   const { data: requests = [], isLoading } = useGetApplicationsQuery();
   const { data: user, isLoading: isUserLoading } = useGetUserQuery();
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedRequests, setSelectedRequests] = useState<Application[]>([]);
   const [isChangeStatusModalOpen, setIsChangeStatusModalOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -21,6 +20,11 @@ export default function RequestsManagement(): JSX.Element {
   }, []);
 
   const handleSearch = (value: string) => setSearch(value.toLowerCase());
+
+  const openStatusModal = (requests: Application[]) => {
+    setSelectedRequests(requests);
+    setIsChangeStatusModalOpen(true);
+  };
 
   const filteredRequests = requests.filter((request) => {
     const { user } = request;
@@ -49,7 +53,7 @@ export default function RequestsManagement(): JSX.Element {
             <Button
                 type="primary"
                 onClick={() => setIsChangeStatusModalOpen(true)}
-                disabled={selectedIds.length === 0}
+                disabled={selectedRequests.length === 0}
             >
                 Изменить статус выбранных
             </Button>
@@ -58,15 +62,16 @@ export default function RequestsManagement(): JSX.Element {
 
       <RequestsListTable
         requests={filteredRequests}
-        role={user?.role ?? "student"} // или другой дефолт
-        onSelectionChange={setSelectedIds}
+        role={user?.role}
+        onSelectRequests={setSelectedRequests}
+        onOpenStatusModal={openStatusModal}
       />
 
       {isChangeStatusModalOpen && (
         <ChangeStatusModal
           open={isChangeStatusModalOpen}
           onClose={() => setIsChangeStatusModalOpen(false)}
-          selectedIds={selectedIds}
+          requests={selectedRequests}
         />
       )}
     </div>

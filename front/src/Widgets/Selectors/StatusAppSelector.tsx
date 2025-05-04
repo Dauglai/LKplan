@@ -1,12 +1,12 @@
 import { StatusApp, useGetStatusesAppQuery } from 'Features/ApiSlices/statusAppSlice';
 import "Styles/FormSelectorStyle.scss";
-import { Select, Spin } from 'antd';
+import { Select } from 'antd';
 const { Option } = Select;
 import "Styles/FormSelectorStyle.scss";
 
 
 interface StatusAppSelectorProps {
-  selectedStatusApp: StatusApp;
+  selectedStatusApp?: StatusApp;
   onChange: (selected: StatusApp) => void;
 }
 
@@ -17,12 +17,12 @@ export default function StatusAppSelector({
   const { data: allStatusesApp, isLoading } = useGetStatusesAppQuery();
 
   if (isLoading) {
-    return <Spin />;
+    return <span>Загрузка...</span>;
   }
 
   return (
       <Select
-        value={selectedStatusApp.id ?? undefined}
+        value={selectedStatusApp?.id ?? undefined}
         onChange={(id) => {
           const selected = allStatusesApp?.find((s) => s.id === id);
           if (selected) onChange(selected);

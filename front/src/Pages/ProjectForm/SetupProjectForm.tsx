@@ -1,5 +1,4 @@
 import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
-import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
 import { useNavigate } from "react-router-dom";
 import UserSelector from 'Widgets/Selectors/UserSelector';
@@ -11,11 +10,14 @@ import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import 'Styles/FormStyle.scss'
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addProject, removeProject } from 'Features/store/eventSetupSlice';
+import { addProject, updateProjects, removeProject } from 'Features/store/eventSetupSlice';
+import { Project } from 'Features/ApiSlices/projectSlice';
+import { Direction } from 'Features/ApiSlices/directionSlice';
 
 export default function SetupProjectForm(): JSX.Element {
-  const { data: user } = useGetUserQuery();
   const { stepProjects } = useSelector((state: any) => state.event);
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+  const { stepDirections } = useSelector((state: any) => state.event);
   const { showNotification } = useNotification();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -26,6 +28,8 @@ export default function SetupProjectForm(): JSX.Element {
     description: '',
   });
 
+  const selectedDirection = stepDirections.directions.find(d => d.id === newProject.direction);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewProject((prev) => ({
@@ -34,21 +38,38 @@ export default function SetupProjectForm(): JSX.Element {
     }));
   };
 
-  const handleProject = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (newProject.name.trim()) {
-        setNewProject((prev) => ({
-          ...prev,
-          name: '',
-          description: '',
-        }));
-        
-        showNotification('Проект создан!', 'success');
-        dispatch(addProject(newProject));
-      }
-    };
+  const handleEditProject = (project: Project) => {
+    setNewProject({
+      direction: project.direction,
+      name: project.name,
+      description: project.description,
+    });
+    setEditingProjectId(project.project_id);
+  };
 
-  const handleDirectionChange = (selected: number) => {
+  const handleProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newProject.name.trim()) {
+      if (editingProjectId) {
+        const updatedProjects = stepProjects.projects.map((project) =>
+          project.project_id === editingProjectId ? { ...newProject, project_id: editingProjectId } : project
+        );
+        // Обновляем существующий проект
+        dispatch(updateProjects(updatedProjects));
+        showNotification('Проект обновлён!', 'success');
+      } else {
+        // Создаём новый проект
+        dispatch(addProject(newProject));
+        showNotification('Проект создан!', 'success');
+      }
+
+      // Сбрасываем форму
+      setNewProject({ direction: 0, name: '', description: '' });
+      setEditingProjectId(null);
+    }
+  };
+
+  const handleDirectionChange = (selected: Direction) => {
     setNewProject((prev) => ({
       ...prev,
       direction: selected.id,
@@ -90,6 +111,7 @@ export default function SetupProjectForm(): JSX.Element {
 
         <DirectionSelector
           onChange={handleDirectionChange}
+          selectedDirection={selectedDirection}
           sourceType='local'
         />
 
@@ -116,8 +138,20 @@ export default function SetupProjectForm(): JSX.Element {
         />*/}
 
         <div className="FormButtons">
+          {editingProjectId && (
+            <button
+              type="button"
+              className="secondary-btn"
+              onClick={() => {
+                setEditingProjectId(null);
+                setNewProject({ direction: 0, name: '', description: '' });
+              }}
+            >
+              Отменить редактирование
+            </button>
+          )}
           <button className="primary-btn" type="submit">
-            Добавить проект
+          {editingProjectId ? "Редактировать проект" : "Добавить проект"}
           </button>
           <button
             className="primary-btn"
@@ -136,16 +170,20 @@ export default function SetupProjectForm(): JSX.Element {
           <h3>Созданные проекты:</h3>
           <ul className='SelectedList'>
             {stepProjects.projects.map((project) => (
-              <li key={project.project_id} className="SelectedListItem">
-                {project.name}
-                <CloseIcon
-                  className="RemoveIcon"
-                  width="16"
-                  height="16"
-                  strokeWidth="1.5"
-                  onClick={() => handleRemoveProject(project.project_id)}
-                />
-              </li>
+              <li
+              key={project.project_id}
+              className={`SelectedListItem ${editingProjectId === project.project_id ? 'editing' : ''}`}
+              onClick={() => handleEditProject(project)}
+            >
+              {project.name}
+              <CloseIcon
+                className="RemoveIcon"
+                width="16"
+                height="16"
+                strokeWidth="1.5"
+                onClick={() => handleRemoveProject(project.project_id)}
+              />
+            </li>
             ))}
           </ul>
         </div>

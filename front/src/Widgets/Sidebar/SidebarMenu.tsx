@@ -48,7 +48,9 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       items: [
         ...(myTeam ? [{ label: 'Моя команда', path: `/teams/${myTeam.id}` }] : []),
         { label: 'Список задач', path: `/projects/${application.project}/tasks?team=${myTeam?.id ?? ''}` },
-        { label: 'Канбан доска', path: `/projects/${application.project}/kanban?team=${myTeam?.id ?? ''}` }
+        { label: 'Канбан доска', path: `/projects/${application.project}/kanban?team=${myTeam?.id ?? ''}` },
+        { label: 'Диаграмма Ганта', path: `/projects/${application.project}/gantt?team=${myTeam?.id ?? ''}` }
+
       ],
     };
   }) || [];
@@ -68,7 +70,8 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       title: 'Планировщик',
       icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
-        { label: 'Команды', path: '/teams' },
+        { label: 'Формирование команды', path: '/teams/create' },
+       // { label: 'Команды', path: '/teams' },
       ],
     },
     ...dynamicEventSections,
@@ -87,7 +90,7 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
         ...(userTeam ? [{ label: 'Моя команда', path: `/teams/${userTeam.id}` }] : []),
-        { label: 'Команды', path: '/teams' },
+        { label: 'Формирование команды', path: '/teams/create' },
       ],
     },
     ...dynamicEventSections, //  вставляем мероприятия

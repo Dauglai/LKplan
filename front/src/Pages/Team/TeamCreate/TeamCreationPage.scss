@@ -1,0 +1,100 @@
+.TeamCreationPage {
+  padding: 24px;
+
+  .selectors {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .drag-container {
+    display: flex;
+    gap: 32px;
+    justify-content: space-between;
+  }
+
+  .user-list, .team-form {
+    flex: 1;
+    padding: 16px;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    background: #f9f9f9;
+    min-height: 400px;
+
+    h3 {
+      margin-bottom: 12px;
+    }
+
+    .user-item {
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: grab;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 12px;
+    }
+  }
+
+  .actions {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+
+    .primary-btn {
+      background-color: #4386e7;
+      color: white;
+      padding: 10px 24px;
+    }
+
+    .secondary-btn {
+      background-color: #ddd;
+      padding: 10px 24px;
+    }
+  }
+
+  .user-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 8px;
+
+    .user-drag-handle {
+      margin-right: 8px;
+      cursor: grab;
+      color: #888;
+    }
+
+    .user-name {
+      flex: 1;
+    }
+  }
+
+}
+.user-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 8px;
+
+  .user-drag-handle {
+    margin-right: 8px;
+    cursor: grab;
+    color: #888;
+  }
+
+  .user-name {
+    flex: 1;
+  }
+}

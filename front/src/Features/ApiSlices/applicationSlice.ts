@@ -38,6 +38,16 @@ const applicationApi = apiSlice.injectEndpoints({
         }));
       },
     }),
+    getApplicationsUsers: builder.query<Application[], void>({
+      query: () => ({
+          url:'/api/application/',   // Получение списка заявок
+          withCredentials: true,}
+      ),
+      providesTags: ['Application'],
+      transformResponse: (response: { count: number; next: string | null; previous: string | null; results: Application[] }) => {
+        return response.results
+      },
+    }),
     getUserApplications: builder.query<Application[], number>({
       query: (user_id) => ({
           url:`api/application/?user=${user_id}`,   // Получение списка заявок текущего пользователя
@@ -109,6 +119,7 @@ const applicationApi = apiSlice.injectEndpoints({
 
 export const {
   useGetApplicationsQuery,
+  useGetApplicationsUsersQuery,
   useGetUserApplicationsQuery,
   useGetApplicationByIdQuery,
   useCreateApplicationMutation,

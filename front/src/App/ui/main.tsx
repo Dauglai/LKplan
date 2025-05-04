@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -37,6 +37,8 @@ import EmailVerifiedPage from 'Pages/Register/EmailVerified.tsx';
 import PasswordResetRequest from 'Pages/Login/PasswordResetRequest.tsx';
 import PasswordResetConfirm from 'Pages/Login/PasswordResetConfirm.tsx';
 import KanbanPage from 'Pages/KanbanPage/KanbanPage.tsx';
+import TeamCreationPage from 'Pages/Team/TeamCreate/TeamCreationPage.tsx';
+import GanttPage from 'Pages/Tasks/Gant/GanttPage.tsx';
 
 const theme = {
   token: {
@@ -89,9 +91,12 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/event/:id" element={<EventPage />} />
                   <Route path="/project/:id" element={<ProjectPage />} />
                   <Route path="/teams" element={<TeamsManagement />} />
+                  <Route path="/teams/create" element={<TeamCreationPage />}/>
                   <Route path="/teams/:teamId" element={<TeamPage />} />
                   <Route path="/projects/:projectId/tasks" element={<Tasks />} />
                   <Route path="/projects/:projectId/kanban" element={<KanbanPage />} />
+                  <Route path="/projects/:projectId/gantt" element={<GanttPage />} />
+
                 </Route>
             </Route>
             </Routes>

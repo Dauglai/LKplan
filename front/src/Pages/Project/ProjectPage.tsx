@@ -3,14 +3,14 @@ import { useGetProjectByIdQuery } from 'Features/ApiSlices/projectSlice';
 import { useGetDirectionByIdQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
-import BackButton from "Widgets/BackButton/BackButton";
+import BackButton from "Components/Common/BackButton/BackButton";
 import { Button } from 'antd';
 import { getInitials } from "Features/utils/getInitials";
 //import 'Styles/pages/common/InfoPageStyle.scss';
 import { useEffect, useState } from 'react';
 import EditProjectModal from 'Pages/ProjectForm/EditProjectModal';
 import { useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 
 export default function ProjectPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();

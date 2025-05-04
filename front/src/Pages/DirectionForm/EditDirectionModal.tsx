@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useNotification } from 'Widgets/Notification/Notification'; 
+import { useNotification } from 'Components/Common/Notification/Notification'; 
 import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';
-import UserSelector from 'Widgets/Selectors/UserSelector';
-import EventSelector from 'Widgets/Selectors/EventSelector';
+import UserSelector from 'Components/Selectors/UserSelector';
+import EventSelector from 'Components/Selectors/EventSelector';
 import { Direction, useUpdateDirectionMutation } from 'Features/ApiSlices/directionSlice';
 import { Modal } from 'antd';
 

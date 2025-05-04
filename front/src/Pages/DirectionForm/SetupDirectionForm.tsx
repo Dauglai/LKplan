@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 import 'Styles/FormStyle.scss';
 import { useNavigate } from "react-router-dom";
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addDirection, updateDirections, removeDirection } from 'Features/store/eventSetupSlice';
-import BackButton from 'Widgets/BackButton/BackButton';
+import BackButton from 'Components/Common/BackButton/BackButton';
 import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptionInputField.tsx';
 import "Styles/FormSelectorStyle.scss";
 import CloseIcon from 'assets/icons/close.svg?react';
-import UserSelector from 'Widgets/Selectors/UserSelector';
+import UserSelector from 'Components/Selectors/UserSelector';
 import { Direction } from 'Features/ApiSlices/directionSlice';
 import SideStepNavigator from 'Components/Sections/SideStepNavigator';
 

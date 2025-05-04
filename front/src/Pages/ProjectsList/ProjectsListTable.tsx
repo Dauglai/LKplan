@@ -5,7 +5,7 @@ import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { Project, useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useNavigate, Link } from "react-router-dom";
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 import ActionMenu from 'Components/Sections/ActionMenu';
 import ListTable from "Components/Sections/ListTable";
 import EditProjectModal from 'Pages/ProjectForm/EditProjectModal';

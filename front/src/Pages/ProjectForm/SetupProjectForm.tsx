@@ -1,8 +1,8 @@
-import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
-import { useNotification } from 'Widgets/Notification/Notification';
+import DirectionSelector from 'Components/Selectors/DirectionSelector';
+import { useNotification } from 'Components/Common/Notification/Notification';
 import { useNavigate } from "react-router-dom";
-import UserSelector from 'Widgets/Selectors/UserSelector';
-import BackButton from 'Widgets/BackButton/BackButton';
+import UserSelector from 'Components/Selectors/UserSelector';
+import BackButton from 'Components/Common/BackButton/BackButton';
 import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptionInputField.tsx';
 import CloseIcon from 'assets/icons/close.svg?react';

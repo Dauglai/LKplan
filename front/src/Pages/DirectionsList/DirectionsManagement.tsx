@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useGetDirectionsQuery, useDeleteDirectionMutation } from "Features/ApiSlices/directionSlice";
 import DirectionsListTable from "./DirectionsListTable";
 import 'Styles/components/Sections/ListTableStyles.scss';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 import { filterItemsBySearch } from "Features/utils/searchUtils";
 import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
-import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions.tsx";
+import { CRMPageOptions } from "Components/Sections/PageSwitcher/CRMpageOptions";
 import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 import CreateDirectionModal from "Pages/DirectionForm/CreateDirectionModal";
 

@@ -2,7 +2,7 @@ import { Event } from "Features/ApiSlices/eventSlice";
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from "react-router-dom";
 import { useDeleteEventMutation } from "Features/ApiSlices/eventSlice";
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 import EventForm from "./EventForm/EventForm";
 import ActionMenu from "Components/Sections/ActionMenu";
 import ListTable from "Components/Sections/ListTable";

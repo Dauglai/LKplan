@@ -11,7 +11,7 @@ import { store } from '../model/store.ts';
 import Layout from 'Shared/ui/layout/layout.tsx';
 import RequireAuth from 'Shared/ui/requireAuth.tsx';
 import { RequireRole } from 'Shared/ui/RequireRole.tsx';
-import { NotificationProvider } from 'Widgets/Notification/Notification.tsx';
+import { NotificationProvider } from 'Components/Common/Notification/Notification.tsx';
 
 import Login from 'Pages/Login/Login.tsx';
 import Register from 'Pages/Register/Register.tsx';

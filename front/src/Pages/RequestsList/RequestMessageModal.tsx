@@ -1,7 +1,7 @@
 import { Typography, Card, Button, Space, Input } from 'antd';
 import { Application, usePartialUpdateApplicationMutation } from 'Features/ApiSlices/applicationSlice';
 import { useState } from 'react';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;

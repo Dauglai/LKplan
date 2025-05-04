@@ -9,7 +9,7 @@ import 'Styles/FormStyle.scss';
 import './CreateSpecializationForm.scss';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import TrashIcon from 'assets/icons/trash-2.svg?react';
-import BackButton from "Widgets/BackButton/BackButton";
+import BackButton from "Components/Common/BackButton/BackButton";
 
 
 export default function CreateSpecializationForm () : JSX.Element {

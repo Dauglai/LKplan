@@ -1,7 +1,7 @@
 import 'Styles/components/Sections/ListTableStyles.scss';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 import { getInitials } from "Features/utils/getInitials";
 import { useDeleteApplicationMutation } from 'Features/ApiSlices/applicationSlice';
 import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";

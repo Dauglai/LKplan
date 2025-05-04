@@ -2,8 +2,8 @@ import { Modal } from "antd";
 import { Application, usePartialUpdateApplicationMutation } from "Features/ApiSlices/applicationSlice";
 import { StatusApp } from "Features/ApiSlices/statusAppSlice";
 import { useState } from "react";
-import { useNotification } from 'Widgets/Notification/Notification';
-import StatusAppSelector from "Widgets/Selectors/StatusAppSelector";
+import { useNotification } from 'Components/Common/Notification/Notification';
+import StatusAppSelector from "Components/Selectors/StatusAppSelector";
 
 interface ChangeStatusModalProps {
   open: boolean;

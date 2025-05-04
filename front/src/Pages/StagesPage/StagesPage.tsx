@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import BackButton from "Widgets/BackButton/BackButton";
+import BackButton from "Components/Common/BackButton/BackButton";
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import StatusSettings from "./StatusSettings";
 import "./StagesPage.scss";

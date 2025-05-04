@@ -5,8 +5,8 @@ import { useCreateEventMutation, useUpdateEventMutation } from 'Features/ApiSlic
 import { useCreateDirectionMutation, useUpdateDirectionMutation, useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useCreateProjectMutation, useUpdateProjectMutation, useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
 import { resetEvent } from 'Features/store/eventSetupSlice';
-import { useNotification } from 'Widgets/Notification/Notification';
-import BackButton from 'Widgets/BackButton/BackButton';
+import { useNotification } from 'Components/Common/Notification/Notification';
+import BackButton from 'Components/Common/BackButton/BackButton';
 import "Styles/FormStyle.scss";
 import DateInputField from 'Components/Forms/DateInputField';
 import NameInputField from 'Components/Forms/NameInputField';

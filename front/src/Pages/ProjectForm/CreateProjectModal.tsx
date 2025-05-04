@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useCreateProjectMutation } from 'Features/ApiSlices/projectSlice';
-import { useNotification } from 'Widgets/Notification/Notification'; 
+import { useNotification } from 'Components/Common/Notification/Notification'; 
 import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';
-import UserSelector from 'Widgets/Selectors/UserSelector';
+import UserSelector from 'Components/Selectors/UserSelector';
 import { Modal } from 'antd';
-import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
+import DirectionSelector from 'Components/Selectors/DirectionSelector';
 
 interface CreateProjectModalProps {
   isOpen: boolean;

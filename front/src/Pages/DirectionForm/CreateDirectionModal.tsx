@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useCreateDirectionMutation } from 'Features/ApiSlices/directionSlice';
-import { useNotification } from 'Widgets/Notification/Notification'; 
+import { useNotification } from 'Components/Common/Notification/Notification'; 
 import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';
-import UserSelector from 'Widgets/Selectors/UserSelector';
-import EventSelector from 'Widgets/Selectors/EventSelector';
+import UserSelector from 'Components/Selectors/UserSelector';
+import EventSelector from 'Components/Selectors/EventSelector';
 import { Modal } from 'antd';
 
 interface CreateDirectionModalProps {

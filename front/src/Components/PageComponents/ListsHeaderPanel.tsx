@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom'; 
 import PlusIcon from 'assets/icons/plus.svg?react';
-import PageSwitcher, { PageOption } from "Widgets/PageSwitcher/PageSwitcher";
-import BackButton from "Widgets/BackButton/BackButton";
+import PageSwitcher, { PageOption } from "Components/Sections/PageSwitcher/PageSwitcher";
+import BackButton from "Components/Common/BackButton/BackButton";
 import UniversalInput from "Components/Common/UniversalInput";
 import 'Styles/components/PageComponents/HeaderPanelStyle.scss';
 

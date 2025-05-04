@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Project, useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
 import { Team, useGetTeamsQuery } from "Features/ApiSlices/teamSlice";
-import ProjectSelector from "Widgets/Selectors/ProjectSelector";
-import SpecializationSelector from "Widgets/Selectors/SpecializationSelector";
-import DirectionSelector from "Widgets/Selectors/DirectionSelector";
+import ProjectSelector from "Components/Selectors/ProjectSelector";
+import SpecializationSelector from "Components/Selectors/SpecializationSelector";
+import DirectionSelector from "Components/Selectors/DirectionSelector";
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
-import TeamSelector from "Widgets/Selectors/TeamSelector";
+import TeamSelector from "Components/Selectors/TeamSelector";
 import { Direction, useGetDirectionsQuery } from "Features/ApiSlices/directionSlice";
 import { Input, Spin } from "antd";
 

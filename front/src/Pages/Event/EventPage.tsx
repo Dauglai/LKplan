@@ -3,12 +3,12 @@ import { useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
 //import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
-import BackButton from "Widgets/BackButton/BackButton";
+import BackButton from "Components/Common/BackButton/BackButton";
 import 'Styles/pages/common/InfoPageStyle.scss';
 import 'Styles/pages/EventPage.scss';
 import { List } from 'antd';
 import { useEffect, useState } from 'react';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 
 import { Collapse } from 'antd';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';

@@ -5,7 +5,7 @@ import 'Styles/components/Sections/ListTableStyles.scss';
 import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 import { ChangeStatusModal } from "Components/PageComponents/ChangeStatusModal";
 import { Button } from "antd";
-import BackButton from "Widgets/BackButton/BackButton";
+import BackButton from "Components/Common/BackButton/BackButton";
 import UniversalInput from "Components/Common/UniversalInput";
 
 export default function RequestsManagement(): JSX.Element {

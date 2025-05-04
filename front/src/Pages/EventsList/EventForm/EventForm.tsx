@@ -11,11 +11,11 @@ import { RootState } from 'App/model/store'; // Импортируем тип Ro
 import { useEffect, useRef } from 'react';
 import { Event, useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
 import { useParams } from 'react-router-dom';
-import SpecializationSelector from 'Widgets/Selectors/SpecializationSelector';
-import StageSelector from 'Widgets/Selectors/StageSelector';
+import SpecializationSelector from 'Components/Selectors/SpecializationSelector';
+import StageSelector from 'Components/Selectors/StageSelector';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import LinkIcon from 'assets/icons/link.svg?react'
-import BackButton from 'Widgets/BackButton/BackButton';
+import BackButton from 'Components/Common/BackButton/BackButton';
 import './EventForm.scss';
 import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';

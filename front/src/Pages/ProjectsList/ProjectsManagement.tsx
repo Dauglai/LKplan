@@ -4,7 +4,7 @@ import ProjectsListTable from "./ProjectsListTable";
 import 'Styles/components/Sections/ListTableStyles.scss';
 import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
 import { useGetUserQuery } from "Features/ApiSlices/userSlice";
-import { CRMPageOptions } from 'Widgets/PageSwitcher/CRMpageOptions.tsx';
+import { CRMPageOptions } from 'Components/Sections/PageSwitcher/CRMpageOptions';
 import CreateProjectModal from "Pages/ProjectForm/CreateProjectModal";
 
 

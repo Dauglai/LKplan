@@ -1,12 +1,12 @@
 import { Modal } from 'antd';
 import { useState, useEffect } from 'react';
 import { Project, useUpdateProjectMutation } from 'Features/ApiSlices/projectSlice';
-import { useNotification } from 'Widgets/Notification/Notification'; 
+import { useNotification } from 'Components/Common/Notification/Notification'; 
 
-import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
+import DirectionSelector from 'Components/Selectors/DirectionSelector';
 import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';
-import UserSelector from 'Widgets/Selectors/UserSelector';
+import UserSelector from 'Components/Selectors/UserSelector';
 
 type EditProjectModalProps = {
   isOpen: boolean;

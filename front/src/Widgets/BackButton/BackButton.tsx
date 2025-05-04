@@ -2,10 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import './BackButton.scss';
 
-export default function BackButton() {
+
+
+export default function BackButton({ onClick }: { onClick?: () => void }) {
   const navigate = useNavigate();
 
   const handleBack = () => {
+    if (onClick) onClick();
     navigate(-1);
   };
 

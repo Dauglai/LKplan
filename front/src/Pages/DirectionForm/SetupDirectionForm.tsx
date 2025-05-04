@@ -12,6 +12,7 @@ import "Styles/FormSelectorStyle.scss";
 import CloseIcon from 'assets/icons/close.svg?react';
 import UserSelector from 'Widgets/Selectors/UserSelector';
 import { Direction } from 'Features/ApiSlices/directionSlice';
+import SideStepNavigator from 'Components/Sections/SideStepNavigator';
 
 export default function SetupDirectionForm(): JSX.Element {
   const dispatch = useDispatch();
@@ -77,92 +78,95 @@ export default function SetupDirectionForm(): JSX.Element {
   
 
   return (
-    <div className="FormContainer">
-      <div className="FormHeader">
-        <BackButton />
-        <div>
-          <h2>Добавление направления</h2>
-          <p>{stepEvent?.name}</p>
-        </div>
-      </div>
-
-      <form className="Form DirectionForm" onSubmit={handleSubmit}>
-
-        <div className="NameContainer">
-          <NameInputField
-            name="name"
-            value={newDirection.name}
-            onChange={handleInputChange}
-            placeholder="Название направления"
-            required
-          />
-          <DescriptionInputField
-            name="description"
-            value={newDirection.description}
-            onChange={handleInputChange}
-            placeholder="Описание направления"
-          />
-        </div>
-
-        <UserSelector
-          selectedUserId={newDirection.leader_id}
-          onChange={handleCuratorChange}
-          label="Добавить руководителя"
-        />
-
-        <div className="FormButtons">
-        {editingDirectionId && (
-            <button
-              type="button"
-              className="secondary-btn"
-              onClick={() => {
-                setEditingDirectionId(null);
-                setNewDirection({ name: '', description: '', leader_id: null, event: stepEvent?.id });
-              }}
-            >
-              Отменить редактирование
-            </button>
-          )}
-          <button className="primary-btn" type="submit">
-            {editingDirectionId ? "Редактировать направление" : "Добавить направление"}
-          </button>
-            <button
-              className="primary-btn"
-              type="button"
-              onClick={handleNextStep}
-            >
-              Настройка проектов
-              <ChevronRightIcon width="24" height="24" strokeWidth="1" />
-            </button>
-        </div>
-      </form>
-
-        {stepDirections?.directions?.length > 0 && (
-          <div className="DirectionList">
-            <h3>Созданные направления:</h3>
-            <ul className="SelectedList">
-              {stepDirections.directions.map((direction) => (
-                <li
-                key={direction.id}
-                className={`SelectedListItem ${editingDirectionId === direction.id ? 'editing' : ''}`}
-                onClick={() => handleEditDirection(direction)}
-              >
-                {direction.name}
-                <CloseIcon
-                  className="RemoveIcon"
-                  width="16"
-                  height="16"
-                  strokeWidth="1.5"
-                  onClick={(e) => {
-                    e.stopPropagation(); // чтобы не срабатывал редакт
-                    handleRemoveDirection(direction.id);
-                  }}
-                />
-              </li>
-              ))}
-            </ul>
+    <div className="SetupContainer">
+      <SideStepNavigator />
+      <div className="FormContainer">
+        <div className="FormHeader">
+          <BackButton />
+          <div>
+            <h2>Добавление направления</h2>
+            <p>{stepEvent?.name}</p>
           </div>
-        )}
+        </div>
+
+        <form className="Form DirectionForm" onSubmit={handleSubmit}>
+
+          <div className="NameContainer">
+            <NameInputField
+              name="name"
+              value={newDirection.name}
+              onChange={handleInputChange}
+              placeholder="Название направления"
+              required
+            />
+            <DescriptionInputField
+              name="description"
+              value={newDirection.description}
+              onChange={handleInputChange}
+              placeholder="Описание направления"
+            />
+          </div>
+
+          <UserSelector
+            selectedUserId={newDirection.leader_id}
+            onChange={handleCuratorChange}
+            label="Добавить руководителя"
+          />
+
+          <div className="FormButtons">
+          {editingDirectionId && (
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => {
+                  setEditingDirectionId(null);
+                  setNewDirection({ name: '', description: '', leader_id: null, event: stepEvent?.id });
+                }}
+              >
+                Отменить редактирование
+              </button>
+            )}
+            <button className="primary-btn" type="submit">
+              {editingDirectionId ? "Редактировать направление" : "Добавить направление"}
+            </button>
+              <button
+                className="primary-btn"
+                type="button"
+                onClick={handleNextStep}
+              >
+                Настройка проектов
+                <ChevronRightIcon width="24" height="24" strokeWidth="1" />
+              </button>
+          </div>
+        </form>
+
+          {stepDirections?.directions?.length > 0 && (
+            <div className="DirectionList">
+              <h3>Созданные направления:</h3>
+              <ul className="SelectedList">
+                {stepDirections.directions.map((direction) => (
+                  <li
+                  key={direction.id}
+                  className={`SelectedListItem ${editingDirectionId === direction.id ? 'editing' : ''}`}
+                  onClick={() => handleEditDirection(direction)}
+                >
+                  {direction.name}
+                  <CloseIcon
+                    className="RemoveIcon"
+                    width="16"
+                    height="16"
+                    strokeWidth="1.5"
+                    onClick={(e) => {
+                      e.stopPropagation(); // чтобы не срабатывал редакт
+                      handleRemoveDirection(direction.id);
+                    }}
+                  />
+                </li>
+                ))}
+              </ul>
+            </div>
+          )}
+      </div>
     </div>
   );
 }

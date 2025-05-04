@@ -1,0 +1,39 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.SideTabs {
+    position: absolute;
+    top: 80px;
+    right: -110px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 0;
+
+    .SideTabItem {
+        @include text2;
+        background-color: $white;
+        height: 48px;
+        color: $black;
+        padding: 8px 16px;
+        border-radius: 0 $border-radius $border-radius 0;
+        border: 1px solid $grey;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        max-width: 120px;
+        text-align: center;
+        white-space: normal;
+      }
+      
+      .SideTabItem:hover {
+        background-color: $grey3;
+      }
+      
+      .SideTabItem.active {
+        background-color: $grey3;
+    }
+  }
+  
+  
+  

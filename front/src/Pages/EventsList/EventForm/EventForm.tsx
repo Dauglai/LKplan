@@ -3,11 +3,12 @@ import { updateEvent,
       updateEventField,
       updateDirections,
       updateProjects,
-      setEditingEventId,} from 'Features/store/eventSetupSlice'; // Подключаем нужные экшены
+      setEditingEventId,
+      resetEvent} from 'Features/store/eventSetupSlice'; // Подключаем нужные экшены
 import { parse, format } from 'date-fns';
 import { useNavigate } from "react-router-dom";
 import { RootState } from 'App/model/store'; // Импортируем тип RootState
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Event, useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
 import { useParams } from 'react-router-dom';
 import SpecializationSelector from 'Widgets/Selectors/SpecializationSelector';
@@ -21,6 +22,7 @@ import DescriptionInputField from 'Components/Forms/DescriptioninputField';
 import DateInputField from 'Components/Forms/DateInputField';
 import { Project, useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
 import { Direction } from 'Features/ApiSlices/directionSlice';
+import SideStepNavigator from 'Components/Sections/SideStepNavigator';
 
 /**
  * Компонент формы для создания или редактирования мероприятия.
@@ -87,7 +89,7 @@ export default function EventForm(): JSX.Element {
       dispatch(setEditingEventId(eventId!));
   
       hasInitialized.current = true;
-    } else if (!eventId) {
+    } else if (!eventId && !stepEvent) {
       dispatch(updateEvent({
         name: '',
         description: '',
@@ -172,80 +174,83 @@ export default function EventForm(): JSX.Element {
   };
 
   return (
-    <div className="FormContainer">
-      <div className="FormHeader">
-          <BackButton />
-          <h2>{isEventSuccess ? 'Редактирование мероприятия' : 'Добавление мероприятия'}</h2>
-        </div>
-        
-      <form className="EventForm Form">
+    <div className="SetupContainer">
+      <SideStepNavigator />
+      <div className="FormContainer">
+        <div className="FormHeader">
+            <BackButton onClick={() => dispatch(resetEvent())}/>
+            <h2>{isEventSuccess ? 'Редактирование мероприятия' : 'Добавление мероприятия'}</h2>
+          </div>
+          
+        <form className="EventForm Form">
 
-        <div className="NameContainer">
-          <NameInputField
-            name="name"
-            value={stepEvent.name}
-            onChange={handleInputChange}
-            placeholder="Название мероприятия"
-            required
-          />
-          <DescriptionInputField
-            name="description"
-            value={stepEvent.description}
-            onChange={handleTextArea}
-            placeholder="Описание мероприятия"
-          />
-        </div>
+          <div className="NameContainer">
+            <NameInputField
+              name="name"
+              value={stepEvent.name}
+              onChange={handleInputChange}
+              placeholder="Название мероприятия"
+              required
+            />
+            <DescriptionInputField
+              name="description"
+              value={stepEvent.description}
+              onChange={handleTextArea}
+              placeholder="Описание мероприятия"
+            />
+          </div>
 
-        <SpecializationSelector
-          selectedSpecializations={stepEvent.specializations}
-          onChange={handleSpecializationsChange}
-        />
-
-        <StageSelector
-          selectedStage={stepEvent.stage}
-          onChange={handleStageChange}
-        />
-
-        <div className='DateRangeContainer'>
-          <DateInputField
-            name="start"
-            value={stepEvent.start}
-            onChange={handleStartDateChange}
-            placeholder="Дата начала"
-            required
-            withPlaceholder={true}
+          <SpecializationSelector
+            selectedSpecializations={stepEvent.specializations}
+            onChange={handleSpecializationsChange}
           />
 
-          <DateInputField
-            name="end"
-            value={stepEvent.end}
-            onChange={handleEndDateChange}
-            placeholder="Дата завершения"
-            required
-            withPlaceholder={true}
+          <StageSelector
+            selectedStage={stepEvent.stage}
+            onChange={handleStageChange}
           />
 
-          <DateInputField
-            name="end_app"
-            value={stepEvent.end_app}
-            onChange={handleEndAppDateChange}
-            placeholder="Срок приема заявок"
-            required
-            withPlaceholder={true}
-          />
-        </div>
+          <div className='DateRangeContainer'>
+            <DateInputField
+              name="start"
+              value={stepEvent.start}
+              onChange={handleStartDateChange}
+              placeholder="Дата начала"
+              required
+              withPlaceholder={true}
+            />
 
-        <div className="FormButtons">
-          <button
-            className="primary-btn"
-            type="button"
-            onClick={handleNextStep} // Переход к следующему шагу
-          >
-            Настройка направлений
-            <ChevronRightIcon width="24" height="24" strokeWidth="1" />
-          </button>
-        </div>
-      </form>
+            <DateInputField
+              name="end"
+              value={stepEvent.end}
+              onChange={handleEndDateChange}
+              placeholder="Дата завершения"
+              required
+              withPlaceholder={true}
+            />
+
+            <DateInputField
+              name="end_app"
+              value={stepEvent.end_app}
+              onChange={handleEndAppDateChange}
+              placeholder="Срок приема заявок"
+              required
+              withPlaceholder={true}
+            />
+          </div>
+
+          <div className="FormButtons">
+            <button
+              className="primary-btn"
+              type="button"
+              onClick={handleNextStep} // Переход к следующему шагу
+            >
+              Настройка направлений
+              <ChevronRightIcon width="24" height="24" strokeWidth="1" />
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

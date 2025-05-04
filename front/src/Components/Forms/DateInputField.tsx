@@ -16,6 +16,7 @@ interface DateInputFieldProps {
   placeholder?: string;
   required?: boolean;
   withPlaceholder?: boolean;
+  disabled? : boolean;
 }
 
 /**
@@ -51,6 +52,7 @@ export default function DateInputField({
   placeholder = 'Выберите дату',
   required = false,
   withPlaceholder = false,
+  disabled
 }: DateInputFieldProps): JSX.Element {
     const [isFocused, setIsFocused] = useState(false); // Состояние фокуса поля ввода
 
@@ -80,7 +82,7 @@ export default function DateInputField({
         <Form.Item
             name={name}
             rules={required ? [{ required: true, message: `Пожалуйста, выберите ${placeholder}` }] : []}
-            className='InputWrapper'
+            className='InputWrapper UniversalInputWrapper'
         >
             <ConfigProvider locale={locale}>
                 <DatePicker
@@ -91,12 +93,13 @@ export default function DateInputField({
                     onBlur={handleBlur}
                     placeholder={isFocused || value ? "" : finalPlaceholder}
                     format="DD.MM.YYYY"
-                    className="DateInput FormField"
+                    className="DateInput FormField UniversalInput"
                     suffixIcon={<CalendarIcon width={16} height={16} strokeWidth={1} />}
+                    disabled={disabled ? true : undefined}
                 />
             </ConfigProvider>
             {withPlaceholder && (isFocused || value) && (
-                <div className="InputText">{placeholder}</div>
+                <div className="InputText UniversalInputText">{placeholder}</div>
             )}
         </Form.Item>
     );

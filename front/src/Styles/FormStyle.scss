@@ -2,20 +2,26 @@
 @import 'Styles/variables';
 @import 'Styles/buttons';
 
+.SetupContainer {
+  display: flex;
+  position: relative;
+}
+
 .FormContainer {
     position: relative;
-    padding: 24px 32px;
-    width: 700px;
+    padding: 24px 74px;
+    width: 830px;
     
     border-radius: $border-radius;
     background-color: $white;
-    box-sizing: border-box;
+    box-shadow: 0px 0px 11.5px 6px #A7A7A740;
+
 
     .FormHeader {
       display: flex;
       justify-content: start;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
 
       .ModalCloseButton {
         cursor: pointer;
@@ -29,9 +35,15 @@
         margin-bottom: 8px;
       }
 
-      p {
-        @include text1;
-        margin-bottom: 4px;
+      &.DatesFormStage {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        margin-bottom: 0;
+
+        .InputWrapper {
+          flex: 1;
+        }
       }
     }
 
@@ -158,6 +170,8 @@
         //color: $black !important;
         font-family: 'Montserrat', sans-serif;
         font-variant-numeric: lining-nums;
+      
+
       }
 
       position: relative;
@@ -210,7 +224,6 @@
 
 .DirectionList, .ProjectList {
   margin-top: 32px;
-  width: 636px;
 
   h3 {
     margin-bottom: 16px;
@@ -231,4 +244,15 @@
 
 .RequestFormContainer {
   width: 360px;
+}
+
+:where(.ant-input-outlined.ant-input-disabled),
+:where(.ant-input-outlined[disabled]),
+:where(.css-dev-only-do-not-override-1ct5ng).ant-picker-outlined.ant-picker-disabled {
+  background-color: $white !important;
+}
+
+:where(.css-dev-only-do-not-override-1ct5ng).ant-picker .ant-picker-input >input[disabled] {
+  color: $black;
+  cursor: text;
 }

@@ -7,11 +7,12 @@ const { TextArea } = Input;
 interface DescriptionInputFieldProps {
   name: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
   required?: boolean;
   withPlaceholder?: boolean;
   maxRows? : number;
+  disabled? : boolean;
 }
 
 /**
@@ -49,6 +50,7 @@ export default function DescriptionInputField({
   required = false,
   withPlaceholder = false,
   maxRows,
+  disabled
 }: DescriptionInputFieldProps): JSX.Element {
   const [isFocused, setIsFocused] = useState(false); // Состояние фокуса поля ввода
 
@@ -64,7 +66,7 @@ export default function DescriptionInputField({
   return (
     <Form.Item
       rules={required ? [{ required: true, message: `Пожалуйста, введите ${placeholder}` }] : []}
-      className='InputWrapper'
+      className="UniversalInputWrapper InputWrapper"
       shouldUpdate={false}
     >
       <TextArea
@@ -72,13 +74,14 @@ export default function DescriptionInputField({
         value={value}
         onChange={onChange}
         placeholder={isFocused || value ? "" : finalPlaceholder}
-        className="Description"
+        className="Description UniversalInput"
         onFocus={handleFocus}
         onBlur={handleBlur}
         autoSize={autoSizeConfig}
+        disabled={disabled ? true : undefined}
       />
       {withPlaceholder && (isFocused || value) && (
-        <div className="InputText">{placeholder}</div> 
+        <div className="UniversalInputText InputText">{placeholder}</div> 
       )}
     </Form.Item>
   );

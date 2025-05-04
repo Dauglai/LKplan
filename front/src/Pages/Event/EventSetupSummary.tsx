@@ -8,11 +8,17 @@ import { resetEvent } from 'Features/store/eventSetupSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
 import BackButton from 'Widgets/BackButton/BackButton';
 import "Styles/FormStyle.scss";
+import DateInputField from 'Components/Forms/DateInputField';
+import NameInputField from 'Components/Forms/NameInputField';
+import DescriptionInputField from 'Components/Forms/DescriptioninputField';
+import { useGetSpecializationsQuery } from 'Features/ApiSlices/specializationSlice';
+import SideStepNavigator from 'Components/Sections/SideStepNavigator';
 
 const EventSetupSummary = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
+  const { data: allSpecializations } = useGetSpecializationsQuery()
 
   // Получаем данные из Redux
   const { stepEvent, stepDirections, stepProjects, editingEventId } = useSelector((state: any) => state.event);
@@ -156,62 +162,118 @@ const EventSetupSummary = () => {
     }
   };
 
+  const selectedSpecNames = allSpecializations?.filter(spec => stepEvent.specializations.includes(spec.id))
+
   return (
-    <div className='FormContainer'>
-      <div className="FormHeader">
-          <BackButton />
-          <h2>Итоговая информация о мероприятии</h2>
+    <div className="SetupContainer">
+      <SideStepNavigator />
+      <div className='FormContainer'>
+        <div className="FormHeader">
+            <BackButton />
+            <h2>Итоговая информация о мероприятии</h2>
         </div>
-      <div className="FormStage">
-        <p><strong>Название:</strong> {stepEvent.name}</p>
-        <p><strong>Описание:</strong> {stepEvent.description}</p>
-        <p><strong>Дата начала:</strong> {stepEvent.start}</p>
-        <p><strong>Дата окончания:</strong> {stepEvent.end}</p>
-        <p><strong>Дата окончания приема заявок:</strong> {stepEvent.end_app}</p>
-        <p><strong>Выбранные специализации:</strong> {stepEvent.specializations}</p>
-      </div>
+        <div className="FormStage NameContainer">
+              <NameInputField
+                name="name"
+                value={stepEvent.name}
+                placeholder="Название мероприятия"
+                disabled
+                withPlaceholder
+              />
+              <DescriptionInputField
+                name="description"
+                value={stepEvent.description}
+                placeholder="Описание мероприятия"
+                disabled
+                withPlaceholder
+              />
+            </div>
 
-      <div className="FormStage">
-        <h3>Направления</h3>
-        <ul>
-          {stepDirections.directions.map((direction: any) => (
-            <li key={direction.id}>
-              <p>Название направления: {direction.name}</p>
-              <p>Описание направления: {direction.description}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
+        <div className="FormStage DatesFormStage">
+              <DateInputField
+                name="start"
+                value={stepEvent.start}
+                onChange={() => {}}
+                placeholder="Дата начала"
+                required
+                withPlaceholder={true}
+                disabled
+              />
 
-      <div className="FormStage">
-        <h3>Проекты</h3>
-        <ul>
-          {stepProjects.projects.map((project: any) => {
-            // Находим направление по id
-            const direction = stepDirections.directions.find(
-              (dir: any) => dir.id === project.direction
-            );
+              <DateInputField
+                name="end"
+                value={stepEvent.end}
+                onChange={() => {}}
+                placeholder="Дата завершения"
+                required
+                withPlaceholder={true}
+                disabled
+              />
 
-            return (
-              <li key={project.project_id}>
-                <p>Название проекта: {project.name}</p>
-                <p>Описание проекта: {project.description}</p>
-                <p>Направление: {direction ? direction.name : 'Не найдено'}</p>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+              <DateInputField
+                name="end_app"
+                value={stepEvent.end_app}
+                onChange={() => {}}
+                placeholder="Срок приема заявок"
+                required
+                withPlaceholder={true}
+                disabled
+              />
+        </div>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div>
+        {selectedSpecNames?.length > 0 && (
+          <div className="FormStage">
+            <h3>Выбранные специализации:</h3>
+            <ul className="SelectedList">
+              {selectedSpecNames.map((spec) => (
+                <li
+                  key={spec.id}
+                  className="SelectedListItem"
+                >
+                  {spec.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {stepDirections?.directions?.length > 0 && (
+          <div className="FormStage">
+            <h3>Созданные направления:</h3>
+            <ul className="SelectedList">
+              {stepDirections?.directions?.map((direction) => (
+                <li
+                  key={direction.id}
+                  className="SelectedListItem"
+                >
+                  {direction.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {stepProjects?.projects?.length > 0 && (
+          <div className="FormStage">
+            <h3>Проекты</h3>
+            <ul className="SelectedList">
+              {stepProjects.projects.map((project) => (
+                <li key={project.project_id} className="SelectedListItem">
+                {project.name}
+              </li>)
+              )}
+            </ul>
+          </div>
+        )}
+
+        {error && <p style={{ color: 'red' }}>{error}</p>}
         {status && <p>{status}</p>}
-      </div>
 
-      <div className="FormButtons">
-        <button className="primary-btn"  onClick={handleSave} disabled={loading}>
-          {loading ? 'Сохраняем...' : 'Сохранить'}
-        </button>
+        <div className="FormButtons">
+          <button className="primary-btn" onClick={handleSave} disabled={loading}>
+            {loading ? 'Сохраняем...' : 'Сохранить'}
+          </button>
+        </div>
       </div>
     </div>
   );

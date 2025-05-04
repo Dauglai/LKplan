@@ -60,7 +60,9 @@ const eventApi = apiSlice.injectEndpoints({
     createEvent: builder.mutation<Event, Omit<Event, 'event_id'>>({
       query: (newEvent) => {
         const formatDate = (value?: string | null) => {
-          const parsed = dayjs(value, 'DD.MM.YYYY', true); // Используем dayjs для парсинга и форматирования даты
+          if (!value) return null;
+        
+          const parsed = dayjs(value); // Убираем строгий формат
           return parsed.isValid() ? parsed.format('YYYY-MM-DD') : null;
         };
 

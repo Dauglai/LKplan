@@ -9,6 +9,7 @@ interface EventSetupState {
     stepDirections: { directions: Direction[] };  // Направления для мероприятия
     stepProjects: { projects: Project[] };  // Проекты, связанные с мероприятием
     stepStatuses: { statuses: StatusApp[]};
+    editingEventId: number | null;
 }
 
 const initialState: EventSetupState = {
@@ -24,6 +25,7 @@ const initialState: EventSetupState = {
     stepDirections: { directions: [] },  // Направления (по умолчанию пустой массив)
     stepProjects: { projects: [] },  // Проекты (по умолчанию пустой массив)
     stepStatuses: { statuses: []},  // Статусы (по умолчанию пустой массив)
+    editingEventId: null,
 };
 
 /**
@@ -50,6 +52,10 @@ const eventSlice = createSlice({
      */
     updateEventField<K extends keyof Event>(state, action: PayloadAction<{ field: K; value: Event[K] }>) {
         state.stepEvent[action.payload.field] = action.payload.value;
+    },
+
+    setEditingEventId(state, action: PayloadAction<number | null>) {
+      state.editingEventId = action.payload;
     },
 
     /**
@@ -156,11 +162,11 @@ const eventSlice = createSlice({
 
 // Экспорт экшенов и редьюсера слайса
 export const { 
-  updateEvent, updateEventField, 
+  updateEvent, updateEventField, setEditingEventId,
   updateDirections, addDirection, removeDirection,
   updateProjects, addProject, removeProject,
   updateStatuses, addStatus, removeStatus, updateStatus,
-  resetEvent 
+  resetEvent, 
 } = eventSlice.actions;
 export const eventSetupReducer = eventSlice.reducer;
 

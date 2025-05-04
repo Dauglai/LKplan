@@ -31,7 +31,7 @@ export default function SetupDirectionForm(): JSX.Element {
     setNewDirection({
       name: direction.name,
       description: direction.description || '',
-      leader_id: direction.leader_id || null,
+      leader_id: direction.leader_id ||  null,
       event: stepEvent?.id || null,
     });
     setEditingDirectionId(direction.id);

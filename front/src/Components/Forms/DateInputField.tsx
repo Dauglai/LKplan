@@ -59,10 +59,20 @@ export default function DateInputField({
 
     const finalPlaceholder = required ? `${placeholder} *` : placeholder; // Добавляет * к плейсхолдеру, если поле обязательное
 
-    const dateValue = value ? dayjs(value, "DD.MM.YYYY", true) : null; // Преобразует строковое значение в Dayjs-дату
+    const parsedDate = value
+    ? dayjs(value, 'DD.MM.YYYY', true).isValid()
+        ? dayjs(value, 'DD.MM.YYYY', true)
+        : dayjs(value)
+    : null;
+
+    const dateValue = parsedDate && parsedDate.isValid() ? parsedDate : null;
+
+    if (value && !parsedDate?.isValid()) {
+    console.warn(`Некорректная дата в поле "${name}":`, value);
+    }
 
     const handleDateChange = (date: Dayjs | null, dateString: string) => {
-        onChange(dateString); // Передаёт строковое значение даты во внешний обработчик
+        onChange(dateString);
     };
 
 

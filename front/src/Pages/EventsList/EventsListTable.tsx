@@ -32,9 +32,7 @@ interface EventsTableProps {
 export default function EventsListTable({ events, role }: EventsTableProps): JSX.Element {
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState<number | null>(null); // Состояние для отслеживания открытого меню действий
-  const [isModalOpen, setIsModalOpen] = useState(false); // Состояние для отслеживания модального окна
   const [deleteEvent] = useDeleteEventMutation(); // Мутация для удаления мероприятия
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null); // Выбранное мероприятие для редактирования
   const { showNotification } = useNotification(); // Хук для отображения уведомлений
 
 
@@ -57,14 +55,6 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
    * @param {number} id - ID мероприятия для редактирования.
    */
 
-  const handleEdit = (id: number) => {
-    const EventToEdit = events.find((event) => event.event_id === id);
-    if (EventToEdit) {
-      setSelectedEvent(EventToEdit);
-      setIsModalOpen(true);
-    }
-  };
-
   /**
    * Закрыть модальное окно редактирования мероприятия.
    */
@@ -77,8 +67,6 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
   if (events.length === 0) {
     return <span className="NullMessage">Мероприятия не найдены</span>;
   }
-
-  console.log(events)
 
   // Колонки для таблицы
   const columns = [
@@ -155,7 +143,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
    */
 
   const actions = (event: Event) => [
-    {/* label: 'Редактировать', onClick: () => handleEdit(event.event_id), requiredRole: 'Организатор' */},
+    { label: 'Редактировать', onClick: () => navigate(`/event/${event.event_id}/edit`), requiredRole: 'Организатор' },
     { label: 'Удалить', onClick: () => handleDelete(event.event_id), requiredRole: 'Организатор' },
   ];
 
@@ -165,9 +153,6 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
         data={events}
         columns={columns}
       />
-      {isModalOpen && (
-          <EventForm closeModal={closeModal} existingEvent={selectedEvent} />
-      )}
     </>
   );
 }

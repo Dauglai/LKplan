@@ -70,6 +70,7 @@ createRoot(document.getElementById('root')!).render(
                     <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
 
                     <Route path="/event-setup" element={<EventForm />} />
+                    <Route path="/event/:id/edit" element={<EventForm />} />
                     <Route path="/directions-setup" element={<SetupDirectionForm/>} />
                     <Route path="/projects-setup" element={<ProjectForm />} />
                     <Route path="/stages-setup" element={<StagesPage />} />

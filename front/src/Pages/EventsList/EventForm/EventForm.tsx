@@ -1,12 +1,17 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { updateEvent, updateEventField } from 'Features/store/eventSetupSlice'; // Подключаем нужные экшены
+import { updateEvent, 
+      updateEventField,
+      updateDirections,
+      updateProjects,
+      setEditingEventId,} from 'Features/store/eventSetupSlice'; // Подключаем нужные экшены
+import { parse, format } from 'date-fns';
 import { useNavigate } from "react-router-dom";
 import { RootState } from 'App/model/store'; // Импортируем тип RootState
-import { useState, useEffect } from 'react';
-import { Event } from 'Features/ApiSlices/eventSlice';
+import { useState, useEffect, useRef } from 'react';
+import { Event, useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
+import { useParams } from 'react-router-dom';
 import SpecializationSelector from 'Widgets/Selectors/SpecializationSelector';
 import StageSelector from 'Widgets/Selectors/StageSelector';
-import UserSelector from 'Widgets/Selectors/UserSelector';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import LinkIcon from 'assets/icons/link.svg?react'
 import BackButton from 'Widgets/BackButton/BackButton';
@@ -14,60 +19,88 @@ import './EventForm.scss';
 import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';
 import DateInputField from 'Components/Forms/DateInputField';
+import { Project, useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
+import { Direction } from 'Features/ApiSlices/directionSlice';
 
 /**
  * Компонент формы для создания или редактирования мероприятия.
- * @param {Object} props - Свойства компонента.
- * @param {Event} [props.existingEvent] - Существующее мероприятие, если требуется редактировать.
  * @returns {JSX.Element} - Отображение формы для создания или редактирования мероприятия.
  */
-export default function EventForm({
-  existingEvent,
-}: {
-  existingEvent?: Event;
-}): JSX.Element {
+export default function EventForm(): JSX.Element {
   const dispatch = useDispatch();
+  const { id } = useParams();
+  const eventId = id ? Number(id) : null;
   const navigate = useNavigate();
-  const eventState = useSelector((state: RootState) => state.event); // Получаем состояние события из store
-
-  /**
-   * Состояние для нового мероприятия.
-   * @type {Object}
-   */
-  const [newEvent, setNewEvent] = useState({
-    name: '',
-    description: '',
-    link: '',
-    stage: 'Редактирование',
-    start: '',
-    end: '',
-    end_app: '',
-    specializations: [] as number[],
-    statuses: [1] as number[],
-    event_id: 0,
-    supervisor: null,
+  const { stepEvent, editingEventId } = useSelector((state: RootState) => state.event);
+  const { data: eventData, isSuccess: isEventSuccess } = useGetEventByIdQuery(eventId!, {
+    skip: !eventId,
   });
+  const { data: allProjects = [] } = useGetProjectsQuery();
+  const hasInitialized = useRef(false);
 
-  /**
-   * Эффект для инициализации данных существующего события, если они переданы.
-   */
+
   useEffect(() => {
-    if (existingEvent) {
-      setNewEvent({
-        event_id: existingEvent.event_id,
-        name: existingEvent.name,
-        description: existingEvent.description,
-        stage: existingEvent.stage,
-        start: existingEvent.start ? new Date(existingEvent.start).toISOString().split('T')[0] : '',
-        end: existingEvent.end ? new Date(existingEvent.end).toISOString().split('T')[0] : '',
-        end_app: existingEvent.end_app ? new Date(existingEvent.end_app).toISOString().split('T')[0] : '',
-        specializations: existingEvent.s,
-        creator: existingEvent.creator
-      });
-    } else {
-      setNewEvent(eventState.stepEvent); // Заполняем форму из Redux, если нет существующего события
+    if (eventId && isEventSuccess && eventData && !hasInitialized.current && allProjects.length > 0) {
+      if (editingEventId === eventId) return;
+
+      const formattedEventData = {
+        ...eventData,
+        start: formatDate(new Date(eventData.start)),
+        end: formatDate(new Date(eventData.end)),
+        end_app: formatDate(new Date(eventData.end_app)),
+      };
+  
+      dispatch(updateEvent({
+        name: formattedEventData.name || '',
+        description: formattedEventData.description || '',
+        stage: formattedEventData.stage || 'Редактирование',
+        start: formattedEventData.start || '',
+        end: formattedEventData.end || '',
+        end_app: formattedEventData.end_app || '',
+        specializations: formattedEventData.specializations || [],
+      }));
+  
+      const directionIds = eventData.directions.map((dir: Direction) => dir.id);
+      const relatedProjects = allProjects.filter((project: Project) =>
+        directionIds.includes(project.directionSet.id)
+      );
+  
+      const resultsProjects = relatedProjects.map((project: any) => ({
+        ...project,
+        direction: project.directionSet.id,
+        directionSet: undefined,
+      }));
+
+      console.log(directionIds)
+
+      console.log(allProjects)
+  
+      const resultsDirections = eventData.directions.map((direction: any) => ({
+        ...direction,
+        leader_id: direction.leader,
+        event: eventData.event_id,
+        leader: undefined,
+      }));
+  
+      dispatch(updateDirections(resultsDirections));
+      dispatch(updateProjects(resultsProjects));
+      dispatch(setEditingEventId(eventId!));
+  
+      hasInitialized.current = true;
+    } else if (!eventId) {
+      dispatch(updateEvent({
+        name: '',
+        description: '',
+        stage: 'Редактирование',
+        start: '',
+        end: '',
+        end_app: '',
+        specializations: [],
+      }));
     }
-  }, [existingEvent, eventState.stepEvent]);
+  }, [isEventSuccess, eventData, allProjects, eventId, dispatch]);
+
+  
 
   /**
    * Обработчик изменений для текстовых полей ввода.
@@ -75,10 +108,6 @@ export default function EventForm({
    */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewEvent((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
     dispatch(updateEventField({ field: name as keyof Event, value }));
   };
 
@@ -89,11 +118,6 @@ export default function EventForm({
    */
   const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
-
-    setNewEvent((prev) => ({
-      ...prev,
-      [textarea.name]: textarea.value,
-    }));
     dispatch(updateEventField({ field: textarea.name as keyof Event, value: textarea.value }));
   };
 
@@ -102,10 +126,6 @@ export default function EventForm({
    * @param {number[]} selected - Выбранные специализации.
    */
   const handleSpecializationsChange = (selected: number[]) => {
-    setNewEvent((prev) => ({
-      ...prev,
-      specializations: selected,
-    }));
     dispatch(updateEventField({ field: 'specializations', value: selected }));
   };
 
@@ -114,36 +134,33 @@ export default function EventForm({
    * @param {string} selected - Выбранная стадия.
    */
   const handleStageChange = (selected: string) => {
-    setNewEvent((prev) => ({
-      ...prev,
-      stage: selected,
-    }));
     dispatch(updateEventField({ field: 'stage', value: selected }));
+  };
+
+  const formatDate = (date: Date) => {
+    return date ? date.toISOString().slice(0, 10) : ''; // Преобразует в строку "YYYY-MM-DD"
+  };
+
+  const formatToServer = (dateStr: string) => {
+    try {
+      const parsed = parse(dateStr, 'dd.MM.yyyy', new Date());
+      return format(parsed, 'yyyy-MM-dd');
+    } catch (e) {
+      return '';
+    }
   };
 
 
   const handleStartDateChange = (startDate: string) => {
-    setNewEvent((prev) => ({
-      ...prev,
-      start: startDate,
-    }));
-    dispatch(updateEventField({ field: 'start', value: startDate }));
+    dispatch(updateEventField({ field: 'start', value: formatToServer(startDate) }));
   };
 
   const handleEndDateChange = (endDate: string) => {
-    setNewEvent((prev) => ({
-      ...prev,
-      end: endDate, 
-    }));
-    dispatch(updateEventField({ field: 'end', value: endDate }));
+    dispatch(updateEventField({ field: 'end', value: formatToServer(endDate) }));
   };
 
   const handleEndAppDateChange = (endAppDate: string) => {
-    setNewEvent((prev) => ({
-      ...prev,
-      end_app: endAppDate, // Обновляем только end
-    }));
-    dispatch(updateEventField({ field: 'end_app', value: endAppDate }));
+    dispatch(updateEventField({ field: 'end_app', value: formatToServer(endAppDate) }));
   };
 
 
@@ -158,7 +175,7 @@ export default function EventForm({
     <div className="FormContainer">
       <div className="FormHeader">
           <BackButton />
-          <h2>{existingEvent ? 'Редактирование мероприятия' : 'Добавление мероприятия'}</h2>
+          <h2>{isEventSuccess ? 'Редактирование мероприятия' : 'Добавление мероприятия'}</h2>
         </div>
         
       <form className="EventForm Form">
@@ -166,33 +183,33 @@ export default function EventForm({
         <div className="NameContainer">
           <NameInputField
             name="name"
-            value={newEvent.name}
+            value={stepEvent.name}
             onChange={handleInputChange}
             placeholder="Название мероприятия"
             required
           />
           <DescriptionInputField
             name="description"
-            value={newEvent.description}
+            value={stepEvent.description}
             onChange={handleTextArea}
             placeholder="Описание мероприятия"
           />
         </div>
 
         <SpecializationSelector
-          selectedSpecializations={newEvent.specializations}
+          selectedSpecializations={stepEvent.specializations}
           onChange={handleSpecializationsChange}
         />
 
         <StageSelector
-          selectedStage={newEvent.stage}
+          selectedStage={stepEvent.stage}
           onChange={handleStageChange}
         />
 
         <div className='DateRangeContainer'>
           <DateInputField
             name="start"
-            value={newEvent.start}
+            value={stepEvent.start}
             onChange={handleStartDateChange}
             placeholder="Дата начала"
             required
@@ -201,7 +218,7 @@ export default function EventForm({
 
           <DateInputField
             name="end"
-            value={newEvent.end}
+            value={stepEvent.end}
             onChange={handleEndDateChange}
             placeholder="Дата завершения"
             required
@@ -210,7 +227,7 @@ export default function EventForm({
 
           <DateInputField
             name="end_app"
-            value={newEvent.end_app}
+            value={stepEvent.end_app}
             onChange={handleEndAppDateChange}
             placeholder="Срок приема заявок"
             required

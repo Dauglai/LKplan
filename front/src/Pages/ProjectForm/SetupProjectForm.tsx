@@ -15,9 +15,8 @@ import { Project } from 'Features/ApiSlices/projectSlice';
 import { Direction } from 'Features/ApiSlices/directionSlice';
 
 export default function SetupProjectForm(): JSX.Element {
-  const { stepProjects } = useSelector((state: any) => state.event);
+  const { stepProjects, stepDirections } = useSelector((state: any) => state.event);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
-  const { stepDirections } = useSelector((state: any) => state.event);
   const { showNotification } = useNotification();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -37,6 +36,7 @@ export default function SetupProjectForm(): JSX.Element {
       [name]: value,
     }));
   };
+
 
   const handleEditProject = (project: Project) => {
     setNewProject({

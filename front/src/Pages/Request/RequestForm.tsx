@@ -7,6 +7,7 @@ import DirectionSelector from "Widgets/Selectors/DirectionSelector";
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import TeamSelector from "Widgets/Selectors/TeamSelector";
 import { Direction, useGetDirectionsQuery } from "Features/ApiSlices/directionSlice";
+import { Input, Spin } from "antd";
 
 interface RequestFormProps {
   eventId: number;
@@ -15,9 +16,9 @@ interface RequestFormProps {
 }
 
 export default function RequestForm({ eventId, userId, onSubmit }: RequestFormProps): JSX.Element {
-  const { data: directions } = useGetDirectionsQuery();
-  const { data: projects } = useGetProjectsQuery();
-  const { data: teams } = useGetTeamsQuery();
+  const { data: directions, isLoading: isDirectionsLoading } = useGetDirectionsQuery();
+  const { data: projects, isLoading: isProjectsLoading } = useGetProjectsQuery();
+  const { data: teams, isLoading: isTeamsLoading } = useGetTeamsQuery();
 
   const [selectedDirection, setSelectedDirection] = useState<Direction | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -26,25 +27,27 @@ export default function RequestForm({ eventId, userId, onSubmit }: RequestFormPr
   const [message, setMessage] = useState<string>("");
 
   const [requestData, setRequestData] = useState({
-      event: eventId,
-      user: userId,
-      status: 1,
+    event: eventId,
+    user: userId,
+    status: 1,
   });
-
-  console.log(directions)
 
   const filteredDirections = directions?.filter(
     (direction) => direction.event === eventId
   );
 
-  const filteredProjects = selectedDirection
-    ? projects?.filter((project) => project.directionSet.id === selectedDirection.id)
-    : projects;
+  const filteredProjects = projects?.filter((project) =>
+    // Проект привязан через directionSet к направлению, а направление к мероприятию
+    filteredDirections?.some((dir) => dir.id === project.directionSet.id)
+  );
 
-  const filteredTeams = selectedProject
-    ? teams?.filter((team) => team.project === selectedProject.project_id)
-    : teams;
+  const filteredTeams = teams?.filter((team) => {
+    const project = projects?.find((p) => p.project_id === team.project);
+    if (!project) return false;
+    return filteredDirections?.some((dir) => dir.id === project.directionSet.id);
+  });
 
+  // Логика автоподстановки родителя при выборе дочернего элемента
   useEffect(() => {
     if (selectedProject) {
       const project = projects?.find((project) => project.id === selectedProject.id);
@@ -63,16 +66,7 @@ export default function RequestForm({ eventId, userId, onSubmit }: RequestFormPr
         }
       }
     }
-    
   }, [selectedTeam, teams, projects]);
-
-  const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const textarea = e.target;
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
-
-      setMessage(textarea.value)
-    };
 
   const handleSubmit = () => {
     if (selectedProject) requestData.project = selectedProject.project_id;
@@ -84,8 +78,12 @@ export default function RequestForm({ eventId, userId, onSubmit }: RequestFormPr
     onSubmit(requestData);
   };
 
+  if (isDirectionsLoading || isProjectsLoading || isTeamsLoading) {
+    return <Spin tip="Загрузка данных..." />;
+  }
+
   return (
-    <div className="FormContainer">
+    <div className="FormContainer RequestFormContainer">
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="RequestForm Form">
         <div className="ModalFormHeader">
           <h3>Подать заявку</h3>
@@ -100,15 +98,22 @@ export default function RequestForm({ eventId, userId, onSubmit }: RequestFormPr
         />
 
         <ProjectSelector
-          selectedProjectId={selectedProject}
+          selectedProject={selectedProject}
           onChange={setSelectedProject}
-          projects={filteredProjects || []}
+          projects={selectedDirection
+            ? filteredProjects?.filter((project) => project.directionSet.id === selectedDirection.id)
+            : filteredProjects || []}
           label="Выбрать проект"
         />
 
         <TeamSelector
-          selectedTeamId={selectedTeam}
-          teams={filteredTeams || []}
+          selectedTeam={selectedTeam}
+          teams={selectedProject
+            ? filteredTeams?.filter((team) => {
+                const project = projects?.find((p) => p.project_id === team.project);
+                return project?.id === selectedProject.id;
+              })
+            : filteredTeams || []}
           onChange={setSelectedTeam}
         />
 
@@ -119,18 +124,20 @@ export default function RequestForm({ eventId, userId, onSubmit }: RequestFormPr
           label="Выбрать специализацию"
         />
 
-        <textarea
-            value={message}
-            onChange={handleTextArea}
-            maxLength={1000}
-            name="message"
-            className="FormField Message"
-            placeholder="Сообщение"
+        <Input.TextArea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          maxLength={1000}
+          name="message"
+          placeholder="Сообщение"
+          autoSize={{ minRows: 3, maxRows: 6 }}
+          className="Message"
         />
-          <button className="primary-btn" type="submit">
-            Отправить
-            <ChevronRightIcon width="24" height="24" strokeWidth="1" />
-          </button>
+
+        <button className="primary-btn" type="submit">
+          Отправить
+          <ChevronRightIcon width="24" height="24" strokeWidth="1" />
+        </button>
       </form>
     </div>
   );

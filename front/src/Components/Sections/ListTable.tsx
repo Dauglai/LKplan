@@ -42,6 +42,7 @@ interface TableProps<T> {
  * @returns {JSX.Element} Компонент таблицы с данными и функциональностью сортировки.
  */
 export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Element {
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: 'asc' | 'desc' | null }>({
     key: columns[0]?.sortKey || null,
     direction: 'asc',

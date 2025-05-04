@@ -17,15 +17,17 @@ import dayjs from 'dayjs';
 interface RequestsListTableProps {
     requests: Application[];
     role: string;
+    onSelectionChange?: (ids: number[]) => void;
 }
 
-export default function RequestsListTable({ requests, role }: RequestsListTableProps): JSX.Element {
+export default function RequestsListTable({ requests, role, onSelectionChange }: RequestsListTableProps): JSX.Element {
     const [openMenu, setOpenMenu] = useState<number | null>(null);
     const { data: projects = []} = useGetProjectsQuery(); // Получение списка проектов с сервера.
     const { data: events = [] } = useGetEventsQuery();
     const { data: teams = [] } = useGetTeamsQuery();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState<Application | null>(null);
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [deleteRequest] = useDeleteApplicationMutation();
     const menuRef = useRef<HTMLUListElement | null>(null);
     const navigate = useNavigate();
@@ -42,7 +44,13 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleCloseMenu = () => setOpenMenu(null); // Закрывает открытое меню действий.
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (newSelectedRowKeys: React.Key[]) => {
+          setSelectedRowKeys(newSelectedRowKeys);
+          onSelectionChange?.(newSelectedRowKeys);
+        },
+      };
 
     const enrichedRequests = useMemo(() => {
         return requests.map(request => {
@@ -97,7 +105,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
             header: 'Мероприятие',
             render: (request: Application) => {
                 return request.event ? (
-                <Link to={`/event/${request.event.event_id}`} className="HiglightCell LinkCell">
+                <Link to={`/event/${request.event.event_id}`} className="LinkCell">
                     {request.event.name}
                 </Link>
                 ): (
@@ -112,11 +120,11 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
             header: 'Проект',
             render: (request: Application) => {
               return request.project ? (
-                <Link to={`/project/${request.project.project_id}`} className="HiglightCell LinkCell">
+                <Link to={`/project/${request.project.project_id}`} className="LinkCell">
                   {request.project.name}
                 </Link>
               ) : (
-                <span>Проект не указан</span>
+                <span>-</span>
               );
             },
             sortKey: 'project.name',
@@ -133,9 +141,13 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
         },
         {
             header: 'Специализация',
-            render: (request: Application) => (
+            render: (request: Application) => {
+                return request.specialization ? (
                 <span className="HiglightCell">{request.specialization.name}</span>
-            ),
+                ) : (
+                  <span>-</span>
+                );
+              },
             sortKey: 'specialization.name',
             autoFilters: true,
         },
@@ -154,7 +166,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
                         {request.team.name}
                     </Link>
                 ) : (
-                    'Не указана'
+                    <span>-</span>
                 ),
                 //sortKey: 'team.name',
         },
@@ -175,6 +187,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
             <ListTable
                 data={enrichedRequests}
                 columns={columns}
+                rowSelection={rowSelection}
             />
             {isModalOpen && selectedRequest && (
                 <RequestDetailsWrapper onClose={closeModal} request={selectedRequest} open={isModalOpen}/>

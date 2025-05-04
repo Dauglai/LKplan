@@ -5,6 +5,7 @@
 .FormContainer {
     position: relative;
     padding: 24px 32px;
+    width: 700px;
     
     border-radius: $border-radius;
     background-color: $white;
@@ -55,7 +56,6 @@
   padding: 12px;
 
   border-radius: $border-radius;
-  border: 1px solid $grey;
 
   outline: none;
   box-shadow: none;
@@ -69,16 +69,13 @@
   &:focus-within {
     outline: none;
     box-shadow: none;
-    border: 1px solid $grey;
   }
 
   &:hover {
-    border-color:  $grey;
     box-shadow: none;
   }
 
   &::placeholder {
-    color: $black !important;
     opacity: 1;
   }
 
@@ -88,20 +85,20 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    width: 596px;
 
     .NameContainer {
       width: 100%;
 
       .Name {
         width: 100%;
+        padding: 12px;
         border-radius: $border-radius $border-radius 0 0;
         border-bottom: none;    
       }
 
       .Description {
         width: 100%;
-        min-height: 120px;
+        padding: 12px;
         display: block;
         resize: none;
         overflow: hidden;
@@ -154,7 +151,7 @@
         font-size: 0.75rem;
         font-weight: 400;
         line-height: 0.9375rem;
-        color: $black !important;
+        //color: $black !important;
         font-family: 'Montserrat', sans-serif;
         font-variant-numeric: lining-nums;
       }
@@ -193,12 +190,12 @@
               @include text2;
       
               background: none;
-              color: $black;
+              //color: $black;
               outline: none;
               position: relative;
 
               &::placeholder {
-                color: $black !important;
+                //color: $black !important;
                 opacity: 1;
               }
             }
@@ -209,7 +206,7 @@
 
 .DirectionList, .ProjectList {
   margin-top: 32px;
-  width: 596px;
+  width: 636px;
 
   h3 {
     margin-bottom: 16px;
@@ -218,4 +215,12 @@
   .SelectedListItem {
     cursor: pointer;
   }
+}
+
+.EditFormModal .ant-modal-content {
+  width: 600px;
+}
+
+.RequestFormContainer {
+  width: 360px;
 }

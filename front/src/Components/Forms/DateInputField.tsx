@@ -1,10 +1,13 @@
-import { DatePicker, Form } from 'antd';
+import { DatePicker, Form, ConfigProvider} from 'antd';
 import { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
+import locale from 'antd/locale/ru_RU';
 import { useState } from 'react';
 import CalendarIcon from "assets/icons/calendar.svg?react";
 import 'Styles/FormStyle.scss';
 
+dayjs.locale('ru');
 
 interface DateInputFieldProps {
   name: string;
@@ -69,17 +72,19 @@ export default function DateInputField({
             rules={required ? [{ required: true, message: `Пожалуйста, выберите ${placeholder}` }] : []}
             className='InputWrapper'
         >
-            <DatePicker
-                name={name}
-                value={dateValue}
-                onChange={handleDateChange}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                placeholder={isFocused || value ? "" : finalPlaceholder}
-                format="DD.MM.YYYY"
-                className="DateInput FormField"
-                suffixIcon={<CalendarIcon width={16} height={16} strokeWidth={1} />}
-            />
+            <ConfigProvider locale={locale}>
+                <DatePicker
+                    name={name}
+                    value={dateValue}
+                    onChange={handleDateChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    placeholder={isFocused || value ? "" : finalPlaceholder}
+                    format="DD.MM.YYYY"
+                    className="DateInput FormField"
+                    suffixIcon={<CalendarIcon width={16} height={16} strokeWidth={1} />}
+                />
+            </ConfigProvider>
             {withPlaceholder && (isFocused || value) && (
                 <div className="InputText">{placeholder}</div>
             )}

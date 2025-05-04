@@ -1,7 +1,6 @@
 import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import { useNotification } from 'Widgets/Notification/Notification';
-import { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import UserSelector from 'Widgets/Selectors/UserSelector';
 import BackButton from 'Widgets/BackButton/BackButton';
@@ -11,47 +10,21 @@ import CloseIcon from 'assets/icons/close.svg?react';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import 'Styles/FormStyle.scss'
 import React, { useState } from 'react';
-import { 
-  Project,
-  useUpdateProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { addProject, updateProjects, removeProject } from 'Features/store/eventSetupSlice';
+import { addProject, removeProject } from 'Features/store/eventSetupSlice';
 
-export default function ProjectForm({ 
-  existingProject,
-}:{
-  existingProject?: Project;
-}): JSX.Element {
+export default function SetupProjectForm(): JSX.Element {
   const { data: user } = useGetUserQuery();
-  const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
   const { stepProjects } = useSelector((state: any) => state.event);
   const { showNotification } = useNotification();
-  const dispatch = useDispatch(); // Для использования экшенов Redux
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   
   const [newProject, setNewProject] = useState({
     direction: 0,
-    directionSet: 0,
     name: '',
     description: '',
-    supervisorSet: null,
-    curators: 0,
-    creator: 0,
-    project_id: 0,
   });
-
-  useEffect(() => {
-    if (existingProject) {
-      setNewProject({
-        directionSet: existingProject.directionSet.id,
-        name: existingProject.name,
-        description: existingProject.description,
-        curators: existingProject.curatorsSet,
-        creator: existingProject.creator,
-        project_id: existingProject.project_id,
-      });
-    }
-  }, [existingProject]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -68,38 +41,12 @@ export default function ProjectForm({
           ...prev,
           name: '',
           description: '',
-          curators: [],
-          creator: 0,
-          supervisorSet: null,
         }));
         
         showNotification('Проект создан!', 'success');
         dispatch(addProject(newProject));
       }
     };
-
-  const handleUpdateProject = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const projectData = {
-      ...newProject,
-      creator: user.user_id,
-      supervisorSet: user.user_id,
-    };
-
-    if (newProject.name.trim()) {
-      try {
-        await updateProject({ id: projectData.project_id, data: projectData }).unwrap();
-        // Обновляем проект в Redux
-        dispatch(updateProjects(projectData));
-        showNotification('Проект обновлен!', 'success');
-      } catch (error) {
-        showNotification(`Ошибка при обновлении проекта: ${error.status} ${error.stage}`, 'error');
-      }
-    } else {
-      showNotification('Пожалуйста, заполните все поля!', 'error');
-    }
-  };
 
   const handleDirectionChange = (selected: number) => {
     setNewProject((prev) => ({
@@ -116,8 +63,6 @@ export default function ProjectForm({
   };
 
   const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const textarea = e.target;
-
     setNewProject((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -125,7 +70,7 @@ export default function ProjectForm({
   };
 
   const handleNextStep = () => {
-    navigate("/event-setup-save")
+    navigate("/stages-setup")
   };
 
   const handleRemoveProject = (id: string) => {
@@ -136,12 +81,12 @@ export default function ProjectForm({
     <div className="FormContainer">
       <div className="FormHeader">
           <BackButton />
-          <h2>{existingProject ? 'Редактирование проекта' : 'Добавление проекта'}</h2>
+          <h2>Добавление проекта</h2>
         </div>
 
       <form 
         className="ProjectForm Form"
-        onSubmit={existingProject ? handleUpdateProject : handleProject}>
+        onSubmit={handleProject}>
 
         <DirectionSelector
           onChange={handleDirectionChange}
@@ -171,13 +116,13 @@ export default function ProjectForm({
         />*/}
 
         <div className="FormButtons">
-          <button className="primary-btn" type="submit" disabled={isUpdating}>
-            {existingProject ? 'Обновить проект' : 'Создать проект'}
+          <button className="primary-btn" type="submit">
+            Добавить проект
           </button>
           <button
             className="primary-btn"
             type="button"
-            onClick={handleNextStep} // Переход к следующему шагу
+            onClick={handleNextStep}
           >
             Далее
             <ChevronRightIcon width="24" height="24" strokeWidth="1" />

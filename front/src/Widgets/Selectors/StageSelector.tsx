@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
+import { Select } from "antd";
+const { Option } = Select;
 import "Styles/FormSelectorStyle.scss";
 
 interface StageSelectorProps {
@@ -19,35 +19,19 @@ export default function StageSelector({
   selectedStage,
   onChange,
 }: StageSelectorProps): JSX.Element {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleSelectStage = (stage: string) => {
-    onChange(stage);
-  };
-
   return (
-    <div className="StageSelector">
-      <div
-        className="ListField FormField"
-        onClick={() => setIsOpen(prev => !prev)}
+      <Select
+        value={selectedStage ?? undefined}
+        onChange={onChange}
+        placeholder="Выбрать этап"
+        className="Selector"
+        style={{ width: '100%' }}
       >
-        <p>{selectedStage || 'Выбрать этап'}</p>
-        <ChevronRightIcon width="20" height="20" strokeWidth="1" className={`ChevronDown ${isOpen ? 'open' : ''}`} />
-
-        {isOpen && (
-          <div className="DropdownList">
-            {stages.map(stage => (
-              <div
-                key={stage}
-                className={`DropdownItem ${selectedStage === stage ? 'selected' : ''}`}
-                onClick={() => handleSelectStage(stage)}
-              >
-                {stage}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+        {stages.map(stage => (
+          <Option key={stage} value={stage}>
+            {stage}
+          </Option>
+        ))}
+      </Select>
   );
 }

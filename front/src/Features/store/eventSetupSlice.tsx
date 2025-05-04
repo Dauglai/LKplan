@@ -2,11 +2,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Event } from "Features/ApiSlices/eventSlice";
 import { Direction } from "Features/ApiSlices/directionSlice";
 import { Project } from "Features/ApiSlices/projectSlice";
+import { StatusApp } from "Features/ApiSlices/statusAppSlice";
 
 interface EventSetupState {
     stepEvent: Event;  // Данные о мероприятии
     stepDirections: { directions: Direction[] };  // Направления для мероприятия
     stepProjects: { projects: Project[] };  // Проекты, связанные с мероприятием
+    stepStatuses: { statuses: StatusApp[]};
 }
 
 const initialState: EventSetupState = {
@@ -21,6 +23,7 @@ const initialState: EventSetupState = {
     },
     stepDirections: { directions: [] },  // Направления (по умолчанию пустой массив)
     stepProjects: { projects: [] },  // Проекты (по умолчанию пустой массив)
+    stepStatuses: { statuses: []},  // Статусы (по умолчанию пустой массив)
 };
 
 /**
@@ -108,6 +111,43 @@ const eventSlice = createSlice({
     },
 
     /**
+     * Обновить статусы мероприятия.
+     * @param state Текущее состояние
+     * @param action Новые статусы
+     */
+    updateStatuses(state, action: PayloadAction<StatusApp[]>) {
+      state.stepStatuses.statuses = action.payload;
+    },
+    
+    /**
+     * Добавить один статус.
+     * @param state Текущее состояние
+     * @param action Статус для добавления
+     */
+    addStatus(state, action: PayloadAction<StatusApp>) {
+      state.stepStatuses.statuses.push(action.payload);
+    },
+
+    /**
+     * Удалить статус по id.
+     * @param state Текущее состояние
+     * @param action ID статуса для удаления
+     */
+    removeStatus(state, action: PayloadAction<number>) {
+      state.stepStatuses.statuses = state.stepStatuses.statuses.filter(
+        (status) => status.id !== action.payload
+      );
+    },
+    
+    // Обновить статус
+    updateStatus(state, action: PayloadAction<StatusApp>) {
+      const index = state.stepStatuses.statuses.findIndex((status) => status.id === action.payload.id);
+      if (index !== -1) {
+        state.stepStatuses.statuses[index] = action.payload;
+      }
+    },
+
+    /**
      * Сбросить все данные о мероприятии к начальному состоянию.
      */
     resetEvent: () => initialState,
@@ -119,6 +159,7 @@ export const {
   updateEvent, updateEventField, 
   updateDirections, addDirection, removeDirection,
   updateProjects, addProject, removeProject,
+  updateStatuses, addStatus, removeStatus, updateStatus,
   resetEvent 
 } = eventSlice.actions;
 export const eventSetupReducer = eventSlice.reducer;

@@ -73,7 +73,7 @@ export default function ListsHeaderPanel({
         <div className="LeftHeaderPanel">
             <BackButton />
             <h2 className="HeaderPanelTitle">{title}</h2>
-            {role === "Организатор" && link &&
+            {role === "Организатор" &&
                 <PlusIcon 
                 width="18" 
                 height="18" 
@@ -92,7 +92,7 @@ export default function ListsHeaderPanel({
                 withPlaceholder={true}
             />
 
-            {role === "Организатор" && 
+            {PageOptions && 
                 <PageSwitcher options={PageOptions} />
             }
         </div>

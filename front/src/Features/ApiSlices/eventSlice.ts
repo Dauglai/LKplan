@@ -1,5 +1,6 @@
 import { apiSlice  } from 'App/api/apiSlice.ts';
 import dayjs from 'dayjs';
+import { Application } from './applicationSlice';
 
 /**
  * Интерфейс для представления данных мероприятия.
@@ -14,6 +15,7 @@ export interface Event {
   end: string | null;         // Дата и время окончания мероприятия
   end_app: string | null;     // Дата и время окончания подачи заявок
   stage: string;              // Этап мероприятия
+  applications: Application[];
 }
 
 /**

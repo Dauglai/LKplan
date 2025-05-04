@@ -45,29 +45,30 @@ export default function NameInputField({
   required = false,
   withPlaceholder = false,
 }: NameInputFieldProps): JSX.Element {
-  const [isFocused, setIsFocused] = useState(false); // Состояние, отслеживающее фокус поля
+  const [isFocused, setIsFocused] = useState(false);
 
-  const handleFocus = () => setIsFocused(true); // Устанавливает состояние фокуса
-  const handleBlur = () => setIsFocused(false); // Снимает состояние фокуса
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => setIsFocused(false);
 
   return (
     <Form.Item
-      name={name}
+      className="InputWrapper"
+      shouldUpdate={false}
       rules={required ? [{ required: true, message: `Пожалуйста, введите ${placeholder}` }] : []}
-      className='InputWrapper'
     >
       <Input
         name={name}
         value={value}
         onChange={onChange}
-        placeholder={isFocused || value ? "" : (required && placeholder ? `${placeholder} *` : placeholder)} // Плейсхолдер исчезает при фокусе или наличии значения
-        className="Name FormField"
+        placeholder={isFocused || value ? "" : (required && placeholder ? `${placeholder} *` : placeholder)}
+        className="Name"
         onFocus={handleFocus}
         onBlur={handleBlur}
       />
       {withPlaceholder && (isFocused || value) && (
-        <div className="InputText">{placeholder}</div> // Отображает подсказку над полем
+        <div className="InputText">{placeholder}</div>
       )}
     </Form.Item>
   );
 }
+

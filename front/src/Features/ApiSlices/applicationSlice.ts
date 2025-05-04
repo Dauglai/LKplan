@@ -34,7 +34,7 @@ const applicationApi = apiSlice.injectEndpoints({
       transformResponse: (response: { count: number; next: string | null; previous: string | null; results: Application[] }) => {
         return response.results.map((application: Application) => ({
           ...application,
-          dateTime: new Date(application.dateTime),
+          date_sub: new Date(application.date_sub),
         }));
       },
     }),
@@ -54,7 +54,7 @@ const applicationApi = apiSlice.injectEndpoints({
         providesTags: ['Application'],
         transformResponse: (response: Application) => ({
             ...response,
-            dateTime: new Date(response.dateTime),
+            date_sub: new Date(response.date_sub),
         }),
     }),
     createApplication: builder.mutation<Application, Omit<Application, 'id' | 'datetime'>>({

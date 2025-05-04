@@ -1,15 +1,14 @@
 import 'Styles/components/Sections/ListTableStyles.scss';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { Project, useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useNavigate, Link } from "react-router-dom";
 import { useNotification } from 'Widgets/Notification/Notification';
-import ProjectForm from "./ProjectForm";
-import Modal from "Widgets/Modal/Modal";
 import ActionMenu from 'Components/Sections/ActionMenu';
 import ListTable from "Components/Sections/ListTable";
+import EditProjectModal from 'Pages/ProjectForm/EditProjectModal';
 
 interface ProjectsTableProps {
   projects: Project[];
@@ -22,7 +21,7 @@ export default function ProjectsListTable({ projects, role }: ProjectsTableProps
   const { data: teams, isLoading: isLoadingTeams } = useGetTeamsQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const navigate = useNavigate();
+  
   const [deleteProject] = useDeleteProjectMutation();
   const { showNotification } = useNotification()
   const [openMenu, setOpenMenu] = useState<number | null>(null); 
@@ -135,7 +134,7 @@ export default function ProjectsListTable({ projects, role }: ProjectsTableProps
      */
   
     const actions = (project: Project) => [
-      {/* label: 'Редактировать', onClick: () => handleEdit(project.project_id), requiredRole: 'Организатор' */},
+      { label: 'Редактировать', onClick: () => handleEdit(project.project_id), requiredRole: 'Организатор'},
       { label: 'Удалить', onClick: () => handleDelete(project.project_id), requiredRole: 'Организатор' },
     ];
 
@@ -146,9 +145,10 @@ export default function ProjectsListTable({ projects, role }: ProjectsTableProps
         columns={columns}
       />
       {isModalOpen && (
-        <Modal isOpen={isModalOpen} onClose={closeModal}>
-          <ProjectForm closeModal={closeModal} existingProject={selectedProject} />
-        </Modal>
+        <EditProjectModal 
+          project={selectedProject} 
+          isOpen={isModalOpen}
+          onClose={closeModal}/>
       )}
     </>
   );

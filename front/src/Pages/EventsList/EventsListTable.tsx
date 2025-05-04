@@ -4,7 +4,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { useDeleteEventMutation } from "Features/ApiSlices/eventSlice";
 import { useNotification } from 'Widgets/Notification/Notification';
 import EventForm from "./EventForm/EventForm";
-import Modal from "Widgets/Modal/Modal";
 import ActionMenu from "Components/Sections/ActionMenu";
 import ListTable from "Components/Sections/ListTable";
 
@@ -167,9 +166,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
         columns={columns}
       />
       {isModalOpen && (
-        <Modal isOpen={isModalOpen} onClose={closeModal}>
-          <EventForm closeModal={closeModal} existingEvent={selectedEvent} /> {/* Модальное окно для редактирования мероприятия */}
-        </Modal>
+          <EventForm closeModal={closeModal} existingEvent={selectedEvent} />
       )}
     </>
   );

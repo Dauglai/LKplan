@@ -12,7 +12,7 @@ interface DirectionSelectorProps {
   onChange: (direction: Direction) => void;
   sourceType: 'local' | 'remote';
   label?: string;
-  directions: Direction[];
+  directions?: Direction[];
 }
 
 export default function DirectionSelector({

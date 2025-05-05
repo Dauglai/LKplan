@@ -1,14 +1,16 @@
 import { Input, Form } from 'antd';
 import { useState } from 'react';
 import 'Styles/FormStyle.scss';
+import "Styles/components/Common/UniversalInputStyle.scss";
 
 interface NameInputFieldProps {
   name: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   required?: boolean;
   withPlaceholder?: boolean;
+  disabled? : boolean;
 }
 
 /**
@@ -44,30 +46,33 @@ export default function NameInputField({
   placeholder,
   required = false,
   withPlaceholder = false,
+  disabled
 }: NameInputFieldProps): JSX.Element {
-  const [isFocused, setIsFocused] = useState(false); // Состояние, отслеживающее фокус поля
+  const [isFocused, setIsFocused] = useState(false);
 
-  const handleFocus = () => setIsFocused(true); // Устанавливает состояние фокуса
-  const handleBlur = () => setIsFocused(false); // Снимает состояние фокуса
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => setIsFocused(false);
 
   return (
     <Form.Item
-      name={name}
+      className="UniversalInputWrapper InputWrapper"
+      shouldUpdate={false}
       rules={required ? [{ required: true, message: `Пожалуйста, введите ${placeholder}` }] : []}
-      className='InputWrapper'
     >
       <Input
         name={name}
         value={value}
         onChange={onChange}
-        placeholder={isFocused || value ? "" : (required && placeholder ? `${placeholder} *` : placeholder)} // Плейсхолдер исчезает при фокусе или наличии значения
-        className="Name FormField"
+        placeholder={isFocused || value ? "" : (required && placeholder ? `${placeholder} *` : placeholder)}
+        className="Name UniversalInput"
         onFocus={handleFocus}
         onBlur={handleBlur}
+        disabled={disabled ? true : undefined}
       />
       {withPlaceholder && (isFocused || value) && (
-        <div className="InputText">{placeholder}</div> // Отображает подсказку над полем
+        <div className="UniversalInputText InputText">{placeholder}</div>
       )}
     </Form.Item>
   );
 }
+

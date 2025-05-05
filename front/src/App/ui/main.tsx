@@ -11,7 +11,7 @@ import { store } from '../model/store.ts';
 import Layout from 'Shared/ui/layout/layout.tsx';
 import RequireAuth from 'Shared/ui/requireAuth.tsx';
 import { RequireRole } from 'Shared/ui/RequireRole.tsx';
-import { NotificationProvider } from 'Widgets/Notification/Notification.tsx';
+import { NotificationProvider } from 'Components/Common/Notification/Notification.tsx';
 
 import Login from 'Pages/Login/Login.tsx';
 import Register from 'Pages/Register/Register.tsx';
@@ -22,15 +22,15 @@ import { ConfigProvider } from 'antd';
 import EventsManagement from 'Pages/EventsList/EventsManagement.tsx';
 import ProjectsManagement from 'Pages/ProjectsList/ProjectsManagement.tsx';
 import DirectionsManagement from 'Pages/DirectionsList/DirectionsManagement.tsx';
-import DirectionForm from 'Pages/DirectionsList/DirectionForm.tsx';
+import SetupDirectionForm from 'Pages/DirectionForm/SetupDirectionForm.tsx';
 import TeamsManagement from 'Pages/TeamsList/TeamsManagement.tsx';
 import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializationForm.tsx'
-import CreateStatusAppForm from 'Pages/CreateStatusApp/CreateStatusAppForm.tsx';
 import EventPage from 'Pages/Event/EventPage.tsx';
 import EventForm from 'Pages/EventsList/EventForm/EventForm.tsx';
 import EventSetupSummary from 'Pages/Event/EventSetupSummary.tsx';
+import StagesPage from 'Pages/StagesPage/StagesPage.tsx';
 import ProjectPage from 'Pages/Project/ProjectPage.tsx';
-import ProjectForm from 'Pages/ProjectsList/ProjectForm.tsx';
+import ProjectForm from 'Pages/ProjectForm/SetupProjectForm.tsx';
 import TeamPage from 'Pages/Team/TeamPage.tsx';
 import UsersProfilePage from 'Pages/UsersProfile/UsersProfilePage.tsx';
 import EmailVerifiedPage from 'Pages/Register/EmailVerified.tsx';
@@ -69,14 +69,13 @@ createRoot(document.getElementById('root')!).render(
                 {/* Доступ только админу */}
                   <Route element={<RequireRole allowedRoles={['Организатор']} />}>
                     <Route path="/requests" element={<RequestsManagement />} />
-                    <Route path="/directions" element={<DirectionsManagement />} />
-                    <Route path="/projects" element={<ProjectsManagement />} />
                     <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
-                    <Route path="/create-new-status-app" element={<CreateStatusAppForm />} />
 
                     <Route path="/event-setup" element={<EventForm />} />
-                    <Route path="/directions-setup" element={<DirectionForm mode='setup'/>} />
+                    <Route path="/event/:id/edit" element={<EventForm />} />
+                    <Route path="/directions-setup" element={<SetupDirectionForm/>} />
                     <Route path="/projects-setup" element={<ProjectForm />} />
+                    <Route path="/stages-setup" element={<StagesPage />} />
                     <Route path="/event-setup-save" element={<EventSetupSummary />} />
                   </Route>
 
@@ -88,6 +87,8 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/profile/:id" element={<UsersProfilePage />} />
                   <Route path="/events" element={<EventsManagement />} />
+                  <Route path="/directions" element={<DirectionsManagement />} />
+                  <Route path="/projects" element={<ProjectsManagement />} />
                   <Route path="/event/:id" element={<EventPage />} />
                   <Route path="/project/:id" element={<ProjectPage />} />
                   <Route path="/teams" element={<TeamsManagement />} />

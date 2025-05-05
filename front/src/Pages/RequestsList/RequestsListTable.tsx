@@ -1,7 +1,7 @@
 import 'Styles/components/Sections/ListTableStyles.scss';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 import { getInitials } from "Features/utils/getInitials";
 import { useDeleteApplicationMutation } from 'Features/ApiSlices/applicationSlice';
 import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
@@ -11,15 +11,18 @@ import ListTable from 'Components/Sections/ListTable';
 import MagnifierIcon from 'assets/icons/magnifier.svg?react';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
+import { ChangeStatusModal } from "Components/PageComponents/ChangeStatusModal";
 import dayjs from 'dayjs';
 
 
 interface RequestsListTableProps {
     requests: Application[];
     role: string;
+    onSelectRequests?: (request: Application[]) => void;
+    onOpenStatusModal?: (requests: Application[]) => void;
 }
 
-export default function RequestsListTable({ requests, role }: RequestsListTableProps): JSX.Element {
+export default function RequestsListTable({ requests, role, onSelectRequests, onOpenStatusModal}: RequestsListTableProps): JSX.Element {
     const [openMenu, setOpenMenu] = useState<number | null>(null);
     const { data: projects = []} = useGetProjectsQuery(); // Получение списка проектов с сервера.
     const { data: events = [] } = useGetEventsQuery();
@@ -41,8 +44,6 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    const handleCloseMenu = () => setOpenMenu(null); // Закрывает открытое меню действий.
 
     const enrichedRequests = useMemo(() => {
         return requests.map(request => {
@@ -97,7 +98,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
             header: 'Мероприятие',
             render: (request: Application) => {
                 return request.event ? (
-                <Link to={`/event/${request.event.event_id}`} className="HiglightCell LinkCell">
+                <Link to={`/event/${request.event.event_id}`} className="LinkCell">
                     {request.event.name}
                 </Link>
                 ): (
@@ -112,11 +113,11 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
             header: 'Проект',
             render: (request: Application) => {
               return request.project ? (
-                <Link to={`/project/${request.project.project_id}`} className="HiglightCell LinkCell">
+                <Link to={`/project/${request.project.project_id}`} className="LinkCell">
                   {request.project.name}
                 </Link>
               ) : (
-                <span>Проект не указан</span>
+                <span>-</span>
               );
             },
             sortKey: 'project.name',
@@ -126,16 +127,26 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
         {
             header: 'Статус',
             render: (request: Application) => (
-                <span className="HiglightCell">{request.status.name}</span>
+                <span
+                    className="HiglightCell"
+                    onClick={() => onOpenStatusModal?.([request])}
+                    style={{ cursor: 'pointer'}}
+                    title="Изменить статус"
+                >{request.status.name}</span>
             ),
             sortKey: 'status.name',
             autoFilters: true,
+            text: 'Нажмите на статус для изменения',  
         },
         {
             header: 'Специализация',
-            render: (request: Application) => (
+            render: (request: Application) => {
+                return request.specialization ? (
                 <span className="HiglightCell">{request.specialization.name}</span>
-            ),
+                ) : (
+                  <span>-</span>
+                );
+              },
             sortKey: 'specialization.name',
             autoFilters: true,
         },
@@ -154,7 +165,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
                         {request.team.name}
                     </Link>
                 ) : (
-                    'Не указана'
+                    <span>-</span>
                 ),
                 //sortKey: 'team.name',
         },
@@ -175,6 +186,7 @@ export default function RequestsListTable({ requests, role }: RequestsListTableP
             <ListTable
                 data={enrichedRequests}
                 columns={columns}
+                onSelectRows={(selected) => onSelectRequests?.(selected)}
             />
             {isModalOpen && selectedRequest && (
                 <RequestDetailsWrapper onClose={closeModal} request={selectedRequest} open={isModalOpen}/>

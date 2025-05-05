@@ -4,7 +4,7 @@ import { useDeleteTeamMutation } from 'Features/ApiSlices/teamSlice';
 import { Team } from 'Features/ApiSlices/teamSlice';
 import { useNavigate, Link } from 'react-router-dom';
 import { getInitials } from 'Features/utils/getInitials';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 import MoreIcon from 'assets/icons/more.svg?react';
 
 interface TeamsTableProps {

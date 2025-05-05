@@ -1,15 +1,22 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useGetProjectByIdQuery } from 'Features/ApiSlices/projectSlice';
 import { useGetDirectionByIdQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
-import BackButton from "Widgets/BackButton/BackButton";
+import BackButton from "Components/Common/BackButton/BackButton";
+import { Button } from 'antd';
 import { getInitials } from "Features/utils/getInitials";
-import { useEffect } from 'react';
+//import 'Styles/pages/common/InfoPageStyle.scss';
+import { useEffect, useState } from 'react';
+import EditProjectModal from 'Pages/ProjectForm/EditProjectModal';
+import { useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
+import { useNotification } from 'Components/Common/Notification/Notification';
 
 export default function ProjectPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
-  const { data: project, isLoading: isProjectLoading } = useGetProjectByIdQuery(Number(id));
+  const navigate = useNavigate();
+  const { showNotification } = useNotification()
+  const { data: project, isLoading: isProjectLoading, refetch: refetchProject, } = useGetProjectByIdQuery(Number(id));
   const { data: direction, isLoading: isDirectionLoading } = useGetDirectionByIdQuery(project?.directionSet.id || 0, {
     skip: !project,
   });
@@ -17,6 +24,14 @@ export default function ProjectPage(): JSX.Element {
     skip: !direction,
   });
   const { data: teams, isLoading: isTeamsLoading } = useGetTeamsQuery();
+  const [deleteProject] = useDeleteProjectMutation();
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const handleDelete = async (id: number) => {
+    await deleteProject(id);
+    showNotification('Проект удалён', 'success');
+    navigate('/projects');
+  };
 
   useEffect(() => {
     if (project) {
@@ -37,9 +52,15 @@ export default function ProjectPage(): JSX.Element {
 
   return (
     <div className="ProjectInfoPage InfoPage">
-        <div className="ProjectInfoHeader InfoHeader">
-          <BackButton />
-          <h2>{project.name}</h2>
+        <div className="ProjectInfoHeader ListsHeaderPanel HeaderPanel">
+          <div className="LeftHeaderPanel">
+            <BackButton />
+            <h2>{project.name}</h2>
+          </div>
+          <div className="RightHeaderPanel">
+            <Button onClick={() => setIsEditModalOpen(true)}>Редактировать</Button>
+            <Button danger onClick={() => handleDelete(project.project_id)}>Удалить</Button>
+          </div>
         </div>
 
 
@@ -47,10 +68,10 @@ export default function ProjectPage(): JSX.Element {
           <ul className="ProjecInfoList ListInfo">
             <li><strong>Мероприятие: </strong><Link to={`/event/${event.event_id}`}>{event.name}</Link></li>
             <li><strong>Направление: </strong>{direction.name}</li>
-            <li><strong>Куратор: </strong>{project.curatorsSet.length > 0 ? 
+            {/*<li><strong>Куратор: </strong>{project.curatorsSet.length > 0 ? 
               <Link to={`/profile/${ project.curatorsSet[0].user_id}`}>
                 {project.curatorsSet[0].surname} {getInitials(project.curatorsSet[0].name, project.curatorsSet[0].patronymic)}
-              </Link> : "-"}</li>
+              </Link> : "-"}</li>*/}
           </ul>
             <div className="ProjectDescription InfoDescription">{project.description}</div>
             <div className="ProjectContent InfoContent">
@@ -69,6 +90,14 @@ export default function ProjectPage(): JSX.Element {
           </div>
         </div>
 
+        {isEditModalOpen && (
+          <EditProjectModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            project={project}
+            onSuccess={refetchProject}
+          />
+        )}
     </div>
   );
 };

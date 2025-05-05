@@ -1,10 +1,13 @@
-import { DatePicker, Form } from 'antd';
+import { DatePicker, Form, ConfigProvider} from 'antd';
 import { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
+import locale from 'antd/locale/ru_RU';
 import { useState } from 'react';
 import CalendarIcon from "assets/icons/calendar.svg?react";
 import 'Styles/FormStyle.scss';
 
+dayjs.locale('ru');
 
 interface DateInputFieldProps {
   name: string;
@@ -13,6 +16,7 @@ interface DateInputFieldProps {
   placeholder?: string;
   required?: boolean;
   withPlaceholder?: boolean;
+  disabled? : boolean;
 }
 
 /**
@@ -48,6 +52,7 @@ export default function DateInputField({
   placeholder = 'Выберите дату',
   required = false,
   withPlaceholder = false,
+  disabled
 }: DateInputFieldProps): JSX.Element {
     const [isFocused, setIsFocused] = useState(false); // Состояние фокуса поля ввода
 
@@ -56,10 +61,20 @@ export default function DateInputField({
 
     const finalPlaceholder = required ? `${placeholder} *` : placeholder; // Добавляет * к плейсхолдеру, если поле обязательное
 
-    const dateValue = value ? dayjs(value, "DD.MM.YYYY", true) : null; // Преобразует строковое значение в Dayjs-дату
+    const parsedDate = value
+    ? dayjs(value, 'DD.MM.YYYY', true).isValid()
+        ? dayjs(value, 'DD.MM.YYYY', true)
+        : dayjs(value)
+    : null;
+
+    const dateValue = parsedDate && parsedDate.isValid() ? parsedDate : null;
+
+    if (value && !parsedDate?.isValid()) {
+    console.warn(`Некорректная дата в поле "${name}":`, value);
+    }
 
     const handleDateChange = (date: Dayjs | null, dateString: string) => {
-        onChange(dateString); // Передаёт строковое значение даты во внешний обработчик
+        onChange(dateString);
     };
 
 
@@ -67,21 +82,24 @@ export default function DateInputField({
         <Form.Item
             name={name}
             rules={required ? [{ required: true, message: `Пожалуйста, выберите ${placeholder}` }] : []}
-            className='InputWrapper'
+            className='InputWrapper UniversalInputWrapper'
         >
-            <DatePicker
-                name={name}
-                value={dateValue}
-                onChange={handleDateChange}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                placeholder={isFocused || value ? "" : finalPlaceholder}
-                format="DD.MM.YYYY"
-                className="DateInput FormField"
-                suffixIcon={<CalendarIcon width={16} height={16} strokeWidth={1} />}
-            />
+            <ConfigProvider locale={locale}>
+                <DatePicker
+                    name={name}
+                    value={dateValue}
+                    onChange={handleDateChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    placeholder={isFocused || value ? "" : finalPlaceholder}
+                    format="DD.MM.YYYY"
+                    className="DateInput FormField UniversalInput"
+                    suffixIcon={<CalendarIcon width={16} height={16} strokeWidth={1} />}
+                    disabled={disabled ? true : undefined}
+                />
+            </ConfigProvider>
             {withPlaceholder && (isFocused || value) && (
-                <div className="InputText">{placeholder}</div>
+                <div className="InputText UniversalInputText">{placeholder}</div>
             )}
         </Form.Item>
     );

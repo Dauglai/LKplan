@@ -9,24 +9,37 @@
 
 .Selector {
   height: 40px;
-  border-radius: $border-radius;
-  border-color: $grey;
   width: 100%;
 
   :global {
-    .ant-select-selector {
-      @include text2;
-      height: 40px;
-      padding: 8px;
+    .ant-select {
+      border-radius: $border-radius;
       border-color: $grey;
-    }
-  
-    .DropdownItem {
-      &:hover {
-        background-color: transparent;
+
+      .ant-select-selector {
+        @include text2;
+        height: 40px !important;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        border: 1px solid $grey !important;
+        border-radius: $border-radius;
+        color: $black !important; // Текстовое значение
+      }
+
+      .ant-select-selection-placeholder {
+        color: $black !important; 
+        @include text2;
+      }
+
+      .ant-select-selection-item {
+        @include text2;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
       }
     }
-  
+
     .ant-select-dropdown {
       border: 1px solid $grey;
       border-radius: 4px;
@@ -34,47 +47,25 @@
       max-width: 100%;
       word-wrap: break-word;
       white-space: normal;
-    }
 
-    .ant-select-item-option-content {
-      white-space: normal;
-      word-break: break-word;
-    }
-  
-    .ant-select-item-option-selected {
-      color: $black !important; 
-    }
+      .ant-select-item-option-content {
+        white-space: normal;
+        word-break: break-word;
+        @include text2;
+      }
 
-    .ant-select-selection-item {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      .ant-select-item-option-selected {
+        color: $black;
+      }
+
+      .ant-select-item-option:hover {
+        background-color: transparent;
+      }
     }
   }
-
-  
 }
 
-.FormField {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 40px;
-    padding: 12px;
 
-    border-radius: $border-radius;
-    border: 1px solid $grey;
-
-    outline: none;
-
-    p {
-      @include text2;
-    }
-
-    svg {
-        color: $black;
-    }
-}
 
 .ListField {
     position: relative;
@@ -119,7 +110,7 @@
     padding: 12px;
     gap: 8px;
     flex-wrap: wrap;
-    max-width: 100%;
+    width: 100%;
 
     border-radius: $border-radius;
     border: 1px solid $grey;
@@ -131,12 +122,16 @@
         display: flex;
         gap: 4px;
         align-items: center;
+        max-width: 100%;
+        word-break: break-all;
 
         border-radius: $border-radius;
         background-color: $blue;
 
         svg {
           cursor: pointer;
+          min-height: 16px;
+          min-width: 16px;
         }
     }
 

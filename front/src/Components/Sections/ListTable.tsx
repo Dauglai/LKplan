@@ -17,6 +17,7 @@ interface TableColumn<T> {
 interface TableProps<T> {
   data: T[];
   columns: TableColumn<T>[];
+  onSelectRows?: (selected: T[]) => void;
 }
 
 /**
@@ -41,7 +42,9 @@ interface TableProps<T> {
  *
  * @returns {JSX.Element} Компонент таблицы с данными и функциональностью сортировки.
  */
-export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Element {
+export default function ListTable<T>({ data, columns, onSelectRows}: TableProps<T>): JSX.Element {
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [selectedRows, setSelectedRows] = useState<T[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: 'asc' | 'desc' | null }>({
     key: columns[0]?.sortKey || null,
     direction: 'asc',
@@ -53,22 +56,20 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
   const getValue = (obj: any, path: string): any => {
     return path.split('.').reduce((acc, part) => acc?.[part], obj);
   };
-  
 
   // Сортировка данных на основе конфигурации сортировки
   const sortedData = [...data].sort((a, b) => {
     if (!sortConfig.key) return 0;
-  
+
     const aValue = getValue(a, sortConfig.key);
     const bValue = getValue(b, sortConfig.key);
-  
+
     if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
     if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
     return 0;
   });
 
   const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  
 
   // Обработчик клика по заголовку колонки для смены направления сортировки
   const handleSort = (key: keyof T) => {
@@ -83,21 +84,21 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
   const tableColumns = columns.map((col) => {
     let filters = col.filters;
     let onFilter = col.onFilter;
-  
+
     // Автоматическое формирование фильтров
     if (col.autoFilters && sortConfig.key) {
       const uniqueValues = Array.from(
         new Set(data.map((item) => getValue(item, col.sortKey as string)))
       ).filter((v) => v !== undefined && v !== null);
-  
+
       filters = uniqueValues.map((val) => ({
         text: String(val),
         value: val,
       }));
-  
+
       onFilter = (value, record) => getValue(record, col.sortKey as string) === value;
     }
-  
+
     return {
       title: (
         <div className="HeaderCell">
@@ -121,7 +122,6 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
         : undefined,
       width: col.width,
       filterSearch: true,
-      
     };
   });
 
@@ -129,7 +129,18 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
     setCurrentPage(page);
     setPageSize(size);
   };
-  
+
+  const rowSelection = onSelectRows
+    ? {
+        selectedRowKeys,
+        onChange: (keys: React.Key[], rows: T[]) => {
+          setSelectedRowKeys(keys);
+          setSelectedRows(rows);
+          onSelectRows?.(rows);
+        },
+      }
+    : undefined;
+
 
   return (
     <div className="ListTableContainer">
@@ -140,9 +151,10 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
         pagination={false} // Выключаем пагинацию на уровне таблицы
         className="UniversalListTable"
         showSorterTooltip={false}
+        rowSelection={rowSelection}
         locale={{
           filterTitle: 'Фильтр',
-          filterConfirm: 'ОК',
+          filterConfirm: 'Ок',
           filterReset: 'Сброс',
           filterEmptyText: 'Нет фильтров',
           emptyText: 'Нет данных',
@@ -150,7 +162,7 @@ export default function ListTable<T>({ data, columns }: TableProps<T>): JSX.Elem
         }}
       />
 
-      <div className='PaginationContainer'>  
+      <div className="PaginationContainer">
         <Pagination
           current={currentPage}
           pageSize={pageSize}

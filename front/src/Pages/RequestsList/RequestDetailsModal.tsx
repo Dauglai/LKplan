@@ -1,11 +1,11 @@
 import { List, Typography, Button, Space } from 'antd';
 import { Application, usePartialUpdateApplicationMutation } from 'Features/ApiSlices/applicationSlice';
 import { useState } from 'react';
-import EventSelector from 'Widgets/Selectors/EventSelector';
-import StatusAppSelector from 'Widgets/Selectors/StatusAppSelector';
-import ProjectSelector from 'Widgets/Selectors/ProjectSelector';
-import TeamSelector from 'Widgets/Selectors/TeamSelector';
-import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
+import EventSelector from 'Components/Selectors/EventSelector';
+import StatusAppSelector from 'Components/Selectors/StatusAppSelector';
+import ProjectSelector from 'Components/Selectors/ProjectSelector';
+import TeamSelector from 'Components/Selectors/TeamSelector';
+import DirectionSelector from 'Components/Selectors/DirectionSelector';
 const { Text } = Typography;
 
 interface RequestDetailsProps {

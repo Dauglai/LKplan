@@ -35,6 +35,7 @@ export default function TeamSelector({
       placeholder={label}
       style={{ width: '100%' }}
       optionFilterProp="children"
+      className="Selector"
       showSearch
     >
       {teams.map((team) => (

@@ -6,6 +6,17 @@ const { Text } = Typography;
 import 'Styles/pages/Auth.scss';
 import { useRegisterMutation } from 'Features/Auth/api/authApiSlice';
 
+/**
+ * Компонент для регистрации пользователя в системе.
+ * Содержит форму с полями для ввода e-mail, пароля и подтверждения пароля.
+ * При успешной регистрации отправляется письмо для подтверждения.
+ * 
+ * @component
+ * @example
+ * return (
+ *   <Auth />
+ * )
+ */
 export default function Auth(): JSX.Element {
   const [Auth, { isLoading }] = useRegisterMutation();
   const [form] = Form.useForm();
@@ -15,17 +26,35 @@ export default function Auth(): JSX.Element {
     document.title = 'Регистрация - MeetPoint';
   }, []);
 
+  /**
+   * Валидация пароля.
+   * Пароль должен содержать:
+   * - как минимум 8 символов
+   * - хотя бы одну строчную букву
+   * - хотя бы одну заглавную букву
+   * - хотя бы один специальный символ из набора [!#$%&()*+./:;=>?@[\]^`{|}~']
+   * 
+   * @param _ - Примерный параметр для типа
+   * @param value - Введённый пользователем пароль
+   * @returns Promise, который либо разрешается (если пароль валиден), либо отклоняется (если нет)
+   */
   const passwordValidator = (_: any, value: string) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*?№()]).{8,}$/;
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!#$%&()*+./:;=>?@[\]^`{|}~']).{8,}$/;
     if (!value) return Promise.reject('Введите пароль');
     if (!regex.test(value)) {
       return Promise.reject(
-        'Пароль должен содержать не менее 8 символов, одну строчную, одну заглавную букву и один спец. символ [!@#$%^&*?№()]'
+        "Пароль должен содержать не менее 8 символов, одну строчную, одну заглавную букву и один спец. символ"
       );
     }
     return Promise.resolve();
   };
 
+  /**
+   * Обработчик отправки формы регистрации.
+   * 
+   * @param values - Объект с данными формы (e-mail и пароль)
+   * @returns void
+   */
   const onFinish = async (values: { email: string; password: string }) => {
     try {
       await Auth({
@@ -39,12 +68,10 @@ export default function Auth(): JSX.Element {
       form.resetFields();
     } catch (error: any) {
       if (error?.data?.email) {
-        form.setFields([
-          {
-            name: 'email',
-            errors: ['Пользователь с таким email уже существует'],
-          },
-        ]);
+        form.setFields([{
+          name: 'email',
+          errors: ['Пользователь с таким email уже существует'],
+        }]);
       } else {
         message.error('Произошла ошибка. Попробуйте снова.');
       }
@@ -107,15 +134,17 @@ export default function Auth(): JSX.Element {
         {emailSent && (
           <div className="Auth-Form-EmailSent">
             <Text type="success">
-              На электронную почту <strong>{emailSent}</strong> отправлено письмо для подтверждения регистрации.
+              На электронную почту <strong>{emailSent}</strong> отправлено письмо для подтверждения регистрации. 
+              Если письма нет во входящих, пожалуйста, проверьте папку "Спам" — иногда оно может попасть туда.
             </Text>
           </div>
         )}
       </Form>
       <Link className="Auth-Link" to="/login">
-          У меня уже есть аккаунт
+        У меня уже есть аккаунт
       </Link>
     </main>
   );
 }
+
 

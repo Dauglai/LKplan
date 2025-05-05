@@ -6,10 +6,9 @@ import { useGetUsersQuery } from 'Features/ApiSlices/userSlice';
 import { Direction } from 'Features/ApiSlices/directionSlice';
 import { Link } from 'react-router-dom';
 import { getInitials } from "Features/utils/getInitials";
-import Modal from "Widgets/Modal/Modal";
 import ActionMenu from 'Components/Sections/ActionMenu';
 import ListTable from "Components/Sections/ListTable";
-import EditDirectionForm from 'Pages/DirectionForm/EditDirectionForm';
+import EditDirectionModal from 'Pages/DirectionForm/EditDirectionModal';
 
 interface DirectionsTableProps {
   directions: Direction[];
@@ -116,8 +115,6 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
         return projects?.filter((project) => project.directionSet.id === directionId) || [];
     };
 
-    console.log(users)
-
     // Генерация колонок для таблицы
   const columns = [
     {
@@ -189,7 +186,7 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
    * @returns {Array} Список действий для меню.
    */
   const actions = (direction: Direction) => [
-    {/* label: 'Редактировать', onClick: () => handleEdit(direction.id) */},
+    { label: 'Редактировать', onClick: () => handleEdit(direction.id) },
     { label: 'Удалить', onClick: () => handleDelete(direction.id) },
   ];
 
@@ -197,9 +194,10 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
     <>
       <ListTable data={directions} columns={columns} />
       {isModalOpen && (
-        <Modal isOpen={isModalOpen} onClose={closeModal}>
-          <EditDirectionForm direction={selectedDirection}/>
-        </Modal>
+          <EditDirectionModal 
+          direction={selectedDirection} 
+          isOpen={isModalOpen}
+          onClose={closeModal}/>
       )}
     </>
   );

@@ -7,7 +7,7 @@ import 'Styles/components/PageComponents/HeaderPanelStyle.scss';
 import Modal from "Widgets/Modal/Modal";
 import TeamForm from "./TeamForm";
 //import { PlannerPageOptions } from "Widgets/PageSwitcher/PlannerPageOptions";
-import BackButton from "Widgets/BackButton/BackButton";
+import BackButton from "Components/Common/BackButton/BackButton";
 
 interface TeamsHeaderProps {
     onSearch: (search: string) => void;

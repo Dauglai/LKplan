@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import './Notification.scss';
-import SuccessIcon from 'assets/icons/alert-circle.svg?react';
-import ErrorIcon from 'assets/icons/x-octagon.svg?react';
-import InfoIcon from 'assets/icons/check-circle.svg?react';
+import SuccessIcon from 'assets/icons/success.svg?react';
+import ErrorIcon from 'assets/icons/error.svg?react';
+import InfoIcon from 'assets/icons/alert-circle.svg?react';
+import CloseIcon from 'assets/icons/close-notification.svg?react'
 
 interface Notification {
   message: string;
@@ -39,24 +40,31 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
           <div className='img'>
             {notification.type === 'success' && 
               <SuccessIcon 
-                width="16px"
-                height="16px"
-                strokeWidth="1" />}
+                width="20px"
+                height="20px"
+                strokeWidth="2" />}
 
             {notification.type === 'error' && 
               <ErrorIcon 
-                width="16px"
-                height="16px"
-                strokeWidth="1" />}
+                width="20px"
+                height="20px"
+                strokeWidth="2" />}
 
             {notification.type === 'info' && 
               <InfoIcon 
-                width="16px"
-                height="16px"
-                strokeWidth="1" />}
+                width="20px"
+                height="20px"
+                strokeWidth="2" />}
             
           </div>
-          {notification.message}
+          <div className="message">{notification.message}</div>
+          <CloseIcon 
+            className="close-btn"
+            width="20px"
+            height="20px"
+            strokeWidth="2" 
+            onClick={() => setNotification(null)} 
+            aria-label="Закрыть"/>
         </div>
       )}
     </NotificationContext.Provider>

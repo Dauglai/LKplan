@@ -2,19 +2,26 @@
 @import 'Styles/variables';
 @import 'Styles/buttons';
 
+.SetupContainer {
+  display: flex;
+  position: relative;
+}
+
 .FormContainer {
     position: relative;
-    padding: 24px 32px;
+    padding: 24px 74px;
+    width: 830px;
     
     border-radius: $border-radius;
     background-color: $white;
-    box-sizing: border-box;
+    box-shadow: 0px 0px 11.5px 6px #A7A7A740;
+
 
     .FormHeader {
       display: flex;
       justify-content: start;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
 
       .ModalCloseButton {
         cursor: pointer;
@@ -28,9 +35,15 @@
         margin-bottom: 8px;
       }
 
-      p {
-        @include text1;
-        margin-bottom: 4px;
+      &.DatesFormStage {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        margin-bottom: 0;
+
+        .InputWrapper {
+          flex: 1;
+        }
       }
     }
 
@@ -55,7 +68,6 @@
   padding: 12px;
 
   border-radius: $border-radius;
-  border: 1px solid $grey;
 
   outline: none;
   box-shadow: none;
@@ -69,16 +81,13 @@
   &:focus-within {
     outline: none;
     box-shadow: none;
-    border: 1px solid $grey;
   }
 
   &:hover {
-    border-color:  $grey;
     box-shadow: none;
   }
 
   &::placeholder {
-    color: $black !important;
     opacity: 1;
   }
 
@@ -88,20 +97,20 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    width: 596px;
 
     .NameContainer {
       width: 100%;
 
       .Name {
         width: 100%;
+        padding: 12px;
         border-radius: $border-radius $border-radius 0 0;
         border-bottom: none;    
       }
 
       .Description {
         width: 100%;
-        min-height: 120px;
+        padding: 12px;
         display: block;
         resize: none;
         overflow: hidden;
@@ -147,6 +156,10 @@
       .primary-btn {
         @include primary-btn;
       }
+
+      .secondary-btn {
+        @include secondary-btn;
+      }
     }
 
     .InputWrapper {
@@ -154,9 +167,11 @@
         font-size: 0.75rem;
         font-weight: 400;
         line-height: 0.9375rem;
-        color: $black !important;
+        //color: $black !important;
         font-family: 'Montserrat', sans-serif;
         font-variant-numeric: lining-nums;
+      
+
       }
 
       position: relative;
@@ -193,12 +208,12 @@
               @include text2;
       
               background: none;
-              color: $black;
+              //color: $black;
               outline: none;
               position: relative;
 
               &::placeholder {
-                color: $black !important;
+                //color: $black !important;
                 opacity: 1;
               }
             }
@@ -209,7 +224,6 @@
 
 .DirectionList, .ProjectList {
   margin-top: 32px;
-  width: 596px;
 
   h3 {
     margin-bottom: 16px;
@@ -217,5 +231,28 @@
 
   .SelectedListItem {
     cursor: pointer;
+
+    &.editing {
+      background-color: #F0DDFF;
+    }
   }
+}
+
+.EditFormModal .ant-modal-content {
+  width: 600px;
+}
+
+.RequestFormContainer {
+  width: 360px;
+}
+
+:where(.ant-input-outlined.ant-input-disabled),
+:where(.ant-input-outlined[disabled]),
+:where(.css-dev-only-do-not-override-1ct5ng).ant-picker-outlined.ant-picker-disabled {
+  background-color: $white !important;
+}
+
+:where(.css-dev-only-do-not-override-1ct5ng).ant-picker .ant-picker-input >input[disabled] {
+  color: $black;
+  cursor: text;
 }

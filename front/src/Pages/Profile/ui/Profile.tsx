@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useGetUserQuery, useUpdateUserMutation } from 'Features/ApiSlices/userSlice';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 import { getInitials } from 'Features/utils/getInitials';
 
 

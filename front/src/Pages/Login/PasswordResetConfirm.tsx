@@ -17,11 +17,11 @@ export default function PasswordResetConfirm(): JSX.Element {
   }, []);
 
   const passwordValidator = (_: any, value: string) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*?№()]).{8,}$/;
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!#$%&()*+./:;=>?@[\]^`{|}~']).{8,}$/;
     if (!value) return Promise.reject('Введите пароль');
     if (!regex.test(value)) {
       return Promise.reject(
-        'Пароль должен содержать не менее 8 символов, одну строчную, одну заглавную букву и один спец. символ [!@#$%^&*?№()]'
+        "Пароль должен содержать не менее 8 символов, одну строчную, одну заглавную букву и один спец. символ [!#$%&()*+./:;=>?@\\[\\]^`{|}~']"
       );
     }
     return Promise.resolve();

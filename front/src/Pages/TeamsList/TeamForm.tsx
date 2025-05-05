@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import UsersSelector from 'Widgets/Selectors/UsersSelector';
-import ProjectSelector from 'Widgets/Selectors/ProjectSelector';
+import UsersSelector from 'Components/Selectors/UsersSelector';
+import ProjectSelector from 'Components/Selectors/ProjectSelector';
 import CloseIcon from 'assets/icons/close.svg?react';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
 import { Team, useCreateTeamMutation, useUpdateTeamMutation } from 'Features/ApiSlices/teamSlice';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 
 interface TeamFormProps {
   closeModal: () => void;

@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useGetDirectionsQuery, useDeleteDirectionMutation } from "Features/ApiSlices/directionSlice";
 import DirectionsListTable from "./DirectionsListTable";
 import 'Styles/components/Sections/ListTableStyles.scss';
-import { useNotification } from 'Widgets/Notification/Notification';
+import { useNotification } from 'Components/Common/Notification/Notification';
 import { filterItemsBySearch } from "Features/utils/searchUtils";
 import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
-import { CRMPageOptions } from "Widgets/PageSwitcher/CRMpageOptions.tsx";
+import { CRMPageOptions } from "Components/Sections/PageSwitcher/CRMpageOptions";
 import { useGetUserQuery } from "Features/ApiSlices/userSlice";
+import CreateDirectionModal from "Pages/DirectionForm/CreateDirectionModal";
 
 /**
  * Компонент для управления направлениями.
@@ -25,10 +26,14 @@ export default function DirectionsManagement(): JSX.Element {
   const [deleteDirection] = useDeleteDirectionMutation(); // Мутация для удаления направления.
   const { showNotification } = useNotification(); // Вызов уведомлений.
   const [search, setSearch] = useState(""); // Состояние строки поиска.
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     document.title = "Направления - MeetPoint"; // Устанавливаем заголовок страницы.
   }, []);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   /**
    * Обработчик изменения строки поиска.
@@ -60,8 +65,10 @@ export default function DirectionsManagement(): JSX.Element {
         onSearch={handleSearch}
         role={user.role}
         PageOptions={CRMPageOptions}
+        onAddClick={openModal}
       />
       <DirectionsListTable directions={filteredDirections} onDelete={handleDelete} />
+      <CreateDirectionModal isOpen={isModalOpen} onClose={closeModal} />
     </div>
   );
 }

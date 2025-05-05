@@ -1,5 +1,6 @@
 import { apiSlice  } from 'App/api/apiSlice.ts';
 import dayjs from 'dayjs';
+import { Application } from './applicationSlice';
 
 /**
  * Интерфейс для представления данных мероприятия.
@@ -14,6 +15,7 @@ export interface Event {
   end: string | null;         // Дата и время окончания мероприятия
   end_app: string | null;     // Дата и время окончания подачи заявок
   stage: string;              // Этап мероприятия
+  applications: Application[];
 }
 
 /**
@@ -58,7 +60,9 @@ const eventApi = apiSlice.injectEndpoints({
     createEvent: builder.mutation<Event, Omit<Event, 'event_id'>>({
       query: (newEvent) => {
         const formatDate = (value?: string | null) => {
-          const parsed = dayjs(value, 'DD.MM.YYYY', true); // Используем dayjs для парсинга и форматирования даты
+          if (!value) return null;
+        
+          const parsed = dayjs(value); // Убираем строгий формат
           return parsed.isValid() ? parsed.format('YYYY-MM-DD') : null;
         };
 

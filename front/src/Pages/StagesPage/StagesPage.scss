@@ -1,0 +1,139 @@
+@import 'Styles/buttons';
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.StagesContainer {
+    width: 1160px;
+
+    .FormHeader {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: end;
+
+        .primary-btn {
+            @include primary-btn;
+        }
+    }
+
+    .kanban-board {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        padding: 8px 0;
+      }
+      
+      .kanban-column {
+        min-width: 200px;
+        max-width: 250px;
+        border-radius: $border-radius;
+        display: flex;
+        flex-direction: column;
+        height: 300px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: box-shadow 0.2s ease;
+      
+        &.positive .kanban-column-header{
+          background-color: $green;
+        }
+      
+        &.negative .kanban-column-header{
+          background-color: $pink;
+        }
+      
+        &:hover {
+          box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+      }
+      
+      .kanban-column-header {
+        font-size: 16px;
+        padding: 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.4);
+        border-radius: $border-radius;
+        text-align: center;
+      }
+      
+      .kanban-column-body {
+        flex-grow: 1;
+        padding: 12px;
+        overflow-y: auto;
+      }
+      
+}
+
+.ModalFormContainer {
+    
+    .ModalTitle {
+        margin-bottom: 24px;
+    }
+    
+    .ModalFormItem {
+        margin-bottom: 16px;
+
+        .ModalFormField {
+            height: 32px;
+            padding: 12px;
+
+            &.ant-input, .ant-picker-input, .ant-picker  {
+                font-size: 0.75rem;
+                font-weight: 400;
+                line-height: 0.9375rem;
+                color: $black !important;
+                font-family: 'Montserrat', sans-serif;
+                font-variant-numeric: lining-nums;
+              }
+
+        }
+    }
+}
+
+
+.radio-group {
+    @include text2;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 0;
+
+    .ant-radio-wrapper {
+        flex: none;
+        margin: 0;
+    }
+
+    .radio-option {
+        padding: 4px;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+
+        // Скрываем сам input кружочек
+        .ant-radio {
+        display: none;
+        }
+
+        &.radio-positive {
+        background-color: $green;
+        border-radius: $border-radius 0 0 $border-radius;
+        }
+
+        &.radio-negative {
+        background-color: $pink;
+        border-radius: 0 $border-radius $border-radius 0;
+        }
+
+        // Обводка активного
+        &.ant-radio-wrapper-checked {
+        border-color: darken($green, 10%); 
+        }
+
+        &.radio-negative.ant-radio-wrapper-checked {
+        border-color: darken($pink, 10%);
+        }
+    }
+}

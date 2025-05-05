@@ -2,30 +2,36 @@
 @import 'Styles/variables';
 
 .Notification {
+  @include h4;
   position: fixed;
   display: flex;
   justify-content: start;
-  gap: 8px;
+  gap: 12px;
+  width: 348px;
   align-items: center;
   top: 20px;
   right: 20px;
-  padding: 10px 20px;
+  padding: 16px;
   border-radius: 5px;
   font-size: 16px;
-  color: $black;
+  color: $white;
   z-index: 2000;
   animation: fadeIn 0.3s ease-in-out, fadeOut 0.3s ease-in-out 2.7s;
 
   &-success {
-    background-color: $green;
+    background-color: #249000;
   }
 
   &-error {
-    background-color: $pink;
+    background-color: #FF8EB0;
   }
 
   &-info {
-    background-color: $blue;
+    background-color: #e6d735;
+  }
+
+  .close-btn {
+    cursor: pointer;
   }
 }
 

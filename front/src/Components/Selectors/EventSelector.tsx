@@ -5,7 +5,7 @@ import "Styles/FormSelectorStyle.scss";
 const { Option } = Select;
 
 interface EventSelectorProps {
-  selectedEvent?: Event | null;
+  selectedEvent?: Event | number | null;
   onChange: (event: Event) => void;
 }
 
@@ -23,9 +23,13 @@ export default function EventSelector({
     return <div>Мероприятия не найдены</div>;
   }
 
+  const selectedEventId = typeof selectedEvent === 'number' 
+    ? selectedEvent 
+    : selectedEvent?.event_id;
+
   return (
     <Select
-      value={selectedEvent?.event_id ?? undefined}
+      value={selectedEventId ?? undefined}
       onChange={(id) => {
         const selected = events.find((e) => e.event_id === id);
         if (selected) onChange(selected);

@@ -240,6 +240,7 @@ const Tasks = ({ team }: { team?: number }) => {
       team: task.team ? `${task.team.name}` : "Без команды",
       start: task.start, // ISO-строка
       end: task.end,
+      created_at: task.created_at,
       assignee: task.resp_user
       ? task.resp_user
       : null,
@@ -263,6 +264,7 @@ const Tasks = ({ team }: { team?: number }) => {
       project: projectId,
       name: newTask.name,
       description: newTask.description,
+      start: newTask.start,
       end: newTask.deadline,
       responsible_user: newTask.assignee,
       performers: newTask.performers,
@@ -833,6 +835,8 @@ const Tasks = ({ team }: { team?: number }) => {
         onClose={handleCloseModal}
         stages={projectData?.stages || []}
         assignees={assignees}
+        projectName={projectData?.name || ""}
+        teamName={projectData?.name || ""}
       />
     </div>
   );

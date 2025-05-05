@@ -55,10 +55,6 @@ const TaskChecklist = ({ taskId, assignees }) => {
   });
   const [addingItemForChecklistId, setAddingItemForChecklistId] = useState<number | null>(null);
 
-  const refetchAll = async () => {
-    await Promise.all([refetchCheckLists()]);
-  };
-
   const handleAddCheckList = async () => {
     try {
       await createCheckList({ taskId, data: { name: newCheckListTitle } }).unwrap();
@@ -86,7 +82,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
         itemId: itemId,
         data: { [field]: value },
       }).unwrap();
-      await Promise.all([refetchCheckLists()]); // 👈 обновляем только пункты
+      refetchCheckLists();
     } catch {
       message.error('Ошибка обновления пункта чек-листа');
     }
@@ -98,7 +94,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
         itemId: item.id,
         data: { is_completed: !item.is_completed },
       }).unwrap();
-      await Promise.all([refetchCheckLists()]);
+      refetchCheckLists();
     } catch {
       message.error('Ошибка обновления пункта чек-листа');
     }
@@ -119,7 +115,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
       }).unwrap();
       setNewItemValues({ description: '', responsible: null, datetime: null });
       setAddingItemForChecklistId(null);
-      await Promise.all([ refetchCheckLists()]);
+      refetchCheckLists();
     } catch {
       message.error('Ошибка при добавлении элемента');
     }
@@ -130,7 +126,7 @@ const TaskChecklist = ({ taskId, assignees }) => {
     try {
       await deleteCheckListItem(itemId).unwrap();
       message.success('Пункт удален');
-      await Promise.all([ refetchCheckLists()]);
+      refetchCheckLists();
     } catch {
       message.error('Ошибка удаления пункта');
     }

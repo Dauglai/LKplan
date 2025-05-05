@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useUpdateTaskMutation } from 'Features/ApiSlices/tasksApiSlice';
+import { useDeleteTaskMutation, useUpdateTaskMutation } from 'Features/ApiSlices/tasksApiSlice';
 import "./TaskCard.css";
 import {
   useGetCheckListsByTaskQuery,
@@ -28,14 +28,16 @@ import 'dayjs/locale/ru';
 import locale from 'antd/es/date-picker/locale/ru_RU';
 import ReactQuill from 'react-quill';
 import TaskDescriptionEditor from 'Pages/Tasks/TaskCard/TaskEditor.tsx';
+import PlanButton from '../../../Components/PlanButton/PlanButton.tsx';
 
 
 
 const { Option } = Select;
 
-const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
+const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectName="", teamName=""  }) => {
     const [formData, setFormData] = useState(selectedTask);
     const [updateTask] = useUpdateTaskMutation(); // API для обновления задачи
+    const [deleteTask] = useDeleteTaskMutation();
     const id = selectedTask?.key ? selectedTask.key : null;
     const [editingDeadline, setEditingDeadline] = useState(false);
     //const currentUserId = getCurrentUserId();
@@ -59,6 +61,30 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
       } catch (err) {
         console.error('Ошибка при добавлении задачи в стек:', err);
         message.error('Ошибка при добавлении задачи в стек');
+      }
+    };
+
+    const handleDeleteTask = async () => {
+      try {
+        await deleteTask(Number(formData.key)).unwrap();
+        message.success('Задача удалена');
+        setFormData(null);
+        onClose(); // закрываем модалку
+      } catch (error) {
+        console.error('Ошибка удаления задачи:', error);
+        message.error('Не удалось удалить задачу');
+      }
+    };
+
+    const handleCompleteTask = async () => {
+      try {
+        await updateTask({ id: Number(formData.key), data: { is_completed: true } }).unwrap();
+        message.success('Задача завершена');
+        setFormData((prev) => ({ ...prev, is_completed: true }));
+        onClose(); // закрываем модалку
+      } catch (error) {
+        console.error('Ошибка завершения задачи:', error);
+        message.error('Не удалось завершить задачу');
       }
     };
 
@@ -177,7 +203,7 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
       <Modal
         className="task-modal"
         title={
-          <div className="task-row-title ">
+          <div className="task-row-title">
             <div className="task-block">
               {editingField === 'name' ? (
                 <Input
@@ -194,12 +220,68 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
                   {formData?.name || 'Без названия'}
                 </div>
               )}
+              {formData && formData.stage === null ? (
+                <Button type="dashed" onClick={handleAddToStack}>
+                  Добавить в стек
+                </Button>
+              ) : (
+                <div className="stage-select-row">
+                  {stages.map((stage, index) => {
+                    const currentStageId = formData?.stage?.id;
+                    const activeIndex = stages.findIndex(
+                      (s) => s.id === currentStageId
+                    );
+                    const isActive = currentStageId === stage.id;
+                    const isBeforeActive = index < activeIndex;
+
+                    return (
+                      <div className="stage-item" key={stage.id}>
+                        <div className="stage-name">{stage.name}</div>
+                        <div
+                          className={`stage-line ${
+                            isActive
+                              ? 'active'
+                              : isBeforeActive
+                                ? 'before'
+                                : 'inactive'
+                          }`}
+                          style={{
+                            backgroundColor: isActive ? stage.color : '#DDDFE4',
+                          }}
+                          onClick={() => handleInputChange('stage', stage)}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
+            {projectName !== '' && (
+              <div className="task-meta">
+                <div className="team">{teamName}</div>
+                <div className="project">{projectName}</div>
+              </div>
+            )}
           </div>
         }
         visible={visible}
+        closable={false}
         onCancel={onClose}
-        footer={[]}
+        footer={
+          <div className="task-modal-footer">
+            {formData?.is_completed === true ? (
+              <div className="completed-label">
+                <span className="completed-text">Задача уже завершена</span>
+              </div>
+            ) : (
+              <PlanButton onClick={handleCompleteTask}>Завершить</PlanButton>
+            )}
+
+            <Button danger onClick={handleDeleteTask}>
+              Удалить
+            </Button>
+          </div>
+        }
       >
         {formData && (
           <div className="task-form-content">
@@ -208,6 +290,22 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
               onSave={(newDesc) => handleInputChange('description', newDesc)}
             />
             <div className="task-row">
+              <div className="task-col">
+                <label>Дата создания</label>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                  className="task-border"
+                >
+                  <span style={{ cursor: 'pointer', flex: 14 }}>
+                    {formData.created_at
+                      ? moment(formData.created_at).format('DD.MM.YYYY')
+                      : 'Без срока'}
+                  </span>
+                  <CalendarOutlined
+                    style={{ color: 'black', cursor: 'pointer', flex: 1 }}
+                  />
+                </div>
+              </div>
               {renderDateField('Дата начала', 'start')}
               {renderDateField('Дата окончания', 'end')}
             </div>
@@ -238,9 +336,12 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
                       style={{ width: '100%' }}
                       showSearch
                       filterOption={(input, option) => {
-                        const assignee = assignees.find((a) => a.user_id === option?.value);
+                        const assignee = assignees.find(
+                          (a) => a.user_id === option?.value
+                        );
                         if (!assignee) return false;
-                        const fullName = `${assignee.surname} ${assignee.name} ${assignee.patronymic}`.toLowerCase();
+                        const fullName =
+                          `${assignee.surname} ${assignee.name} ${assignee.patronymic}`.toLowerCase();
                         return fullName.includes(input.toLowerCase());
                       }}
                       onChange={(value) => {
@@ -255,8 +356,12 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
                     >
                       {assignees?.length > 0 ? (
                         assignees.map((assignee) => (
-                          <Option key={assignee.user_id} value={assignee.user_id}>
-                            {assignee.surname} {assignee.name} {assignee.patronymic}
+                          <Option
+                            key={assignee.user_id}
+                            value={assignee.user_id}
+                          >
+                            {assignee.surname} {assignee.name}{' '}
+                            {assignee.patronymic}
                           </Option>
                         ))
                       ) : (
@@ -289,9 +394,12 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
                       showSearch
                       optionFilterProp="children"
                       filterOption={(input, option) => {
-                        const assignee = assignees.find((a) => a.user_id === option?.value);
+                        const assignee = assignees.find(
+                          (a) => a.user_id === option?.value
+                        );
                         if (!assignee) return false;
-                        const fullName = `${assignee.surname} ${assignee.name} ${assignee.patronymic}`.toLowerCase();
+                        const fullName =
+                          `${assignee.surname} ${assignee.name} ${assignee.patronymic}`.toLowerCase();
                         return fullName.includes(input.toLowerCase());
                       }}
                       value={formData.performers}
@@ -304,8 +412,12 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
                     >
                       {assignees?.length > 0 ? (
                         assignees.map((assignee) => (
-                          <Option key={assignee.user_id} value={assignee.user_id}>
-                            {assignee.surname} {assignee.name[0]}. {assignee.patronymic[0]}.
+                          <Option
+                            key={assignee.user_id}
+                            value={assignee.user_id}
+                          >
+                            {assignee.surname} {assignee.name[0]}.{' '}
+                            {assignee.patronymic[0]}.
                           </Option>
                         ))
                       ) : (
@@ -332,31 +444,6 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages }) => {
                   )}
                 </div>
               </div>
-            </div>
-
-            <div className="task-block">
-              {formData.stage === null ? (
-                <Button type="dashed" onClick={handleAddToStack}>
-                  Добавить в стек
-                </Button>
-              ) : (
-                <Select
-                  value={formData.stage.id}
-                  style={{ width: '100%' }}
-                  onChange={(value) =>
-                    handleInputChange(
-                      'stage',
-                      stages.find((a) => a.id === value)
-                    )
-                  }
-                >
-                  {stages.map((s) => (
-                    <Option key={s.id} value={s.id}>
-                      {s.name}
-                    </Option>
-                  ))}
-                </Select>
-              )}
             </div>
 
             <div className="task-block">

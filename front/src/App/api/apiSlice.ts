@@ -70,7 +70,8 @@ export const apiSlice = createApi({
     'Team',
     'Meeting',
     'Result',
-    'Task'
+    'Task',
+    'UserRoles'
 
   ],
   endpoints: (builder) => ({}),

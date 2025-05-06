@@ -2,6 +2,7 @@ export interface TaskFormValues {
   name: string;
   description: string;
   status: number;
+  start: string;
   deadline: string;
   assignee: number;
   performers: number[];

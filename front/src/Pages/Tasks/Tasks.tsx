@@ -35,7 +35,8 @@ import moment from 'moment';
 import KanbanBoard from 'Pages/Tasks/KanbanBoard.tsx';
 import { getPageCount, getPagesArray } from '../../Components/Pagination/page.ts';
 import { skipToken } from '@reduxjs/toolkit/query';
-import { ViewModeButtons, ViewSwitchButtons } from '../../Components/NavButtons/ViewSwitchButtons.tsx';
+import { ViewModeButtons} from '../../Components/NavButtons/ViewSwitchButtons.tsx';
+import GanttPage from 'Pages/Tasks/Gant/GanttPage.tsx';
 
 
 interface Profile {
@@ -239,6 +240,7 @@ const Tasks = ({ team }: { team?: number }) => {
       team: task.team ? `${task.team.name}` : "Без команды",
       start: task.start, // ISO-строка
       end: task.end,
+      created_at: task.created_at,
       assignee: task.resp_user
       ? task.resp_user
       : null,
@@ -262,6 +264,7 @@ const Tasks = ({ team }: { team?: number }) => {
       project: projectId,
       name: newTask.name,
       description: newTask.description,
+      start: newTask.start,
       end: newTask.deadline,
       responsible_user: newTask.assignee,
       performers: newTask.performers,
@@ -795,18 +798,6 @@ const Tasks = ({ team }: { team?: number }) => {
           />
         </div>
       )}
-      {/*
-              {viewMode === 'kanban' && (
-        <KanbanBoard
-          stages={stages}
-          tasks={dataSource}
-          refetchTasks={refetch}
-          projectId={projectData.id}
-          assignees={assignees}
-        />
-      )}
-      {viewMode === 'gantt' && <div>Здесь будет Гант</div>}
-      */}
 
       <Modal
         title="Выберите родительскую задачу"
@@ -844,6 +835,8 @@ const Tasks = ({ team }: { team?: number }) => {
         onClose={handleCloseModal}
         stages={projectData?.stages || []}
         assignees={assignees}
+        projectName={projectData?.name || ""}
+        teamName={projectData?.name || ""}
       />
     </div>
   );

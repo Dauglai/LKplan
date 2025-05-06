@@ -8,6 +8,8 @@ import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice.ts';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice.ts';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
+import filterSettingsIcon from '/src/assets/icons/filter_settings.svg'
+import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice.ts';
 
 const TaskFilter = ({
                       filter,
@@ -19,13 +21,13 @@ const TaskFilter = ({
 
   const {data: directions = []} = useGetDirectionsQuery();
   const {data: teams = []} = useGetTeamsQuery();
-
+  const {data: projects = []} = useGetProjectsQuery();
     //useGetProjectTeamsQuery,
   const filterDropdown = (
     <div className="filter-dropdown">
       <Select
         placeholder="Направление"
-        value={filter.direction || undefined}
+        value={filter.direction || null}
         onChange={(value) => setFilter({ ...filter, direction: value })}
       >
         {directions.map((s) => (
@@ -37,10 +39,10 @@ const TaskFilter = ({
 
       <Select
         placeholder="Проект"
-        value={filter.project || undefined}
+        value={filter.project || null}
         onChange={(value) => setFilter({ ...filter, project: value })}
       >
-        {projectData.map((project) => (
+        {projects.map((project) => (
           <Option key={project.id} value={project.id}>
             {project.name}
           </Option>
@@ -49,7 +51,7 @@ const TaskFilter = ({
 
       <Select
         placeholder="Исполнитель"
-        value={filter.responsible_user || undefined}
+        value={filter.responsible_user || null}
         onChange={(value) => setFilter({ ...filter, responsible_user: value })}
       >
         {users.map((u) => (
@@ -61,7 +63,7 @@ const TaskFilter = ({
 
       <Select
         placeholder="Постановщик"
-        value={filter.author || undefined}
+        value={filter.author || null}
         onChange={(value) => setFilter({ ...filter, author: value })}
       >
         {users.map((u) => (
@@ -73,7 +75,7 @@ const TaskFilter = ({
 
       <Select
         placeholder="Статус"
-        value={filter.status || undefined}
+        value={filter.status || null}
         onChange={(value) => setFilter({ ...filter, status: value })}
       >
         {stages.map((stage) => (
@@ -85,7 +87,7 @@ const TaskFilter = ({
 
       <Select
         placeholder="Команда"
-        value={filter.team || undefined}
+        value={filter.team || null}
         onChange={(value) => setFilter({ ...filter, team: value })}
       >
         {teams.map((t) => (
@@ -153,7 +155,11 @@ const TaskFilter = ({
         </div>
 
         <Dropdown overlay={filterDropdown} trigger={['click']} placement="bottomRight">
-          <FilterOutlined className="task-filter-icon" />
+          <img
+            src={filterSettingsIcon}
+            alt="Настройка таблицы"
+            className="task-filter-icon"
+          />
         </Dropdown>
       </div>
     </div>

@@ -262,10 +262,10 @@ class ProjectAPICreate(generics.CreateAPIView):
 
         # Этапы по умолчанию
         default_stages = [
-            {"name": "Запланировано", "position": 1, "color": "Серый"},
-            {"name": "В работе", "position": 2, "color": "Жёлтый"},
-            {"name": "На проверке", "position": 3, "color": "Красный"},
-            {"name": "Завершено", "position": 4, "color": "Зелёный"},
+            {"name": "Запланировано", "position": 1, "color": "#AE4B88"},
+            {"name": "В работе", "position": 2, "color": "#4B56AE"},
+            {"name": "На проверке", "position": 3, "color": "#6BAE4B"},
+            {"name": "Сделано", "position": 4, "color": "#AE644B"},
         ]
 
         # Создаём стадии

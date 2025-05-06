@@ -36,17 +36,19 @@ class Result(models.Model):
 
 
 class Stage(models.Model):
+
     Color_CHOISES = (
-        ("Зелёный", "Зелёный"),
-        ("Жёлтый", "Жёлтый"),
-        ("Красный", "Красный"),
-        ("Серый", "Серый"),
+        ("#D9D9D9", "Серый"),
+        ("#AE4B88", "Розовый"),  # Сделано
+        ("#4B56AE", "Фиолетовый"),  # В работе
+        ("#6BAE4B", "Салатовый"),  # Запланировано
+        ("#AE644B", "Коричневый"),  # Неактивные
     )
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="stages")
     name = models.CharField(verbose_name="Название этапа", max_length=256)
     position = models.IntegerField(default=1)
-    color = models.CharField(verbose_name="Цвет", max_length=256, default="Серый", choices=Color_CHOISES )
+    color = models.CharField(verbose_name="Цвет", max_length=256, default="#D9D9D9", choices=Color_CHOISES )
 
     def __str__(self):
         return self.name
@@ -77,8 +79,10 @@ class Task(models.Model):
     responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
     performers = models.ManyToManyField(Profile, related_name="performers", verbose_name="Исполнители")
     creation = models.DateTimeField(auto_now_add=True)
-    start = models.DateTimeField(verbose_name="Дата создания", default=datetime.now())
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    start = models.DateTimeField(verbose_name="Дата создания", )
     end = models.DateTimeField(verbose_name="Время закрытия задачи")
+    is_completed = models.BooleanField(default=False, verbose_name="Задача завершена")
     parent_task = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,

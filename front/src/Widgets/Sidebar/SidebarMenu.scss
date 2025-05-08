@@ -59,18 +59,17 @@
             gap: 8px;
             align-items: center;
 
+            cursor: pointer;
+            transition: background-color 0.2s;
+                
+            &:hover {
+                background-color: #f0f0f0;
+            }
+
             &.SidebarSectionTitle {
                 margin-bottom: 6px;
             }
-
-            &:not(.SidebarSectionTitle) {
-                cursor: pointer;
-                transition: background-color 0.2s;
-    
-                &:hover {
-                    background-color: #f0f0f0;
-                }
-            }
+                
         }
     }
 }

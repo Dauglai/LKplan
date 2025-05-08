@@ -6,6 +6,7 @@ import { useGetUsersQuery } from 'Features/ApiSlices/userSlice';
 import { Direction } from 'Features/ApiSlices/directionSlice';
 import { Link } from 'react-router-dom';
 import { getInitials } from "Features/utils/getInitials";
+import { useUserRoles } from 'Features/context/UserRolesContext';
 import ActionMenu from 'Components/Sections/ActionMenu';
 import ListTable from "Components/Sections/ListTable";
 import EditDirectionModal from 'Pages/DirectionForm/EditDirectionModal';
@@ -36,6 +37,7 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
     const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
     const { data: projects, isLoading: isLoadingProjects } = useGetProjectsQuery();
     const { data: users, isLoading, error } = useGetUsersQuery();
+    const { hasPermission, getRoleForObject, hasRole } = useUserRoles();
 
     const [openMenu, setOpenMenu] = useState<number | null>(null);
     const [selectedDirection, setSelectedDirection] = useState<Direction | null>(null);
@@ -115,6 +117,27 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
         return projects?.filter((project) => project.directionSet.id === directionId) || [];
     };
 
+    /**
+     * Проверяет, может ли пользователь редактировать конкретное направление.
+     * 
+     * @param direction - Объект направления.
+     * @returns {boolean} - Возвращает true, если пользователь имеет доступ к редактированию.
+     */
+    const canEditDirection = (direction: Direction) => {
+      // Если пользователь - организатор, разрешение глобальное, доступ к всем направлениям
+      if (hasPermission('edit_direction') && hasRole('organizer')) {
+        return true;
+      }
+    
+      // Если пользователь - руководитель направления, проверяем доступ к конкретному объекту
+      if (hasPermission('edit_direction') && getRoleForObject('direction_leader', direction.id, 'crm.direction')) {
+        return true;
+      }
+    
+      // В остальных случаях возвращаем false
+      return false;
+    };
+
     // Генерация колонок для таблицы
   const columns = [
     {
@@ -170,15 +193,17 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
       ),
       text: 'Нажмите на проект из списка, чтобы узнать подробнее',
     },
-    {
+    hasPermission("edit_direction") && {
       header: '',
-      render: (direction: Direction) => (
-        <ActionMenu 
-          actions={actions(direction)} 
-          onClose={() => setOpenMenu(null)} />
-      ),
+      render: (direction: Direction) =>
+        canEditDirection(direction) && (
+          <ActionMenu 
+            actions={actions(direction)} 
+            onClose={() => setOpenMenu(null)} 
+          />
+        ),
     },
-  ];
+  ].filter(Boolean);
 
   /**
    * Генерация списка действий для каждой строки таблицы.

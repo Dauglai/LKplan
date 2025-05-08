@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Application, useGetApplicationsQuery } from "Features/ApiSlices/applicationSlice";
 import RequestsListTable from "./RequestsListTable";
 import 'Styles/components/Sections/ListTableStyles.scss';
-import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 import { ChangeStatusModal } from "Components/PageComponents/ChangeStatusModal";
 import { Button } from "antd";
 import BackButton from "Components/Common/BackButton/BackButton";
@@ -10,7 +9,6 @@ import UniversalInput from "Components/Common/UniversalInput";
 
 export default function RequestsManagement(): JSX.Element {
   const { data: requests = [], isLoading } = useGetApplicationsQuery();
-  const { data: user, isLoading: isUserLoading } = useGetUserQuery();
   const [selectedRequests, setSelectedRequests] = useState<Application[]>([]);
   const [isChangeStatusModalOpen, setIsChangeStatusModalOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -32,7 +30,7 @@ export default function RequestsManagement(): JSX.Element {
     return fullName.includes(search);
   });
 
-  if (isLoading || isUserLoading) return <div>Загрузка...</div>;
+  if (isLoading) return <div>Загрузка...</div>;
 
   return (
     <div className="RequestsContainer ListTableContainer">
@@ -62,7 +60,6 @@ export default function RequestsManagement(): JSX.Element {
 
       <RequestsListTable
         requests={filteredRequests}
-        role={user?.role}
         onSelectRequests={setSelectedRequests}
         onOpenStatusModal={openStatusModal}
       />

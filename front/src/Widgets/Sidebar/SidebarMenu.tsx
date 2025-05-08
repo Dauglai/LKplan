@@ -7,9 +7,10 @@ import CloseIcon from 'assets/icons/close.svg?react';
 import HomeIcon from 'assets/icons/home.svg?react';
 import UserIcon from 'assets/icons/user.svg?react';
 import TableIcon from 'assets/icons/table.svg?react';
-import BriefCaseIcon from 'assets/icons/briefcase.svg?react';
+import ListIcon from 'assets/icons/list.svg?react';
 import { User } from 'Features/ApiSlices/userSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
+import { useUserRoles } from 'Features/context/UserRolesContext';
 import { useGetApplicationsQuery, useGetUserApplicationsQuery } from 'Features/ApiSlices/applicationSlice.ts';
 import { Tag } from 'antd';
 
@@ -23,6 +24,7 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
   const navigate = useNavigate();
   const { data: teams } = useGetTeamsQuery();
   const { data: applications, isLoading } = useGetUserApplicationsQuery(user.user_id);
+  const { hasRole } = useUserRoles();
 
 
   const handleNavigation = (path: string) => {
@@ -55,19 +57,25 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
     };
   }) || [];
 
-  const adminMenu = [
+
+
+
+  const organizerMenu = [
     {
-      title: 'Управление',
-      icon: <BriefCaseIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
+      icon: <ListIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
         { label: 'Мероприятия', path: '/events' },
         { label: 'Направления', path: '/directions' },
         { label: 'Проекты', path: '/projects' },
+      ],
+    },
+    {
+      icon: <ListIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
+      items: [
         { label: 'Список заявок', path: '/requests' },
       ],
     },
     {
-      title: 'Планировщик',
       icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
         { label: 'Формирование команды', path: '/teams/create' },
@@ -77,26 +85,37 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
     ...dynamicEventSections,
   ];
 
-  const studentMenu = [
+  const directionLeaderMenu = [
     {
-      title: 'Мероприятия',
-      icon: <BriefCaseIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
+      icon: <ListIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
-        { label: 'Доступные мероприятия', path: '/events' },
+        { label: 'Мероприятия', path: '/events' },
+        { label: 'Направления', path: '/directions' },
+        { label: 'Проекты', path: '/projects' },
       ],
     },
+    ...dynamicEventSections,
+  ];
+
+  const projectantMenu = [
     {
-      title: 'Планировщик',
-      icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
+      icon: <ListIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
-        ...(userTeam ? [{ label: 'Моя команда', path: `/teams/${userTeam.id}` }] : []),
-        { label: 'Формирование команды', path: '/teams/create' },
+        { label: 'Доступные мероприятия', path: '/events' },
       ],
     },
     ...dynamicEventSections, //  вставляем мероприятия
   ];
 
-  const menu = user.role === 'Организатор' ? adminMenu : studentMenu;
+  let menu = [];
+
+  if (hasRole('organizer')) {
+    menu = organizerMenu;
+  } else if (hasRole('direction_leader')) {
+    menu = directionLeaderMenu;
+  } else if (hasRole('projectant')) {
+    menu = projectantMenu;
+  }
 
   return (
     <div className={`Sidebar ${isOpen ? 'open' : ''}`}>
@@ -123,14 +142,9 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
 
           {menu.map((section, index) => (
             <ul key={index} className="SidebarSection">
-              {section.title && (
-                <li className="SidebarSectionTitle">
-                  {section.icon}
-                  {section.title}
-                </li>
-              )}
               {section.items.map((item) => (
-                <li key={item.path} onClick={() => handleNavigation(item.path)}>
+                <li key={item.path} onClick={() => handleNavigation(item.path)} className="SidebarSectionTitle">
+                  {section.icon}
                   {item.label}
                 </li>
               ))}

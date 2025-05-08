@@ -6,6 +6,7 @@ import UserSelector from 'Components/Selectors/UserSelector';
 import EventSelector from 'Components/Selectors/EventSelector';
 import { Direction, useUpdateDirectionMutation } from 'Features/ApiSlices/directionSlice';
 import { Modal } from 'antd';
+import { useUserRoles } from 'Features/context/UserRolesContext';
 
 type EditDirectionModalProps = {
     direction?: Direction;
@@ -20,6 +21,7 @@ export default function EditDirectionModal({
 }: EditDirectionModalProps): JSX.Element {
   const { showNotification } = useNotification();
   const [updateDirection, { isLoading }] = useUpdateDirectionMutation();
+  const { hasRole } = useUserRoles();
 
   const [updatedDirection, setUpdatedDirection] = useState({
     ...direction,
@@ -75,10 +77,13 @@ export default function EditDirectionModal({
       destroyOnClose
     >
       <div className="Form DirectionForm">
-        <EventSelector
+        {hasRole('organizer') && (
+          <EventSelector
           selectedEvent={updatedDirection.event}
           onChange={handleEventChange}
-        />
+          />
+        )}
+        
 
         <div className="NameContainer">
           <NameInputField
@@ -97,11 +102,13 @@ export default function EditDirectionModal({
           />
         </div>
 
-        <UserSelector
-          selectedUserId={updatedDirection.leader}
-          onChange={handleCuratorChange}
-          label="Добавить руководителя"
-        />
+        {hasRole('organizer') && (
+          <UserSelector
+            selectedUserId={updatedDirection.leader}
+            onChange={handleCuratorChange}
+            label="Добавить руководителя"
+          />
+        )}
       </div>
     </Modal>
   );

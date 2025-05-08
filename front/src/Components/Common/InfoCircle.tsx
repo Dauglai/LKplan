@@ -17,7 +17,7 @@ export default function InfoCircle({ text }: { text: string }): JSX.Element {
   return (
     <Tooltip title={text} overlayClassName="CustomTooltip">
       <span className="InfoCircleContainer">
-        <InfoIcon width="16" height="16" strokeWidth="1" className="InfoCircleIcon" />
+        <InfoIcon width="16" height="16" strokeWidth="1" className="InfoCircleIcon"/>
       </span>
     </Tooltip>
   );

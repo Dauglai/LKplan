@@ -6,7 +6,6 @@ import { useNotification } from 'Components/Common/Notification/Notification';
 import { filterItemsBySearch } from "Features/utils/searchUtils";
 import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
 import { CRMPageOptions } from "Components/Sections/PageSwitcher/CRMpageOptions";
-import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 import CreateDirectionModal from "Pages/DirectionForm/CreateDirectionModal";
 
 /**
@@ -22,7 +21,6 @@ import CreateDirectionModal from "Pages/DirectionForm/CreateDirectionModal";
  */
 export default function DirectionsManagement(): JSX.Element {
   const { data: directions = [], isLoading } = useGetDirectionsQuery(); // Получение направлений с сервера.
-  const { data: user, isLoading: isUserLoading } = useGetUserQuery(); // Получение информации о текущем пользователе.
   const [deleteDirection] = useDeleteDirectionMutation(); // Мутация для удаления направления.
   const { showNotification } = useNotification(); // Вызов уведомлений.
   const [search, setSearch] = useState(""); // Состояние строки поиска.
@@ -56,16 +54,16 @@ export default function DirectionsManagement(): JSX.Element {
   // Фильтрация направлений по названию
   const filteredDirections = filterItemsBySearch(directions, search, "name");
 
-  if (isLoading || isUserLoading) return <div>Загрузка...</div>;  // Отображение индикатора загрузки, если данные еще не загружены.
+  if (isLoading) return <div>Загрузка...</div>;  // Отображение индикатора загрузки, если данные еще не загружены.
 
   return (
     <div className="DirectionsContainer ListTableContainer">
       <ListsHeaderPanel
         title="Направления"
         onSearch={handleSearch}
-        role={user.role}
         PageOptions={CRMPageOptions}
         onAddClick={openModal}
+        permission="create_direction"
       />
       <DirectionsListTable directions={filteredDirections} onDelete={handleDelete} />
       <CreateDirectionModal isOpen={isModalOpen} onClose={closeModal} />

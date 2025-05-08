@@ -19,6 +19,7 @@ interface UserRolesContextValue {
   ) => UserRole | undefined
   hasPermission: (permission: Permission,
     context?: { content_type?: string; object_id?: number}) => boolean
+  isLoading: boolean;
 }
 
 const UserRolesContext = createContext<UserRolesContextValue | null>(null)
@@ -124,7 +125,7 @@ export const UserRolesProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <UserRolesContext.Provider
-      value={{ roles, hasRole, getRolesByType, getRoleForObject, hasPermission }}
+      value={{ roles, hasRole, getRolesByType, getRoleForObject, hasPermission, isLoading: isRolesLoading}}
     >
       {children}
     </UserRolesContext.Provider>

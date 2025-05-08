@@ -2,8 +2,15 @@
 @import 'Styles/mixins';
 @import 'Styles/variables';
 
-.StagesContainer {
+.SetupContainer {
+  .StagesFormContainer {
     width: 1160px;
+    position: relative;
+    padding: 24px 74px;
+
+    border-radius: $border-radius;
+    background-color: $white;
+    box-shadow: 0px 0px 11.5px 6px #A7A7A740;
 
     .FormHeader {
         display: flex;
@@ -22,50 +29,52 @@
     }
 
     .kanban-board {
-        display: flex;
-        gap: 16px;
-        overflow-x: auto;
-        padding: 8px 0;
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 8px;
+      min-height: 300px;
+      align-items: stretch; // Колонки будут тянуться по высоте самой высокой
+    }
+    
+    .kanban-column {
+      min-width: 200px;
+      max-width: 250px;
+      border-radius: $border-radius;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.2s ease;
+      
+      &.positive .kanban-column-header {
+        background-color: $green;
       }
-      
-      .kanban-column {
-        min-width: 200px;
-        max-width: 250px;
-        border-radius: $border-radius;
-        display: flex;
-        flex-direction: column;
-        height: 300px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        transition: box-shadow 0.2s ease;
-      
-        &.positive .kanban-column-header{
-          background-color: $green;
-        }
-      
-        &.negative .kanban-column-header{
-          background-color: $pink;
-        }
-      
-        &:hover {
-          box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-        }
+    
+      &.negative .kanban-column-header {
+        background-color: $pink;
       }
-      
-      .kanban-column-header {
-        font-size: 16px;
-        padding: 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.4);
-        border-radius: $border-radius;
-        text-align: center;
+    
+      &:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
-      
-      .kanban-column-body {
-        flex-grow: 1;
-        padding: 12px;
-        overflow-y: auto;
-      }
+    }
+    
+    .kanban-column-header {
+      font-size: 16px;
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+      text-align: center;
+    }
+    
+    .kanban-column-body {
+      flex-grow: 1; // Растягиваем тело колонки по высоте
+      padding: 12px;
+      overflow-y: auto;
+    }
       
 }
+}
+
 
 .ModalFormContainer {
     

@@ -63,7 +63,7 @@ export default function StatusSettings(): JSX.Element {
   
 
   return (
-    <div className="FormContainer">
+    <div>
 
       {/* Кнопка для открытия модального окна */}
       <Button type="primary" onClick={showModal} style={{ marginBottom: 20 }}>

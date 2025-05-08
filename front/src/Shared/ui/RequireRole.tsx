@@ -35,7 +35,12 @@ export const RequireRole: React.FC<RequireRoleProps> = ({
   permissions = [], 
   fallback 
 }) => {
-  const { hasRole, hasPermission } = useUserRoles();
+  const { hasRole, hasPermission, isLoading } = useUserRoles();
+
+  // Пока данные о ролях и разрешениях загружаются, рендерим скелетон или пустой экран
+  if (isLoading) {
+    return null; // Либо можно вернуть лоадер, например <Loader />
+  }
 
   // Проверка ролей
   const roleCheck = allowedRoles.length ? allowedRoles.some(hasRole) : true;

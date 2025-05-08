@@ -92,8 +92,8 @@ export default function SetupProjectForm(): JSX.Element {
   };
 
   const handleNextStep = () => {
-    //navigate("/stages-setup")
-    navigate('/event-setup-save');
+    navigate("/stages-setup")
+    //navigate('/event-setup-save');
   };
 
   const handleRemoveProject = (id: string) => {

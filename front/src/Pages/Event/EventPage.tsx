@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
+import { useGetEventByIdQuery, useDeleteEventMutation  } from 'Features/ApiSlices/eventSlice';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
 //import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
@@ -9,8 +9,9 @@ import 'Styles/pages/EventPage.scss';
 import { List } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNotification } from 'Components/Common/Notification/Notification';
+import { useUserRoles } from 'Features/context/UserRolesContext';
 
-import { Collapse } from 'antd';
+import { Collapse, Button } from 'antd';
 import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
 import { Application, useCreateApplicationMutation } from 'Features/ApiSlices/applicationSlice';
 import RequestForm from 'Pages/Request/RequestForm';
@@ -25,6 +26,7 @@ export default function EventPage(): JSX.Element {
     const { data: user, isLoading: userLoading, error: userError } = useGetUserQuery();
     const { showNotification } = useNotification();
     const navigate = useNavigate();
+    const { hasPermission } = useUserRoles();
   
     const { data: event, isLoading: eventLoading, error: eventError } = useGetEventByIdQuery(eventId);
     const { data: directions, isLoading: directionsLoading, error: directionsError } = useGetDirectionsQuery();
@@ -32,6 +34,7 @@ export default function EventPage(): JSX.Element {
     const { data: teams, isLoading: teamsLoading, error: teamsError } = useGetTeamsQuery();
   
     const [createApplication, { isLoading: isSubmitting }] = useCreateApplicationMutation();
+    const [deleteEvent] = useDeleteEventMutation();
     const [localApplication, setLocalApplication] = useState<Application | null>(null);
   
     useEffect(() => {
@@ -61,6 +64,17 @@ export default function EventPage(): JSX.Element {
         showNotification(`Ошибка при отправке заявки: ${error.status} ${error.stage}`, 'error');
       }
     };
+
+    const handleDeleteEvent = async () => {
+      try {
+        await deleteEvent(eventId).unwrap();
+        showNotification('Мероприятие успешно удалено!', 'success');
+        navigate("/events");
+      } catch (error) {
+        console.error('Ошибка при удалении мероприятия:', error);
+        showNotification(`Ошибка при удалении мероприятия: ${error.status}`, 'error');
+      }
+    };
   
     if (eventLoading || directionsLoading || projectsLoading || userLoading || teamsLoading) {
       return <div>Загрузка...</div>;
@@ -72,9 +86,17 @@ export default function EventPage(): JSX.Element {
   
     return (
       <div className="EventInfoPage InfoPage">
-        <div className="EventInfoHeader InfoHeader">
-          <BackButton />
-          <h2>{event?.name}</h2>
+        <div className="EventInfoHeader ListsHeaderPanel HeaderPanel">
+          <div className="LeftHeaderPanel">
+            <BackButton />
+            <h2>{event?.name}</h2>
+          </div>
+          {hasPermission('edit_event') && (
+            <div className="RightHeaderPanel">
+              <Button onClick={() => navigate(`/event/${event.event_id}/edit`)}>Редактировать</Button>
+              <Button danger onClick={handleDeleteEvent}>Удалить</Button>
+            </div>
+          )}
         </div>
         <div className="EventContainer">
           <div className="EventInfo MainInfo">
@@ -110,7 +132,7 @@ export default function EventPage(): JSX.Element {
             </div>
           </div>
   
-          {user.role === "Практикант" && (
+          {hasPermission('submit_application') && (
             applicationToShow ? (
               <List
                 header={<h3>Вы уже подали заявку</h3>}

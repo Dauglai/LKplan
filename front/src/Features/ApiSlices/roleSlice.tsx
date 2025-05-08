@@ -1,5 +1,14 @@
 import { apiSlice} from 'App/api/apiSlice.ts';
 
+/**
+ * Интерфейс для работы с ролями пользователя
+ * @typedef {Object} UserRole
+ * @property {number} id - Уникальный идентификатор роли пользователя.
+ * @property {'admin' | 'organizer' | 'direction_leader' | 'curator' | 'projectant'} role_type - Тип роли.
+ * @property {string|null} content_type - Тип контента, к которому относится роль (или null).
+ * @property {number|null} object_id - Идентификатор объекта, к которому привязана роль (или null).
+ * @property {number} user - Идентификатор пользователя.
+ */
 export interface UserRole {
     id: number;
     role_type: 'admin' | 'organizer' | 'direction_leader' | 'curator' | 'projectant';
@@ -8,30 +17,66 @@ export interface UserRole {
     user: number;
 }
 
+
+/**
+ * Возможные разрешения пользователя при работе с сервисом.
+ */
 export type Permission = 
   | 'manage_roles'
   | 'edit_event'
   | 'edit_direction'
+  | 'edit_project'
   | 'submit_application'
-  | 'view_application_process'
+  | 'view_applications'
   | 'setup_notifications'
-  | 'edit_own_profile';
+  | 'create_event'
+  | 'create_direction'
+  | 'create_project';
 
+
+
+/**
+ * Карта соответствия ролей и их разрешений.
+ * @type {Record<UserRole['role_type'], Permission[]>}
+ */
 export const ROLE_PERMISSIONS: Record<UserRole['role_type'], Permission[]> = {
   admin: ['manage_roles'],
   organizer: [
     'edit_event',
-    'manage_roles',
-    'view_application_process',
+    'edit_direction',
+    'edit_project',
+    'view_applications',
     'setup_notifications',
+    'create_event',
+    'create_direction',
+    'create_project'
   ],
-  direction_leader: ['edit_direction', 'view_application_process'],
+  direction_leader: [
+    'edit_direction', 
+    'create_project', 
+    'edit_project'],
   curator: [],
-  projectant: ['submit_application', 'view_application_process', 'edit_own_profile'],
+  projectant: ['submit_application'],
 };
+
+
+/**
+ * API для взаимодействия с ролями пользователя через сервер
+ * 
+ * @typedef {Object} UserRolesResponse
+ * @property {number} count - Общее количество ролей.
+ * @property {string|null} next - URL следующей страницы (если есть).
+ * @property {string|null} previous - URL предыдущей страницы (если есть).
+ * @property {UserRole[]} results - Список ролей.
+ */
 
 export const roleApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    /**
+     * Запрос на получение ролей пользователей.
+     * 
+     * @returns {UserRole[]} Массив ролей пользователей.
+     */
     getUserRoles: builder.query<UserRole[], void>({
       query: () => ({
         url: '/api/role/',
@@ -42,42 +87,6 @@ export const roleApi = apiSlice.injectEndpoints({
     }),
   }),
 })
-
-export default function hasPermission(
-  roles: UserRole[],
-  permission: Permission,
-  context?: { content_type?: string; object_id?: number }
-): boolean {
-  return roles.some(role => {
-    const rolePerms = ROLE_PERMISSIONS[role.role_type];
-    if (!rolePerms?.includes(permission)) return false;
-
-    // Глобальная роль
-    if (!role.object_id) return true;
-
-    // Если передан контекст — проверяем соответствие
-    if (
-      context &&
-      role.content_type === context.content_type &&
-      role.object_id === context.object_id
-    ) {
-      return true;
-    }
-
-    return false;
-  });
-}
-
-export function useHasPermission(
-  permission: Permission,
-  context?: { content_type?: string; object_id?: number }
-): boolean {
-  const { data: roles, isLoading } = useGetUserRolesQuery()
-
-  if (isLoading || !roles) return false
-
-  return hasPermission(roles, permission, context)
-}
 
 export const { useGetUserRolesQuery } = roleApi
 

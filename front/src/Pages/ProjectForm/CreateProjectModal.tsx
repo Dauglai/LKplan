@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useCreateProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useNotification } from 'Components/Common/Notification/Notification'; 
 import NameInputField from 'Components/Forms/NameInputField';
@@ -6,6 +6,8 @@ import DescriptionInputField from 'Components/Forms/DescriptioninputField';
 import UserSelector from 'Components/Selectors/UserSelector';
 import { Modal } from 'antd';
 import DirectionSelector from 'Components/Selectors/DirectionSelector';
+import { useUserRoles } from 'Features/context/UserRolesContext';
+import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -15,12 +17,36 @@ interface CreateProjectModalProps {
 export default function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps): JSX.Element {
   const { showNotification } = useNotification();
   const [createProject, { isLoading }] = useCreateProjectMutation();
+  const { hasRole, getRoleForObject } = useUserRoles();
+  const { data: allDirections } = useGetDirectionsQuery();
 
   const [newProject, setNewProject] = useState({
     direction: 0,
     name: '',
     description: '',
   });
+
+  const filteredDirections = useMemo(() => {
+      if (!allDirections) {
+        return []; 
+      }
+      
+      if (hasRole('organizer')) {
+        return allDirections;
+      }
+
+  
+      if (hasRole('direction_leader')) {
+        return allDirections.filter((direction) => {
+          // Для каждого направления проверяем, есть ли роль руководителя для этого направления
+          const role = getRoleForObject('direction_leader', direction.id, 'crm.direction');
+  
+          return role; // если роль есть, это направление доступно
+        });
+      }
+  
+      return []; // Если роль не определена, возвращаем пустой список
+  }, [allDirections, hasRole, getRoleForObject]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -79,6 +105,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
         <DirectionSelector
             onChange={handleDirectionChange}
             sourceType='remote'
+            directions={filteredDirections}
         />
 
         <div className="NameContainer">

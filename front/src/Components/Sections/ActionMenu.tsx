@@ -6,7 +6,6 @@ import "Styles/components/Common/ActionMenuStyle.scss"
 interface ActionMenuProps {
   actions: { label: string, onClick: () => void, requiredRole?: string }[];
   onClose: () => void;
-  role?: string;
 }
 
 /**
@@ -35,16 +34,12 @@ interface ActionMenuProps {
  * @returns {JSX.Element} Компонент меню действий.
  */
 
-export default function ActionMenu({ actions, onClose, role }: ActionMenuProps): JSX.Element {
-    // Фильтруем действия по роли
-    const filteredActions = actions.filter(
-      (action) => !action.requiredRole || action.requiredRole === role
-    );
+export default function ActionMenu({ actions, onClose}: ActionMenuProps): JSX.Element {
   
     // Формируем элементы меню
     const menu = (
       <Menu onClick={onClose} className="ActionsMenu">
-        {filteredActions.map((action, index) => (
+        {actions.map((action, index) => (
           <Menu.Item key={index} onClick={action.onClick}>
             {action.label}
           </Menu.Item>

@@ -1,15 +1,14 @@
 import { Event } from "Features/ApiSlices/eventSlice";
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
+import { useUserRoles } from "Features/context/UserRolesContext";
 import { useNavigate, Link } from "react-router-dom";
 import { useDeleteEventMutation } from "Features/ApiSlices/eventSlice";
 import { useNotification } from 'Components/Common/Notification/Notification';
-import EventForm from "./EventForm/EventForm";
 import ActionMenu from "Components/Sections/ActionMenu";
 import ListTable from "Components/Sections/ListTable";
 
 interface EventsTableProps {
   events: Event[];
-  role: string;
 }
 
 /**
@@ -24,16 +23,16 @@ interface EventsTableProps {
  *
  * @param {Object} props - Пропсы компонента.
  * @param {Event[]} props.events - Список мероприятий для отображения.
- * @param {string} props.role - Роль пользователя (например, "Организатор" или "Практикант").
  *
  * @returns {JSX.Element} Компонент для отображения списка мероприятий.
  */
 
-export default function EventsListTable({ events, role }: EventsTableProps): JSX.Element {
+export default function EventsListTable({ events }: EventsTableProps): JSX.Element {
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState<number | null>(null); // Состояние для отслеживания открытого меню действий
   const [deleteEvent] = useDeleteEventMutation(); // Мутация для удаления мероприятия
   const { showNotification } = useNotification(); // Хук для отображения уведомлений
+  const { hasRole, hasPermission } = useUserRoles();
 
 
   const handleCloseMenu = () => setOpenMenu(null); // Закрывает открытое меню действий.
@@ -94,7 +93,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
       ),
       sortKey: 'end',
     },
-    role === "Организатор" && {
+    hasRole("organizer") && {
       header: 'Статус',
       render: (event: Event) => (
         <span className={`HiglightCell ${event.stage === 'Мероприятие завершено' ? 'HighlightGray' : ''}`}>
@@ -112,7 +111,7 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
         </button>
       )
     },*/
-    role === "Практикант" && {
+    {
       header: 'Список направлений',
       render: (event: Event) => (
         <ul>
@@ -124,13 +123,12 @@ export default function EventsListTable({ events, role }: EventsTableProps): JSX
         </ul>
       )
     },
-    {
+    hasPermission("edit_event") && {
       header: '',
       render: (event: Event) => (
         <ActionMenu 
           actions={actions(event)} 
           onClose={handleCloseMenu}
-          role={role}
         />
       )
     }

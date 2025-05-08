@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useGetEventsQuery } from "Features/ApiSlices/eventSlice";
-import { useGetUserQuery } from "Features/ApiSlices/userSlice";
+
 import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
 import EventsListTable from "./EventsListTable";
 import { CRMPageOptions } from "Components/Sections/PageSwitcher/CRMpageOptions";
@@ -20,7 +20,6 @@ import { normalizeSearchQuery, filterItemsBySearch } from "Features/utils/search
  */
 export default function EventsManagement(): JSX.Element {
   const { data: events = [], isLoading } = useGetEventsQuery(); // Получение списка мероприятий с сервера.
-  const { data: user, isLoading: isUserLoading } = useGetUserQuery(); // Получение информации о текущем пользователе.
   const [search, setSearch] = useState(""); // Состояние для хранения строки поиска.
 
 
@@ -46,7 +45,7 @@ export default function EventsManagement(): JSX.Element {
   const filteredEvents = filterItemsBySearch(events, search, "name");
 
    
-  if (isLoading || isUserLoading) return <div>Загрузка...</div>;  // Отображение индикатора загрузки, если данные еще не загружены.
+  if (isLoading) return <div>Загрузка...</div>;  // Отображение индикатора загрузки, если данные еще не загружены.
 
   return (
     <div className="EventsContainer ListTableContainer">
@@ -54,13 +53,13 @@ export default function EventsManagement(): JSX.Element {
       <ListsHeaderPanel
         title="Мероприятия"
         onSearch={handleSearch}
-        role={user.role}
         PageOptions={CRMPageOptions}
         link="/event-setup"
+        permission="create_event"
       />
 
       {/* Таблица с мероприятиями */}
-      <EventsListTable events={filteredEvents} role={user.role}/>
+      <EventsListTable events={filteredEvents}/>
     </div>
   );
 };

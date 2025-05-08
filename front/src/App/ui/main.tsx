@@ -2,6 +2,7 @@ import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { UserRolesProvider } from 'Features/context/UserRolesContext.tsx';
 
 import './index.css';
 
@@ -54,55 +55,56 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ConfigProvider theme={theme}>
       <Provider store={store}>
-        <NotificationProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route path="/" element={<App />}/>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/email-verified" element={<EmailVerifiedPage />} />
-                <Route path="/password-reset-request" element={<PasswordResetRequest />} />
-                <Route path="/password-reset/confirm" element={<PasswordResetConfirm />} />
-                <Route path="/" element={<RequireAuth />}>
+        <UserRolesProvider>
+          <NotificationProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  <Route path="/" element={<App />}/>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/email-verified" element={<EmailVerifiedPage />} />
+                  <Route path="/password-reset-request" element={<PasswordResetRequest />} />
+                  <Route path="/password-reset/confirm" element={<PasswordResetConfirm />} />
+                  <Route path="/" element={<RequireAuth />}>
 
-                {/* Доступ только админу */}
-                  <Route element={<RequireRole allowedRoles={['Организатор']} />}>
-                    <Route path="/requests" element={<RequestsManagement />} />
-                    <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
+                  {/* Доступ только организатору */}
+                    <Route element={<RequireRole allowedRoles={['organizer']} />}>
+                      <Route path="/requests" element={<RequestsManagement />} />
+                      <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
+                      <Route path="/event-setup" element={<EventForm />} />
+                      <Route path="/event/:id/edit" element={<EventForm />} />
+                      <Route path="/directions-setup" element={<SetupDirectionForm/>} />
+                      <Route path="/projects-setup" element={<ProjectForm />} />
+                      <Route path="/stages-setup" element={<StagesPage />} />
+                      <Route path="/event-setup-save" element={<EventSetupSummary />} />
+                    </Route>
 
-                    <Route path="/event-setup" element={<EventForm />} />
-                    <Route path="/event/:id/edit" element={<EventForm />} />
-                    <Route path="/directions-setup" element={<SetupDirectionForm/>} />
-                    <Route path="/projects-setup" element={<ProjectForm />} />
-                    <Route path="/stages-setup" element={<StagesPage />} />
-                    <Route path="/event-setup-save" element={<EventSetupSummary />} />
+                    {/* Доступ только практикантам */}
+                    <Route element={<RequireRole allowedRoles={['projectant']} />}>
+                    </Route>
+
+                    {/* Общие маршруты */}
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/profile/:id" element={<UsersProfilePage />} />
+                    <Route path="/events" element={<EventsManagement />} />
+                    <Route path="/directions" element={<DirectionsManagement />} />
+                    <Route path="/projects" element={<ProjectsManagement />} />
+                    <Route path="/event/:id" element={<EventPage />} />
+                    <Route path="/project/:id" element={<ProjectPage />} />
+                    <Route path="/teams" element={<TeamsManagement />} />
+                    <Route path="/teams/create" element={<TeamCreationPage />}/>
+                    <Route path="/teams/:teamId" element={<TeamPage />} />
+                    <Route path="/projects/:projectId/tasks" element={<Tasks />} />
+                    <Route path="/projects/:projectId/kanban" element={<KanbanPage />} />
+                    <Route path="/projects/:projectId/gantt" element={<GanttPage />} />
+
                   </Route>
-
-                  {/* Доступ только практикантам */}
-                  <Route element={<RequireRole allowedRoles={['Практикант']} />}>
-                  </Route>
-
-                  {/* Общие маршруты */}
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/profile/:id" element={<UsersProfilePage />} />
-                  <Route path="/events" element={<EventsManagement />} />
-                  <Route path="/directions" element={<DirectionsManagement />} />
-                  <Route path="/projects" element={<ProjectsManagement />} />
-                  <Route path="/event/:id" element={<EventPage />} />
-                  <Route path="/project/:id" element={<ProjectPage />} />
-                  <Route path="/teams" element={<TeamsManagement />} />
-                  <Route path="/teams/create" element={<TeamCreationPage />}/>
-                  <Route path="/teams/:teamId" element={<TeamPage />} />
-                  <Route path="/projects/:projectId/tasks" element={<Tasks />} />
-                  <Route path="/projects/:projectId/kanban" element={<KanbanPage />} />
-                  <Route path="/projects/:projectId/gantt" element={<GanttPage />} />
-
-                </Route>
-            </Route>
-            </Routes>
-          </BrowserRouter>
-        </NotificationProvider>
+              </Route>
+              </Routes>
+            </BrowserRouter>
+          </NotificationProvider>
+        </UserRolesProvider>
       </Provider>
     </ConfigProvider>
   </StrictMode>

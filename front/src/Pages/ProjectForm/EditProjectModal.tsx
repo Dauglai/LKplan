@@ -1,5 +1,5 @@
 import { Modal } from 'antd';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Project, useUpdateProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useNotification } from 'Components/Common/Notification/Notification'; 
 
@@ -7,6 +7,8 @@ import DirectionSelector from 'Components/Selectors/DirectionSelector';
 import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';
 import UserSelector from 'Components/Selectors/UserSelector';
+import { useUserRoles } from 'Features/context/UserRolesContext';
+import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 
 type EditProjectModalProps = {
   isOpen: boolean;
@@ -18,6 +20,8 @@ type EditProjectModalProps = {
 export default function EditProjectModal({ isOpen, onClose, project, onSuccess }: EditProjectModalProps): JSX.Element {
   const { showNotification } = useNotification();
   const [updateProject, { isLoading }] = useUpdateProjectMutation();
+  const { hasRole, getRoleForObject } = useUserRoles();
+  const { data: allDirections } = useGetDirectionsQuery();
 
   const [editedProject, setEditedProject] = useState({
     project_id: 0,
@@ -39,6 +43,29 @@ export default function EditProjectModal({ isOpen, onClose, project, onSuccess }
       });
     }
   }, [project]);
+
+  const filteredDirections = useMemo(() => {
+    if (hasRole('organizer')) {
+      // Если пользователь организатор, все направления доступны
+      return allDirections;
+    }
+
+    if (hasRole('direction_leader')) {
+      // Если пользователь руководитель направления, фильтруем доступные направления
+      return allDirections.filter((direction) => {
+        // Для каждого направления проверяем, есть ли роль руководителя для этого направления
+        const role = getRoleForObject(
+          'direction_leader', // тип роли — руководитель направления
+          direction.id, // ID направления
+          'crm.direction', // тип объекта — направление
+        );
+
+        return role; // если роль есть, это направление доступно
+      });
+    }
+
+    return []; // Если роль не определена, возвращаем пустой список
+  }, [allDirections, hasRole, getRoleForObject]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -69,7 +96,6 @@ export default function EditProjectModal({ isOpen, onClose, project, onSuccess }
   console.log(editedProject)
 
   const handleSubmit = async () => {
-    console.log(editedProject)
     if (!editedProject.name.trim() || !editedProject.direction) return;
 
     const payload = {
@@ -101,6 +127,7 @@ export default function EditProjectModal({ isOpen, onClose, project, onSuccess }
           onChange={handleDirectionChange}
           sourceType="remote"
           selectedDirection={editedProject.direction}
+          directions={filteredDirections}
         />
 
         <div className="NameContainer">

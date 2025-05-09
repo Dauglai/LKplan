@@ -3,7 +3,6 @@ import { useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
 import ProjectsListTable from "./ProjectsListTable";
 import 'Styles/components/Sections/ListTableStyles.scss';
 import ListsHeaderPanel from "Components/PageComponents/ListsHeaderPanel";
-import { useGetUserQuery } from "Features/ApiSlices/userSlice";
 import { CRMPageOptions } from 'Components/Sections/PageSwitcher/CRMpageOptions';
 import CreateProjectModal from "Pages/ProjectForm/CreateProjectModal";
 
@@ -23,7 +22,6 @@ import CreateProjectModal from "Pages/ProjectForm/CreateProjectModal";
 
 export default function ProjectsManagement(): JSX.Element {
   const { data: projects = [], isLoading } = useGetProjectsQuery(); // Получение списка проектов с сервера.
-  const { data: user, isLoading: isUserLoading } = useGetUserQuery(); // Получение информации о текущем пользователе.
   const [search, setSearch] = useState(""); // Состояние для хранения строки поиска.
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -60,13 +58,13 @@ export default function ProjectsManagement(): JSX.Element {
       <ListsHeaderPanel
         title="Проекты"
         onSearch={handleSearch}
-        role={user.role}
         PageOptions={CRMPageOptions}
         onAddClick={openModal}
+        permission="create_project"
       />
       
       {/* Таблица с проектами */}
-      <ProjectsListTable projects={filteredProjects} role={user.role}/>
+      <ProjectsListTable projects={filteredProjects}/>
       <CreateProjectModal isOpen={isModalOpen} onClose={closeModal} />
     </div>
   );

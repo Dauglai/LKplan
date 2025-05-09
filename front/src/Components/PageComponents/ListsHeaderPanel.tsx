@@ -5,14 +5,16 @@ import PageSwitcher, { PageOption } from "Components/Sections/PageSwitcher/PageS
 import BackButton from "Components/Common/BackButton/BackButton";
 import UniversalInput from "Components/Common/UniversalInput";
 import 'Styles/components/PageComponents/HeaderPanelStyle.scss';
+import { Permission } from "Features/ApiSlices/roleSlice";
+import { useUserRoles } from "Features/context/UserRolesContext";
 
 interface ListsHeaderProps {
   title: string;
   onSearch: (search: string) => void;
-  role?: string;
   PageOptions?: PageOption[];
   searchPlaceholder?: string;
   link?: string;
+  permission?: Permission;
   onAddClick?: () => void;
 }
 
@@ -26,32 +28,33 @@ interface ListsHeaderProps {
  * <ListsHeaderPanel 
  *   title="Список мероприятий"
  *   onSearch={handleSearch}
- *   role="Организатор"
  *   PageOptions={pageOptions}
+ *   permission="create_event"
  *   searchPlaceholder="Поиск по названию"
  * />
  *
  * @param {Object} props - Свойства компонента.
  * @param {string} props.title - Заголовок панели.
  * @param {Function} props.onSearch - Функция, которая вызывается при изменении значения в поисковом поле.
- * @param {string} [props.role] - Роль пользователя. Используется для отображения кнопки добавления только для организатора.
  * @param {PageOption[]} [props.PageOptions] - Опции для переключателя страниц.
  * @param {string} [props.searchPlaceholder="Поиск по названию"] - Текст, который будет отображаться в поле поиска.
  * @param {string} [props.link] - Ссылка, на которую будет происходить переход после нажатия кнопки Создать +.
+ * @param {UserRole['role_type'][]} [props.allowedRoles] - Роли, которым доступна кнопка добавления.
  * @returns {JSX.Element} Компонент заголовка списка с поиском и добавлением.
  */
 
 export default function ListsHeaderPanel({
     title,
     onSearch,
-    role,
     PageOptions,
     searchPlaceholder = "Поиск",
     link,
     onAddClick,
+    permission,
     }: ListsHeaderProps): JSX.Element {
     const [search, setSearch] = useState(""); // Локальное состояние строки поиска
     const navigate = useNavigate(); // Навигация по маршрутам
+    const { hasPermission } = useUserRoles();
 
     // Обработка поиска
     const handleSearch = (value: string) => {
@@ -68,19 +71,23 @@ export default function ListsHeaderPanel({
         }
     };
 
+    // Проверка доступа для отображения кнопки
+    const canSeeAddButton = permission ? hasPermission(permission) : true;
+
     return (
         <header className="ListsHeaderPanel HeaderPanel">
         <div className="LeftHeaderPanel">
             <BackButton />
             <h2 className="HeaderPanelTitle">{title}</h2>
-            {role === "Организатор" &&
+            {canSeeAddButton && (
                 <PlusIcon 
-                width="18" 
-                height="18" 
-                strokeWidth="1"
-                onClick={handleAddButtonClick}
-                className="AddButton lfp-btn"
-            />}
+                    width="18" 
+                    height="18" 
+                    strokeWidth="1"
+                    onClick={handleAddButtonClick}
+                    className="AddButton lfp-btn"
+                />
+            )}
         </div>
 
         <div className="RightHeaderPanel">

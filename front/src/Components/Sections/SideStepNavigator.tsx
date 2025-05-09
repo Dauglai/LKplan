@@ -5,6 +5,7 @@ const steps = [
   { title: 'Настройка Мероприятия', path: '/event-setup' },
   { title: 'Настройка Направлений', path: '/directions-setup' },
   { title: 'Настройка Проектов', path: '/projects-setup' },
+  { title: 'Настройка Статусов, Роботов и Триггеров', path: '/stages-setup' },
   { title: 'Выбранные настройки', path: '/event-setup-save' },
 ];
 

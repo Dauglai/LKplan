@@ -5,6 +5,7 @@ import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { Project, useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useNavigate, Link } from "react-router-dom";
+import { useUserRoles } from "Features/context/UserRolesContext";
 import { useNotification } from 'Components/Common/Notification/Notification';
 import ActionMenu from 'Components/Sections/ActionMenu';
 import ListTable from "Components/Sections/ListTable";
@@ -15,7 +16,7 @@ interface ProjectsTableProps {
   role: string;
 }
 
-export default function ProjectsListTable({ projects, role }: ProjectsTableProps): JSX.Element {
+export default function ProjectsListTable({ projects }: ProjectsTableProps): JSX.Element {
   const { data: directions, isLoading: isLoadingDirections } = useGetDirectionsQuery();
   const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
   const { data: teams, isLoading: isLoadingTeams } = useGetTeamsQuery();
@@ -25,7 +26,7 @@ export default function ProjectsListTable({ projects, role }: ProjectsTableProps
   const [deleteProject] = useDeleteProjectMutation();
   const { showNotification } = useNotification()
   const [openMenu, setOpenMenu] = useState<number | null>(null); 
-  const menuRef = useRef<HTMLUListElement | null>(null); 
+  const { hasRole, hasPermission, getRoleForObject } = useUserRoles();
 
   const handleCloseMenu = () => setOpenMenu(null); // Закрывает открытое меню действий.
 
@@ -66,6 +67,26 @@ export default function ProjectsListTable({ projects, role }: ProjectsTableProps
     const direction = directions?.find(direction => direction.id === directionId);
     const event = events?.find(event => event.event_id === direction?.event);
     return event ? event.event_id : '';
+  };
+
+  /**
+   * Проверяет, может ли пользователь редактировать конкретный проект.
+   * @param project - Объект проекта.
+   * @returns {boolean} - Возвращает true, если пользователь имеет доступ к редактированию проекта.
+   */
+  const canEditProject = (project: Project) => {
+    // Если пользователь - организатор, разрешение глобальное, доступ ко всем проектам
+    if (hasPermission('edit_project') && hasRole('organizer')) {
+      return true;
+    }
+
+    // Если пользователь - руководитель направления, проверяем доступ к направлению проекта
+    if (hasPermission('edit_project') && getRoleForObject('direction_leader', project.directionSet.id, 'crm.direction')) {
+      return true;
+    }
+
+    // В остальных случаях возвращаем false
+    return false;
   };
   
   // Колонки для таблицы
@@ -115,15 +136,15 @@ export default function ProjectsListTable({ projects, role }: ProjectsTableProps
         ),
         text: 'Нажмите на команду из списка, чтобы ознакомиться подробнее',
       },
-      {
+      hasPermission("edit_project") && {
         header: '',
-        render: (project: Project) => (
-          <ActionMenu 
-            actions={actions(project)} 
-            onClose={handleCloseMenu}
-            role={role}
-          />
-        )
+        render: (project: Project) =>
+          canEditProject(project) && (
+            <ActionMenu 
+              actions={actions(project)} 
+              onClose={handleCloseMenu} 
+            />
+          ),
       }
     ].filter(Boolean);
   

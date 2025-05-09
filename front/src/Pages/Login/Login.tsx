@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Form, Input, Button } from 'antd';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLoginMutation } from 'Features/Auth/api/authApiSlice';
@@ -12,6 +12,7 @@ export default function Auth(): JSX.Element {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const [errorMessage, setErrorMessage] = useState<string>(''); 
 
   useEffect(() => {
     document.title = 'Авторизация - MeetPoint';
@@ -21,16 +22,25 @@ export default function Auth(): JSX.Element {
 
   const onFinish = async (values: { Auth: string; password: string }) => {
     try {
+      // Пытаемся авторизоваться
       const userData = await Auth({
         username: values.Auth,
         password: values.password,
       }).unwrap();
-      dispatch(logOut());
-      dispatch(setCredentials(userData));
-      localStorage.setItem('user', JSON.stringify(userData));
-      navigate(from, { replace: true });
-    } catch (error) {
+      
+      dispatch(logOut()); // если логинимся, сначала логаутим (на всякий случай)
+      dispatch(setCredentials(userData)); // сохраняем данные пользователя
+      localStorage.setItem('user', JSON.stringify(userData)); // сохраняем в localStorage
+      navigate(from, { replace: true }); // редиректим пользователя на предыдущую страницу или на главную
+    } catch (error: any) {
       console.error('Ошибка авторизации', error);
+      
+      // Если ошибка с кодом 401, выводим ошибку "Неверные данные"
+      if (error.status === 401) {
+        setErrorMessage('Неверный логин или пароль. Пожалуйста, проверьте введенные данные.');
+      } else {
+        setErrorMessage('Произошла ошибка при авторизации. Попробуйте еще раз.');
+      }
     }
   };
 
@@ -64,6 +74,8 @@ export default function Auth(): JSX.Element {
         </Form.Item>
 
         <Link to="/password-reset-request" className="Auth-Form-Link">Восстановить пароль</Link>
+
+        {errorMessage && <div className="Auth-ErrorMessage">{errorMessage}</div>}
 
         <Form.Item className="Auth-Form-Item">
           <Button

@@ -6,11 +6,12 @@ import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import BackButton from "Components/Common/BackButton/BackButton";
 import { Button } from 'antd';
 import { getInitials } from "Features/utils/getInitials";
-//import 'Styles/pages/common/InfoPageStyle.scss';
+import 'Styles/pages/common/InfoPageStyle.scss';
 import { useEffect, useState } from 'react';
 import EditProjectModal from 'Pages/ProjectForm/EditProjectModal';
 import { useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
 import { useNotification } from 'Components/Common/Notification/Notification';
+import { useUserRoles } from 'Features/context/UserRolesContext';
 
 export default function ProjectPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +26,7 @@ export default function ProjectPage(): JSX.Element {
   });
   const { data: teams, isLoading: isTeamsLoading } = useGetTeamsQuery();
   const [deleteProject] = useDeleteProjectMutation();
+  const { hasRole, hasPermission, getRoleForObject } = useUserRoles();
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const handleDelete = async (id: number) => {
@@ -50,6 +52,22 @@ export default function ProjectPage(): JSX.Element {
   }
   const projectTeams = teams?.filter((team) => team.project === project.project_id) || [];
 
+  const canEditProject = () => {
+    console.log('Checking permissions for project:', project);
+    // Организатор может редактировать все проекты
+    if (hasPermission('edit_project') && hasRole('organizer')) {
+      return true;
+    }
+
+    // Руководитель направления может редактировать проект, если у него есть доступ к направлению
+    if (hasPermission('edit_project') && getRoleForObject('direction_leader', project?.directionSet.id, 'crm.direction')) {
+      return true;
+    }
+
+    // В остальных случаях - не может редактировать проект
+    return false;
+  };
+
   return (
     <div className="ProjectInfoPage InfoPage">
         <div className="ProjectInfoHeader ListsHeaderPanel HeaderPanel">
@@ -57,10 +75,12 @@ export default function ProjectPage(): JSX.Element {
             <BackButton />
             <h2>{project.name}</h2>
           </div>
-          <div className="RightHeaderPanel">
-            <Button onClick={() => setIsEditModalOpen(true)}>Редактировать</Button>
-            <Button danger onClick={() => handleDelete(project.project_id)}>Удалить</Button>
-          </div>
+          
+            {canEditProject() && (
+              <div className="RightHeaderPanel">
+                <Button onClick={() => setIsEditModalOpen(true)}>Редактировать</Button>
+                <Button danger onClick={() => handleDelete(project.project_id)}>Удалить</Button>
+              </div>)}
         </div>
 
 

@@ -77,7 +77,6 @@ export default function Profile(): JSX.Element {
       <h2 className="ProfileHeading">Личный кабинет</h2>
       <div className="ProfileFullName">
           <p>{user.surname} {user.name} {user.patronymic}</p>
-          <p className="ProfileRole">{user.role}</p>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="ProfileForm">
         <div className="Profile-Columns">

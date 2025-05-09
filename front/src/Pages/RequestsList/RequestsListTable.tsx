@@ -17,33 +17,18 @@ import dayjs from 'dayjs';
 
 interface RequestsListTableProps {
     requests: Application[];
-    role: string;
     onSelectRequests?: (request: Application[]) => void;
     onOpenStatusModal?: (requests: Application[]) => void;
 }
 
-export default function RequestsListTable({ requests, role, onSelectRequests, onOpenStatusModal}: RequestsListTableProps): JSX.Element {
-    const [openMenu, setOpenMenu] = useState<number | null>(null);
+export default function RequestsListTable({ requests, onSelectRequests, onOpenStatusModal}: RequestsListTableProps): JSX.Element {
     const { data: projects = []} = useGetProjectsQuery(); // Получение списка проектов с сервера.
     const { data: events = [] } = useGetEventsQuery();
     const { data: teams = [] } = useGetTeamsQuery();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState<Application | null>(null);
     const [deleteRequest] = useDeleteApplicationMutation();
-    const menuRef = useRef<HTMLUListElement | null>(null);
-    const navigate = useNavigate();
     const { showNotification } = useNotification();
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setOpenMenu(null);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     const enrichedRequests = useMemo(() => {
         return requests.map(request => {
@@ -70,7 +55,6 @@ export default function RequestsListTable({ requests, role, onSelectRequests, on
     const handleDelete = async (id: number) => {
         await deleteRequest(id);
         showNotification('Заявка удалена', 'success');
-        setOpenMenu(null);
     };
 
     const openModal = (request: Application) => {

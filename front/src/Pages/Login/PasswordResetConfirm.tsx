@@ -21,7 +21,7 @@ export default function PasswordResetConfirm(): JSX.Element {
     if (!value) return Promise.reject('Введите пароль');
     if (!regex.test(value)) {
       return Promise.reject(
-        "Пароль должен содержать не менее 8 символов, одну строчную, одну заглавную букву и один спец. символ [!#$%&()*+./:;=>?@\\[\\]^`{|}~']"
+        "Пароль должен содержать не менее 8 латинских символов, одну строчную, одну заглавную букву и один спец. символ [!#$%&()*+./:;=>?@\\[\\]^`{|}~']"
       );
     }
     return Promise.resolve();

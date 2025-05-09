@@ -114,4 +114,11 @@
       @include text1;
       align-self: center;
     }
+
+    &-ErrorMessage {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+    }
 }

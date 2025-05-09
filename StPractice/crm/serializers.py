@@ -219,11 +219,8 @@ class EventSerializer(serializers.ModelSerializer):
         model = Event
         fields = [
             "name",
-
             "specializations",
-
             "description",
-
             "stage",
             "start",
             "end",

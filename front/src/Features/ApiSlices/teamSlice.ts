@@ -41,7 +41,6 @@ const teamApi = apiSlice.injectEndpoints({
         body: newTeam,
         headers: {
           'Content-Type': 'application/json',
-
         },
         withCredentials: true,
       }),
@@ -66,7 +65,6 @@ const teamApi = apiSlice.injectEndpoints({
         body: data,
         headers: {
           'Content-Type': 'application/json',
-
         },
         withCredentials: true,
       }),

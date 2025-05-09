@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from 'antd';
 import './ViewSwitchButtons.scss';
+import PlanButton from '../PlanButton/PlanButton.tsx';
 
 interface ViewModeButtonsProps {
   activeMode: 'tasks' | 'gantt' | 'kanban';
@@ -13,25 +14,25 @@ export const ViewModeButtons: React.FC<ViewModeButtonsProps> = ({
                                                                 }) => {
   return (
     <div className="ViewModeButtons">
-      <Button
-        type={activeMode === 'tasks' ? 'primary' : 'default'}
+      <PlanButton
+        variant={activeMode === 'tasks' ? 'blue' : 'white'}
         onClick={() => onChange('tasks')}
       >
         Список
-      </Button>
-      <Button
-        type={activeMode === 'kanban' ? 'primary' : 'default'}
+      </PlanButton>
+      <PlanButton
+        variant={activeMode === 'kanban' ? 'blue' : 'white'}
         onClick={() => onChange('kanban')}
       >
         Канбан
-      </Button>
+      </PlanButton>
 
-      <Button
-        type={activeMode === 'gantt' ? 'primary' : 'default'}
+      <PlanButton
+        variant={activeMode === 'gantt' ? 'blue' : 'white'}
         onClick={() => onChange('gantt')}
       >
         Гант
-      </Button>
+      </PlanButton>
     </div>
   );
 };

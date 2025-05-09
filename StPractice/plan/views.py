@@ -215,29 +215,54 @@ class ChecklistItemAPIListCreate(generics.ListCreateAPIView):
 
         responsible = serializer.validated_data.get('responsible')
         description = serializer.validated_data.get('description')
-        datetime = serializer.validated_data.get('datetime')
+        date = serializer.validated_data.get('datetime')
         task = checklist.task
 
         # Сохраняем пункт чеклиста
-        checklist_item = serializer.save(checklist=checklist)
+
 
         # Если указан ответственный — создаем связанную подзадачу
         if responsible:
-            Task.objects.create(
+            task = Task.objects.create(
                 creator=self.request.user.profile,
                 name=description,
                 responsible_user=responsible,
-                end=datetime,
+                start=datetime.now(),
+                end=date,
                 parent_task=task,
                 project=task.project,
-                # checklist_item=checklist_item  # если нужна связь задачи с пунктом
             )
+            serializer.save(checklist=checklist, subtask=task)
+        else:
+            serializer.save(checklist=checklist)
 
 
 class ChecklistItemAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = ChecklistItem.objects.all()
     serializer_class = CheckListItemSerializer
     permission_classes = (IsAuthenticated,)
+
+    def perform_update(self, serializer):
+        instance = serializer.instance
+        responsible = self.request.data.get('responsible')
+        end = self.request.data.get('datetime')
+
+        # Обновление подзадачи, если она есть
+        if instance.subtask:
+            subtask = instance.subtask
+            if responsible:
+                subtask.responsible_user_id = responsible
+            if end:
+                subtask.end = end
+            subtask.save()
+
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # Удалить связанную подзадачу при удалении пункта
+        if instance.subtask:
+            instance.subtask.delete()
+        instance.delete()
 
 
 class ProjectAPIUpdate(generics.RetrieveUpdateDestroyAPIView):

@@ -301,7 +301,8 @@ const Tasks = ({ team }: { team?: number }) => {
       });
   };
 
-  const handleAddToStack = async (key: string) => {
+  const handleAddToStack = async (key: string, info: any) => {
+    info.domEvent.stopPropagation(); // чтобы не кликать по строке
     try {
       const firstStageId = stages[0].id;
       await updateTask({ id: Number(key), data: { status: firstStageId } }).unwrap();
@@ -311,6 +312,18 @@ const Tasks = ({ team }: { team?: number }) => {
     } catch (err) {
       console.error('Ошибка при добавлении задачи в стек:', err);
       message.error('Ошибка при добавлении задачи в стек');
+    }
+  };
+
+  const handleDeleteStack = async (key: string, info: any) => {
+    info.domEvent.stopPropagation(); // чтобы не кликать по строке
+    try {
+      await updateTask({ id: Number(key), data: { status: null } }).unwrap();
+
+      message.success('Задача удалена из стека');
+    } catch (err) {
+      console.error('Ошибка при удалении задачи в стек:', err);
+      message.error('Ошибка при удалении задачи в стек');
     }
   };
 
@@ -681,6 +694,20 @@ const Tasks = ({ team }: { team?: number }) => {
                     ? 'Удалить из подзадач'
                     : 'Сделать подзадачей'}
                 </Menu.Item>
+
+                <Menu.Item
+                  key="stack"
+                  onClick={(info) =>
+                    record.status
+                      ? handleDeleteStack(record.key, info)
+                      : handleAddToStack(record.key, info)
+                  }
+                >
+                  {record.status
+                    ? 'Удалить из стека'
+                    : 'Добавить в стек'}
+                </Menu.Item>
+
                 <Menu.Item
                   key="delete"
                   onClick={(info) => handleDeleteRow(record.key, info)}
@@ -836,7 +863,7 @@ const Tasks = ({ team }: { team?: number }) => {
         stages={projectData?.stages || []}
         assignees={assignees}
         projectName={projectData?.name || ""}
-        teamName={projectData?.name || ""}
+        teamId={teamId}
       />
     </div>
   );

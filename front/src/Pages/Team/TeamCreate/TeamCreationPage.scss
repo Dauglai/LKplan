@@ -26,12 +26,23 @@
     }
 
     .user-item {
+      display: flex;
+      align-items: center;
       padding: 8px 12px;
-      margin-bottom: 8px;
-      background: white;
-      border: 1px solid #ccc;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
       border-radius: 4px;
-      cursor: grab;
+      margin-bottom: 8px;
+
+      .user-drag-handle {
+        margin-right: 8px;
+        cursor: grab;
+        color: #888;
+      }
+
+      .user-name {
+        flex: 1;
+      }
     }
 
     input {
@@ -57,44 +68,5 @@
       padding: 10px 24px;
     }
   }
-
-  .user-item {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 8px;
-
-    .user-drag-handle {
-      margin-right: 8px;
-      cursor: grab;
-      color: #888;
-    }
-
-    .user-name {
-      flex: 1;
-    }
-  }
-
 }
-.user-item {
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 8px;
 
-  .user-drag-handle {
-    margin-right: 8px;
-    cursor: grab;
-    color: #888;
-  }
-
-  .user-name {
-    flex: 1;
-  }
-}

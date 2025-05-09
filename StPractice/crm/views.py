@@ -259,6 +259,7 @@ class DirectionAPIViews(viewsets.ModelViewSet):
 class ApplicationFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
     status = filters.CharFilter(field_name='status', lookup_expr='iexact')
+    event = filters.NumberFilter(field_name='event__id', lookup_expr='iexact')
     # deadline = filters.DateFilter(field_name='deadline')
     user = filters.NumberFilter(field_name='user__user_id')  # фильтр по автору
     created_after = filters.DateFilter(field_name='datetime', lookup_expr='gte')  # начальная дата
@@ -272,7 +273,7 @@ class ApplicationFilter(filters.FilterSet):
     class Meta:
         model = Application
         fields = ['name', 'status', 'created_after', 'created_before', "is_approved", "is_link", "project", "team",
-                  "specialization"]
+                  "specialization", 'event', 'user']
 
 
 class ApplicationAPIViews(viewsets.ModelViewSet):

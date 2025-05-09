@@ -94,6 +94,13 @@ const TaskChecklist = ({ taskId, assignees }) => {
         itemId: item.id,
         data: { is_completed: !item.is_completed },
       }).unwrap();
+
+      if (item.subtask && !item.is_completed) {
+        await updateTask({
+          taskId: item.subtask.id,
+          data: { is_completed: true }
+        });
+      }
       refetchCheckLists();
     } catch {
       message.error('Ошибка обновления пункта чек-листа');

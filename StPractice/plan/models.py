@@ -47,7 +47,7 @@ class Stage(models.Model):
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="stages")
     name = models.CharField(verbose_name="Название этапа", max_length=256)
-    position = models.IntegerField(default=1)
+    position = models.IntegerField(default=0)
     color = models.CharField(verbose_name="Цвет", max_length=256, default="#D9D9D9", choices=Color_CHOISES )
 
     def __str__(self):
@@ -78,8 +78,8 @@ class Task(models.Model):
     description = models.TextField(verbose_name="Описание", max_length=10000)
     responsible_user = models.ForeignKey(Profile, on_delete=models.CASCADE,  verbose_name="Ответственный")
     performers = models.ManyToManyField(Profile, related_name="performers", verbose_name="Исполнители")
-    creation = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    creation = models.DateTimeField(auto_now_add=True)
     start = models.DateTimeField(verbose_name="Дата создания", )
     end = models.DateTimeField(verbose_name="Время закрытия задачи")
     is_completed = models.BooleanField(default=False, verbose_name="Задача завершена")
@@ -107,6 +107,7 @@ class ChecklistItem(models.Model):
     checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE, related_name="items")
     description = models.CharField(verbose_name="Описание пункта", max_length=500)
     is_completed = models.BooleanField(verbose_name="Выполнено", default=False)
+    subtask = models.OneToOneField(Task, on_delete=models.CASCADE, related_name="subtask", null=True, blank=True)
     responsible = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True)
     datetime = models.DateTimeField(verbose_name="Дата и время", blank=True,null=True)
 

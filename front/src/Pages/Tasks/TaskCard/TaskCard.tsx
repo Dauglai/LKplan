@@ -8,7 +8,7 @@ import {
   Button,
   Checkbox,
   List,
-  message, Form, Progress, Card,
+  message, Form, Progress, Card, Tooltip,
 
 } from 'antd';
 import moment from 'moment';
@@ -29,15 +29,19 @@ import locale from 'antd/es/date-picker/locale/ru_RU';
 import ReactQuill from 'react-quill';
 import TaskDescriptionEditor from 'Pages/Tasks/TaskCard/TaskEditor.tsx';
 import PlanButton from '../../../Components/PlanButton/PlanButton.tsx';
+import { useGetProjectByIdQuery } from 'Features/ApiSlices/projectSlice.ts';
+import { useGetTeamByIdQuery } from 'Features/ApiSlices/teamSlice.ts';
 
 
 
 const { Option } = Select;
 
-const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectName="", teamName=""  }) => {
+const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectName="", teamId=0,}) => {
     const [formData, setFormData] = useState(selectedTask);
     const [updateTask] = useUpdateTaskMutation(); // API для обновления задачи
     const [deleteTask] = useDeleteTaskMutation();
+    const { data: teamData} = useGetTeamByIdQuery(teamId);
+
     const id = selectedTask?.key ? selectedTask.key : null;
     const [editingDeadline, setEditingDeadline] = useState(false);
     //const currentUserId = getCurrentUserId();
@@ -75,6 +79,11 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectNam
         message.error('Не удалось удалить задачу');
       }
     };
+
+    const areAllChecklistsCompleted = checkLists?.every((checklist) =>
+      checklist.checklistItems?.every((item) => item.is_completed)
+    );
+
 
     const handleCompleteTask = async () => {
       try {
@@ -203,8 +212,8 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectNam
       <Modal
         className="task-modal"
         title={
-          <div className="task-row-title">
-            <div className="task-block">
+          <div>
+            <div className="task-row-title">
               {editingField === 'name' ? (
                 <Input
                   value={editedValue}
@@ -220,6 +229,15 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectNam
                   {formData?.name || 'Без названия'}
                 </div>
               )}
+              {projectName !== '' && (
+                <div className="task-meta">
+                  <div className="team">Команда {teamData?.name}</div>
+                  <div className="project">Проект {projectName}</div>
+                </div>
+              )}
+            </div>
+
+            <div className="task-block">
               {formData && formData.stage === null ? (
                 <Button type="dashed" onClick={handleAddToStack}>
                   Добавить в стек
@@ -235,7 +253,11 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectNam
                     const isBeforeActive = index < activeIndex;
 
                     return (
-                      <div className="stage-item" key={stage.id}>
+                      <div
+                        className="stage-item"
+                        key={stage.id}
+                        onClick={() => handleInputChange('stage', stage)}
+                      >
                         <div className="stage-name">{stage.name}</div>
                         <div
                           className={`stage-line ${
@@ -248,7 +270,6 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectNam
                           style={{
                             backgroundColor: isActive ? stage.color : '#DDDFE4',
                           }}
-                          onClick={() => handleInputChange('stage', stage)}
                         />
                       </div>
                     );
@@ -256,12 +277,6 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectNam
                 </div>
               )}
             </div>
-            {projectName !== '' && (
-              <div className="task-meta">
-                <div className="team">{teamName}</div>
-                <div className="project">{projectName}</div>
-              </div>
-            )}
           </div>
         }
         visible={visible}
@@ -269,17 +284,48 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectNam
         onCancel={onClose}
         footer={
           <div className="task-modal-footer">
-            {formData?.is_completed === true ? (
-              <div className="completed-label">
-                <span className="completed-text">Задача уже завершена</span>
-              </div>
+            {formData?.is_completed ? (
+              <>
+                <div className="completed-label">
+                  <span className="completed-text">Задача уже завершена</span>
+                </div>
+                <PlanButton
+                  onClick={async () => {
+                    try {
+                      await updateTask({
+                        id: Number(formData.key),
+                        data: { is_completed: false },
+                      }).unwrap();
+                      message.success('Задача возвращена на доработку');
+                      setFormData((prev) => ({ ...prev, is_completed: false }));
+                    } catch {
+                      message.error('Ошибка возврата задачи');
+                    }
+                  }}
+                >
+                  Доработать
+                </PlanButton>
+              </>
             ) : (
-              <PlanButton onClick={handleCompleteTask}>Завершить</PlanButton>
+              <Tooltip
+                title={
+                  areAllChecklistsCompleted === false
+                    ? 'Завершение невозможно: не все пункты чек-листов выполнены'
+                    : ''
+                }
+              >
+                <PlanButton
+                  onClick={handleCompleteTask}
+                  disabled={!areAllChecklistsCompleted}
+                >
+                  Завершить
+                </PlanButton>
+              </Tooltip>
             )}
 
-            <Button danger onClick={handleDeleteTask}>
+            <PlanButton variant="white" onClick={handleDeleteTask}>
               Удалить
-            </Button>
+            </PlanButton>
           </div>
         }
       >
@@ -402,7 +448,7 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectNam
                           `${assignee.surname} ${assignee.name} ${assignee.patronymic}`.toLowerCase();
                         return fullName.includes(input.toLowerCase());
                       }}
-                      value={formData.performers}
+                      value={formData.performers ?? []}
                       onChange={(selectedIds) => {
                         handleInputChange('performers', selectedIds);
                         setIsEditingPerformers(false);
@@ -458,7 +504,7 @@ const TaskCard = ({selectedTask, visible, onClose, assignees, stages, projectNam
         )}
       </Modal>
     );
-  }
-;
+            }
+            ;
 
-export default TaskCard;
+            export default TaskCard;

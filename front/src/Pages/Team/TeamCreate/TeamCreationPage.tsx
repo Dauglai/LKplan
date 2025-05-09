@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import ProjectSelector from 'Widgets/Selectors/ProjectSelector';
-import DirectionSelector from 'Widgets/Selectors/DirectionSelector';
-import { useCreateTeamMutation, useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
+import { useCreateTeamMutation } from 'Features/ApiSlices/teamSlice';
 import './TeamCreationPage.scss';
 import {useGetApplicationsUsersQuery } from 'Features/ApiSlices/applicationSlice.ts';
-import { Input, Select } from 'antd';
+import { Button, Input, Select } from 'antd';
 import { useGetUsersQuery } from 'Features/ApiSlices/userSlice.ts';
 import PlanButton from '../../../Components/PlanButton/PlanButton.tsx';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice.ts';
 import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice.ts';
+import { useSearchParams } from 'react-router-dom';
 
 interface User {
   user_id: number;
@@ -27,59 +26,62 @@ export default function TeamCreationPage() {
   const [curator, setCurator] = useState<number | null>(null);
   const [chatLink, setChatLink] = useState('');
 
-  const { data: applications = [] } = useGetApplicationsUsersQuery({ is_approved: true });
+  const [searchParams] = useSearchParams();
+  const eventId = searchParams.get('event') ? Number(searchParams.get('event')) : null;
+
+  const { data: applications = [] } = useGetApplicationsUsersQuery({is_approved: true});
   const { data: users } = useGetUsersQuery();
   const { data: projects = [] } = useGetProjectsQuery();
-  const {data: directions = []} = useGetDirectionsQuery();
+  const { data: directions = []} = useGetDirectionsQuery();
   const [createTeam] = useCreateTeamMutation();
 
   useEffect(() => {
-    // application: { user: { user_id, surname, name, patronymic }, project, direction, team? }
-    const initial = applications
+    const users = applications
+      .filter(app => app.event.id === eventId && app.is_approved)
       .map(app => ({
         user_id: app.user.user_id,
         fullName: `${app.user.surname} ${app.user.name} ${app.user.patronymic}`,
         projectId: app.project,
-        directionId: app.direction,
+        directionId: app.direction.id,
         team: app.team || null
-      }))
-      // только те, кто без команды в этом проекте
-      .filter(u => u.team === null || u.projectId !== projectId);
-    setAvailableUsers(initial);
-  }, [applications, projectId]);
+      }));
+
+    setAvailableUsers(users);
+  }, [applications, eventId]);
+
 
   const [search, setSearch] = useState('');
 
-  const filteredUsers = availableUsers.filter((user) => {
-    const matchesDirection = !directionId || user.directionId === directionId;
-    const matchesProject = !projectId || user.projectId === projectId;
-    const matchesSearch = user.fullName.toLowerCase().includes(search.toLowerCase());
-    return matchesDirection && matchesProject && matchesSearch;
-  });
-
-  const onDragEnd = (result: any) => {
-    const { source, destination } = result;
-    if (!destination) return;
-
-    const sourceList = source.droppableId === 'available' ? availableUsers : teamUsers;
-    const destList = destination.droppableId === 'team' ? teamUsers : availableUsers;
-
-    const [moved] = sourceList.splice(source.index, 1);
-
-    if (source.droppableId === 'available') {
-      setAvailableUsers(sourceList);
-      setTeamUsers([...teamUsers, moved]);
-    } else {
-      setTeamUsers(sourceList);
-      setAvailableUsers([...availableUsers, moved]);
-    }
+  const handleDirectionChange = (id: number | null) => {
+    setDirectionId(id);
+    setProjectId(null); // сброс проекта
   };
+
+
+  const filteredProjects = directionId
+    ? projects.filter((p) => p.directionSet.id === directionId)
+    : projects;
+
+
+  const filteredUsers = Array.from(
+    new Map(
+      availableUsers
+        .filter((user) => {
+          const matchesDirection = !directionId || user.directionId === directionId;
+          const matchesProject = !projectId || user.projectId === projectId;
+          const matchesSearch = user.fullName.toLowerCase().includes(search.toLowerCase());
+          return matchesDirection && matchesProject && matchesSearch;
+        })
+        .map(user => [user.user_id, user]) // убираем дубликаты по user_id
+    ).values()
+  );
+
 
   const handleCreate = async () => {
     try {
       await createTeam({
         name: teamName,
-        curator,
+        curator: curator,
         chat: chatLink,
         students: teamUsers.map((u) => u.user_id),
         project: projectId,
@@ -102,18 +104,29 @@ export default function TeamCreationPage() {
 
   return (
     <div className="TeamCreationPage">
-      <div className="selectors" style={{ display: 'flex', gap: '16px', marginBottom: 16 }}>
+      <div
+        className="selectors"
+        style={{ display: 'flex', gap: '16px', marginBottom: 16 }}
+      >
         <Select
+          allowClear
           style={{ flex: 1 }}
           placeholder="Выберите направление"
-          onChange={setDirectionId}
+          onChange={handleDirectionChange}
+          value={directionId}
           options={directions.map((d) => ({ label: d.name, value: d.id }))}
         />
         <Select
+          allowClear
           style={{ flex: 1 }}
           placeholder="Выберите проект"
           onChange={setProjectId}
-          options={projects.map((p) => ({ label: p.name, value: p.id }))}
+          value={projectId}
+          disabled={!directionId}
+          options={filteredProjects.map((p) => ({
+            label: p.name,
+            value: p.id,
+          }))}
         />
       </div>
 
@@ -122,10 +135,20 @@ export default function TeamCreationPage() {
           const { source, destination } = result;
           if (!destination) return;
 
-          if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+          if (
+            source.droppableId === destination.droppableId &&
+            source.index === destination.index
+          )
+            return;
 
-          const sourceList = source.droppableId === 'available' ? [...availableUsers] : [...teamUsers];
-          const destList = destination.droppableId === 'available' ? [...availableUsers] : [...teamUsers];
+          const sourceList =
+            source.droppableId === 'available'
+              ? [...availableUsers]
+              : [...teamUsers];
+          const destList =
+            destination.droppableId === 'available'
+              ? [...availableUsers]
+              : [...teamUsers];
 
           const [moved] = sourceList.splice(source.index, 1);
 
@@ -144,10 +167,17 @@ export default function TeamCreationPage() {
           }
         }}
       >
-        <div className="drag-container" style={{ display: 'flex', gap: '24px' }}>
+        <div
+          className="drag-container"
+          style={{ display: 'flex', gap: '24px' }}
+        >
           <Droppable droppableId="available">
             {(provided) => (
-              <div className="user-list" ref={provided.innerRef} {...provided.droppableProps}>
+              <div
+                className="user-list"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
                 <h3>Доступные участники</h3>
                 <Input
                   placeholder="Поиск по участникам"
@@ -156,15 +186,25 @@ export default function TeamCreationPage() {
                   style={{ marginBottom: '16px', maxWidth: 500 }}
                 />
                 {filteredUsers.map((user, index) => (
-                  <Draggable key={`user-${user.user_id}`} draggableId={`user-${user.user_id}`} index={index}>
+                  <Draggable
+                    key={`user-${user.user_id}`}
+                    draggableId={`user-${user.user_id}`}
+                    index={index}
+                  >
                     {(provided) => (
                       <div
                         className="user-item"
                         ref={provided.innerRef}
                         {...provided.draggableProps}
+                        {...provided.dragHandleProps}
                       >
-                        <span className="user-drag-handle" {...provided.dragHandleProps}>⇅</span>
-                        <span className="user-name">{user.fullName}</span>
+                        {/* <span className="user-drag-handle" {...provided.dragHandleProps}>⇅</span> */}
+                        <div
+                          className="user-drag-handle"
+                          {...provided.dragHandleProps}
+                        >
+                          <span className="user-name">{user.fullName}</span>
+                        </div>
                       </div>
                     )}
                   </Draggable>
@@ -176,7 +216,11 @@ export default function TeamCreationPage() {
 
           <Droppable droppableId="team">
             {(provided) => (
-              <div className="team-form" ref={provided.innerRef} {...provided.droppableProps}>
+              <div
+                className="team-form"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
                 <h3>Формирование команды</h3>
                 <Input
                   placeholder="Название команды"
@@ -191,7 +235,9 @@ export default function TeamCreationPage() {
                   value={curator ?? undefined}
                   onChange={(id) => setCurator(id)}
                   filterOption={(input, option) =>
-                    (option?.children as string).toLowerCase().includes(input.toLowerCase())
+                    (option?.children as string)
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
                   }
                 >
                   {users?.map((u) => (
@@ -208,27 +254,25 @@ export default function TeamCreationPage() {
                   style={{ marginBottom: 12 }}
                 />
 
-                <Select
-                  style={{ width: '100%', marginBottom: 12 }}
-                  mode="multiple"
-                  placeholder="Добавьте исполнителей">
-                  {users?.map((a) => (
-                    <Option key={a.user_id} value={a.user_id}>
-                      {a.surname} {a.name} {a.patronymic}
-                    </Option>
-                  ))}
-                </Select>
-
                 <div className="team-users">
                   {teamUsers.map((user, index) => (
-                    <Draggable key={`user-${user.user_id}`} draggableId={`user-${user.user_id}`} index={index}>
+                    <Draggable
+                      key={`user-${user.user_id}`}
+                      draggableId={`user-${user.user_id}`}
+                      index={index}
+                    >
                       {(provided) => (
                         <div
                           className="user-item"
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                         >
-                          <span className="user-drag-handle" {...provided.dragHandleProps}>⇅</span>
+                          <span
+                            className="user-drag-handle"
+                            {...provided.dragHandleProps}
+                          >
+                            ⇅
+                          </span>
                           <span className="user-name">{user.fullName}</span>
                         </div>
                       )}
@@ -244,7 +288,12 @@ export default function TeamCreationPage() {
 
       <div className="actions">
         <PlanButton onClick={handleCreate}>Создать</PlanButton>
-        <PlanButton className="secondary-btn" onClick={() => window.location.reload()}>Отмена</PlanButton>
+        <PlanButton
+          variant="grey"
+          onClick={() => window.location.reload()}
+        >
+          Отмена
+        </PlanButton>
       </div>
     </div>
   );

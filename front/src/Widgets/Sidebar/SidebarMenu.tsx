@@ -12,6 +12,7 @@ import { User } from 'Features/ApiSlices/userSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
 import { useGetApplicationsQuery, useGetUserApplicationsQuery } from 'Features/ApiSlices/applicationSlice.ts';
 import { Tag } from 'antd';
+import { useGetEventByIdQuery, useGetEventsQuery } from 'Features/ApiSlices/eventSlice.ts';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -22,7 +23,8 @@ interface SidebarProps {
 export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JSX.Element {
   const navigate = useNavigate();
   const { data: teams } = useGetTeamsQuery();
-  const { data: applications, isLoading } = useGetUserApplicationsQuery(user.user_id);
+  const { data: applications} = useGetUserApplicationsQuery(user.user_id);
+  const { data: events} = useGetEventsQuery();
 
 
   const handleNavigation = (path: string) => {
@@ -47,6 +49,7 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       ),
       items: [
         ...(myTeam ? [{ label: 'Моя команда', path: `/teams/${myTeam.id}` }] : []),
+        { label: 'Формирование команды', path: `/teams/create?event=${application.event.id}` },
         { label: 'Список задач', path: `/projects/${application.project}/tasks?team=${myTeam?.id ?? ''}` },
         { label: 'Канбан доска', path: `/projects/${application.project}/kanban?team=${myTeam?.id ?? ''}` },
         { label: 'Диаграмма Ганта', path: `/projects/${application.project}/gantt?team=${myTeam?.id ?? ''}` }
@@ -54,6 +57,20 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       ],
     };
   }) || [];
+
+  const dynamicEventSectionsAdmin = (events || []).map((event) => ({
+    title: event.name,
+    icon: (
+      <Tag color="#d9d9d9" style={{ marginRight: 8 }}>{`M${event.event_id}`}</Tag>
+    ),
+    items: [
+      { label: 'Формирование команды', path: `/teams/create?event=${event?.event_id ?? ''}` },
+      { label: 'Список задач', path: `/projects/tasks?team=${event?.event_id ?? ''}` },
+      { label: 'Канбан доска', path: `/projects/kanban?event=${event?.event_id ?? ''}` },
+      { label: 'Диаграмма Ганта', path: `/projects/gantt` }
+    ],
+  })) || [];
+
 
   const adminMenu = [
     {
@@ -70,11 +87,11 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       title: 'Планировщик',
       icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
-        { label: 'Формирование команды', path: '/teams/create' },
+        //{ label: 'Формирование команды', path: `/teams/create` },
        // { label: 'Команды', path: '/teams' },
       ],
     },
-    ...dynamicEventSections,
+    ...dynamicEventSectionsAdmin,
   ];
 
   const studentMenu = [
@@ -90,7 +107,6 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
       icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
         ...(userTeam ? [{ label: 'Моя команда', path: `/teams/${userTeam.id}` }] : []),
-        { label: 'Формирование команды', path: '/teams/create' },
       ],
     },
     ...dynamicEventSections, //  вставляем мероприятия

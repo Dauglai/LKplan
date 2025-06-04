@@ -17,6 +17,7 @@ export interface Application {
   team: Team | null;
   message: string | null;
   date_sub: Date;
+  date_end: Date;
   status: StatusApp;
   is_link: boolean;
   is_approved: boolean;

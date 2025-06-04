@@ -40,10 +40,10 @@ const statusAppApi = apiSlice.injectEndpoints({
       invalidatesTags: ['StatusApp'],
     }),
     updateStatusApp: builder.mutation<StatusApp, { id: number; data: Omit<StatusApp, 'id'> }>({
-      query: ({ id, ...data }) => ({  // Обновляем статус заявки
-        url: `/api/status_app/${id}/`,
+      query: (status) => ({  // Обновляем статус заявки
+        url: `/api/status_app/${status.id}/`,
         method: 'PUT',
-        body: data, 
+        body: status, 
         headers: {
           'Content-Type': 'application/json',
 

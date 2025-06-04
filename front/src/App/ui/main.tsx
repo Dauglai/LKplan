@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { UserRolesProvider } from 'Features/context/UserRolesContext.tsx';
+//import 'react-app-polyfill/ie11';
+//import 'react-app-polyfill/stable';
 
 import './index.css';
 
@@ -16,7 +18,7 @@ import { NotificationProvider } from 'Components/Common/Notification/Notificatio
 
 import Login from 'Pages/Login/Login.tsx';
 import Register from 'Pages/Register/Register.tsx';
-import Profile from 'Pages/Profile/ui/Profile.tsx';
+import Profile from 'Pages/Profile/Profile.tsx';
 import RequestsManagement from 'Pages/RequestsList/RequestsManagement.tsx';
 import Tasks from 'Pages/Tasks/Tasks.tsx';
 import { ConfigProvider } from 'antd';
@@ -25,7 +27,6 @@ import ProjectsManagement from 'Pages/ProjectsList/ProjectsManagement.tsx';
 import DirectionsManagement from 'Pages/DirectionsList/DirectionsManagement.tsx';
 import SetupDirectionForm from 'Pages/DirectionForm/SetupDirectionForm.tsx';
 import TeamsManagement from 'Pages/TeamsList/TeamsManagement.tsx';
-import CreateSpecializationForm from 'Pages/CreateSpecialization/CreateSpecializationForm.tsx'
 import EventPage from 'Pages/Event/EventPage.tsx';
 import EventForm from 'Pages/EventsList/EventForm/EventForm.tsx';
 import EventSetupSummary from 'Pages/Event/EventSetupSummary.tsx';
@@ -52,7 +53,7 @@ const theme = {
 };
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  //<StrictMode>
     <ConfigProvider theme={theme}>
       <Provider store={store}>
         <UserRolesProvider>
@@ -70,8 +71,7 @@ createRoot(document.getElementById('root')!).render(
 
                   {/* Доступ только организатору */}
                     <Route element={<RequireRole allowedRoles={['organizer']} />}>
-                      <Route path="/requests" element={<RequestsManagement />} />
-                      <Route path="/create-new-specialization" element={<CreateSpecializationForm />} />
+                      <Route path="/requests" element={<RequestsManagement />} /> 
                       <Route path="/event-setup" element={<EventForm />} />
                       <Route path="/event/:id/edit" element={<EventForm />} />
                       <Route path="/directions-setup" element={<SetupDirectionForm/>} />
@@ -107,5 +107,5 @@ createRoot(document.getElementById('root')!).render(
         </UserRolesProvider>
       </Provider>
     </ConfigProvider>
-  </StrictMode>
+  //</StrictMode>
 );

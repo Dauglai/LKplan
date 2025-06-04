@@ -5,12 +5,12 @@ const statusMessages = {
   success: {
     status: 'success',
     title: 'Почта подтверждена',
-    subTitle: 'Почта успешно подтверждена. Теперь ты можешь войти в аккаунт.',
+    subTitle: 'Почта успешно подтверждена. Теперь вы можете войти в аккаунт.',
   },
   expired: {
     status: 'warning',
     title: 'Ссылка устарела',
-    subTitle: 'Срок действия ссылки истёк. Пожалуйста, запроси новую ссылку для подтверждения почты.',
+    subTitle: 'Срок действия ссылки истёк. Пожалуйста, запросите новую ссылку для подтверждения почты.',
   },
   invalid: {
     status: 'error',
@@ -26,7 +26,7 @@ export default function EmailVerifiedPage() {
   const content = statusMessages[statusParam] || {
     status: 'info',
     title: 'Неизвестный статус',
-    subTitle: 'Что-то пошло не так. Попробуй ещё раз.',
+    subTitle: 'Что-то пошло не так. Попробуйте ещё раз.',
   };
 
   return (

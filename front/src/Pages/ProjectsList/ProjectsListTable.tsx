@@ -1,5 +1,5 @@
 import 'Styles/components/Sections/ListTableStyles.scss';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
@@ -13,7 +13,6 @@ import EditProjectModal from 'Pages/ProjectForm/EditProjectModal';
 
 interface ProjectsTableProps {
   projects: Project[];
-  role: string;
 }
 
 export default function ProjectsListTable({ projects }: ProjectsTableProps): JSX.Element {
@@ -84,6 +83,10 @@ export default function ProjectsListTable({ projects }: ProjectsTableProps): JSX
     if (hasPermission('edit_project') && getRoleForObject('direction_leader', project.directionSet.id, 'crm.direction')) {
       return true;
     }
+
+    //if (hasPermission('edit_project') && getRoleForObject('curator', project.project_id, 'crm.project')) {
+      //return true;
+    //}
 
     // В остальных случаях возвращаем false
     return false;

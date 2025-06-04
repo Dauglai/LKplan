@@ -18,6 +18,10 @@ interface TableProps<T> {
   data: T[];
   columns: TableColumn<T>[];
   onSelectRows?: (selected: T[]) => void;
+  defaultSort?: { 
+    key: string; 
+    direction: 'asc' | 'desc'; 
+    customSort?: (a: T, b: T) => number }
 }
 
 /**
@@ -42,12 +46,17 @@ interface TableProps<T> {
  *
  * @returns {JSX.Element} Компонент таблицы с данными и функциональностью сортировки.
  */
-export default function ListTable<T>({ data, columns, onSelectRows}: TableProps<T>): JSX.Element {
+export default function ListTable<T>({ data, columns, onSelectRows, defaultSort}: TableProps<T>): JSX.Element {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedRows, setSelectedRows] = useState<T[]>([]);
-  const [sortConfig, setSortConfig] = useState<{ key: string | null; direction: 'asc' | 'desc' | null }>({
-    key: columns[0]?.sortKey || null,
-    direction: 'asc',
+  const [sortConfig, setSortConfig] = useState<{ 
+    key: string | null; 
+    direction: 'asc' | 'desc' | null;
+    customSort?: (a: T, b: T) => number; // Добавляем поддержку кастомной сортировки
+  }>({
+    key: defaultSort?.key || columns[0]?.sortKey || null,
+    direction: defaultSort?.direction || 'asc',
+    customSort: defaultSort?.customSort, // Передаём кастомную сортировку
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,10 +66,18 @@ export default function ListTable<T>({ data, columns, onSelectRows}: TableProps<
     return path.split('.').reduce((acc, part) => acc?.[part], obj);
   };
 
-  // Сортировка данных на основе конфигурации сортировки
+  
+
+  // Сортировка данных
   const sortedData = [...data].sort((a, b) => {
     if (!sortConfig.key) return 0;
 
+    // Если есть customSort, используем его
+    if (sortConfig.customSort) {
+      return sortConfig.customSort(a, b);
+    }
+
+    // Стандартная сортировка
     const aValue = getValue(a, sortConfig.key);
     const bValue = getValue(b, sortConfig.key);
 

@@ -19,9 +19,12 @@ import CreateDirectionModal from "Pages/DirectionForm/CreateDirectionModal";
  *
  * @returns {JSX.Element} Компонент для управления направлениями.
  */
+
 export default function DirectionsManagement(): JSX.Element {
+
   const { data: directions = [], isLoading } = useGetDirectionsQuery(); // Получение направлений с сервера.
   const [deleteDirection] = useDeleteDirectionMutation(); // Мутация для удаления направления.
+
   const { showNotification } = useNotification(); // Вызов уведомлений.
   const [search, setSearch] = useState(""); // Состояние строки поиска.
   const [isModalOpen, setIsModalOpen] = useState(false);

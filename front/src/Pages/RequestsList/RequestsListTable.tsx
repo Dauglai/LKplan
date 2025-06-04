@@ -15,13 +15,18 @@ import { ChangeStatusModal } from "Components/PageComponents/ChangeStatusModal";
 import dayjs from 'dayjs';
 
 
+
 interface RequestsListTableProps {
     requests: Application[];
     onSelectRequests?: (request: Application[]) => void;
     onOpenStatusModal?: (requests: Application[]) => void;
 }
 
-export default function RequestsListTable({ requests, onSelectRequests, onOpenStatusModal}: RequestsListTableProps): JSX.Element {
+export default function RequestsListTable({ 
+    requests, 
+    onSelectRequests, 
+    onOpenStatusModal
+}: RequestsListTableProps): JSX.Element {
     const { data: projects = []} = useGetProjectsQuery(); // Получение списка проектов с сервера.
     const { data: events = [] } = useGetEventsQuery();
     const { data: teams = [] } = useGetTeamsQuery();
@@ -35,9 +40,9 @@ export default function RequestsListTable({ requests, onSelectRequests, onOpenSt
           const project = projects.find(p => p.project_id === request.project);
           const event = events.find(e => e.event_id === request.event?.id);
           const team = teams.find(t => t.id === request.team);
-          const date_sub = dayjs(request.date_sub).format('DD.MM.YYYY');
-          const time_sub = dayjs(request.date_sub).format('HH:mm');
-          const datetime_sub = request.date_sub;
+          const date_sub = dayjs(request.date_end).format('DD.MM.YYYY');
+          const time_sub = dayjs(request.date_end).format('HH:mm');
+          const datetime_sub = request.date_end;
 
       
           return {

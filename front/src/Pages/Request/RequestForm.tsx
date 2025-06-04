@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Project, useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
+import { Event } from "Features/ApiSlices/eventSlice";
 import { Team, useGetTeamsQuery } from "Features/ApiSlices/teamSlice";
 import ProjectSelector from "Components/Selectors/ProjectSelector";
 import SpecializationSelector from "Components/Selectors/SpecializationSelector";
@@ -10,12 +11,12 @@ import { Direction, useGetDirectionsQuery } from "Features/ApiSlices/directionSl
 import { Input, Spin } from "antd";
 
 interface RequestFormProps {
-  eventId: number;
+  event: Event;
   userId: string;
   onSubmit: (data: any) => void;
 }
 
-export default function RequestForm({ eventId, userId, onSubmit }: RequestFormProps): JSX.Element {
+export default function RequestForm({ event, userId, onSubmit }: RequestFormProps): JSX.Element {
   const { data: directions, isLoading: isDirectionsLoading } = useGetDirectionsQuery();
   const { data: projects, isLoading: isProjectsLoading } = useGetProjectsQuery();
   const { data: teams, isLoading: isTeamsLoading } = useGetTeamsQuery();
@@ -27,13 +28,13 @@ export default function RequestForm({ eventId, userId, onSubmit }: RequestFormPr
   const [message, setMessage] = useState<string>("");
 
   const [requestData, setRequestData] = useState({
-    event: eventId,
+    event: event.event_id,
     user: userId,
     status: 1,
   });
 
   const filteredDirections = directions?.filter(
-    (direction) => direction.event === eventId
+    (direction) => direction.event === event.event_id
   );
 
   const filteredProjects = projects?.filter((project) =>
@@ -122,6 +123,7 @@ export default function RequestForm({ eventId, userId, onSubmit }: RequestFormPr
           onChange={setSelectedSpecialization}
           isSingleSelect={true}
           label="Выбрать специализацию"
+          availableSpecializations={event.specializations}
         />
 
         <Input.TextArea

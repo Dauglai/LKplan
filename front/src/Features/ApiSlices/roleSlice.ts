@@ -55,7 +55,7 @@ export const ROLE_PERMISSIONS: Record<UserRole['role_type'], Permission[]> = {
     'edit_direction', 
     'create_project', 
     'edit_project'],
-  curator: [],
+  curator: ['edit_project'],
   projectant: ['submit_application'],
 };
 

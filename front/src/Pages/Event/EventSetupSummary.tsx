@@ -13,6 +13,17 @@ import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';
 import { useGetSpecializationsQuery } from 'Features/ApiSlices/specializationSlice';
 import SideStepNavigator from 'Components/Sections/SideStepNavigator';
+import { 
+  StatusApp,
+  useCreateStatusAppMutation, 
+  useDeleteStatusAppMutation, 
+  useGetStatusesAppQuery, 
+  useUpdateStatusAppMutation } from 'Features/ApiSlices/statusAppSlice';
+import { 
+  useCreateStatusOrderMutation, 
+  useDeleteStatusOrderMutation, 
+  useGetStatusOrdersQuery, 
+  useUpdateStatusOrderMutation } from 'Features/ApiSlices/statusOrdersSlice';
 
 const EventSetupSummary = () => {
   const dispatch = useDispatch();
@@ -21,7 +32,7 @@ const EventSetupSummary = () => {
   const { data: allSpecializations } = useGetSpecializationsQuery()
 
   // Получаем данные из Redux
-  const { stepEvent, stepDirections, stepProjects, editingEventId } = useSelector((state: any) => state.event);
+  const { stepEvent, stepDirections, stepProjects, stepStatuses, editingEventId } = useSelector((state: any) => state.event);
 
   // Мутации для создания мероприятия, направлений и проектов
   const [createEvent] = useCreateEventMutation();
@@ -30,8 +41,16 @@ const EventSetupSummary = () => {
   const [updateEvent] = useUpdateEventMutation();  // Добавили мутацию для обновления
   const [updateDirection] = useUpdateDirectionMutation();  // Добавили мутацию для обновления
   const [updateProject] = useUpdateProjectMutation();
+  const [createStatusApp] = useCreateStatusAppMutation();
+  const [updateStatusApp] = useUpdateStatusAppMutation();
+  const [createStatusOrder] = useCreateStatusOrderMutation();
+  const [updateStatusOrder] = useUpdateStatusOrderMutation();
+  const [deleteStatusOrder] = useDeleteStatusOrderMutation();
+  const [deleteStatusApp] = useDeleteStatusAppMutation();
   const { data: existingDirections } = useGetDirectionsQuery();
   const { data: existingProjects } = useGetProjectsQuery();
+  const { data: existingStatuses } = useGetStatusesAppQuery();
+  const { data: existingStatusOrders } = useGetStatusOrdersQuery();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -137,6 +156,56 @@ const EventSetupSummary = () => {
           );
 
           await Promise.all(resultProjects);
+        }
+      }
+
+      if (stepStatuses) {
+        try {
+          setStatus('Создание статусов...');
+          setError('');
+
+          // Создаем статусы строго последовательно
+          for (let i = 0; i < stepStatuses.statuses.length; i++) {
+            // 1. Создаем сам статус
+            const statusResponse = await createStatusApp(stepStatuses.statuses[i]).unwrap();
+            
+            // 2. Создаем запись о порядке с ОДНИМ И ТЕМ ЖЕ номером (пока не получится)
+            let retryCount = 0;
+            let success = false;
+            
+            while (!success && retryCount < 3) { // Пробуем максимум 3 раза
+              try {
+                await createStatusOrder({
+                  number: i + 1, // Всегда номер по порядку (1, 2, 3...)
+                  event: eventId,
+                  status: statusResponse.id
+                }).unwrap();
+                success = true;
+              } catch (orderError) {
+                if (orderError.data?.non_field_errors?.[0]?.includes("Позиция с таким номером уже существует")) {
+                  // Если номер занят - ждем немного и пробуем снова
+                  await new Promise(resolve => setTimeout(resolve, 300));
+                  retryCount++;
+                } else {
+                  throw orderError; // Другие ошибки прокидываем выше
+                }
+              }
+            }
+
+            if (!success) {
+              throw new Error(`Не удалось установить порядок для статуса ${i + 1}`);
+            }
+
+            setStatus(`Создан статус ${i + 1}/${stepStatuses.statuses.length}`);
+          }
+
+          setStatus('Все статусы созданы!');
+          showNotification('Порядок статусов успешно сохранен', 'success');
+          
+        } catch (error) {
+          console.error('Ошибка:', error);
+          setError(error.message);
+          showNotification('Ошибка при создании статусов', 'error');
         }
       }
 
@@ -262,6 +331,22 @@ const EventSetupSummary = () => {
                 {project.name}
               </li>)
               )}
+            </ul>
+          </div>
+        )}
+
+        {stepStatuses?.statuses?.length > 0 && (
+          <div className="FormStage">
+            <h3>Созданные статусы:</h3>
+            <ul className="SelectedList StatusesList">
+              {stepStatuses.statuses.map((status, index) => (
+                <li
+                  key={status.id}
+                  className={`SelectedListItem ${status.is_positive ? 'positive' : 'negative'}`}
+                >
+                  {index + 1}. {status.name} {status.description ? `(${status.description})` : ""}
+                </li>
+              ))}
             </ul>
           </div>
         )}

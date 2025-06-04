@@ -54,7 +54,8 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
               <InfoIcon 
                 width="20px"
                 height="20px"
-                strokeWidth="2" />}
+                strokeWidth="2" 
+                stroke="white"/>}
             
           </div>
           <div className="message">{notification.message}</div>

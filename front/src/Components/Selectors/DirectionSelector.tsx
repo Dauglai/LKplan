@@ -13,6 +13,7 @@ interface DirectionSelectorProps {
   sourceType: 'local' | 'remote';
   label?: string;
   directions?: Direction[];
+  error?: string;
 }
 
 export default function DirectionSelector({
@@ -21,6 +22,7 @@ export default function DirectionSelector({
   sourceType,
   label = 'Выбрать направление',
   directions,
+  error
 }: DirectionSelectorProps): JSX.Element {
   const [options, setOptions] = useState<Direction[]>([]);
   const { data: remoteDirections, isLoading } = useGetDirectionsQuery(undefined, {
@@ -56,6 +58,7 @@ export default function DirectionSelector({
       placeholder={label}
       optionFilterProp="children"
       showSearch
+      status={error ? 'error' : undefined}
       className="Selector"
     >
       {options.map((direction) => (

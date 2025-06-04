@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { Specialization, useGetSpecializationsQuery } from 'Features/ApiSlices/specializationSlice';
 import { Select, Spin } from "antd";
 import "Styles/FormSelectorStyle.scss";
-import CloseIcon from 'assets/icons/close.svg?react';
-import PlusIcon from 'assets/icons/plus.svg?react';
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
+
 
 
 interface SpecializationSelectorProps {
@@ -12,6 +10,7 @@ interface SpecializationSelectorProps {
   onChange: (selectedIds: number[]) => void;
   label?: string;
   isSingleSelect?: boolean;
+  availableSpecializations?: number[];
 }
 
 
@@ -20,8 +19,15 @@ export default function SpecializationSelector({
   onChange,
   label = "Добавить специализацию*",
   isSingleSelect = false,
+  availableSpecializations,
 }: SpecializationSelectorProps): JSX.Element {
   const { data: allSpecializations, isLoading } = useGetSpecializationsQuery();
+
+  const filteredSpecializations = availableSpecializations
+    ? allSpecializations?.filter(spec => 
+        availableSpecializations.includes(spec.id)
+      )
+    : allSpecializations;
 
   const handleChange = (value: number | number[]) => {
     if (isSingleSelect) {
@@ -42,7 +48,7 @@ export default function SpecializationSelector({
           onChange={handleChange}
           placeholder={label}
           className="Selector"
-          options={allSpecializations?.map((spec) => ({
+          options={filteredSpecializations?.map((spec) => ({
             label: spec.name,
             value: spec.id,
           }))}

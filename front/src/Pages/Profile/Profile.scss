@@ -21,7 +21,7 @@
     
     .ProfileForm {
 
-        .Profile-Columns {
+        .ProfileColumns {
             width: 100%;
             display: flex;
             flex-direction: row;
@@ -42,9 +42,12 @@
                     margin-bottom: 4px;
                 }
 
+                .ant-form-item, .ProfileFieldValue {
+                    margin-bottom: 12px;
+                }
+
                 .ProfileInput {
                     width: 100%;
-                    margin-bottom: 12px;
                 }
 
                 .SpecializationSelector {
@@ -53,9 +56,11 @@
             }
         }
 
-        .ProfileSubmitButton {
-            @include primary-btn;
-            margin-left: auto;
+        .ProfileActions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px; 
+            width: 100%;
         }
     }
 }

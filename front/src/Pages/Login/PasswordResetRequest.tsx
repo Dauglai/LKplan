@@ -18,11 +18,10 @@ export default function PasswordResetRequest(): JSX.Element {
     try {
       await requestReset({ email: values.email }).unwrap();
       setEmailSent(values.email);
-      message.success('Ссылка для восстановления отправлена на почту');
       form.resetFields();
       // если нужно — редиректим или ждём действия пользователя
     } catch (error) {
-      message.error('Не удалось отправить ссылку. Проверь почту или попробуй позже');
+      message.error('Не удалось отправить ссылку. Проверьте почту или попробуйте позже');
       console.error(error);
     }
   };

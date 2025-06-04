@@ -14,12 +14,18 @@ import UserSelector from 'Components/Selectors/UserSelector';
 import { Direction } from 'Features/ApiSlices/directionSlice';
 import SideStepNavigator from 'Components/Sections/SideStepNavigator';
 
+interface FormErrors {
+  name?: string;
+  leader_id?: string;
+}
+
 export default function SetupDirectionForm(): JSX.Element {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [editingDirectionId, setEditingDirectionId] = useState<string | null>(null);
   const { stepEvent, stepDirections } = useSelector((state: any) => state.event);
   const { showNotification } = useNotification();
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const [newDirection, setNewDirection] = useState({
     name: '',
@@ -32,25 +38,46 @@ export default function SetupDirectionForm(): JSX.Element {
     setNewDirection({
       name: direction.name,
       description: direction.description || '',
-      leader_id: direction.leader_id ||  null,
+      leader_id: direction.leader_id || null,
       event: stepEvent?.id || null,
     });
     setEditingDirectionId(direction.id);
   };
-  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewDirection((prev) => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
-  const handleCuratorChange = (userId: number) => {
+  const handleCuratorChange = (userId: number | null) => {
     setNewDirection((prev) => ({ ...prev, leader_id: userId }));
+    setErrors(prev => ({ ...prev, leader_id: undefined }));
   };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    
+    if (!newDirection.name.trim()) {
+      newErrors.name = "Название направления обязательно";
+    }
+    
+    if (!newDirection.leader_id) {
+      newErrors.leader_id = "Руководитель обязателен";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newDirection.name.trim()) return;
+    
+    if (!validateForm()) {
+      showNotification("Пожалуйста, заполните все обязательные поля", "error");
+      return;
+    }
   
     if (editingDirectionId) {
       const updatedDirections = stepDirections.directions.map((dir) =>
@@ -74,8 +101,6 @@ export default function SetupDirectionForm(): JSX.Element {
   const handleRemoveDirection = (id: string) => {
     dispatch(removeDirection(id));
   };
-  
-  
 
   return (
     <div className="SetupContainer">
@@ -90,7 +115,6 @@ export default function SetupDirectionForm(): JSX.Element {
         </div>
 
         <form className="Form DirectionForm" onSubmit={handleSubmit}>
-
           <div className="NameContainer">
             <NameInputField
               name="name"
@@ -98,6 +122,7 @@ export default function SetupDirectionForm(): JSX.Element {
               onChange={handleInputChange}
               placeholder="Название направления"
               required
+              error={errors.name}
             />
             <DescriptionInputField
               name="description"
@@ -110,11 +135,12 @@ export default function SetupDirectionForm(): JSX.Element {
           <UserSelector
             selectedUserId={newDirection.leader_id}
             onChange={handleCuratorChange}
-            label="Добавить руководителя"
+            label="Добавить руководителя *"
+            error={errors.leader_id}
           />
 
           <div className="FormButtons">
-          {editingDirectionId && (
+            {editingDirectionId && (
               <button
                 type="button"
                 className="secondary-btn"
@@ -127,25 +153,17 @@ export default function SetupDirectionForm(): JSX.Element {
               </button>
             )}
             <button className="primary-btn" type="submit">
-              {editingDirectionId ? "Редактировать направление" : "Добавить направление"}
+              Сохранить направление
             </button>
-              <button
-                className="primary-btn"
-                type="button"
-                onClick={handleNextStep}
-              >
-                Настройка проектов
-                <ChevronRightIcon width="24" height="24" strokeWidth="1" />
-              </button>
           </div>
         </form>
 
-          {stepDirections?.directions?.length > 0 && (
-            <div className="DirectionList">
-              <h3>Созданные направления:</h3>
-              <ul className="SelectedList">
-                {stepDirections.directions.map((direction) => (
-                  <li
+        {stepDirections?.directions?.length > 0 && (
+          <div className="DirectionList">
+            <h3>Созданные направления:</h3>
+            <ul className="SelectedList">
+              {stepDirections.directions.map((direction) => (
+                <li
                   key={direction.id}
                   className={`SelectedListItem ${editingDirectionId === direction.id ? 'editing' : ''}`}
                   onClick={() => handleEditDirection(direction)}
@@ -157,15 +175,26 @@ export default function SetupDirectionForm(): JSX.Element {
                     height="16"
                     strokeWidth="1.5"
                     onClick={(e) => {
-                      e.stopPropagation(); // чтобы не срабатывал редакт
+                      e.stopPropagation();
                       handleRemoveDirection(direction.id);
                     }}
                   />
                 </li>
-                ))}
-              </ul>
-            </div>
-          )}
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="FormButtons navigate">
+          <button
+            className="primary-btn"
+            type="button"
+            onClick={handleNextStep}
+          >
+            Далее
+            <ChevronRightIcon width="24" height="24" strokeWidth="1" />
+          </button>
+        </div>
       </div>
     </div>
   );

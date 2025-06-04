@@ -15,9 +15,9 @@ import InfoIcon from "assets/icons/alert-circle.svg?react";
  */
 export default function InfoCircle({ text }: { text: string }): JSX.Element {
   return (
-    <Tooltip title={text} overlayClassName="CustomTooltip">
+    <Tooltip title={text} className="CustomTooltip">
       <span className="InfoCircleContainer">
-        <InfoIcon width="16" height="16" strokeWidth="1" className="InfoCircleIcon"/>
+        <InfoIcon width="16" height="16" strokeWidth="1" className="InfoCircleIcon" stroke="gray"/>
       </span>
     </Tooltip>
   );

@@ -11,6 +11,7 @@
     position: relative;
     padding: 24px 74px;
     width: 830px;
+    min-height: 380px;
     
     border-radius: $border-radius;
     background-color: $white;
@@ -105,7 +106,6 @@
         width: 100%;
         padding: 12px;
         border-radius: $border-radius $border-radius 0 0;
-        border-bottom: none;    
       }
 
       .Description {
@@ -116,6 +116,7 @@
         overflow: hidden;
 
         border-radius: 0 0 $border-radius $border-radius;
+        border-top: none;
       }
     }
 
@@ -159,6 +160,10 @@
 
       .secondary-btn {
         @include secondary-btn;
+      }
+
+      &.navigate {
+        margin-top: 12px;
       }
     }
 
@@ -222,8 +227,14 @@
     }
 } 
 
+.FormButtons.navigate {
+  margin-top: 12px;
+}
+
+
 .DirectionList, .ProjectList {
-  margin-top: 32px;
+  margin-top: 12px;
+  margin-bottom: 12px;
 
   h3 {
     margin-bottom: 16px;

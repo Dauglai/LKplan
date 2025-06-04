@@ -83,6 +83,8 @@ export default function EventPage(): JSX.Element {
     if (eventError || directionsError || projectsError || userError) {
       return <div>Ошибка загрузки данных</div>;
     }
+
+    console.log(event)
   
     return (
       <div className="EventInfoPage InfoPage">
@@ -133,31 +135,57 @@ export default function EventPage(): JSX.Element {
           </div>
   
           {hasPermission('submit_application') && (
-            applicationToShow ? (
-              <List
-                header={<h3>Вы уже подали заявку</h3>}
-                className="FormContainer RequestFormContainer"
-                dataSource={[
-                  { label: 'Статус', value: applicationToShow.status.name },
-                  { label: 'Направление', value: applicationToShow.direction?.name || "—" },
-                  { label: 'Проект', value: selectedProject?.name || "—" },
-                  { label: 'Команда', value: selectedTeam?.name || "—" },
-                  { label: 'Специализация', value: applicationToShow.specialization?.name || "—" },
-                  { label: 'Сообщение', value: applicationToShow.message || "—" },
-                  { label: 'Ответ', value: applicationToShow.comment || "—" },
-                ]}
-                renderItem={(item) => (
-                  <List.Item>
-                    <strong>{item.label}:</strong> {item.value}
-                  </List.Item>
-                )}
-              />
+            event.stage === 'Редактирование' ? (
+              <div className="FormContainer RequestFormContainer">
+                <h3 className='MessageHeader'>Мероприятие в подготовке</h3>
+                <p>Приём заявок ещё не начался</p>
+              </div>
+            ) : event.stage === 'Набор участников' ? (
+              applicationToShow ? (
+                <List
+                  header={<h3>Вы уже подали заявку</h3>}
+                  className="FormContainer RequestFormContainer"
+                  dataSource={[
+                    { label: 'Статус', value: applicationToShow.status.name },
+                    { label: 'Направление', value: applicationToShow.direction?.name || "—" },
+                    { label: 'Проект', value: selectedProject?.name || "—" },
+                    { label: 'Команда', value: selectedTeam?.name || "—" },
+                    { label: 'Специализация', value: applicationToShow.specialization?.name || "—" },
+                    { label: 'Сообщение', value: applicationToShow.message || "—" },
+                    { label: 'Ответ', value: applicationToShow.comment || "—" },
+                  ]}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <strong>{item.label}:</strong> {item.value}
+                    </List.Item>
+                  )}
+                />
+              ) : (
+                <RequestForm
+                  event={event}
+                  userId={user.user_id}
+                  onSubmit={handleSubmit}
+                />
+              )
             ) : (
-              <RequestForm
-                eventId={eventId}
-                userId={user.user_id}
-                onSubmit={handleSubmit}
-              />
+              <div className="FormContainer RequestFormContainer">
+                {event.stage === 'Формирование команд' || event.stage === 'Проведение мероприятия' ? (
+                  <>
+                    <h3 className='MessageHeader'>Приём заявок закрыт</h3>
+                    <p>Мероприятие находится на этапе "{event.stage}"</p>
+                  </>
+                ) : event.stage === 'Мероприятие завершено' ? (
+                  <>
+                    <h3 className='MessageHeader'>Мероприятие завершено</h3>
+                    <p>Это мероприятие уже завершилось</p>
+                  </>
+                ) : (
+                  <>
+                    <h3 className='MessageHeader'>Мероприятие не доступно</h3>
+                    <p>Текущий статус мероприятия: "{event.stage}"</p>
+                  </>
+                )}
+              </div>
             )
           )}
         </div>

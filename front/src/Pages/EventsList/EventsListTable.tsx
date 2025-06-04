@@ -49,21 +49,25 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
     setOpenMenu(null);
   };
 
-  /**
-   * Открыть модальное окно для редактирования мероприятия.
-   * @param {number} id - ID мероприятия для редактирования.
-   */
 
-  /**
-   * Закрыть модальное окно редактирования мероприятия.
-   */
+  const filteredEvents = hasRole("projectant") 
+    ? events.filter(event => event.stage === "Набор участников") 
+    : events;
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedEvent(null);
-  };
+  const defaultSort = hasRole("organizer") 
+    ? { 
+        key: "start" as const, 
+        direction: "asc" as const,
+        // Дополнительная логика для завершённых мероприятий
+        customSort: (a: Event, b: Event) => {
+          if (a.stage === "Мероприятие завершено" && b.stage !== "Мероприятие завершено") return 1;
+          if (a.stage !== "Мероприятие завершено" && b.stage === "Мероприятие завершено") return -1;
+          return new Date(a.start).getTime() - new Date(b.start).getTime();
+        }
+      }
+    : undefined;
 
-  if (events.length === 0) {
+  if (filteredEvents.length === 0) {
     return <span className="NullMessage">Мероприятия не найдены</span>;
   }
 
@@ -148,8 +152,9 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
   return (
     <>
       <ListTable
-        data={events}
+        data={filteredEvents}
         columns={columns}
+        defaultSort={defaultSort}
       />
     </>
   );

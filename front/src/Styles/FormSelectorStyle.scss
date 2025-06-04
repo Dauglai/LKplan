@@ -159,5 +159,19 @@
         }
       }
     }
+
+    &.StatusesList {
+      flex-direction: column;
+      align-items: start;
+
+      .positive {
+        background-color:  $green;
+      }
+
+      .negative {
+        background-color: $pink;
+      }
+
+    }
 }
 

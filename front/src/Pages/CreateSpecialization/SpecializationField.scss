@@ -1,0 +1,78 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.SpecializationField {
+  width: 100%;
+}
+
+.SpecializationSelectorWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  
+  .Selector {
+    flex: 1; // Занимает всё доступное пространство
+    
+    // Ваши существующие стили селектора
+    height: 40px;
+    width: 100%;
+
+    :global {
+      .ant-select {
+        border-radius: $border-radius;
+        border-color: $grey;
+
+        .ant-select-selector {
+          @include text2;
+          height: 40px !important;
+          padding: 0 12px;
+          display: flex;
+          align-items: center;
+          border: 1px solid $grey !important;
+          border-radius: $border-radius;
+          color: $black !important;
+        }
+
+        .ant-select-selection-placeholder {
+          color: $black !important; 
+          @include text2;
+        }
+
+        .ant-select-selection-item {
+          @include text2;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+
+  .AddSpecializationBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: $border-radius;
+    border: 1px solid $grey !important;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0; // Предотвращает сжатие кнопки
+
+    &:active {
+      background-color: darken(white, 15%);
+    }
+
+    svg {
+      transition: transform 0.2s;
+    }
+
+    &:hover svg {
+      transform: scale(1.1);
+    }
+  }
+}

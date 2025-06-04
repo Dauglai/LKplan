@@ -25,59 +25,57 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
   const navigate = useNavigate();
   const { data: teams } = useGetTeamsQuery();
   const { hasRole } = useUserRoles();
-  const { data: applications} = useGetUserApplicationsQuery(user.user_id);
-  const { data: events} = useGetEventsQuery();
-
+  const { data: applications } = useGetUserApplicationsQuery(user.user_id);
+  const { data: events } = useGetEventsQuery();
 
   const handleNavigation = (path: string) => {
     navigate(path);
     onClose();
   };
 
-  const userTeam = teams?.find((team) =>
-    team.students.includes(user.user_id)
-  );
+  // Находим все команды пользователя
+  const userTeams = teams?.filter(team => team.students.includes(user.user_id)) || [];
 
-  // 🔽 Мероприятия пользователя
-  const dynamicEventSections = applications?.filter(app => app.is_approved).map((application) => {
-    const myTeam = teams?.find(
-      (team) => team.project === application.project && team.students.includes(user.user_id)
-    );
+  // Меню для участника (projectant)
+  const dynamicEventSections = applications
+    ?.filter(app => app.is_approved)
+    .map((application) => {
+      // Находим команду пользователя для этого проекта
+      const myTeam = userTeams.find(team => team.project === application.project);
 
-    return {
-      title: application.event.name,
-      icon: (
-        <Tag color="#d9d9d9" style={{ marginRight: 8 }}>{`M${application.id}`}</Tag>
-      ),
-      items: [
+      // Базовые пункты меню
+      const baseItems = [
         ...(myTeam ? [{ label: 'Моя команда', path: `/teams/${myTeam.id}` }] : []),
         { label: 'Формирование команды', path: `/teams/create?event=${application.event.id}` },
-        { label: 'Список задач', path: `/projects/${application.project}/tasks?team=${myTeam?.id ?? ''}` },
-        { label: 'Канбан доска', path: `/projects/${application.project}/kanban?team=${myTeam?.id ?? ''}` },
-        { label: 'Диаграмма Ганта', path: `/projects/${application.project}/gantt?team=${myTeam?.id ?? ''}` }
+      ];
 
-      ],
-    };
-  }) || [];
+      // Дополнительные пункты меню (только если пользователь в команде)
+      const teamItems = myTeam ? [
+        { label: 'Список задач', path: `/projects/${application.project}/tasks?team=${myTeam.id}` },
+        { label: 'Канбан доска', path: `/projects/${application.project}/kanban?team=${myTeam.id}` },
+        { label: 'Диаграмма Ганта', path: `/projects/${application.project}/gantt?team=${myTeam.id}` }
+      ] : [];
 
+      return {
+        title: application.event.name,
+        icon: <Tag color="#d9d9d9" style={{ marginRight: 8 }}>{`M${application.id}`}</Tag>,
+        items: [...baseItems, ...teamItems],
+      };
+    }) || [];
+
+  // Меню для организатора (admin/organizer)
   const dynamicEventSectionsAdmin = (events || []).map((event) => ({
     title: event.name,
-    icon: (
-      <Tag color="#d9d9d9" style={{ marginRight: 8 }}>{`M${event.event_id}`}</Tag>
-    ),
+    icon: <Tag color="#d9d9d9" style={{ marginRight: 8 }}>{`M${event.event_id}`}</Tag>,
     items: [
-      { label: 'Формирование команды', path: `/teams/create?event=${event?.event_id ?? ''}` },
-      { label: 'Список задач', path: `/projects/tasks?team=${event?.event_id ?? ''}` },
-      { label: 'Канбан доска', path: `/projects/kanban?event=${event?.event_id ?? ''}` },
-      { label: 'Диаграмма Ганта', path: `/projects/gantt` }
+      { label: 'Формирование команды', path: `/teams/create?event=${event.event_id}` },
+      { label: 'Список задач', path: `/projects/tasks?event=${event.event_id}` },
+      { label: 'Канбан доска', path: `/projects/kanban?event=${event.event_id}` },
+      { label: 'Диаграмма Ганта', path: `/projects/gantt?event=${event.event_id}` }
     ],
-  })) || [];
+  }));
 
-
-  const adminMenu = [
-
-
-
+  // Базовое меню организатора
   const organizerMenu = [
     {
       icon: <ListIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
@@ -85,25 +83,13 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
         { label: 'Мероприятия', path: '/events' },
         { label: 'Направления', path: '/directions' },
         { label: 'Проекты', path: '/projects' },
-      ],
-    },
-    {
-      icon: <ListIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
-      items: [
         { label: 'Список заявок', path: '/requests' },
-      ],
-    },
-    {
-      title: 'Планировщик',
-      icon: <TableIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
-      items: [
-        //{ label: 'Формирование команды', path: `/teams/create` },
-       // { label: 'Команды', path: '/teams' },
       ],
     },
     ...dynamicEventSectionsAdmin,
   ];
 
+  // Базовое меню руководителя направления
   const directionLeaderMenu = [
     {
       icon: <ListIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
@@ -116,19 +102,19 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
     ...dynamicEventSections,
   ];
 
+  // Базовое меню участника
   const projectantMenu = [
     {
       icon: <ListIcon width="16" height="16" strokeWidth="1" className="menu-btn" />,
       items: [
         { label: 'Доступные мероприятия', path: '/events' },
-        ...(userTeam ? [{ label: 'Моя команда', path: `/teams/${userTeam.id}` }] : []),
       ],
     },
-    ...dynamicEventSections, //  вставляем мероприятия
+    ...dynamicEventSections,
   ];
 
+  // Выбираем меню в зависимости от роли
   let menu = [];
-
   if (hasRole('organizer')) {
     menu = organizerMenu;
   } else if (hasRole('direction_leader')) {
@@ -150,27 +136,66 @@ export default function SidebarMenu({ isOpen, onClose, user }: SidebarProps): JS
         />
       </div>
       <div className="SidebarContent">
-        <ul>
-          <li onClick={() => handleNavigation('/')} className="SidebarSection">
-            <HomeIcon width="16" height="16" strokeWidth="1" className="menu-btn" />
-            Главная
-          </li>
-          <li onClick={() => handleNavigation('/profile')} className="SidebarSection">
-            <UserIcon width="16" height="16" strokeWidth="1" className="menu-btn" />
-            Профиль
-          </li>
+        <div className="SidebarMainMenu">
+          <ul>
+            <li onClick={() => handleNavigation('/')} className="SidebarSection">
+              <HomeIcon width="16" height="16" strokeWidth="1" className="menu-btn" />
+              Главная
+            </li>
+            <li onClick={() => handleNavigation('/profile')} className="SidebarSection">
+              <UserIcon width="16" height="16" strokeWidth="1" className="menu-btn" />
+              Профиль
+            </li>
 
-          {menu.map((section, index) => (
-            <ul key={index} className="SidebarSection">
-              {section.items.map((item) => (
-                <li key={item.path} onClick={() => handleNavigation(item.path)} className="SidebarSectionTitle">
+            {/* Основное меню (не мероприятия) */}
+            {menu.filter(section => !section.title?.includes('M')).map((section, index) => (
+              <div key={`main-${index}`} className="SidebarSection">
+                {section.title && (
+                  <div className="SidebarSectionTitle">
+                    {section.icon}
+                    {section.title}
+                  </div>
+                )}
+                <ul>
+                  {section.items.map((item) => (
+                    <li 
+                      key={item.path} 
+                      onClick={() => handleNavigation(item.path)} 
+                      className="SidebarMenuItem"
+                    >
+                      {item.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </ul>
+        </div>
+
+        {/* Список мероприятий с прокруткой */}
+        <div className="SidebarEventsMenu">
+          <ul>
+            {menu.filter(section => section.title?.includes('M')).map((section, index) => (
+              <div key={`event-${index}`} className="SidebarSection">
+                <div className="SidebarSectionTitle">
                   {section.icon}
-                  {item.label}
-                </li>
-              ))}
-            </ul>
-          ))}
-        </ul>
+                  {section.title}
+                </div>
+                <ul>
+                  {section.items.map((item) => (
+                    <li 
+                      key={item.path} 
+                      onClick={() => handleNavigation(item.path)} 
+                      className="SidebarMenuItem"
+                    >
+                      {item.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

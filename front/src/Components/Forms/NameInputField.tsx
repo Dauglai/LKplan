@@ -11,6 +11,7 @@ interface NameInputFieldProps {
   required?: boolean;
   withPlaceholder?: boolean;
   disabled? : boolean;
+  error?: string;
 }
 
 /**
@@ -46,12 +47,23 @@ export default function NameInputField({
   placeholder,
   required = false,
   withPlaceholder = false,
-  disabled
+  disabled,
+  error
 }: NameInputFieldProps): JSX.Element {
   const [isFocused, setIsFocused] = useState(false);
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
+
+  const getPlaceholder = () => {
+    if (error && !value) {
+      return error; // Показываем текст ошибки, если есть ошибка и поле пустое
+    }
+    if (isFocused || value) {
+      return ""; // Пустой плейсхолдер при фокусе или если есть значение
+    }
+    return required ? `${placeholder} *` : placeholder;
+  };
 
   return (
     <Form.Item
@@ -63,14 +75,20 @@ export default function NameInputField({
         name={name}
         value={value}
         onChange={onChange}
-        placeholder={isFocused || value ? "" : (required && placeholder ? `${placeholder} *` : placeholder)}
-        className="Name UniversalInput"
+        placeholder={getPlaceholder()}
+        className={`Name UniversalInput ${error ? 'error' : ''}`}
         onFocus={handleFocus}
         onBlur={handleBlur}
         disabled={disabled ? true : undefined}
+        style={error ? { borderColor: 'red', color: 'red' } : undefined}
       />
       {withPlaceholder && (isFocused || value) && (
-        <div className="UniversalInputText InputText">{placeholder}</div>
+        <div 
+          className="UniversalInputText InputText" 
+          style={error ? { color: 'red' } : undefined}
+        >
+          {placeholder}
+        </div>
       )}
     </Form.Item>
   );

@@ -17,6 +17,8 @@ interface DateInputFieldProps {
   required?: boolean;
   withPlaceholder?: boolean;
   disabled? : boolean;
+  maxDate?: Date;
+  minDate?: Date;
 }
 
 /**
@@ -52,7 +54,9 @@ export default function DateInputField({
   placeholder = 'Выберите дату',
   required = false,
   withPlaceholder = false,
-  disabled
+  disabled,
+  maxDate,
+  minDate,
 }: DateInputFieldProps): JSX.Element {
     const [isFocused, setIsFocused] = useState(false); // Состояние фокуса поля ввода
 
@@ -61,16 +65,32 @@ export default function DateInputField({
 
     const finalPlaceholder = required ? `${placeholder} *` : placeholder; // Добавляет * к плейсхолдеру, если поле обязательное
 
+
+    /**
+     * Обработка и валидация даты в формате DD.MM.YYYY.
+     * Если дата не валидна или отсутствует, возвращается null.
+     * @param {string} value - Введённая дата.
+     * @returns {Dayjs | null} - Корректная дата или null, если дата некорректна.
+     */
     const parsedDate = value
     ? dayjs(value, 'DD.MM.YYYY', true).isValid()
         ? dayjs(value, 'DD.MM.YYYY', true)
         : dayjs(value)
     : null;
 
+    /**
+     * Окончательная дата для компонента.
+     * Если parsedDate валидна, возвращается её значение, иначе null.
+     * @type {Dayjs | null}
+     */
     const dateValue = parsedDate && parsedDate.isValid() ? parsedDate : null;
 
+    /**
+     * Проверка корректности введённой даты.
+     * В случае некорректной даты выводится предупреждение в консоль.
+     */
     if (value && !parsedDate?.isValid()) {
-    console.warn(`Некорректная дата в поле "${name}":`, value);
+        console.warn(`Некорректная дата в поле "${name}":`, value);
     }
 
     const handleDateChange = (date: Dayjs | null, dateString: string) => {
@@ -96,6 +116,12 @@ export default function DateInputField({
                     className="DateInput FormField UniversalInput"
                     suffixIcon={<CalendarIcon width={16} height={16} strokeWidth={1} />}
                     disabled={disabled ? true : undefined}
+                    disabledDate={(current) => {
+                    return Boolean(
+                    (maxDate && current > maxDate) ||
+                    (minDate && current < minDate)
+                    );
+                }}
                 />
             </ConfigProvider>
             {withPlaceholder && (isFocused || value) && (

@@ -90,7 +90,7 @@ export default function Auth(): JSX.Element {
         </Form.Item>
       </Form>
       <Link className="Auth-Link" to="/register">
-          Ещё нет аккаунта? Зарегистрируйся
+          Ещё нет аккаунта? Зарегистрируйтесь
       </Link>
     </main>
   );

@@ -3,6 +3,7 @@ import { updateEvent,
       updateEventField,
       updateDirections,
       updateProjects,
+      updateStatuses,
       setEditingEventId,
       resetEvent} from 'Features/store/eventSetupSlice'; // Подключаем нужные экшены
 import { parse, format } from 'date-fns';
@@ -11,10 +12,8 @@ import { RootState } from 'App/model/store'; // Импортируем тип Ro
 import { useEffect, useRef } from 'react';
 import { Event, useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
 import { useParams } from 'react-router-dom';
-import SpecializationSelector from 'Components/Selectors/SpecializationSelector';
 import StageSelector from 'Components/Selectors/StageSelector';
 import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
-import LinkIcon from 'assets/icons/link.svg?react'
 import BackButton from 'Components/Common/BackButton/BackButton';
 import './EventForm.scss';
 import NameInputField from 'Components/Forms/NameInputField';
@@ -23,6 +22,10 @@ import DateInputField from 'Components/Forms/DateInputField';
 import { Project, useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
 import { Direction } from 'Features/ApiSlices/directionSlice';
 import SideStepNavigator from 'Components/Sections/SideStepNavigator';
+import { useNotification } from 'Components/Common/Notification/Notification';
+import SpecializationField from 'Pages/CreateSpecialization/SpecializationField';
+import { useGetStatusOrdersByEventQuery } from 'Features/ApiSlices/statusOrdersSlice';
+import { StatusApp, useGetStatusesAppQuery } from 'Features/ApiSlices/statusAppSlice';
 
 /**
  * Компонент формы для создания или редактирования мероприятия.
@@ -33,25 +36,30 @@ export default function EventForm(): JSX.Element {
   const { id } = useParams();
   const eventId = id ? Number(id) : null;
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
   const { stepEvent, editingEventId } = useSelector((state: RootState) => state.event);
   const { data: eventData, isSuccess: isEventSuccess } = useGetEventByIdQuery(eventId!, {
     skip: !eventId,
   });
   const { data: allProjects = [] } = useGetProjectsQuery();
+  const { data: eventStatuses } = useGetStatusesAppQuery();
+  const { data: eventStatusOrders } = useGetStatusOrdersByEventQuery(eventId!, {
+    skip: !eventId,
+  });
   const hasInitialized = useRef(false);
-
 
   useEffect(() => {
     if (eventId && isEventSuccess && eventData && !hasInitialized.current && allProjects.length > 0) {
       if (editingEventId === eventId) return;
 
+      // 1. Форматируем основные данные мероприятия
       const formattedEventData = {
         ...eventData,
         start: formatDate(new Date(eventData.start)),
         end: formatDate(new Date(eventData.end)),
         end_app: formatDate(new Date(eventData.end_app)),
       };
-  
+
       dispatch(updateEvent({
         name: formattedEventData.name || '',
         description: formattedEventData.description || '',
@@ -61,35 +69,53 @@ export default function EventForm(): JSX.Element {
         end_app: formattedEventData.end_app || '',
         specializations: formattedEventData.specializations || [],
       }));
-  
-      const directionIds = eventData.directions.map((dir: Direction) => dir.id);
-      const relatedProjects = allProjects.filter((project: Project) =>
-        directionIds.includes(project.directionSet.id)
-      );
-  
-      const resultsProjects = relatedProjects.map((project: any) => ({
-        ...project,
-        direction: project.directionSet.id,
-        directionSet: undefined,
-      }));
 
-      console.log(directionIds)
-
-      console.log(allProjects)
-  
+      // 2. Обрабатываем направления
       const resultsDirections = eventData.directions.map((direction: any) => ({
         ...direction,
         leader_id: direction.leader,
         event: eventData.event_id,
         leader: undefined,
       }));
-  
       dispatch(updateDirections(resultsDirections));
+
+      // 3. Обрабатываем проекты
+      const directionIds = eventData.directions.map((dir: Direction) => dir.id);
+      const relatedProjects = allProjects.filter((project: Project) =>
+        directionIds.includes(project.directionSet.id)
+      );
+      const resultsProjects = relatedProjects.map((project: any) => ({
+        ...project,
+        direction: project.directionSet.id,
+        directionSet: undefined,
+      }));
       dispatch(updateProjects(resultsProjects));
-      dispatch(setEditingEventId(eventId!));
-  
+
+      // 4. Обрабатываем статусы (если данные загружены)
+      if (eventStatuses && eventStatusOrders) {
+        const sortedStatusOrders = [...eventStatusOrders]
+          .sort((a, b) => a.number - b.number)
+          .filter(order => order.event === eventId);
+
+        const orderedStatuses = sortedStatusOrders.map(order => {
+          const status = eventStatuses.find((s: StatusApp) => s.id === order.status);
+          return status ? {
+            id: status.id,
+            name: status.name,
+            description: status.description,
+            is_positive: status.is_positive
+          } : null;
+        }).filter(Boolean);
+
+        dispatch(updateStatuses(orderedStatuses));
+      }
+
+      // 5. Устанавливаем флаг редактирования
+      dispatch(setEditingEventId(eventId));
       hasInitialized.current = true;
+
     } else if (!eventId && !stepEvent) {
+      // Сброс состояния для нового мероприятия
       dispatch(updateEvent({
         name: '',
         description: '',
@@ -99,8 +125,21 @@ export default function EventForm(): JSX.Element {
         end_app: '',
         specializations: [],
       }));
+      dispatch(updateDirections( [] ));
+      dispatch(updateProjects( [] ));
+      dispatch(updateStatuses( [] ));
     }
-  }, [isEventSuccess, eventData, allProjects, eventId, dispatch]);
+  }, [
+    isEventSuccess, 
+    eventData, 
+    allProjects, 
+    eventStatuses, 
+    eventStatusOrders, 
+    eventId, 
+    dispatch,
+    editingEventId,
+    stepEvent
+  ]);
 
   
 
@@ -158,11 +197,27 @@ export default function EventForm(): JSX.Element {
   };
 
   const handleEndDateChange = (endDate: string) => {
-    dispatch(updateEventField({ field: 'end', value: formatToServer(endDate) }));
+    const formattedDate = formatToServer(endDate);
+    dispatch(updateEventField({ field: 'end', value: formattedDate }));
+    
+    // Если дата окончания раньше даты приёма заявок - сбрасываем дату приёма
+    if (stepEvent.end_app && new Date(formattedDate) < new Date(stepEvent.end_app)) {
+      dispatch(updateEventField({ field: 'end_app', value: '' }));
+      showNotification('Дата завершения мероприятия должна быть позже даты окончания приёма заявок', 'error');
+    }
   };
 
   const handleEndAppDateChange = (endAppDate: string) => {
-    dispatch(updateEventField({ field: 'end_app', value: formatToServer(endAppDate) }));
+    const formattedDate = formatToServer(endAppDate);
+    
+    // Проверяем, что дата приёма заявок не позже даты окончания
+    if (stepEvent.end && new Date(formattedDate) > new Date(stepEvent.end)) {
+      // Можно показать ошибку или просто не обновлять значение
+      showNotification('Дата окончания приёма заявок должна быть раньше даты завершения мероприятия', 'error');
+      return;
+    }
+    
+    dispatch(updateEventField({ field: 'end_app', value: formattedDate }));
   };
 
 
@@ -200,7 +255,7 @@ export default function EventForm(): JSX.Element {
             />
           </div>
 
-          <SpecializationSelector
+          <SpecializationField
             selectedSpecializations={stepEvent.specializations}
             onChange={handleSpecializationsChange}
           />
@@ -227,6 +282,7 @@ export default function EventForm(): JSX.Element {
               placeholder="Дата завершения"
               required
               withPlaceholder={true}
+              minDate={stepEvent.end_app ? new Date(stepEvent.end_app) : undefined}
             />
 
             <DateInputField
@@ -236,6 +292,7 @@ export default function EventForm(): JSX.Element {
               placeholder="Срок приема заявок"
               required
               withPlaceholder={true}
+              maxDate={stepEvent.end ? new Date(stepEvent.end) : undefined}
             />
           </div>
 
@@ -245,7 +302,7 @@ export default function EventForm(): JSX.Element {
               type="button"
               onClick={handleNextStep} // Переход к следующему шагу
             >
-              Настройка направлений
+              Далее
               <ChevronRightIcon width="24" height="24" strokeWidth="1" />
             </button>
           </div>

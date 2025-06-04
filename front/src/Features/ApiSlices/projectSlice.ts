@@ -9,7 +9,6 @@ export interface Project {
   name: string; // Название проекта
   description: string | null; // Описание проекта (может быть пустым)
   curatorsSet: number[]; // Массив идентификаторов кураторов проекта
-  creator: number; // Идентификатор создателя проекта
 }
 
 /**

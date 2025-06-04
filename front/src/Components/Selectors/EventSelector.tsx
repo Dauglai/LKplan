@@ -13,10 +13,11 @@ export default function EventSelector({
   selectedEvent,
   onChange,
 }: EventSelectorProps): JSX.Element {
-  const { data: events, isLoading } = useGetEventsQuery();
+  
+  const { data: events, isLoading } = useGetEventsQuery(); // получаем список меропряитий с сервера
 
   if (isLoading) {
-    return <Spin />;
+    return <Spin />; //если идет загрузка мероприятий показываем компонент Spin
   }
 
   if (!events || events.length === 0) {

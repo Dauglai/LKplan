@@ -4,5 +4,12 @@
     "Reauth",
     "reduxjs"
   ],
-  "svg.preview.background": "editor"
+  "svg.preview.background": "editor",
+  "git.timeline.showAuthor": true,
+  "gitlens.currentLine.enabled": true,
+  "gitlens.currentLine.pullRequests.enabled": false,
+  "gitlens.hovers.currentLine.enabled": true,
+  "gitlens.hovers.currentLine.details": true,
+  "gitlens.views.showCurrentBranchOnTop": true,
+  "gitlens.hovers.currentLine.changes": true
 }

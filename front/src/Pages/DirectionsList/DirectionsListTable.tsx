@@ -11,6 +11,9 @@ import ActionMenu from 'Components/Sections/ActionMenu';
 import ListTable from "Components/Sections/ListTable";
 import EditDirectionModal from 'Pages/DirectionForm/EditDirectionModal';
 
+/**
+ * Интерфейс для компонента DirectionsListTable.
+ */
 interface DirectionsTableProps {
   directions: Direction[];
   onDelete: (id: number) => void;
@@ -32,10 +35,9 @@ interface DirectionsTableProps {
  *
  * @returns {JSX.Element} Компонент для отображения списка направлений.
  */
-
 export default function DirectionsListTable({ directions, onDelete }: DirectionsTableProps): JSX.Element {
-    const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
-    const { data: projects, isLoading: isLoadingProjects } = useGetProjectsQuery();
+    const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery(); //получаем список мероприятий
+    const { data: projects, isLoading: isLoadingProjects } = useGetProjectsQuery();  
     const { data: users, isLoading, error } = useGetUsersQuery();
     const { hasPermission, getRoleForObject, hasRole } = useUserRoles();
 

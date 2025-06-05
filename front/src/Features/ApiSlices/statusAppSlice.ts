@@ -1,10 +1,12 @@
 import { apiSlice } from 'App/api/apiSlice.ts';
+import { Trigger } from './triggerApiSlice';
 
 export interface StatusApp {
   id: number;
   name: string;
-  description: string;
-  is_positive: boolean;
+  description?: string;
+  is_positive?: boolean;
+  triggers?: Trigger[];
 }
 
 const statusAppApi = apiSlice.injectEndpoints({

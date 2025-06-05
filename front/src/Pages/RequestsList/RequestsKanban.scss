@@ -1,0 +1,82 @@
+@import 'Styles/mixins';
+@import 'Styles/variables';
+
+.kanban-container {
+    display: flex;
+    gap: 20px;
+}
+                
+.kanban-column {
+    max-width: 300px;
+    width: 280px;
+    min-height: 650px !important;
+    background: #fff;
+    border-radius: $border-radius;
+    padding: 12px 8px;
+    box-shadow: 0px 0px 11.5px 6px rgba(167, 167, 167, 0.25);
+}
+                
+.kanban-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 8px;
+}
+                
+.kanban-column-header h3 {
+    @include h3;
+    margin: 0;
+    font-size: 16px;
+}
+                
+.badge {
+    background: #e0e0e0;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 14px;
+}
+                
+.kanban-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 100px;
+}
+                
+.kanban-card {
+    background: #F7F6F6;
+    width: 204;
+    border-radius: $border-radius;
+    backdrop-filter: blur(4px);
+    box-shadow: 0px 4px 4px 0px #00000040;
+    padding: 8px 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+                
+.card-header h4 {
+    @include text1;
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+                
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+}
+                
+.date {
+    @include text2;
+}
+                
+.user {
+    @include text2;
+    padding: 4px;
+    background-color: $blue;
+    border-radius: 10px;
+}

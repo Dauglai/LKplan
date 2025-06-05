@@ -38,7 +38,7 @@ export default function StatusModal({visible,
           <Title level={4} className="ModalTitle">
             Создание статуса
           </Title>
-    }
+      }
       open={visible}
       onCancel={onCancel}
       onOk={handleSubmit}

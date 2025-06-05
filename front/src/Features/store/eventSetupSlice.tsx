@@ -3,29 +3,55 @@ import { Event } from "Features/ApiSlices/eventSlice";
 import { Direction } from "Features/ApiSlices/directionSlice";
 import { Project } from "Features/ApiSlices/projectSlice";
 import { StatusApp } from "Features/ApiSlices/statusAppSlice";
+import { Trigger } from "Features/ApiSlices/triggerApiSlice";
+import { Robot } from "Features/ApiSlices/robotApiSlice";
 
 interface EventSetupState {
-    stepEvent: Event;  // Данные о мероприятии
-    stepDirections: { directions: Direction[] };  // Направления для мероприятия
-    stepProjects: { projects: Project[] };  // Проекты, связанные с мероприятием
-    stepStatuses: { statuses: StatusApp[]};
-    editingEventId: number | null;
+  stepEvent: Event;
+  stepDirections: { directions: Direction[] };
+  stepProjects: { projects: Project[] };
+  stepStatuses: {
+    statuses: StatusApp[];
+    statusOrders: {
+      id?: number;
+      status: number;
+      number: number;
+    }[];
+  };
+  stepRobots: {
+    robots: Robot[];
+    functionOrders: {
+      id?: number;
+      status_order: number;
+      position: number;
+      robot: number;
+      config: Record<string, any>;
+    }[];
+  };
+  editingEventId: number | null;
 }
 
 const initialState: EventSetupState = {
-    stepEvent: {
-        name: '',
-        description: '',
-        stage: 'Редактирование',  // Начальная стадия мероприятия
-        start: '',
-        end: '',
-        end_app: '',
-        specializations: [],
-    },
-    stepDirections: { directions: [] },  // Направления (по умолчанию пустой массив)
-    stepProjects: { projects: [] },  // Проекты (по умолчанию пустой массив)
-    stepStatuses: { statuses: []},  // Статусы (по умолчанию пустой массив)
-    editingEventId: null,
+  stepEvent: {
+    name: '',
+    description: '',
+    stage: 'Редактирование',
+    start: '',
+    end: '',
+    end_app: '',
+    specializations: [],
+  },
+  stepDirections: { directions: [] },
+  stepProjects: { projects: [] },
+  stepStatuses: { 
+    statuses: [],
+    statusOrders: [] 
+  },
+  stepRobots: {
+    robots: [],
+    functionOrders: []
+  },
+  editingEventId: null,
 };
 
 /**
@@ -153,6 +179,204 @@ const eventSlice = createSlice({
       }
     },
 
+    reorderStatuses(state, action: PayloadAction<StatusApp[]>) {
+      state.stepStatuses.statuses = action.payload;
+      // Обновляем порядок в statusOrders
+      state.stepStatuses.statusOrders = action.payload.map((status, index) => ({
+        id: status.id,
+        status: status.id,
+        number: index + 1
+      }));
+    },
+
+    // Добавление триггера к статусу
+    addTriggerToStatus(state, action: PayloadAction<{
+      statusId: number;
+      trigger: Omit<Trigger, 'id'>;
+    }>) {
+      const status = state.stepStatuses.statuses.find(s => 
+        s.id === action.payload.statusId || s.name === action.payload.statusId
+      );
+      if (status) {
+        if (!status.triggers) status.triggers = [];
+        status.triggers.push({
+          ...action.payload.trigger,
+          id: Date.now() // Временный ID для фронта
+          });
+        }
+      },
+
+      // Обновление триггера
+      updateTrigger(state, action: PayloadAction<{
+        statusId: number;
+        triggerId: number;
+        changes: Partial<Trigger>;
+      }>) {
+        const status = state.stepStatuses.statuses.find(s => 
+          s.id === action.payload.statusId || s.name === action.payload.statusId
+        );
+        if (status?.triggers) {
+          const triggerIndex = status.triggers.findIndex(t => 
+            t.id === action.payload.triggerId
+          );
+          if (triggerIndex !== -1) {
+            status.triggers[triggerIndex] = {
+              ...status.triggers[triggerIndex],
+              ...action.payload.changes
+            };
+          }
+        }
+      },
+
+      // Удаление триггера
+      removeTriggerFromStatus(state, action: PayloadAction<{
+        statusId: number;
+        triggerId: number;
+      }>) {
+        const status = state.stepStatuses.statuses.find(s => 
+          s.id === action.payload.statusId || s.name === action.payload.statusId
+        );
+        if (status?.triggers) {
+          status.triggers = status.triggers.filter(
+            t => t.id !== action.payload.triggerId
+          );
+        }
+      },
+
+      // Обновление порядка триггеров
+      reorderTriggers(state, action: PayloadAction<{
+        statusId: number;
+        triggers: Trigger[];
+      }>) {
+        const status = state.stepStatuses.statuses.find(s => 
+          s.id === action.payload.statusId || s.name === action.payload.statusId
+        );
+        if (status) {
+          status.triggers = action.payload.triggers;
+        }
+      },
+
+      moveTriggerBetweenStatuses: (state, action: PayloadAction<{
+      source: { statusId: number; triggerId: number };
+      destination: { statusId: number };
+    }>) => {
+      const { source, destination } = action.payload;
+      const statuses = state.stepStatuses.statuses;
+      
+      const sourceStatus = statuses.find(s => s.id === source.statusId);
+      const destStatus = statuses.find(s => s.id === destination.statusId);
+      
+      if (sourceStatus && destStatus) {
+        const triggerIndex = sourceStatus.triggers?.findIndex(t => t.id === source.triggerId) ?? -1;
+        
+        if (triggerIndex !== -1) {
+          const [trigger] = sourceStatus.triggers.splice(triggerIndex, 1);
+          destStatus.triggers = [...(destStatus.triggers || []), trigger];
+        }
+      }
+    },
+
+    // Добавляем робота в общий список
+    addRobot(state, action: PayloadAction<Robot>) {
+      state.stepRobots.robots.push({
+        ...action.payload,
+        id: action.payload.id || Date.now()
+      });
+    },
+
+    // Привязываем робота к триггеру
+    attachRobotToTrigger(state, action: PayloadAction<{
+      statusId: number;
+      triggerId: number;
+      robotId: number;
+    }>) {
+      const status = state.stepStatuses.statuses.find(s => s.id === action.payload.statusId);
+      const trigger = status?.triggers?.find(t => t.id === action.payload.triggerId);
+      
+      if (trigger) {
+        trigger.robotId = action.payload.robotId;
+      }
+    },
+
+    // Отвязываем робота от триггера
+    detachRobotFromTrigger(state, action: PayloadAction<{
+      statusId: number;
+      triggerId: number;
+    }>) {
+      const status = state.stepStatuses.statuses.find(s => s.id === action.payload.statusId);
+      const trigger = status?.triggers?.find(t => t.id === action.payload.triggerId);
+      
+      if (trigger) {
+        delete trigger.robotId;
+      }
+    },
+
+    // Перемещение робота между триггерами
+    moveRobotBetweenTriggers(state, action: PayloadAction<{
+      source: { statusId: number; triggerId: number };
+      destination: { statusId: number; triggerId: number };
+      robotId: number;
+    }>) {
+      // Удаляем из исходного триггера
+      const sourceStatus = state.stepStatuses.statuses.find(
+        s => s.id === action.payload.source.statusId
+      );
+      const sourceTrigger = sourceStatus?.triggers?.find(
+        t => t.id === action.payload.source.triggerId
+      );
+      
+      if (sourceTrigger?.robotId === action.payload.robotId) {
+        delete sourceTrigger.robotId;
+      }
+
+      // Добавляем в новый триггер
+      const destStatus = state.stepStatuses.statuses.find(
+        s => s.id === action.payload.destination.statusId
+      );
+      const destTrigger = destStatus?.triggers?.find(
+        t => t.id === action.payload.destination.triggerId
+      );
+      
+      if (destTrigger) {
+        destTrigger.robotId = action.payload.robotId;
+      }
+    },
+
+    addFunctionOrder(state, action: PayloadAction<{
+      statusId: number;
+      position: number;
+      robotId?: number;
+      triggerId?: number;
+      config: Record<string, any>;
+    }>) {
+      const { statusId, position, robotId, triggerId, config } = action.payload;
+      
+      if (!robotId && !triggerId) return;
+
+      state.stepRobots.functionOrders.push({
+        id: Date.now(),
+        status_order: statusId,
+        position,
+        robot: robotId,
+        trigger: triggerId,
+        config
+      });
+    },
+
+    // Обновление FunctionOrder
+    updateFunctionOrder(state, action: PayloadAction<{
+      id: number;
+      changes: {
+        position?: number;
+        config?: Record<string, any>;
+      };
+    }>) {
+      const order = state.stepRobots.functionOrders.find(o => o.id === action.payload.id);
+      if (order) {
+        Object.assign(order, action.payload.changes);
+      }
+    },
+
     /**
      * Сбросить все данные о мероприятии к начальному состоянию.
      */
@@ -165,7 +389,10 @@ export const {
   updateEvent, updateEventField, setEditingEventId,
   updateDirections, addDirection, removeDirection,
   updateProjects, addProject, removeProject,
-  updateStatuses, addStatus, removeStatus, updateStatus,
+  updateStatuses, addStatus, removeStatus, updateStatus, reorderStatuses,
+  addTriggerToStatus, updateTrigger, removeTriggerFromStatus, reorderTriggers, moveTriggerBetweenStatuses,
+  addRobot, attachRobotToTrigger, detachRobotFromTrigger, moveRobotBetweenTriggers,
+  addFunctionOrder, updateFunctionOrder,
   resetEvent, 
 } = eventSlice.actions;
 export const eventSetupReducer = eventSlice.reducer;

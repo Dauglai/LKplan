@@ -134,8 +134,75 @@
 
     .kanbanColumnBody {
       flex-grow: 1;
-      padding: 12px;
+      padding: 12px 0;
       overflow-y: auto;
+    }
+
+    .columnActions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .addTriggerBtn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .addTriggerBtn:hover {
+      opacity: 1;
+    }
+
+    /* Стили для списка триггеров */
+    .triggerList {
+      padding: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .triggerBadge {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 12px;
+    }
+
+    /* Контейнер для триггеров */
+    .triggerContainer {
+      min-height: 60px;
+      width: 100%;
+    }
+
+    /* Элемент триггера */
+    .triggerItem {
+      padding: 8px;
+      margin-bottom: 8px;
+      background: #f8f8f8;
+      border-radius: $border-radius;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: grab;
+    }
+
+    .triggerItem.isDragging {
+      border: 1px dashed $yellow;
+    }
+
+    /* Кнопка удаления триггера */
+    .triggerRemoveBtn {
+      border: none;
+      background: none;
+      cursor: pointer;
+      opacity: 0.5;
+      padding: 0;
+    }
+
+    .triggerRemoveBtn:hover {
+      opacity: 1;
     }
       
 }

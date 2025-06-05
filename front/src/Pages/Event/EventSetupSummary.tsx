@@ -14,7 +14,6 @@ import DescriptionInputField from 'Components/Forms/DescriptioninputField';
 import { useGetSpecializationsQuery } from 'Features/ApiSlices/specializationSlice';
 import SideStepNavigator from 'Components/Sections/SideStepNavigator';
 import { 
-  StatusApp,
   useCreateStatusAppMutation, 
   useDeleteStatusAppMutation, 
   useGetStatusesAppQuery, 
@@ -164,48 +163,30 @@ const EventSetupSummary = () => {
           setStatus('Создание статусов...');
           setError('');
 
-          // Создаем статусы строго последовательно
+          // Создаем статусы и их порядок 
           for (let i = 0; i < stepStatuses.statuses.length; i++) {
-            // 1. Создаем сам статус
-            const statusResponse = await createStatusApp(stepStatuses.statuses[i]).unwrap();
+            const statusApp = stepStatuses.statuses[i];
             
-            // 2. Создаем запись о порядке с ОДНИМ И ТЕМ ЖЕ номером (пока не получится)
-            let retryCount = 0;
-            let success = false;
+            // 1. Создаем статус
+            const newStatus = await createStatusApp(statusApp).unwrap();
             
-            while (!success && retryCount < 3) { // Пробуем максимум 3 раза
-              try {
-                await createStatusOrder({
-                  number: i + 1, // Всегда номер по порядку (1, 2, 3...)
-                  event: eventId,
-                  status: statusResponse.id
-                }).unwrap();
-                success = true;
-              } catch (orderError) {
-                if (orderError.data?.non_field_errors?.[0]?.includes("Позиция с таким номером уже существует")) {
-                  // Если номер занят - ждем немного и пробуем снова
-                  await new Promise(resolve => setTimeout(resolve, 300));
-                  retryCount++;
-                } else {
-                  throw orderError; // Другие ошибки прокидываем выше
-                }
-              }
-            }
-
-            if (!success) {
-              throw new Error(`Не удалось установить порядок для статуса ${i + 1}`);
-            }
-
-            setStatus(`Создан статус ${i + 1}/${stepStatuses.statuses.length}`);
+            // 2. Создаем запись о порядке с текущим номером
+            await createStatusOrder({
+              number: i + 1, // Нумерация с 1
+              event: eventId,
+              status: newStatus.id
+            }).unwrap();
+            
+            setStatus(`Создан статус ${i + 1} из ${stepStatuses.statuses.length}`);
           }
 
-          setStatus('Все статусы созданы!');
-          showNotification('Порядок статусов успешно сохранен', 'success');
+          setStatus('Все статусы успешно созданы!');
+          showNotification('Статусы созданы', 'success');
           
         } catch (error) {
-          console.error('Ошибка:', error);
-          setError(error.message);
-          showNotification('Ошибка при создании статусов', 'error');
+          console.error('Ошибка создания статуса:', error);
+          setError(`Ошибка при создании статусов: ${error.message}`);
+          //showNotification('Ошибка создания статусов', 'error');
         }
       }
 

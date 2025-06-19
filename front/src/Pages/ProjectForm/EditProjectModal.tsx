@@ -1,37 +1,61 @@
-import { Modal } from 'antd';
-import { useState, useEffect, useMemo } from 'react';
-import { Project, useUpdateProjectMutation } from 'Features/ApiSlices/projectSlice';
-import { useNotification } from 'Components/Common/Notification/Notification'; 
-
-import DirectionSelector from 'Components/Selectors/DirectionSelector';
-import NameInputField from 'Components/Forms/NameInputField';
-import DescriptionInputField from 'Components/Forms/DescriptioninputField';
-import UserSelector from 'Components/Selectors/UserSelector';
-import { useUserRoles } from 'Features/context/UserRolesContext';
-import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
+import { Modal } from 'antd'; // Модальное окно Ant Design
+import { useState, useEffect, useMemo } from 'react'; // Хуки React
+import { Project, useUpdateProjectMutation } from 'Features/ApiSlices/projectSlice'; // Типы и мутации проектов
+import { useNotification } from 'Components/Common/Notification/Notification'; // Хук уведомлений
+import DirectionSelector from 'Components/Selectors/DirectionSelector'; // Селектор направления
+import NameInputField from 'Components/Forms/NameInputField'; // Поле ввода названия
+import DescriptionInputField from 'Components/Forms/DescriptioninputField'; // Поле ввода описания
+import { useUserRoles } from 'Features/context/UserRolesContext'; // Контекст ролей пользователя
+import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice'; // Запрос направлений
 
 type EditProjectModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  project?: Project;
-  onSuccess?: () => void;
+  isOpen: boolean; // Флаг видимости модального окна
+  onClose: () => void; // Функция закрытия модального окна
+  project?: Project; // Данные редактируемого проекта
+  onSuccess?: () => void; // Колбек после успешного обновления
 };
 
-export default function EditProjectModal({ isOpen, onClose, project, onSuccess }: EditProjectModalProps): JSX.Element {
-  const { showNotification } = useNotification();
-  const [updateProject, { isLoading }] = useUpdateProjectMutation();
-  const { hasRole, getRoleForObject } = useUserRoles();
-  const { data: allDirections } = useGetDirectionsQuery();
+/**
+ * Модальное окно редактирования существующего проекта.
+ * Позволяет изменить название, описание и направление проекта.
+ * Автоматически фильтрует доступные направления в зависимости от ролей пользователя.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <EditProjectModal
+ *   isOpen={isEditModalOpen}
+ *   onClose={() => setIsEditModalOpen(false)}
+ *   project={selectedProject}
+ *   onSuccess={refetchProjects}
+ * />
+ *
+ * @param {EditProjectModalProps} props - Свойства компонента
+ * @returns {JSX.Element} Модальное окно редактирования проекта
+ */
+export default function EditProjectModal({ 
+  isOpen, 
+  onClose, 
+  project, 
+  onSuccess 
+}: EditProjectModalProps): JSX.Element {
+  const { showNotification } = useNotification(); // Хук уведомлений
+  const [updateProject, { isLoading }] = useUpdateProjectMutation(); // Мутация обновления
+  const { hasRole, getRoleForObject } = useUserRoles(); // Проверка ролей
+  const { data: allDirections } = useGetDirectionsQuery(); // Запрос направлений
 
+  // Состояние формы редактирования
   const [editedProject, setEditedProject] = useState({
     project_id: 0,
-    direction: null,
-    name: '',
-    description: '',
-    //curators: 0,
+    direction: null, // Выбранное направление
+    name: '', // Название проекта
+    description: '', // Описание проекта
   });
 
-
+  /**
+   * Эффект инициализации формы данными проекта
+   * Заполняет форму данными при открытии или изменении проекта
+   */
   useEffect(() => {
     if (project) {
       setEditedProject({
@@ -39,39 +63,50 @@ export default function EditProjectModal({ isOpen, onClose, project, onSuccess }
         direction: project.directionSet || project.direction,
         name: project.name,
         description: project.description || '',
-        curators: project.curators || 0,
       });
     }
   }, [project]);
 
+  /**
+   * Фильтрует доступные направления для выбора:
+   * - Организаторы видят все направления
+   * - Руководители направлений видят только свои направления
+   * - Остальные пользователи не видят направлений
+   */
   const filteredDirections = useMemo(() => {
+    if (!allDirections) return [];
+
     if (hasRole('organizer')) {
-      // Если пользователь организатор, все направления доступны
-      return allDirections;
+      return allDirections; // Полный доступ для организаторов
     }
 
     if (hasRole('direction_leader')) {
-      // Если пользователь руководитель направления, фильтруем доступные направления
       return allDirections.filter((direction) => {
-        // Для каждого направления проверяем, есть ли роль руководителя для этого направления
         const role = getRoleForObject(
-          'direction_leader', // тип роли — руководитель направления
-          direction.id, // ID направления
-          'crm.direction', // тип объекта — направление
+          'direction_leader', 
+          direction.id,
+          'crm.direction'
         );
-
-        return role; // если роль есть, это направление доступно
+        return role; // Только направления с правами руководителя
       });
     }
 
-    return []; // Если роль не определена, возвращаем пустой список
+    return []; // Нет доступных направлений
   }, [allDirections, hasRole, getRoleForObject]);
 
+  /**
+   * Обработчик изменения текстовых полей
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - Событие изменения
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditedProject((prev) => ({ ...prev, [name]: value }));
   };
 
+  /**
+   * Обработчик изменения направления
+   * @param {Object} selected - Выбранное направление
+   */
   const handleDirectionChange = (selected) => {
     setEditedProject((prev) => ({
       ...prev,
@@ -79,13 +114,10 @@ export default function EditProjectModal({ isOpen, onClose, project, onSuccess }
     }));
   };
 
-  const handleCuratorChange = (selected: number) => {
-    setEditedProject((prev) => ({
-      ...prev,
-      curators: selected,
-    }));
-  };
-
+  /**
+   * Обработчик изменения текстового поля (textarea)
+   * @param {React.ChangeEvent<HTMLTextAreaElement>} e - Событие изменения
+   */
   const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setEditedProject((prev) => ({
       ...prev,
@@ -93,21 +125,28 @@ export default function EditProjectModal({ isOpen, onClose, project, onSuccess }
     }));
   };
 
-  console.log(editedProject)
-
+  /**
+   * Обработчик отправки формы
+   * Валидирует данные и отправляет запрос на обновление проекта
+   */
   const handleSubmit = async () => {
     if (!editedProject.name.trim() || !editedProject.direction) return;
 
-    const payload = {
+    try {
+      const payload = {
         ...editedProject,
         id: editedProject.project_id,
         direction: editedProject.direction.id,
-    };
+      };
 
-    await updateProject(payload);
-    showNotification('Проект обновлён!', 'success');
-    onSuccess?.();
-    onClose();
+      await updateProject(payload).unwrap();
+      showNotification('Проект обновлён!', 'success');
+      onSuccess?.(); // Вызываем колбек при успехе
+      onClose(); // Закрываем модальное окно
+    } catch (error) {
+      showNotification('Ошибка при обновлении проекта', 'error');
+      console.error(error);
+    }
   };
 
   return (

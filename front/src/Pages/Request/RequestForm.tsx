@@ -1,54 +1,107 @@
-import { useState, useEffect } from "react";
-import { Project, useGetProjectsQuery } from "Features/ApiSlices/projectSlice";
-import { Event } from "Features/ApiSlices/eventSlice";
-import { Team, useGetTeamsQuery } from "Features/ApiSlices/teamSlice";
-import ProjectSelector from "Components/Selectors/ProjectSelector";
-import SpecializationSelector from "Components/Selectors/SpecializationSelector";
-import DirectionSelector from "Components/Selectors/DirectionSelector";
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
-import TeamSelector from "Components/Selectors/TeamSelector";
-import { Direction, useGetDirectionsQuery } from "Features/ApiSlices/directionSlice";
-import { Input, Spin } from "antd";
+import { useState, useEffect } from "react"; // Хуки состояния и эффектов
+import { Project, useGetProjectsQuery } from "Features/ApiSlices/projectSlice"; // Тип проекта и запрос проектов
+import { Event } from "Features/ApiSlices/eventSlice"; // Тип мероприятия
+import { Team, useGetTeamsQuery } from "Features/ApiSlices/teamSlice"; // Тип команды и запрос команд
+import ProjectSelector from "Components/Selectors/ProjectSelector"; // Селектор проектов
+import SpecializationSelector from "Components/Selectors/SpecializationSelector"; // Селектор специализаций
+import DirectionSelector from "Components/Selectors/DirectionSelector"; // Селектор направлений
+import ChevronRightIcon from 'assets/icons/chevron-right.svg?react'; // Иконка стрелки вправо
+import TeamSelector from "Components/Selectors/TeamSelector"; // Селектор команд
+import { Direction, useGetDirectionsQuery } from "Features/ApiSlices/directionSlice"; // Тип направления и запрос направлений
+import { Input, Spin } from "antd"; // Компоненты Ant Design
+import { useGetStatusOrdersByEventQuery } from "Features/ApiSlices/statusOrdersSlice";
 
 interface RequestFormProps {
-  event: Event;
-  userId: string;
-  onSubmit: (data: any) => void;
+  event: Event; // Объект мероприятия
+  userId: string; // ID пользователя
+  onSubmit: (data: any) => void; // Функция обработки отправки формы
 }
 
+/**
+ * Форма создания заявки на участие в мероприятии.
+ * Позволяет выбрать направление, проект, команду и специализацию.
+ * Автоматически фильтрует доступные варианты в зависимости от выбранных значений.
+ * Поддерживает автоподстановку связанных сущностей.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <RequestForm 
+ *   event={currentEvent} 
+ *   userId={currentUser.id} 
+ *   onSubmit={handleRequestSubmit} 
+ * />
+ *
+ * @param {RequestFormProps} props - Свойства компонента
+ * @returns {JSX.Element} Форма создания заявки с селекторами и полем сообщения
+ */
 export default function RequestForm({ event, userId, onSubmit }: RequestFormProps): JSX.Element {
-  const { data: directions, isLoading: isDirectionsLoading } = useGetDirectionsQuery();
-  const { data: projects, isLoading: isProjectsLoading } = useGetProjectsQuery();
-  const { data: teams, isLoading: isTeamsLoading } = useGetTeamsQuery();
+  const { data: directions, isLoading: isDirectionsLoading } = useGetDirectionsQuery(); // Запрос направлений
+  const { data: projects, isLoading: isProjectsLoading } = useGetProjectsQuery(); // Запрос проектов
+  const { data: teams, isLoading: isTeamsLoading } = useGetTeamsQuery(); // Запрос команд
+  const { data: statusOrders, isLoading: isStatusOrdersLoading } = useGetStatusOrdersByEventQuery(event.event_id); //Запрос на список статусов для мероприятия
 
-  const [selectedDirection, setSelectedDirection] = useState<Direction | null>(null);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
-  const [selectedSpecialization, setSelectedSpecialization] = useState<number[]>([]);
-  const [message, setMessage] = useState<string>("");
+  // Состояния формы
+  const [selectedDirection, setSelectedDirection] = useState<Direction | null>(null); // Выбранное направление
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null); // Выбранный проект
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null); // Выбранная команда
+  const [selectedSpecialization, setSelectedSpecialization] = useState<number[]>([]); // Выбранные специализации
+  const [message, setMessage] = useState<string>(""); // Сообщение к заявке
 
+  const firstStatus = statusOrders?.reduce((prev, current) => 
+    (prev.number < current.number) ? prev : current
+  );
+
+  // Базовые данные заявки
   const [requestData, setRequestData] = useState({
     event: event.event_id,
     user: userId,
-    status: 1,
+    status: firstStatus?.status,
   });
 
+  useEffect(() => {
+    if (statusOrders && statusOrders.length > 0) {
+      const initialStatus = statusOrders.reduce((prev, current) => 
+        (prev.number < current.number) ? prev : current
+      ).status;
+      
+      setRequestData(prev => ({
+        ...prev,
+        status: initialStatus,
+      }));
+    }
+  }, [statusOrders]);
+
+
+  /**
+   * Направления, отфильтрованные по текущему мероприятию.
+   * @type {Direction[]|undefined}
+   */
   const filteredDirections = directions?.filter(
     (direction) => direction.event === event.event_id
   );
 
+  /**
+   * Проекты, отфильтрованные по доступным направлениям.
+   * @type {Project[]|undefined}
+   */
   const filteredProjects = projects?.filter((project) =>
-    // Проект привязан через directionSet к направлению, а направление к мероприятию
     filteredDirections?.some((dir) => dir.id === project.directionSet.id)
   );
 
+  /**
+   * Команды, отфильтрованные по доступным проектам.
+   * @type {Team[]|undefined}
+   */
   const filteredTeams = teams?.filter((team) => {
     const project = projects?.find((p) => p.project_id === team.project);
     if (!project) return false;
     return filteredDirections?.some((dir) => dir.id === project.directionSet.id);
   });
 
-  // Логика автоподстановки родителя при выборе дочернего элемента
+  /**
+   * Эффект автоподстановки направления при выборе проекта.
+   */
   useEffect(() => {
     if (selectedProject) {
       const project = projects?.find((project) => project.id === selectedProject.id);
@@ -56,6 +109,9 @@ export default function RequestForm({ event, userId, onSubmit }: RequestFormProp
     }
   }, [selectedProject, projects]);
 
+  /**
+   * Эффект автоподстановки проекта и направления при выборе команды.
+   */
   useEffect(() => {
     if (selectedTeam) {
       const team = teams?.find((team) => team.id === selectedTeam.id);
@@ -69,6 +125,10 @@ export default function RequestForm({ event, userId, onSubmit }: RequestFormProp
     }
   }, [selectedTeam, teams, projects]);
 
+  /**
+   * Обработчик отправки формы.
+   * Формирует объект с данными заявки и передает его в onSubmit.
+   */
   const handleSubmit = () => {
     if (selectedProject) requestData.project = selectedProject.project_id;
     if (selectedDirection) requestData.direction = selectedDirection.id;
@@ -79,6 +139,7 @@ export default function RequestForm({ event, userId, onSubmit }: RequestFormProp
     onSubmit(requestData);
   };
 
+  // Состояние загрузки данных
   if (isDirectionsLoading || isProjectsLoading || isTeamsLoading) {
     return <Spin tip="Загрузка данных..." />;
   }

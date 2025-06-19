@@ -12,7 +12,7 @@
 
     .SideTabItem {
         @include text2;
-        background-color: $white;
+        background-color: $grey;
         min-height: 48px;
         color: $black;
         padding: 8px 16px;
@@ -27,11 +27,11 @@
       }
       
       .SideTabItem:hover {
-        background-color: $grey3;
+        background-color: $white;
       }
       
       .SideTabItem.active {
-        background-color: $grey3;
+        background-color: $white;
     }
   }
   

@@ -174,7 +174,7 @@ export default function DirectionsListTable({ directions, onDelete }: Directions
             </Link>
           );
         } else {
-          return 'Руководитель не найден';
+          return '-';
         }
       },
       text: 'Нажмите на руководителя для просмотра детальной информации',

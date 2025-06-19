@@ -81,6 +81,16 @@
                         }
                     }
 
+                    .HiglightCell.blue {
+                        background-color: $blue;
+                    }
+                    .HiglightCell.green {
+                        background-color: $green;
+                    }
+                    .HiglightCell.red {
+                        background-color: $pink;
+                    }
+
                     &:first-child {
                         border-radius: $border-radius 0 0 $border-radius;
                         border: 1px solid $yellow;
@@ -159,5 +169,35 @@
 
 .ant-checkbox .ant-checkbox-inner:after {
     display: block;
+}
+
+.view-mode-switcher {
+    margin-bottom: 16px;
+}
+
+.view-mode-switcher button {
+    margin-right: 8px;
+}
+
+.table-controls {
+    display: flex;
+    align-items: center;
+}
+
+.table-controls span {
+    margin-left: 8px;
+    font-size: 14px;
+}
+
+.empty-message {
+    padding: 20px;
+    text-align: center;
+    font-style: italic;
+}
+
+.empty-message.for-projectant {
+    font-style: normal;
+    max-width: 500px;
+    margin: 20px auto;
 }
   

@@ -54,7 +54,7 @@ export default function ListsHeaderPanel({
     }: ListsHeaderProps): JSX.Element {
     const [search, setSearch] = useState(""); // Локальное состояние строки поиска
     const navigate = useNavigate(); // Навигация по маршрутам
-    const { hasPermission } = useUserRoles();
+    const { hasRole, hasPermission } = useUserRoles();
 
     // Обработка поиска
     const handleSearch = (value: string) => {
@@ -99,7 +99,7 @@ export default function ListsHeaderPanel({
                 withPlaceholder={true}
             />
 
-            {PageOptions && 
+            {PageOptions && !hasRole("projectant") &&
                 <PageSwitcher options={PageOptions} />
             }
         </div>

@@ -1,57 +1,102 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useGetProjectByIdQuery } from 'Features/ApiSlices/projectSlice';
-import { useGetDirectionByIdQuery } from 'Features/ApiSlices/directionSlice';
-import { useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice';
-import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
-import BackButton from "Components/Common/BackButton/BackButton";
-import { Button } from 'antd';
-import { getInitials } from "Features/utils/getInitials";
-import 'Styles/pages/common/InfoPageStyle.scss';
-import { useEffect, useState } from 'react';
-import EditProjectModal from 'Pages/ProjectForm/EditProjectModal';
-import { useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
-import { useNotification } from 'Components/Common/Notification/Notification';
-import { useUserRoles } from 'Features/context/UserRolesContext';
+import { useParams, Link, useNavigate } from 'react-router-dom'; // Навигация и параметры URL
+import { useGetProjectByIdQuery } from 'Features/ApiSlices/projectSlice'; // Запрос данных проекта
+import { useGetDirectionByIdQuery } from 'Features/ApiSlices/directionSlice'; // Запрос данных направления
+import { useGetEventByIdQuery } from 'Features/ApiSlices/eventSlice'; // Запрос данных мероприятия
+import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice'; // Запрос списка команд
+import BackButton from "Components/Common/BackButton/BackButton"; // Кнопка "Назад"
+import { Button } from 'antd'; // UI компоненты Ant Design
+import 'Styles/pages/common/InfoPageStyle.scss'; // Общие стили страницы
+import { useEffect, useState } from 'react'; // Базовые хуки React
+import EditProjectModal from 'Pages/ProjectForm/EditProjectModal'; // Модальное окно редактирования
+import { useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice'; // Мутация удаления проекта
+import { useNotification } from 'Components/Common/Notification/Notification'; // Уведомления
+import { useUserRoles } from 'Features/context/UserRolesContext'; // Контекст ролей пользователя
 
+/**
+ * Страница просмотра детальной информации о проекте.
+ * Отображает данные проекта, связанное направление и мероприятие, список команд проекта.
+ * Предоставляет функционал редактирования и удаления (для авторизованных пользователей).
+ * 
+ * @component
+ * @example
+ * // Пример использования (переход по ссылке):
+ * <Link to={`/projects/${projectId}`} />
+ * 
+ * @returns {JSX.Element} Страница с детальной информацией о проекте
+ */
 export default function ProjectPage(): JSX.Element {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { showNotification } = useNotification()
-  const { data: project, isLoading: isProjectLoading, refetch: refetchProject, } = useGetProjectByIdQuery(Number(id));
-  const { data: direction, isLoading: isDirectionLoading } = useGetDirectionByIdQuery(project?.directionSet.id || 0, {
+  const { id } = useParams<{ id: string }>(); // Получаем ID проекта из URL
+  const navigate = useNavigate(); // Хук для навигации
+  const { showNotification } = useNotification(); // Хук для показа уведомлений
+  // Запрос данных проекта
+  const { 
+    data: project, 
+    isLoading: isProjectLoading, 
+    refetch: refetchProject 
+  } = useGetProjectByIdQuery(Number(id));
+  // Запрос данных направления (выполняется только если есть проект)
+  const { 
+    data: direction, 
+    isLoading: isDirectionLoading 
+  } = useGetDirectionByIdQuery(project?.directionSet.id || 0, {
     skip: !project,
   });
-  const { data: event, isLoading: isEventLoading } = useGetEventByIdQuery(direction?.event || 0, {
+  // Запрос данных мероприятия (выполняется только если есть направление)
+  const { 
+    data: event, 
+    isLoading: isEventLoading 
+  } = useGetEventByIdQuery(direction?.event || 0, {
     skip: !direction,
   });
-  const { data: teams, isLoading: isTeamsLoading } = useGetTeamsQuery();
+  // Запрос списка всех команд
+  const { 
+    data: teams, 
+    isLoading: isTeamsLoading 
+  } = useGetTeamsQuery();
+  // Мутация для удаления проекта
   const [deleteProject] = useDeleteProjectMutation();
+  // Хук для проверки ролей и прав пользователя
   const { hasRole, hasPermission, getRoleForObject } = useUserRoles();
 
+  // Состояние модального окна редактирования
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  /**
+   * Обработчик удаления проекта
+   * @param {number} id - ID проекта для удаления
+   */
   const handleDelete = async (id: number) => {
     await deleteProject(id);
     showNotification('Проект удалён', 'success');
     navigate('/projects');
   };
 
+  // Установка заголовка страницы в зависимости от данных проекта
   useEffect(() => {
     if (project) {
         document.title = `${project.name} - MeetPoint`;
     } else {
         document.title = `Страница проекта - MeetPoint`;
     }
-  }, []);
+  }, [project]);
 
+  // Показываем загрузку если данные еще не получены
   if (isProjectLoading || isDirectionLoading || isEventLoading || isTeamsLoading) {
     return <div>Загрузка...</div>;
   }
 
+  // Если проект не найден
   if (!project) {
     return <div>Проект не найден</div>;
   }
+
+  // Фильтруем команды относящиеся к текущему проекту
   const projectTeams = teams?.filter((team) => team.project === project.project_id) || [];
 
+  /**
+   * Проверяет права пользователя на редактирование проекта
+   * @returns {boolean} true если пользователь имеет права на редактирование
+   */
   const canEditProject = () => {
     console.log('Checking permissions for project:', project);
     // Организатор может редактировать все проекты

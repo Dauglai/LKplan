@@ -3,7 +3,7 @@ import { Application, usePartialUpdateApplicationMutation } from 'Features/ApiSl
 import { useState } from 'react';
 import { useNotification } from 'Components/Common/Notification/Notification';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 interface RequestMessageProps {
@@ -11,12 +11,35 @@ interface RequestMessageProps {
   onClose: () => void;
 }
 
+/**
+ * Модальное окно для просмотра и ответа на заявку/запрос.
+ * Позволяет администратору просматривать исходное сообщение и отправлять ответ,
+ * который сохраняется как комментарий к заявке.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <RequestMessageModal 
+ *   request={selectedRequest} 
+ *   onClose={() => setShowModal(false)} 
+ * />
+ *
+ * @param {Object} props - Пропсы компонента.
+ * @param {Application} props.request - Данные заявки/запроса для отображения.
+ * @param {function} props.onClose - Функция закрытия модального окна.
+ *
+ * @returns {JSX.Element} Модальное окно с формой ответа на заявку.
+ */
 export default function RequestMessageModal({ request, onClose }: RequestMessageProps): JSX.Element {
-  const [reply, setReply] = useState('');
+  const [reply, setReply] = useState(''); // текущий текст ответа
   const [localComment, setLocalComment] = useState(request.comment); // локальный комментарий
-  const [sendReply, { isLoading }] = usePartialUpdateApplicationMutation();
-  const { showNotification } = useNotification();
+  const [sendReply, { isLoading }] = usePartialUpdateApplicationMutation(); // мутация для отправки ответа
+  const { showNotification } = useNotification(); // уведомления
 
+  /**
+   * Обработчик отправки ответа на заявку.
+   * Проверяет наличие текста, отправляет на сервер и обновляет состояние.
+   */
   const handleSendReply = async () => {
     const trimmedReply = reply.trim();
     if (!trimmedReply) return;
@@ -32,7 +55,7 @@ export default function RequestMessageModal({ request, onClose }: RequestMessage
     }
   };
 
-  const hasReply = Boolean(localComment);
+  const hasReply = Boolean(localComment); // проверка наличия ответа
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">

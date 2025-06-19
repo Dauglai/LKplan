@@ -3,17 +3,19 @@
 
 .kanban-container {
     display: flex;
+    padding: 10px;
     gap: 20px;
+    overflow-x: scroll;
 }
                 
 .kanban-column {
-    max-width: 300px;
-    width: 280px;
+    max-width: 360px;
+    min-width: 280px;
     min-height: 650px !important;
     background: #fff;
     border-radius: $border-radius;
     padding: 12px 8px;
-    box-shadow: 0px 0px 11.5px 6px rgba(167, 167, 167, 0.25);
+    box-shadow: 0px 0px 10px 6px rgba(167, 167, 167, 0.25);
 }
                 
 .kanban-column-header {
@@ -21,7 +23,20 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
+    border-radius: $border-radius;
     padding: 8px;
+
+    &.green {
+        background-color: $green;
+    }
+
+    &.red{
+        background-color: $pink;
+    }
+
+    &.blue {
+        background-color: $blue;
+    }
 }
                 
 .kanban-column-header h3 {
@@ -31,7 +46,7 @@
 }
                 
 .badge {
-    background: #e0e0e0;
+    background: white;
     border-radius: 12px;
     padding: 2px 8px;
     font-size: 14px;
@@ -53,6 +68,17 @@
     padding: 8px 12px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kanban-card.is-moving {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+.card-header {
+   margin: 0 0 8px 0; 
 }
                 
 .card-header h4 {
@@ -67,11 +93,13 @@
 .card-footer {
     display: flex;
     justify-content: space-between;
-    color: #666;
+    gap: 4px;
 }
                 
 .date {
     @include text2;
+    display: flex;
+    align-items: center;
 }
                 
 .user {
@@ -80,3 +108,4 @@
     background-color: $blue;
     border-radius: 10px;
 }
+

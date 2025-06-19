@@ -1,23 +1,47 @@
-import { useMemo, useState } from 'react';
-import CloseIcon from 'assets/icons/close.svg?react';
-import PlusIcon from 'assets/icons/plus.svg?react';
-import { useGetUsersQuery } from 'Features/ApiSlices/userSlice'; 
+import { useMemo, useState } from 'react'; // Хуки React
+import CloseIcon from 'assets/icons/close.svg?react'; // Иконка закрытия
+import PlusIcon from 'assets/icons/plus.svg?react'; // Иконка добавления
+import { useGetUsersQuery } from 'Features/ApiSlices/userSlice'; // API-запрос пользователей
 
+/**
+ * Интерфейс пропсов компонента UsersSelector.
+ * 
+ * @property {number[]} selectedUsersId - Массив ID выбранных пользователей.
+ * @property {(selectedIds: number[]) => void} onChange - Колбэк при изменении выбора пользователей.
+ * @property {string} label - Текст лейбла по умолчанию.
+ */
 interface UserSelectorProps {
   selectedUsersId: number[];
   onChange: (selectedIds: number[]) => void;
   label: string;
 }
 
+/**
+ * Компонент множественного выбора пользователей с поиском.
+ * Поддерживает добавление/удаление пользователей, поиск по ФИО.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <UsersSelector
+ *   selectedUsersId={[1, 2]}
+ *   onChange={(ids) => setSelectedUsers(ids)}
+ *   label="Выберите участников"
+ * />
+ *
+ * @param {UserSelectorProps} props - Пропсы компонента.
+ * @returns {JSX.Element} Компонент выбора пользователей с поиском и мультиселектом.
+ */
 export default function UsersSelector({
   selectedUsersId,
   onChange,
   label
 }: UserSelectorProps): JSX.Element {
-  const { data: users, isLoading, error } = useGetUsersQuery();
-  const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const { data: users, isLoading, error } = useGetUsersQuery(); // Загрузка списка пользователей
+  const [isOpen, setIsOpen] = useState(false); // Состояние открытия/закрытия списка
+  const [search, setSearch] = useState(''); // Состояние поискового запроса
 
+  // Фильтрация пользователей по поисковому запросу
   const filteredUsers = useMemo(() => {
     if (!users) return [];
     const normalizedSearch = search.toLowerCase();
@@ -28,15 +52,23 @@ export default function UsersSelector({
     );
   }, [users, search]);
 
+  /**
+   * Переключение выбора пользователя.
+   * @param {number} user_id - ID пользователя для добавления/удаления.
+   */
   const handleToggleUser = (user_id: number) => {
     if (selectedUsersId.includes(user_id)) {
-      onChange(selectedUsersId.filter(id => id !== user_id));
+      onChange(selectedUsersId.filter(id => id !== user_id)); // Удаление пользователя
     } else {
-      onChange([...selectedUsersId, user_id]);
+      onChange([...selectedUsersId, user_id]); // Добавление пользователя
     }
     setIsOpen(false);
   };
 
+  /**
+   * Удаление выбранного пользователя.
+   * @param {number} user_id - ID пользователя для удаления.
+   */
   const handleRemoveUser = (user_id: number) => {
     onChange(selectedUsersId.filter(id => id !== user_id));
   };
@@ -49,6 +81,7 @@ export default function UsersSelector({
     return <div className="UserSelector FormField">Пользователи не найдены</div>;
   }
 
+  // Формирование списка ФИО выбранных пользователей
   const selectedUserNames = selectedUsersId
     .map(id => {
       const user = users.find(user => user.user_id === id);

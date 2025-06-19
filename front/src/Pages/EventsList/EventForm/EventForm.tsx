@@ -92,22 +92,26 @@ export default function EventForm(): JSX.Element {
       dispatch(updateProjects(resultsProjects));
 
       // 4. Обрабатываем статусы (если данные загружены)
-      if (eventStatuses && eventStatusOrders) {
+      if (eventStatuses && eventStatusOrders && eventId) {
         const sortedStatusOrders = [...eventStatusOrders]
           .sort((a, b) => a.number - b.number)
           .filter(order => order.event === eventId);
 
-        const orderedStatuses = sortedStatusOrders.map(order => {
-          const status = eventStatuses.find((s: StatusApp) => s.id === order.status);
-          return status ? {
-            id: status.id,
-            name: status.name,
-            description: status.description,
-            is_positive: status.is_positive
-          } : null;
-        }).filter(Boolean);
+        const orderedStatuses = sortedStatusOrders
+          .map(order => {
+            const status = eventStatuses.find((s: StatusApp) => s.id === order.status);
+            return status ? {
+              id: status.id,
+              name: status.name,
+              description: status.description,
+              is_positive: status.is_positive
+            } : null;
+          })
+          .filter((status): status is StatusApp => status !== null); // Более строгая проверка типа
 
-        dispatch(updateStatuses(orderedStatuses));
+        if (orderedStatuses.length > 0) {
+          dispatch(updateStatuses(orderedStatuses));
+        }
       }
 
       // 5. Устанавливаем флаг редактирования

@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { parse, format } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useCreateEventMutation, useUpdateEventMutation } from 'Features/ApiSlices/eventSlice';
 import { useCreateDirectionMutation, useUpdateDirectionMutation, useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
 import { useCreateProjectMutation, useUpdateProjectMutation, useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
-import { resetEvent } from 'Features/store/eventSetupSlice';
+import { resetEvent, updateEventField, } from 'Features/store/eventSetupSlice';
 import { useNotification } from 'Components/Common/Notification/Notification';
 import BackButton from 'Components/Common/BackButton/BackButton';
 import "Styles/FormStyle.scss";
@@ -13,16 +14,9 @@ import NameInputField from 'Components/Forms/NameInputField';
 import DescriptionInputField from 'Components/Forms/DescriptioninputField';
 import { useGetSpecializationsQuery } from 'Features/ApiSlices/specializationSlice';
 import SideStepNavigator from 'Components/Sections/SideStepNavigator';
-import { 
-  useCreateStatusAppMutation, 
-  useDeleteStatusAppMutation, 
-  useGetStatusesAppQuery, 
-  useUpdateStatusAppMutation } from 'Features/ApiSlices/statusAppSlice';
-import { 
-  useCreateStatusOrderMutation, 
-  useDeleteStatusOrderMutation, 
-  useGetStatusOrdersQuery, 
-  useUpdateStatusOrderMutation } from 'Features/ApiSlices/statusOrdersSlice';
+import { useCreateStatusAppMutation } from 'Features/ApiSlices/statusAppSlice';
+import { useCreateStatusOrderMutation } from 'Features/ApiSlices/statusOrdersSlice';
+
 
 const EventSetupSummary = () => {
   const dispatch = useDispatch();
@@ -41,15 +35,9 @@ const EventSetupSummary = () => {
   const [updateDirection] = useUpdateDirectionMutation();  // Добавили мутацию для обновления
   const [updateProject] = useUpdateProjectMutation();
   const [createStatusApp] = useCreateStatusAppMutation();
-  const [updateStatusApp] = useUpdateStatusAppMutation();
   const [createStatusOrder] = useCreateStatusOrderMutation();
-  const [updateStatusOrder] = useUpdateStatusOrderMutation();
-  const [deleteStatusOrder] = useDeleteStatusOrderMutation();
-  const [deleteStatusApp] = useDeleteStatusAppMutation();
   const { data: existingDirections } = useGetDirectionsQuery();
   const { data: existingProjects } = useGetProjectsQuery();
-  const { data: existingStatuses } = useGetStatusesAppQuery();
-  const { data: existingStatusOrders } = useGetStatusOrdersQuery();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -81,29 +69,50 @@ const EventSetupSummary = () => {
         // Обновляем существующие направления или создаем новые
         const directionPromises = stepDirections.directions.map((direction: any) => {
           if (editingEventId) {
-            const existingDirection = existingDirections.find((existing: any) => existing.id === direction.id);
+              const existingDirection = existingDirections.find((existing: any) => existing.id === direction.id);
+              
+              if (existingDirection) {
+                  // Сравниваем, изменилось ли направление
+                  const isDirectionChanged = Object.keys(direction).some(key => {
+                      // Игнорируем служебные и технические поля
+                      if (key === 'id' || key === 'created_at' || key === 'updated_at' || key === 'leader_id') {
+                          return false;
+                      }
 
-            
-            if (existingDirection) {
-              // Если направление существует, обновляем
-              return updateDirection({
-                ...direction,
-                event: eventId,
-              }).unwrap();
-            } else {
-              return createDirection({
-                ...direction,
-                event: eventId,
-              }).unwrap();
-            }
+                      // Нормализуем сравнение `leader` (null vs undefined)
+                      if (key === 'leader') {
+                          const newLeader = direction[key] ?? null;
+                          const oldLeader = existingDirection[key] ?? null;
+                          return newLeader !== oldLeader;
+                      }
+
+                      // Для остальных полей строгое сравнение
+                      return direction[key] !== existingDirection[key];
+                  });
+
+                  if (isDirectionChanged) {
+                      return updateDirection({
+                          ...direction,
+                          event: eventId,
+                      }).unwrap();
+                  } else {
+                      return Promise.resolve(existingDirection); // Пропускаем неизмененные
+                  }
+              } else {
+                  // Создаем новое направление
+                  return createDirection({
+                      ...direction,
+                      event: eventId,
+                  }).unwrap();
+              }
           }
 
-          // Если это новое направление, создаем
-            return createDirection({
+          // Режим создания мероприятия
+          return createDirection({
               ...direction,
               event: eventId,
-            }).unwrap();
-        });
+          }).unwrap();
+      });
 
         const directionResponses = await Promise.all(directionPromises);
 
@@ -158,35 +167,34 @@ const EventSetupSummary = () => {
         }
       }
 
-      if (stepStatuses) {
+      if (stepStatuses && !editingEventId) {
         try {
           setStatus('Создание статусов...');
           setError('');
 
-          // Создаем статусы и их порядок 
-          for (let i = 0; i < stepStatuses.statuses.length; i++) {
-            const statusApp = stepStatuses.statuses[i];
-            
-            // 1. Создаем статус
-            const newStatus = await createStatusApp(statusApp).unwrap();
-            
-            // 2. Создаем запись о порядке с текущим номером
-            await createStatusOrder({
-              number: i + 1, // Нумерация с 1
+          // Создаем все статусы сразу
+          const statusCreationPromises = stepStatuses.statuses.map(statusApp => 
+            createStatusApp(statusApp).unwrap()
+          );
+          const createdStatuses = await Promise.all(statusCreationPromises);
+
+          // Создаем порядок статусов
+          const statusOrderPromises = createdStatuses.map((status, index) => 
+            createStatusOrder({
+              number: index + 1,
               event: eventId,
-              status: newStatus.id
-            }).unwrap();
-            
-            setStatus(`Создан статус ${i + 1} из ${stepStatuses.statuses.length}`);
-          }
+              status: status.id
+            }).unwrap()
+          );
+          await Promise.all(statusOrderPromises);
 
           setStatus('Все статусы успешно созданы!');
-          showNotification('Статусы созданы', 'success');
           
         } catch (error) {
-          console.error('Ошибка создания статуса:', error);
+          console.error('Ошибка создания статусов:', error);
           setError(`Ошибка при создании статусов: ${error.message}`);
-          //showNotification('Ошибка создания статусов', 'error');
+          showNotification('Ошибка создания статусов', 'error');
+          throw error; // Пробрасываем ошибку дальше
         }
       }
 
@@ -214,6 +222,64 @@ const EventSetupSummary = () => {
 
   const selectedSpecNames = allSpecializations?.filter(spec => stepEvent.specializations.includes(spec.id))
 
+  /**
+   * Обработчик изменений для текстовых полей ввода.
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Событие изменения.
+   */
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    dispatch(updateEventField({ field: name as keyof Event, value }));
+  };
+
+  /**
+   * Обработчик изменений для текстовых полей (textarea).
+   * Автоматически изменяет высоту в зависимости от содержимого.
+   * @param {React.ChangeEvent<HTMLTextAreaElement>} e - Событие изменения.
+   */
+  const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    dispatch(updateEventField({ field: textarea.name as keyof Event, value: textarea.value }));
+  };
+
+  
+    const formatToServer = (dateStr: string) => {
+      try {
+        const parsed = parse(dateStr, 'dd.MM.yyyy', new Date());
+        return format(parsed, 'yyyy-MM-dd');
+      } catch (e) {
+        return '';
+      }
+    };
+  
+  
+    const handleStartDateChange = (startDate: string) => {
+      dispatch(updateEventField({ field: 'start', value: formatToServer(startDate) }));
+    };
+  
+    const handleEndDateChange = (endDate: string) => {
+      const formattedDate = formatToServer(endDate);
+      dispatch(updateEventField({ field: 'end', value: formattedDate }));
+      
+      // Если дата окончания раньше даты приёма заявок - сбрасываем дату приёма
+      if (stepEvent.end_app && new Date(formattedDate) < new Date(stepEvent.end_app)) {
+        dispatch(updateEventField({ field: 'end_app', value: '' }));
+        showNotification('Дата завершения мероприятия должна быть позже даты окончания приёма заявок', 'error');
+      }
+    };
+  
+    const handleEndAppDateChange = (endAppDate: string) => {
+      const formattedDate = formatToServer(endAppDate);
+      
+      // Проверяем, что дата приёма заявок не позже даты окончания
+      if (stepEvent.end && new Date(formattedDate) > new Date(stepEvent.end)) {
+        // Можно показать ошибку или просто не обновлять значение
+        showNotification('Дата окончания приёма заявок должна быть раньше даты завершения мероприятия', 'error');
+        return;
+      }
+      
+      dispatch(updateEventField({ field: 'end_app', value: formattedDate }));
+    };
+
   return (
     <div className="SetupContainer">
       <SideStepNavigator />
@@ -227,14 +293,15 @@ const EventSetupSummary = () => {
                 name="name"
                 value={stepEvent.name}
                 placeholder="Название мероприятия"
-                disabled
+                onChange={handleInputChange}
                 withPlaceholder
+                required
               />
               <DescriptionInputField
                 name="description"
                 value={stepEvent.description}
                 placeholder="Описание мероприятия"
-                disabled
+                onChange={handleTextArea}
                 withPlaceholder
               />
             </div>
@@ -243,31 +310,30 @@ const EventSetupSummary = () => {
               <DateInputField
                 name="start"
                 value={stepEvent.start}
-                onChange={() => {}}
                 placeholder="Дата начала"
                 required
                 withPlaceholder={true}
-                disabled
+                onChange={handleStartDateChange}
               />
 
               <DateInputField
                 name="end"
                 value={stepEvent.end}
-                onChange={() => {}}
                 placeholder="Дата завершения"
                 required
                 withPlaceholder={true}
-                disabled
+                onChange={handleEndDateChange}
+                minDate={stepEvent.end_app ? new Date(stepEvent.end_app) : undefined}
               />
 
               <DateInputField
                 name="end_app"
                 value={stepEvent.end_app}
-                onChange={() => {}}
+                onChange={handleEndAppDateChange}
                 placeholder="Срок приема заявок"
                 required
                 withPlaceholder={true}
-                disabled
+                maxDate={stepEvent.end ? new Date(stepEvent.end) : undefined}
               />
         </div>
 
@@ -316,27 +382,42 @@ const EventSetupSummary = () => {
           </div>
         )}
 
-        {stepStatuses?.statuses?.length > 0 && (
-          <div className="FormStage">
-            <h3>Созданные статусы:</h3>
-            <ul className="SelectedList StatusesList">
-              {stepStatuses.statuses.map((status, index) => (
-                <li
-                  key={status.id}
-                  className={`SelectedListItem ${status.is_positive ? 'positive' : 'negative'}`}
-                >
-                  {index + 1}. {status.name} {status.description ? `(${status.description})` : ""}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <div className="FormStage">
+          {stepStatuses?.statuses?.length > 0 ? (
+            <>
+              <h3>Созданные статусы:</h3>
+              <ul className="SelectedList StatusesList">
+                {stepStatuses.statuses.map((status, index) => (
+                  <li
+                    key={status.id}
+                    className={`SelectedListItem ${status.is_positive ? 'positive' : 'negative'}`}
+                  >
+                    {index + 1}. {status.name} {status.description ? `(${status.description})` : ""}
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <div style={{ 
+              color: '#ff4d4f', 
+              fontSize: '16px',
+              fontWeight: '500',
+              marginBottom: '20px'
+            }}>
+              Для успешного создания мероприятия необходимо добавить хотя бы один статус
+            </div>
+          )}
+        </div>
 
         {error && <p style={{ color: 'red' }}>{error}</p>}
         {status && <p>{status}</p>}
 
         <div className="FormButtons">
-          <button className="primary-btn" onClick={handleSave} disabled={loading}>
+          <button 
+            className="primary-btn" 
+            onClick={handleSave} 
+            disabled={loading || stepStatuses?.statuses?.length === 0}
+          >
             {loading ? 'Сохраняем...' : 'Сохранить'}
           </button>
         </div>

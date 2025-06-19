@@ -1,8 +1,20 @@
-import { useState } from 'react';
-import { Pagination,Table } from 'antd';
-import InfoCircle from "Components/Common/InfoCircle";
-import 'Styles/components/Sections/ListTableStyles.scss';
+import { useState } from 'react'; // React хуки
+import { Pagination, Table } from 'antd'; // Компоненты Ant Design
+import InfoCircle from "Components/Common/InfoCircle"; // Компонент подсказки
+import 'Styles/components/Sections/ListTableStyles.scss'; // Стили таблицы
 
+/**
+ * Интерфейс колонки таблицы
+ * @template T - Тип данных строк таблицы
+ * @property {string} header - Заголовок колонки
+ * @property {function(T): JSX.Element} render - Функция рендеринга содержимого ячейки
+ * @property {keyof T} [sortKey] - Ключ для сортировки (опционально)
+ * @property {string} [text] - Текст подсказки (опционально)
+ * @property {string | number} [width] - Ширина колонки (опционально)
+ * @property {function} [onFilter] - Функция фильтрации (опционально)
+ * @property {Array} [filters] - Опции фильтров (опционально)
+ * @property {boolean} [autoFilters] - Флаг автоматического создания фильтров (опционально)
+ */
 interface TableColumn<T> {
   header: string;
   render: (row: T) => JSX.Element;
@@ -14,6 +26,17 @@ interface TableColumn<T> {
   autoFilters?: boolean;
 }
 
+/**
+ * Пропсы компонента таблицы
+ * @template T - Тип данных строк таблицы
+ * @property {T[]} data - Массив данных для отображения
+ * @property {TableColumn<T>[]} columns - Конфигурация колонок
+ * @property {function(T[]): void} [onSelectRows] - Колбэк при выборе строк (опционально)
+ * @property {Object} [defaultSort] - Настройки сортировки по умолчанию (опционально)
+ * @property {string} defaultSort.key - Ключ сортировки по умолчанию
+ * @property {'asc' | 'desc'} defaultSort.direction - Направление сортировки
+ * @property {function} [defaultSort.customSort] - Кастомная функция сортировки
+ */
 interface TableProps<T> {
   data: T[];
   columns: TableColumn<T>[];
@@ -21,63 +44,88 @@ interface TableProps<T> {
   defaultSort?: { 
     key: string; 
     direction: 'asc' | 'desc'; 
-    customSort?: (a: T, b: T) => number }
+    customSort?: (a: T, b: T) => number 
+  };
 }
 
 /**
- * Универсальная таблица с поддержкой сортировки данных.
- * Таблица отображает переданные данные с возможностью сортировки по указанным колонкам.
- * Также поддерживает рендеринг пользовательских колонок с помощью настроек `render`.
+ * Универсальный компонент таблицы с поддержкой:
+ * - Сортировки (включая кастомную)
+ * - Пагинации
+ * - Фильтрации (автоматической и ручной)
+ * - Выбора строк
+ * - Подсказок для колонок
  * 
  * @component
+ * @template T - Тип данных строк таблицы
+ * @param {TableProps<T>} props - Пропсы компонента
+ * @returns {JSX.Element} Таблица с расширенной функциональностью
+ * 
  * @example
- * // Пример использования:
+ * // Пример использования с базовой сортировкой
  * <ListTable
- *   data={data}
+ *   data={users}
  *   columns={[
- *     { header: 'Название', sortKey: 'name', render: (record) => record.name },
- *     { header: 'Возраст', sortKey: 'age', render: (record) => record.age },
+ *     { 
+ *       header: 'Имя', 
+ *       sortKey: 'name',
+ *       render: (user) => <span>{user.name}</span> 
+ *     },
+ *     { 
+ *       header: 'Возраст', 
+ *       sortKey: 'age',
+ *       render: (user) => <span>{user.age}</span> 
+ *     }
  *   ]}
  * />
- *
- * @param {Object} props - Свойства компонента.
- * @param {T[]} props.data - Массив данных для отображения в таблице.
- * @param {Column<T>[]} props.columns - Массив объектов, описывающих колонки таблицы, включая настройки сортировки и рендеринга.
- *
- * @returns {JSX.Element} Компонент таблицы с данными и функциональностью сортировки.
+ * 
+ * @example
+ * // Пример с кастомной сортировкой и выбором строк
+ * <ListTable
+ *   data={products}
+ *   columns={[...]}
+ *   onSelectRows={(selected) => console.log(selected)}
+ *   defaultSort={{
+ *     key: 'price',
+ *     direction: 'desc',
+ *     customSort: (a, b) => a.discountPrice - b.discountPrice
+ *   }}
+ * />
  */
-export default function ListTable<T>({ data, columns, onSelectRows, defaultSort}: TableProps<T>): JSX.Element {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [selectedRows, setSelectedRows] = useState<T[]>([]);
+export default function ListTable<T>({ data, columns, onSelectRows, defaultSort }: TableProps<T>): JSX.Element {
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]); // Ключи выбранных строк
+  const [selectedRows, setSelectedRows] = useState<T[]>([]); // Данные выбранных строк
   const [sortConfig, setSortConfig] = useState<{ 
     key: string | null; 
     direction: 'asc' | 'desc' | null;
-    customSort?: (a: T, b: T) => number; // Добавляем поддержку кастомной сортировки
+    customSort?: (a: T, b: T) => number;
   }>({
-    key: defaultSort?.key || columns[0]?.sortKey || null,
-    direction: defaultSort?.direction || 'asc',
-    customSort: defaultSort?.customSort, // Передаём кастомную сортировку
+    key: defaultSort?.key || columns[0]?.sortKey || null, // Ключ сортировки по умолчанию
+    direction: defaultSort?.direction || 'asc', // Направление по умолчанию
+    customSort: defaultSort?.customSort, // Кастомная сортировка
   });
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1); // Текущая страница
+  const [pageSize, setPageSize] = useState(10); // Количество элементов на странице
 
+  /**
+   * Получает значение из объекта по пути
+   * @param {any} obj - Исходный объект
+   * @param {string} path - Путь к свойству (например 'user.address.city')
+   * @returns {any} Значение свойства
+   */
   const getValue = (obj: any, path: string): any => {
     return path.split('.').reduce((acc, part) => acc?.[part], obj);
   };
 
-  
-
-  // Сортировка данных
+  // Сортировка данных с учетом кастомной функции
   const sortedData = [...data].sort((a, b) => {
     if (!sortConfig.key) return 0;
 
-    // Если есть customSort, используем его
     if (sortConfig.customSort) {
       return sortConfig.customSort(a, b);
     }
 
-    // Стандартная сортировка
     const aValue = getValue(a, sortConfig.key);
     const bValue = getValue(b, sortConfig.key);
 
@@ -86,9 +134,13 @@ export default function ListTable<T>({ data, columns, onSelectRows, defaultSort}
     return 0;
   });
 
+  // Данные для текущей страницы
   const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  // Обработчик клика по заголовку колонки для смены направления сортировки
+  /**
+   * Обработчик сортировки
+   * @param {keyof T} key - Ключ сортировки
+   */
   const handleSort = (key: keyof T) => {
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -97,12 +149,12 @@ export default function ListTable<T>({ data, columns, onSelectRows, defaultSort}
     setSortConfig({ key, direction });
   };
 
-  // Настройка колонок для таблицы
+  // Формирование конфигурации колонок для Ant Design Table
   const tableColumns = columns.map((col) => {
     let filters = col.filters;
     let onFilter = col.onFilter;
 
-    // Автоматическое формирование фильтров
+    // Автоматическое создание фильтров
     if (col.autoFilters && sortConfig.key) {
       const uniqueValues = Array.from(
         new Set(data.map((item) => getValue(item, col.sortKey as string)))
@@ -142,11 +194,17 @@ export default function ListTable<T>({ data, columns, onSelectRows, defaultSort}
     };
   });
 
+  /**
+   * Обработчик изменения страницы
+   * @param {number} page - Новая страница
+   * @param {number} size - Новый размер страницы
+   */
   const handlePageChange = (page: number, size: number) => {
     setCurrentPage(page);
     setPageSize(size);
   };
 
+  // Конфигурация выбора строк
   const rowSelection = onSelectRows
     ? {
         selectedRowKeys,
@@ -157,7 +215,6 @@ export default function ListTable<T>({ data, columns, onSelectRows, defaultSort}
         },
       }
     : undefined;
-
 
   return (
     <div className="ListTableContainer">

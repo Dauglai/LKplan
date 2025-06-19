@@ -1,6 +1,10 @@
 import { apiSlice } from 'App/api/apiSlice.ts';
-import { Trigger } from './triggerApiSlice';
+import { Trigger } from './functionOrdersApiSlice';
 
+/**
+ * Интерфейс для представления данных статусов мероприятий.
+ * Используется для описания структуры объектов статусов в системе.
+ */
 export interface StatusApp {
   id: number;
   name: string;

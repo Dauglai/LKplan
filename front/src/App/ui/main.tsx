@@ -63,7 +63,7 @@ const theme = {
  * - Ant Design тему
  */
 createRoot(document.getElementById('root')!).render(
-  //<StrictMode>
+  <StrictMode>
     <ConfigProvider theme={theme}>
       <Provider store={store}>
         <UserRolesProvider>
@@ -117,5 +117,5 @@ createRoot(document.getElementById('root')!).render(
         </UserRolesProvider>
       </Provider>
     </ConfigProvider>
-  //</StrictMode>
+  </StrictMode>
 );

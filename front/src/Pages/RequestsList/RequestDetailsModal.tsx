@@ -1,29 +1,52 @@
-import { List, Typography, Button, Space } from 'antd';
-import { Application, usePartialUpdateApplicationMutation } from 'Features/ApiSlices/applicationSlice';
-import { useState } from 'react';
-import EventSelector from 'Components/Selectors/EventSelector';
-import StatusAppSelector from 'Components/Selectors/StatusAppSelector';
-import ProjectSelector from 'Components/Selectors/ProjectSelector';
-import TeamSelector from 'Components/Selectors/TeamSelector';
-import DirectionSelector from 'Components/Selectors/DirectionSelector';
-const { Text } = Typography;
+import { List, Typography, Button, Space } from 'antd'; // Компоненты Ant Design
+import { Application, usePartialUpdateApplicationMutation } from 'Features/ApiSlices/applicationSlice'; // Тип заявки и мутация
+import { useState } from 'react'; // Хук состояния
+import EventSelector from 'Components/Selectors/EventSelector'; // Селектор мероприятий
+import StatusAppSelector from 'Components/Selectors/StatusAppSelector'; // Селектор статусов
+import ProjectSelector from 'Components/Selectors/ProjectSelector'; // Селектор проектов
+import TeamSelector from 'Components/Selectors/TeamSelector'; // Селектор команд
+import DirectionSelector from 'Components/Selectors/DirectionSelector'; // Селектор направлений
+const { Text } = Typography; // Компонент текста
 
 interface RequestDetailsProps {
-  request: Application;
-  onClose: () => void;
+  request: Application; // Объект заявки
+  onClose: () => void; // Функция закрытия модального окна
 }
 
+/**
+ * Модальное окно с деталями заявки и возможностью редактирования.
+ * Позволяет просматривать и изменять статус, направление, проект, команду и мероприятие заявки.
+ * Поддерживает частичное обновление данных через API.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <RequestDetailsModal 
+ *   request={selectedRequest} 
+ *   onClose={handleCloseModal}
+ * />
+ *
+ * @param {RequestDetailsProps} props - Свойства компонента
+ * @param {Application} props.request - Объект заявки для отображения
+ * @param {function} props.onClose - Функция закрытия модального окна
+ * @returns {JSX.Element} Модальное окно с деталями заявки
+ */
 export default function RequestDetailsModal({ request, onClose }: RequestDetailsProps): JSX.Element {
-  const [partialUpdateApplication] = usePartialUpdateApplicationMutation();
-  const [isEditing, setIsEditing] = useState(false);
-  const [statusApp, setStatusApp] = useState(request.status);
-  const [direction, setDirection] = useState(request.direction);
+  const [partialUpdateApplication] = usePartialUpdateApplicationMutation(); // Мутация обновления заявки
+  const [isEditing, setIsEditing] = useState(false); // Режим редактирования
+  const [statusApp, setStatusApp] = useState(request.status); // Состояние статуса
+  const [direction, setDirection] = useState(request.direction); // Состояние направления
+  const [project, setProject] = useState(request.project); // Состояние проекта
+  const [team, setTeam] = useState(request.team); // Состояние команды
+  const [event, setEvent] = useState(request.event); // Состояние мероприятия
 
-  const [project, setProject] = useState(request.project);
-  const [team, setTeam] = useState(request.team);
-  const [event, setEvent] = useState(request.event);
-
-
+  /**
+   * Обработчик сохранения изменений заявки.
+   * Формирует объект с измененными полями и отправляет на сервер.
+   * 
+   * @async
+   * @returns {Promise<void>}
+   */
   const handleSave = async () => {
     const updateData: any = {};
   
@@ -42,7 +65,6 @@ export default function RequestDetailsModal({ request, onClose }: RequestDetails
     if (direction && direction.id !== request.direction) {
       updateData.direction = direction.id?.toString();
     }
-
 
     if (team && team.id !== request.team) {
       updateData.team = team.id?.toString();
@@ -63,6 +85,10 @@ export default function RequestDetailsModal({ request, onClose }: RequestDetails
     }
   };
 
+  /**
+   * Массив элементов информации о заявке.
+   * @type {Array<{label: string, value: string}>}
+   */
   const infoItems = [
     { label: 'Статус', value: statusApp.name },
     { label: 'Время подачи', value: `${request.time_sub} ${request.date_sub}` },

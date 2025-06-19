@@ -1,73 +1,65 @@
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { StatusApp } from 'Features/ApiSlices/statusAppSlice';
 import CloseIconWhite from 'assets/icons/close-white.svg?react';
-import CloseIconBlack from 'assets/icons/close.svg?react';
-import { Trigger } from 'Features/ApiSlices/triggerApiSlice';
+import EditIconWhite from 'assets/icons/edit-white.svg?react';
 import { useState } from 'react';
-import TriggerModal from './TriggerModal';
-import PlusIcon from 'assets/icons/plus.svg?react';
-import TimerIcon from 'assets/icons/timer.svg?react';
-import RobotIcon from 'assets/icons/laptop.svg?react';
-import { Button } from 'antd';
-import { Robot } from 'Features/ApiSlices/robotApiSlice';
-import RobotModal from './RobotModal';
 
 interface StatusKanbanProps {
+  editingEventId: number;
   statuses: StatusApp[];
-  robots: Robot[];
   onStatusesUpdate: (statuses: StatusApp[]) => void;
   onStatusRemove: (id: number) => void;
-  onAddTrigger: (statusId: number, trigger: Omit<Trigger, 'id'>) => void;
-  onRemoveTrigger: (statusId: number, triggerId: number) => void;
-  onMoveTrigger: (source: { statusId: number; triggerId: number }, destination: { statusId: number }) => void;
-  onAttachRobot: (statusId: number, triggerId: number, robotId: number) => void;
-  onDetachRobot: (statusId: number, robotId: number) => void;
-  onMoveRobot: (
-    source: { statusId: number; robotId: number },
-    destination: { statusId: number },
-    robotId: number
-  ) => void;
-  onAddRobot: (robot: Omit<Robot, 'id'>) => void; // Изменено - убрал statusId
+  onStatusEdit: (status: StatusApp) => void;
 }
 
+/**
+ * Kanban-компонент для управления статусами заявок мероприятия.
+ * Поддерживает перетаскивание статусов для изменения порядка, редактирование и удаление статусов.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <StatusKanban
+ *   editingEventId={selectedEventId}
+ *   statuses={eventStatuses}
+ *   onStatusesUpdate={handleStatusOrderUpdate} 
+ *   onStatusRemove={handleStatusRemove}
+ *   onStatusEdit={handleStatusEdit}
+ * />
+ *
+ * @param {Object} props - Пропсы компонента.
+ * @param {number} props.editingEventId - ID редактируемого мероприятия (блокирует перетаскивание)
+ * @param {StatusApp[]} props.statuses - Массив статусов для отображения
+ * @param {function} props.onStatusesUpdate - Коллбэк при изменении порядка статусов
+ * @param {function} props.onStatusRemove - Коллбэк удаления статуса
+ * @param {function} props.onStatusEdit - Коллбэк редактирования статуса
+ *
+ * @returns {JSX.Element} Интерактивная Kanban-доска статусов
+ */
 export default function StatusKanban({
+  editingEventId,
   statuses,
-  robots,
   onStatusesUpdate,
   onStatusRemove,
-  onAddTrigger,
-  onRemoveTrigger,
-  onMoveTrigger,
-  onAttachRobot,
-  onDetachRobot,
-  onMoveRobot,
-  onAddRobot
+  onStatusEdit
 }: StatusKanbanProps): JSX.Element {
-  const [triggerModal, setTriggerModal] = useState<{
-    visible: boolean;
-    statusId: number | null;
-  }>({ visible: false, statusId: null });
+  //const [isTriggerModalVisible, setIsTriggerModalVisible] = useState(false);
+  //const [currentStatusId, setCurrentStatusId] = useState<number | null>(null);
+  //const [editingTrigger, setEditingTrigger] = useState<any>(null); // Состояние редактируемого триггера
 
-  const [robotModal, setRobotModal] = useState<{
-    visible: boolean;
-    statusId: number | null;
-  }>({ visible: false, statusId: null });
-
-  // Группируем роботов по статусам
-  const getRobotsForStatus = (statusId: number) => {
-    return robots.filter(robot => 
-      robot.status_order?.status === statusId
-    ).sort((a, b) => 
-      (a.status_order?.position || 0) - (b.status_order?.position || 0)
-    );
-  };
-
+  /**
+   * Обработчик завершения перетаскивания элементов
+   * @param {DropResult} result - Результат перетаскивания из react-beautiful-dnd
+   */
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result;
 
+    // Блокируем перетаскивание во время редактирования мероприятия
+    if (editingEventId) return;
+
     if (!destination) return;
 
-    // Перетаскивание статусов (колонок)
+    // Логика перетаскивания колонок (статусов)
     if (type === 'column') {
       if (destination.index === source.index) return;
       
@@ -78,61 +70,25 @@ export default function StatusKanban({
       onStatusesUpdate(newStatuses);
       return;
     }
-
-    // Перетаскивание триггеров
-    if (type === 'trigger' && source.droppableId !== destination.droppableId) {
-      const sourceStatusId = parseInt(source.droppableId.replace('trigger-', ''));
-      const destStatusId = parseInt(destination.droppableId.replace('trigger-', ''));
-      const triggerId = parseInt(draggableId.replace('trigger-', ''));
-      
-      onMoveTrigger(
-        { statusId: sourceStatusId, triggerId },
-        { statusId: destStatusId }
-      );
-    }
-
-    // Перетаскивание роботов
-    if (type === 'robot' && source.droppableId !== destination.droppableId) {
-      const sourceStatusId = parseInt(source.droppableId.replace('robot-', ''));
-      const destStatusId = parseInt(destination.droppableId.replace('robot-', ''));
-      const robotId = parseInt(draggableId.replace('robot-', ''));
-      
-      onMoveRobot(
-        { statusId: sourceStatusId, robotId },
-        { statusId: destStatusId }
-      );
-    }
   };
 
-  const handleOpenTriggerModal = (statusId: number) => {
-    setTriggerModal({ visible: true, statusId });
-  };
-
-  const handleCloseTriggerModal = () => {
-    setTriggerModal({ visible: false, statusId: null });
-  };
-
-  const handleSaveTrigger = (trigger: Omit<Trigger, 'id'>) => {
-    if (triggerModal.statusId) {
-      onAddTrigger(triggerModal.statusId, trigger);
-    }
-    handleCloseTriggerModal();
-  };
-
-  const handleOpenRobotModal = (statusId: number) => {
-    setRobotModal({ visible: true, statusId });
-  };
-
-  const handleCloseRobotModal = () => {
-    setRobotModal({ visible: false, statusId: null });
-  };
-
-  const handleSaveRobot = (robot: Omit<Robot, 'id'>) => {
-    if (robotModal.statusId) {
-      onAddRobot(robotModal.statusId, robot);
-    }
-    handleCloseRobotModal();
-  };
+  /* 
+   * Форматирование времени для отображения
+   * @param {string} exp - Строка времени в формате "1d", "2h" и т.д.
+   * @returns {string} Отформатированное время ("1 дн", "2 ч" и т.д.)
+   */
+  /*const formatExpiration = (exp: string) => {
+    const value = parseInt(exp);
+    const unit = exp.replace(value.toString(), '');
+    
+    const units = {
+      'd': 'дн',
+      'h': 'ч', 
+      'm': 'мин'
+    };
+    
+    return `${value} ${units[unit] || unit}`;
+  };*/
 
   return (
     <>
@@ -149,13 +105,13 @@ export default function StatusKanban({
               className="kanbanBoard"
             >
               {statuses.map((status, index) => {
-                const statusRobots = getRobotsForStatus(status.id);
                 
                 return (
                   <Draggable 
                     key={status.id} 
                     draggableId={`status-${status.id}`}
                     index={index}
+                    isDragDisabled={editingEventId ? true : false} // Запрещаем перетаскивание при редактировании
                   >
                     {(provided, snapshot) => (
                       <div
@@ -172,15 +128,30 @@ export default function StatusKanban({
                       >
                         <div className="kanbanColumnHeader">
                           <span className="statusTitle">{status.name}</span>
-                          <button 
-                            className="statusRemoveBtn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onStatusRemove(status.id);
-                            }}
-                          >
-                            <CloseIconWhite width={16} height={16} />
-                          </button>
+                          {!editingEventId && ( // Показываем кнопки только при создании
+                            <div className="statusActions">
+                              <button 
+                                className="statusRemoveBtn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onStatusEdit(status);
+                                }}
+                                title="Редактировать статус"
+                              >
+                                <EditIconWhite width={16} height={16} />
+                              </button>
+                              <button 
+                                className="statusRemoveBtn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onStatusRemove(status.id);
+                                }}
+                                title="Удалить статус"
+                              >
+                                <CloseIconWhite width={16} height={16} />
+                              </button>
+                            </div>
+                          )}
                         </div>
                         
                         {status.description && (
@@ -191,8 +162,7 @@ export default function StatusKanban({
                           </div>
                         )}
                         
-                        <div className="kanbanColumnBody">
-                          {/* Секция триггеров */}
+                        {/**<div className="kanbanColumnBody">
                           <Droppable 
                             droppableId={`trigger-${status.id}`} 
                             type="trigger"
@@ -219,11 +189,21 @@ export default function StatusKanban({
                                         }`}
                                       >
                                         <TimerIcon width={24} height={24}/>
-                                        <span>{trigger.name}</span>
+                                        <span>{`До просрочки: ${formatExpiration(trigger.config.expiration)}`}</span>
+                                        
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            onRemoveTrigger(status.id, trigger.id);
+                                            handleOpenTriggerModal(status.id, trigger);
+                                          }}
+                                          className="triggerEditBtn"
+                                        >
+                                          <EditIconBlack width={12} height={12} />
+                                        </button>
+                                        
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
                                           }}
                                           className="triggerRemoveBtn"
                                         >
@@ -238,7 +218,6 @@ export default function StatusKanban({
                             )}
                           </Droppable>
                           
-                          {/* Секция роботов */}
                           <Droppable 
                             droppableId={`robot-${status.id}`} 
                             type="robot"
@@ -249,36 +228,6 @@ export default function StatusKanban({
                                 {...provided.droppableProps}
                                 className="robotContainer"
                               >
-                                {statusRobots.map((robot, index) => (
-                                  <Draggable 
-                                    key={`robot-${robot.id}`} 
-                                    draggableId={`robot-${robot.id}`}
-                                    index={index}
-                                  >
-                                    {(provided, snapshot) => (
-                                      <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        className={`robotItem ${
-                                          snapshot.isDragging ? 'isDragging' : ''
-                                        }`}
-                                      >
-                                        <RobotIcon width={24} height={24}/>
-                                        <span>{robot.name}</span>
-                                        <button 
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            onDetachRobot(status.id, robot.id);
-                                          }}
-                                          className="robotRemoveBtn"
-                                        >
-                                          <CloseIconBlack width={12} height={12} />
-                                        </button>
-                                      </div>
-                                    )}
-                                  </Draggable>
-                                ))}
                                 {provided.placeholder}
                               </div>
                             )}
@@ -289,7 +238,7 @@ export default function StatusKanban({
                           <Button 
                             type="text" 
                             icon={<PlusIcon width={16} height={16}/>}
-                            onClick={() => handleOpenTriggerModal(status.id)}
+                            onClick={() => handleOpenTriggerModal(status.id)} // Добавляем обработчик
                             block
                             className="addButton"
                           >
@@ -298,13 +247,13 @@ export default function StatusKanban({
                           <Button 
                             type="text" 
                             icon={<PlusIcon width={16} height={16}/>}
-                            onClick={() => handleOpenRobotModal(status.id)}
+                            //onClick={() => handleOpenRobotModal(status.id)}
                             block
                             className="addButton"
                           >
                             Добавить робота
                           </Button>
-                        </div>
+                        </div>**/}
                       </div>
                     )}
                   </Draggable>
@@ -316,17 +265,13 @@ export default function StatusKanban({
         </Droppable>
       </DragDropContext>
 
-      <TriggerModal
-        visible={triggerModal.visible}
-        onCancel={handleCloseTriggerModal}
-        onSave={handleSaveTrigger}
-      />
-
-      <RobotModal
-        visible={robotModal.visible}
-        onCancel={handleCloseRobotModal}
-        onSave={handleSaveRobot}
-      />
+      {/*<TriggerModal
+        visible={isTriggerModalVisible}
+        onCancel={handleTriggerModalCancel}
+        onSave={handleTriggerSave}
+        initialData={editingTrigger}
+        statusId={currentStatusId}
+      />*/}
     </>
   );
 }

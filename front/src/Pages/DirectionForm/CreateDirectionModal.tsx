@@ -1,21 +1,40 @@
-import { useState } from 'react';
-import { useCreateDirectionMutation } from 'Features/ApiSlices/directionSlice';
-import { useNotification } from 'Components/Common/Notification/Notification'; 
-import NameInputField from 'Components/Forms/NameInputField';
-import DescriptionInputField from 'Components/Forms/DescriptioninputField';
-import UserSelector from 'Components/Selectors/UserSelector';
-import EventSelector from 'Components/Selectors/EventSelector';
-import { Modal } from 'antd';
+import { useState } from 'react'; // Хуки React
+import { useCreateDirectionMutation } from 'Features/ApiSlices/directionSlice'; // API для работы с направлениями
+import { useNotification } from 'Components/Common/Notification/Notification'; // Уведомления
+import NameInputField from 'Components/Forms/NameInputField'; // Поле ввода названия
+import DescriptionInputField from 'Components/Forms/DescriptioninputField'; // Поле ввода описания
+import UserSelector from 'Components/Selectors/UserSelector'; // Селектор пользователей
+import EventSelector from 'Components/Selectors/EventSelector'; // Селектор мероприятий
+import { Modal } from 'antd'; // Компонент модального окна
 
 interface CreateDirectionModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+/**
+ * Модальное окно для создания нового направления.
+ * Позволяет задать название, описание, выбрать куратора и мероприятие для направления.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <CreateDirectionModal 
+ *   isOpen={isModalOpen}
+ *   onClose={() => setIsModalOpen(false)}
+ * />
+ *
+ * @param {Object} props - Пропсы компонента.
+ * @param {boolean} props.isOpen - Флаг видимости модального окна.
+ * @param {function} props.onClose - Функция закрытия модального окна.
+ *
+ * @returns {JSX.Element} Модальное окно создания направления.
+ */
 export default function CreateDirectionModal({ isOpen, onClose }: CreateDirectionModalProps): JSX.Element {
-  const { showNotification } = useNotification();
-  const [createDirection, { isLoading }] = useCreateDirectionMutation();
+  const { showNotification } = useNotification(); // Хук для показа уведомлений
+  const [createDirection, { isLoading }] = useCreateDirectionMutation(); // Мутация для создания направления
 
+  // Состояние формы нового направления
   const [newDirection, setNewDirection] = useState({
     name: '',
     description: '',
@@ -23,33 +42,63 @@ export default function CreateDirectionModal({ isOpen, onClose }: CreateDirectio
     event: null,
   });
 
+  /**
+   * Обработчик изменения полей ввода.
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - Событие изменения
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewDirection((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCuratorChange = (userId: number) => {
+  /**
+   * Обработчик изменения куратора направления.
+   * @param {number | null} userId - ID выбранного пользователя
+   */
+  const handleCuratorChange = (userId: number | null) => {
     setNewDirection((prev) => ({ ...prev, leader_id: userId }));
   };
 
+  /**
+   * Обработчик изменения мероприятия.
+   * @param {any} event - Выбранное мероприятие
+   */
   const handleEventChange = (event: any) => {
     setNewDirection((prev) => ({ ...prev, event: event.event_id }));
   };
 
+  /**
+   * Обработчик отправки формы.
+   * Валидирует данные и отправляет запрос на создание направления.
+   */
   const handleSubmit = async () => {
-    if (!newDirection.name.trim() || !newDirection.event) return;
+    if (!newDirection.name.trim() || !newDirection.event) {
+      showNotification('Заполните обязательные поля', 'error');
+      return;
+    }
 
-    await createDirection(newDirection);
-    showNotification('Направление создано!', 'success');
-    onClose();
+    const payload = {
+      name: newDirection.name,
+      description: newDirection.description,
+      event: newDirection.event,
+      ...(newDirection.leader_id && { leader_id: newDirection.leader_id })
+    };
 
-    // Сброс значений после закрытия
-    setNewDirection({
-      name: '',
-      description: '',
-      leader_id: null,
-      event: null,
-    });
+    try {
+      await createDirection(payload);
+      showNotification('Направление создано!', 'success');
+      onClose();
+      
+      // Сброс формы
+      setNewDirection({
+        name: '',
+        description: '',
+        leader_id: null,
+        event: null,
+      });
+    } catch (error) {
+      showNotification('Ошибка при создании направления', 'error');
+    }
   };
 
   return (

@@ -1,34 +1,57 @@
-import 'Styles/components/Sections/ListTableStyles.scss';
-import { useState } from 'react';
-import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
-import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
-import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
-import { Project, useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice';
-import { useNavigate, Link } from "react-router-dom";
-import { useUserRoles } from "Features/context/UserRolesContext";
-import { useNotification } from 'Components/Common/Notification/Notification';
-import ActionMenu from 'Components/Sections/ActionMenu';
-import ListTable from "Components/Sections/ListTable";
-import EditProjectModal from 'Pages/ProjectForm/EditProjectModal';
+import 'Styles/components/Sections/ListTableStyles.scss'; // Стили таблицы
+import { useState } from 'react'; // Хук состояния
+import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice'; // Запрос направлений
+import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice'; // Запрос мероприятий
+import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice'; // Запрос команд
+import { Project, useDeleteProjectMutation } from 'Features/ApiSlices/projectSlice'; // Тип проекта и мутация удаления
+import { Link } from "react-router-dom"; // Компонент ссылки
+import { useUserRoles } from "Features/context/UserRolesContext"; // Контекст ролей пользователя
+import { useNotification } from 'Components/Common/Notification/Notification'; // Хук уведомлений
+import ActionMenu from 'Components/Sections/ActionMenu'; // Меню действий
+import ListTable from "Components/Sections/ListTable"; // Компонент таблицы
+import EditProjectModal from 'Pages/ProjectForm/EditProjectModal'; // Модальное окно редактирования
 
 interface ProjectsTableProps {
-  projects: Project[];
+  projects: Project[]; // Массив проектов для отображения
 }
 
+/**
+ * Таблица списка проектов с возможностями редактирования и удаления.
+ * Отображает проекты с информацией о связанных направлениях и мероприятиях.
+ * Поддерживает CRUD операции через API и проверку прав доступа.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * const projects = [...] // массив проектов
+ * <ProjectsListTable projects={projects} />
+ *
+ * @param {ProjectsTableProps} props - Свойства компонента
+ * @param {Project[]} props.projects - Массив проектов для отображения
+ * @returns {JSX.Element} Таблица с списком проектов и управляющими элементами
+ */
 export default function ProjectsListTable({ projects }: ProjectsTableProps): JSX.Element {
-  const { data: directions, isLoading: isLoadingDirections } = useGetDirectionsQuery();
-  const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery();
-  const { data: teams, isLoading: isLoadingTeams } = useGetTeamsQuery();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const { data: directions, isLoading: isLoadingDirections } = useGetDirectionsQuery(); // Данные направлений
+  const { data: events, isLoading: isLoadingEvents } = useGetEventsQuery(); // Данные мероприятий
+  const { data: teams, isLoading: isLoadingTeams } = useGetTeamsQuery(); // Данные команд
+  const [isModalOpen, setIsModalOpen] = useState(false); // Состояние модального окна
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null); // Выбранный проект
   
-  const [deleteProject] = useDeleteProjectMutation();
-  const { showNotification } = useNotification()
-  const [openMenu, setOpenMenu] = useState<number | null>(null); 
-  const { hasRole, hasPermission, getRoleForObject } = useUserRoles();
+  const [deleteProject] = useDeleteProjectMutation(); // Мутация удаления проекта
+  const { showNotification } = useNotification(); // Хук уведомлений
+  const [openMenu, setOpenMenu] = useState<number | null>(null); // ID открытого меню действий
+  const { hasRole, hasPermission, getRoleForObject } = useUserRoles(); // Функции проверки прав
 
-  const handleCloseMenu = () => setOpenMenu(null); // Закрывает открытое меню действий.
+  /**
+   * Закрывает открытое меню действий.
+   */
+  const handleCloseMenu = () => setOpenMenu(null);
 
+  /**
+   * Открывает модальное окно редактирования для выбранного проекта.
+   * 
+   * @param {number} id - ID проекта для редактирования
+   */
   const handleEdit = (id: number) => {
     const projectToEdit = projects.find((project) => project.project_id === id);
     if (projectToEdit) {
@@ -37,31 +60,54 @@ export default function ProjectsListTable({ projects }: ProjectsTableProps): JSX
     }
   };
 
+  /**
+   * Удаляет проект по ID с подтверждением и уведомлением.
+   * 
+   * @async
+   * @param {number} id - ID проекта для удаления
+   */
   const handleDelete = async (id: number) => {
     await deleteProject(id);
-    showNotification('Проект удален', "success")
+    showNotification('Проект удален', "success");
     setOpenMenu(null);
   };
 
+  /**
+   * Закрывает модальное окно редактирования и сбрасывает выбранный проект.
+   */
   const closeModal = () => {
-      setIsModalOpen(false);
-      setSelectedProject(null);
+    setIsModalOpen(false);
+    setSelectedProject(null);
   };
 
+  // Состояние загрузки данных
   if (isLoadingDirections || isLoadingEvents || isLoadingTeams) {
     return <span>Загрузка...</span>;
   }
 
+  // Пустой список проектов
   if (projects.length === 0) {
     return <span className="NullMessage">Проекты не найдены</span>;
   }
 
+  /**
+   * Возвращает название мероприятия по ID направления.
+   * 
+   * @param {number} directionId - ID направления
+   * @returns {string} Название мероприятия или 'Не указано'
+   */
   const getEventName = (directionId: number): string => {
     const direction = directions?.find(direction => direction.id === directionId);
     const event = events?.find(event => event.event_id === direction?.event);
     return event ? event.name : 'Не указано';
   };
 
+  /**
+   * Возвращает ID мероприятия по ID направления.
+   * 
+   * @param {number} directionId - ID направления
+   * @returns {string} ID мероприятия или пустая строка
+   */
   const getEventId = (directionId: number): string => {
     const direction = directions?.find(direction => direction.id === directionId);
     const event = events?.find(event => event.event_id === direction?.event);

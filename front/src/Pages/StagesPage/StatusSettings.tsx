@@ -4,151 +4,123 @@ import { useDispatch, useSelector } from 'react-redux';
 import StatusModal from './StatusModal';
 import StatusKanban  from './StatusKanban';
 import { 
-  addFunctionOrder, 
-  addRobot, 
-  addTriggerToStatus, 
-  attachRobotToTrigger, 
-  detachRobotFromTrigger, 
-  moveRobotBetweenTriggers, 
-  moveTriggerBetweenStatuses, 
   removeStatus, 
-  addStatus,
-  removeTriggerFromStatus, 
-  updateFunctionOrder, 
-  updateStatuses, 
-  reorderStatuses} from 'Features/store/eventSetupSlice';
+  addStatus, 
+  reorderStatuses,
+  updateStatus} from 'Features/store/eventSetupSlice';
 import { StatusApp } from 'Features/ApiSlices/statusAppSlice';
-import { Trigger } from 'Features/ApiSlices/triggerApiSlice';
-import { Robot } from 'Features/ApiSlices/robotApiSlice';
 
 
+/**
+ * Компонент управления статусами мероприятия.
+ * Объединяет функциональность Kanban-доски статусов и модального окна редактирования.
+ * Позволяет добавлять, редактировать, удалять и изменять порядок статусов.
+ * Редактирование доступно только при создании нового мероприятия.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <StatusSettings />
+ *
+ * @returns {JSX.Element} Компонент управления статусами с кнопкой добавления и Kanban-доской
+ */
 export default function StatusSettings(): JSX.Element {
-  const dispatch = useDispatch();
-  const { stepStatuses, stepRobots } = useSelector((state: any) => state.event);
-  const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
+  const dispatch = useDispatch(); // Хук для dispatch Redux-действий
+  const { stepStatuses, editingEventId } = useSelector((state: any) => state.event); // Данные статусов из Redux store
+  const [isStatusModalVisible, setIsStatusModalVisible] = useState(false); // Видимость модалки статуса
+  const [editingStatus, setEditingStatus] = useState<StatusApp | null>(null); // Редактируемый статус
 
-  // Добавление нового статуса
+  /**
+   * Обработчик добавления нового статуса
+   * @param {StatusApp} newStatus - Новый статус для добавления
+   */
   const handleAddStatus = (newStatus: StatusApp) => {
     dispatch(addStatus(newStatus));
   };
 
-  // Обновление порядка статусов
+  /**
+   * Обработчик обновления существующего статуса
+   * @param {StatusApp} updatedStatus - Обновленные данные статуса
+   */
+  const handleUpdateStatus = (updatedStatus: StatusApp) => {
+    dispatch(updateStatus(updatedStatus));
+  };
+
+  /**
+   * Обработчик изменения порядка статусов
+   * @param {StatusApp[]} statuses - Новый порядок статусов
+   */
   const handleStatusesUpdate = (statuses: StatusApp[]) => {
     dispatch(reorderStatuses(statuses));
   };
 
-  // Удаление статуса
+  /**
+   * Обработчик удаления статуса
+   * @param {number} id - ID удаляемого статуса
+   */
   const handleStatusRemove = (id: number) => {
     dispatch(removeStatus(id));
   };
 
-  // Добавление триггера к статусу
-  const handleAddTrigger = (statusId: number, trigger: Omit<Trigger, 'id'>) => {
-    dispatch(addTriggerToStatus({ statusId, trigger }));
+  /**
+   * Обработчик редактирования статуса
+   * @param {StatusApp} status - Статус для редактирования
+   */
+  const handleStatusEdit = (status: StatusApp) => {
+    setEditingStatus(status);
+    setIsStatusModalVisible(true);
   };
 
-  // Удаление триггера из статуса
-  const handleRemoveTrigger = (statusId: number, triggerId: number) => {
-    dispatch(removeTriggerFromStatus({ statusId, triggerId }));
-  };
-
-  // Перемещение триггера между статусами
-  const handleMoveTrigger = (
-    source: { statusId: number; triggerId: number },
-    destination: { statusId: number }
-  ) => {
-    dispatch(moveTriggerBetweenStatuses({ source, destination }));
-  };
-
-  // Добавление нового робота
-  const handleAddRobot = (robot: Omit<Robot, 'id'>) => {
-    dispatch(addRobot({ ...robot, id: Date.now() }));
-  };
-
-  // Привязка робота к триггеру
-  const handleAttachRobot = (statusId: number, triggerId: number, robotId: number) => {
-    dispatch(attachRobotToTrigger({ statusId, triggerId, robotId }));
-    
-    // Создаем functionOrder
-    dispatch(addFunctionOrder({
-      status_order: statusId,
-      position: stepRobots.functionOrders.length + 1,
-      robot: robotId,
-      trigger: triggerId,
-      config: {}
-    }));
-  };
-
-  // Отвязка робота от триггера
-  const handleDetachRobot = (statusId: number, triggerId: number) => {
-    dispatch(detachRobotFromTrigger({ statusId, triggerId }));
-    
-    // Находим и обновляем functionOrder (удаляем trigger)
-    const order = stepRobots.functionOrders.find(
-      o => o.status_order === statusId && o.trigger === triggerId
-    );
-    if (order?.id) {
-      dispatch(updateFunctionOrder({
-        id: order.id,
-        changes: { trigger: null }
-      }));
-    }
-  };
-
-  // Перемещение робота между триггерами
-  const handleMoveRobot = (
-    source: { statusId: number; triggerId: number },
-    destination: { statusId: number; triggerId: number },
-    robotId: number
-  ) => {
-    dispatch(moveRobotBetweenTriggers({ source, destination, robotId }));
-    
-    // Обновляем functionOrder
-    const order = stepRobots.functionOrders.find(
-      o => o.robot === robotId && o.status_order === source.statusId
-    );
-    if (order?.id) {
-      dispatch(updateFunctionOrder({
-        id: order.id,
-        changes: {
-          status_order: destination.statusId,
-          trigger: destination.triggerId
-        }
-      }));
-    }
+  /**
+   * Обработчик закрытия модального окна
+   */
+  const handleModalClose = () => {
+    setIsStatusModalVisible(false);
+    setEditingStatus(null);
   };
 
   return (
     <div className="status-settings">
-      <div className="settings-actions">
-        <Button 
-          type="primary" 
-          onClick={() => setIsStatusModalVisible(true)}
-          style={{ marginRight: 10 }}
-        >
-          Добавить статус
-        </Button>
-      </div>
-
+      {editingEventId ? (
+        <div className="statusEditNotice">
+          Редактирование статусов доступно только при создании мероприятия
+        </div>
+      ) : (
+        <div className="settings-actions">
+          <Button 
+            type="primary" 
+            onClick={() => setIsStatusModalVisible(true)}
+            style={{ marginRight: 10 }}
+          >
+            Добавить статус
+          </Button>
+          <span 
+            style={{ 
+              color: stepStatuses.statuses?.length > 0 ? '#888' : '#ff4d4f',
+              fontSize: '14px'
+            }}
+          >
+            Для успешного создания мероприятия необходимо добавить хотя бы один статус
+          </span>
+        </div>
+      )}
+      
+      {/* Модальное окно добавления/редактирования статуса */}
       <StatusModal
         visible={isStatusModalVisible}
-        onCancel={() => setIsStatusModalVisible(false)}
+        onCancel={handleModalClose}
         onAddStatus={handleAddStatus}
+        onUpdateStatus={handleUpdateStatus}
+        editingStatus={editingStatus}
       />
 
+      {/* Kanban-доска для управления статусами */}
       <StatusKanban
+        editingEventId={editingEventId}
         statuses={stepStatuses.statuses}
-        robots={stepRobots.robots}
-        functionOrders={stepRobots.functionOrders}
         onStatusesUpdate={handleStatusesUpdate}
         onStatusRemove={handleStatusRemove}
-        onAddTrigger={handleAddTrigger}
-        onRemoveTrigger={handleRemoveTrigger}
-        onMoveTrigger={handleMoveTrigger}
-        onAttachRobot={handleAttachRobot}
-        onDetachRobot={handleDetachRobot}
-        onMoveRobot={handleMoveRobot}
-        onAddRobot={handleAddRobot}
+        onStatusEdit={handleStatusEdit}
       />
     </div>
   );

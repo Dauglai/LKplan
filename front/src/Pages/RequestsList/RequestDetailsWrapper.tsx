@@ -1,17 +1,37 @@
-import { Application } from 'Features/ApiSlices/applicationSlice';
-import RequestDetailsModal from './RequestDetailsModal';
-import RequestMessageModal from './RequestMessageModal';
-import CloseIcon from 'assets/icons/close.svg?react';
-import { Modal, Typography } from 'antd';
-const { Title } = Typography;
-import "Styles/components/Sections/ModalStyle.scss";
+import { Application } from 'Features/ApiSlices/applicationSlice'; // Тип заявки
+import RequestDetailsModal from './RequestDetailsModal'; // Модальное окно деталей заявки
+import RequestMessageModal from './RequestMessageModal'; // Модальное окно сообщений заявки
+import CloseIcon from 'assets/icons/close.svg?react'; // Иконка закрытия
+import { Modal, Typography } from 'antd'; // Компоненты Ant Design
+const { Title } = Typography; // Компонент заголовка
+import "Styles/components/Sections/ModalStyle.scss"; // Стили модального окна
 
 interface RequestDetailsProps {
-    request: Application;
-    open: boolean;
-    onClose: () => void;
+    request: Application; // Объект заявки для отображения
+    open: boolean; // Флаг видимости модального окна
+    onClose: () => void; // Функция закрытия модального окна
 }
 
+/**
+ * Обертка для модальных окон деталей заявки.
+ * Управляет отображением модальных окон с деталями заявки и сообщениями.
+ * Содержит общий UI для всех модальных окон заявки (заголовок, кнопка закрытия).
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <RequestDetailsWrapper 
+ *   request={selectedRequest}
+ *   open={isModalOpen}
+ *   onClose={handleCloseModal}
+ * />
+ *
+ * @param {RequestDetailsProps} props - Свойства компонента
+ * @param {Application} props.request - Данные заявки
+ * @param {boolean} props.open - Флаг видимости модального окна
+ * @param {function} props.onClose - Обработчик закрытия модального окна
+ * @returns {JSX.Element} Обертка модальных окон заявки
+ */
 export default function RequestDetailsWrapper({ request, open, onClose }: RequestDetailsProps) {
     return (
       <Modal

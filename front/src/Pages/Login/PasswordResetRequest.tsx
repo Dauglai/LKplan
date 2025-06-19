@@ -1,24 +1,42 @@
-import { useEffect, useState } from 'react';
-import { Form, Input, Button, message, Typography } from 'antd';
-import { usePasswordResetRequestMutation } from 'Features/Auth/api/authApiSlice';
-import 'Styles/pages/Auth.scss';
+import { useEffect, useState } from 'react'; // Базовые хуки React
+import { Form, Input, Button, message, Typography } from 'antd'; // UI компоненты Ant Design
+import { usePasswordResetRequestMutation } from 'Features/Auth/api/authApiSlice'; // RTK Query мутация
+import 'Styles/pages/Auth.scss'; // Стили страницы
 
-const { Text } = Typography;
+const { Text } = Typography; // Компонент текста из Ant Design
 
+/**
+ * Компонент для запроса сброса пароля по email.
+ * Отправляет пользователю письмо со ссылкой для сброса пароля.
+ * После успешной отправки показывает сообщение о успехе.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <PasswordResetRequest />
+ * 
+ * @returns {JSX.Element} Форма запроса сброса пароля с email полем и кнопкой отправки.
+ */
 export default function PasswordResetRequest(): JSX.Element {
-  const [form] = Form.useForm();
-  const [requestReset, { isLoading }] = usePasswordResetRequestMutation();
-  const [emailSent, setEmailSent] = useState<string | null>(null);
+  const [form] = Form.useForm(); // Хук формы Ant Design
+  const [requestReset, { isLoading }] = usePasswordResetRequestMutation(); // Мутация запроса сброса
+  const [emailSent, setEmailSent] = useState<string | null>(null); // Состояние для хранения email после отправки
 
+  // Установка заголовка страницы
   useEffect(() => {
     document.title = 'Восстановление пароля - MeetPoint';
   }, []);
 
+  /**
+   * Обработчик отправки формы запроса сброса пароля.
+   * @param {Object} values - Значения формы
+   * @param {string} values.email - Email пользователя для отправки ссылки сброса
+   */
   const onFinish = async (values: { email: string }) => {
     try {
-      await requestReset({ email: values.email }).unwrap();
-      setEmailSent(values.email);
-      form.resetFields();
+      await requestReset({ email: values.email }).unwrap(); // Отправка запроса на сервер
+      setEmailSent(values.email); // Сохраняем email для показа сообщения
+      form.resetFields(); // Сбрасываем поля формы
       // если нужно — редиректим или ждём действия пользователя
     } catch (error) {
       message.error('Не удалось отправить ссылку. Проверьте почту или попробуйте позже');

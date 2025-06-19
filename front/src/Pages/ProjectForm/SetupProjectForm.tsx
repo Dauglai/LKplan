@@ -1,42 +1,59 @@
-import DirectionSelector from 'Components/Selectors/DirectionSelector';
-import { useNotification } from 'Components/Common/Notification/Notification';
-import { useNavigate } from "react-router-dom";
-import UserSelector from 'Components/Selectors/UserSelector';
-import BackButton from 'Components/Common/BackButton/BackButton';
-import NameInputField from 'Components/Forms/NameInputField';
-import DescriptionInputField from 'Components/Forms/DescriptionInputField.tsx';
-import CloseIcon from 'assets/icons/close.svg?react';
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
-import 'Styles/FormStyle.scss'
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addProject, updateProjects, removeProject } from 'Features/store/eventSetupSlice';
-import { Project } from 'Features/ApiSlices/projectSlice';
-import { Direction } from 'Features/ApiSlices/directionSlice';
-import SideStepNavigator from 'Components/Sections/SideStepNavigator';
+import DirectionSelector from 'Components/Selectors/DirectionSelector'; // Селектор выбора направления
+import { useNotification } from 'Components/Common/Notification/Notification'; // Хук уведомлений
+import { useNavigate } from "react-router-dom"; // Хук навигации
+import BackButton from 'Components/Common/BackButton/BackButton'; // Кнопка "Назад"
+import NameInputField from 'Components/Forms/NameInputField'; // Поле ввода названия
+import DescriptionInputField from 'Components/Forms/DescriptionInputField.tsx'; // Поле ввода описания
+import CloseIcon from 'assets/icons/close.svg?react'; // Иконка закрытия
+import ChevronRightIcon from 'assets/icons/chevron-right.svg?react'; // Иконка стрелки вправо
+import 'Styles/FormStyle.scss'; // Стили формы
+import React, { useState } from 'react'; // Базовые хуки React
+import { useDispatch, useSelector } from 'react-redux'; // Redux хуки
+import { addProject, updateProjects, removeProject } from 'Features/store/eventSetupSlice'; // Экшены проектов
+import { Project } from 'Features/ApiSlices/projectSlice'; // Тип проекта
+import { Direction } from 'Features/ApiSlices/directionSlice'; // Тип направления
+import SideStepNavigator from 'Components/Sections/SideStepNavigator'; // Навигатор шагов
 
 interface FormErrors {
-  direction?: string;
-  name?: string;
+  direction?: string; // Ошибка выбора направления
+  name?: string; // Ошибка названия проекта
 }
 
+/**
+ * Форма настройки проектов мероприятия.
+ * Позволяет создавать, редактировать и удалять проекты, группировать их по направлениям.
+ * Включает валидацию полей и интеграцию с Redux store.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <SetupProjectForm />
+ * 
+ * @returns {JSX.Element} Форма управления проектами с навигацией
+ */
 export default function SetupProjectForm(): JSX.Element {
-  const { stepProjects, stepDirections } = useSelector((state: any) => state.event);
-  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const { showNotification } = useNotification();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const { stepProjects, stepDirections } = useSelector((state: any) => state.event); // Данные из Redux store
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null); // ID редактируемого проекта
+  const [errors, setErrors] = useState<FormErrors>({}); // Ошибки валидации
+  const { showNotification } = useNotification(); // Хук уведомлений
+  const dispatch = useDispatch(); // Redux dispatch
+  const navigate = useNavigate(); // Навигация
   
+  // Состояние нового проекта
   const [newProject, setNewProject] = useState({
-    direction: 0,
-    name: '',
-    description: '',
+    direction: 0, // ID направления
+    name: '', // Название проекта
+    description: '', // Описание проекта
   });
 
+  // Текущее выбранное направление
   const selectedDirection = stepDirections.directions.find(d => d.id === newProject.direction);
 
-  // Группировка проектов по направлениям
+  /**
+   * Группирует проекты по направлениям для отображения.
+   * 
+   * @type {Record<number, Project[]>}
+   */
   const projectsByDirection = stepProjects.projects?.reduce((acc: Record<number, Project[]>, project) => {
     if (!acc[project.direction]) {
       acc[project.direction] = [];
@@ -45,6 +62,12 @@ export default function SetupProjectForm(): JSX.Element {
     return acc;
   }, {});
 
+  /**
+   * Валидирует форму перед отправкой.
+   * Проверяет наличие выбранного направления и названия проекта.
+   * 
+   * @returns {boolean} Результат валидации (true - валидно)
+   */
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
     
@@ -60,6 +83,11 @@ export default function SetupProjectForm(): JSX.Element {
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   * Обработчик изменения полей ввода.
+   * 
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - Событие изменения
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewProject((prev) => ({
@@ -73,6 +101,11 @@ export default function SetupProjectForm(): JSX.Element {
     }
   };
 
+  /**
+   * Переключает форму в режим редактирования проекта.
+   * 
+   * @param {Project} project - Проект для редактирования
+   */
   const handleEditProject = (project: Project) => {
     setNewProject({
       direction: project.direction,
@@ -83,6 +116,12 @@ export default function SetupProjectForm(): JSX.Element {
     setErrors({});
   };
 
+  /**
+   * Обработчик сохранения проекта (создание/обновление).
+   * 
+   * @async
+   * @param {React.FormEvent} e - Событие формы
+   */
   const handleProject = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -110,6 +149,11 @@ export default function SetupProjectForm(): JSX.Element {
     }
   };
 
+  /**
+   * Обработчик изменения выбранного направления.
+   * 
+   * @param {Direction} selected - Выбранное направление
+   */
   const handleDirectionChange = (selected: Direction) => {
     setNewProject((prev) => ({
       ...prev,
@@ -122,6 +166,11 @@ export default function SetupProjectForm(): JSX.Element {
     }
   };
 
+  /**
+   * Обработчик изменения текстового поля описания.
+   * 
+   * @param {React.ChangeEvent<HTMLTextAreaElement>} e - Событие изменения
+   */
   const handleTextArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewProject((prev) => ({
       ...prev,
@@ -129,14 +178,18 @@ export default function SetupProjectForm(): JSX.Element {
     }));
   };
 
+  /**
+   * Переход к следующему шагу настройки.
+   */
   const handleNextStep = () => {
-    if (stepProjects.projects.length === 0) {
-      showNotification("Добавьте хотя бы один проект", "error");
-      return;
-    }
     navigate("/stages-setup");
   };
 
+  /**
+   * Удаление проекта по ID.
+   * 
+   * @param {string} id - ID проекта для удаления
+   */
   const handleRemoveProject = (id: string) => {
     dispatch(removeProject(id)); 
   };

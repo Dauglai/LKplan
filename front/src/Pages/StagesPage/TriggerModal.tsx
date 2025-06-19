@@ -1,84 +1,68 @@
-import React, { useState } from 'react';
-import { Modal, Form, Input, Select, Button, Radio, InputNumber, Typography } from 'antd';
-import { Trigger } from 'Features/ApiSlices/triggerApiSlice';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, Select, Button, InputNumber, Typography } from 'antd';
+import { FunctionOrder } from 'Features/ApiSlices/functionOrdersApiSlice';
 
-const { Option } = Select;
 const { Title } = Typography;
 
 interface TriggerModalProps {
   visible: boolean;
   onCancel: () => void;
-  onSave: (trigger: Omit<Trigger, 'id'>) => void;
-  initialData?: Trigger;
+  onSave: (order: Omit<FunctionOrder, 'id'>) => void;
+  initialData?: {
+    id?: number;
+    config: { expiration: string };
+    status_order_id: number;
+    trigger?: number;
+  };
+  statusId: number; // ID статуса, к которому привязываем триггер
 }
 
 const TriggerModal: React.FC<TriggerModalProps> = ({ 
   visible, 
   onCancel, 
   onSave,
-  initialData 
+  initialData,
+  statusId
 }) => {
   const [form] = Form.useForm();
-  const [triggerType, setTriggerType] = useState<Trigger["type_condition"]>(
-    initialData?.type_condition || 'time_expiration'
-  );
+  const [timeUnit, setTimeUnit] = useState<'d' | 'h' | 'm'>('d');
+  const [timeValue, setTimeValue] = useState<number>(14);
+
+  useEffect(() => {
+    if (initialData) {
+      // Парсим существующее значение expiration (например "14d")
+      const exp = initialData.config.expiration;
+      const value = parseInt(exp);
+      const unit = exp.replace(value.toString(), '') as 'd' | 'h' | 'm';
+      
+      setTimeValue(value);
+      setTimeUnit(unit);
+    }
+  }, [initialData]);
 
   const handleSubmit = () => {
-    form.validateFields().then(values => {
-      const trigger: Omit<Trigger, 'id'> = {
-        name: values.name,
-        description: values.description,
-        type_condition: triggerType,
-        status: values.status !== false,
-        parameters_template: getParametersByType(triggerType, values)
-      };
-      onSave(trigger);
+    form.validateFields().then(() => {
+      const expiration = `${timeValue}${timeUnit}`;
+      
+      onSave({
+        position: 1, // Пока ставим 1, можно добавить поле в форму при необходимости
+        type_function: 'trigger',
+        config: { expiration },
+        status_order_id: statusId,
+        trigger: initialData?.trigger || 1, // ID триггера "expiration"
+      });
+      
       form.resetFields();
       onCancel();
-    });
-  };
-
-  const getParametersByType = (type: Trigger["type_condition"], values: any) => {
-    switch (type) {
-      case 'time_expiration':
-        return {
-          interval: values.interval,
-          value: values.timeValue,
-          field: values.timeField || 'updated_at'
-        };
-      case 'status_check':
-        return {
-          status: values.targetStatus
-        };
-      case 'field_comparison':
-        return {
-          field: values.comparisonField,
-          operator: values.operator,
-          value: values.comparisonValue
-        };
-      default:
-        return {};
-    }
-  };
-
-  // Сброс формы при изменении типа триггера
-  const handleTypeChange = (type: Trigger["type_condition"]) => {
-    setTriggerType(type);
-    form.setFieldsValue({
-      interval: undefined,
-      timeValue: undefined,
-      targetStatus: undefined,
-      operator: undefined,
-      comparisonValue: undefined
     });
   };
 
   return (
     <Modal
       title={
-          <Title level={4} className="ModalTitle">
-            Настройка триггера
-          </Title>
+        <Title level={4} className="ModalTitle">
+          {initialData ? 'Редактирование триггера' : 'Добавление триггера'}
+        </Title>
       }
       open={visible}
       onCancel={onCancel}
@@ -98,114 +82,53 @@ const TriggerModal: React.FC<TriggerModalProps> = ({
         form={form} 
         layout="vertical"
         initialValues={{
-          ...initialData,
-          ...initialData?.parameters_template,
-          status: initialData?.status !== false
+          name: 'Проверка на актуальность заявки',
+          description: 'Определяет, когда заявка становится просроченной',
         }}
       >
-        <Form.Item className="ModalFormItem" 
+        <Form.Item 
+          className="ModalFormItem" 
           name="name"
-          rules={[{ required: true, message: 'Введите название' }]}
+          label="Название триггера"
         >
-          <Input placeholder="Название триггера *" className='ModalFormField'/>
+          <Input disabled className='ModalFormField'/>
         </Form.Item>
 
-        <Form.Item className="ModalFormItem" name="description">
+        <Form.Item 
+          className="ModalFormItem" 
+          name="description"
+          label="Описание"
+        >
           <Input.TextArea
-            placeholder="Описание триггера"
+            disabled
             className='ModalFormField' 
             autoSize={{ minRows: 1, maxRows: 5 }}
-            showCount 
-            maxLength={200}/>
+          />
         </Form.Item>
 
         <Form.Item
-          className="ModalFormItem" 
-          name="type_condition"
-          label="Тип условия"
-          rules={[{ required: true }]}
+          className="ModalFormItem"
+          label="Время до просрочки"
+          required
         >
-          <Select onChange={handleTypeChange} className='ModalFormField' >
-            <Option value="time_expiration">Время истечения</Option>
-            <Option value="status_check">Проверка статуса</Option>
-            <Option value="field_comparison">Сравнение поля</Option>
-          </Select>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <InputNumber
+              min={1}
+              value={timeValue}
+              onChange={(value) => setTimeValue(value || 1)}
+              style={{ flex: 1 }}
+            />
+            <Select
+              value={timeUnit}
+              onChange={(value) => setTimeUnit(value)}
+              style={{ width: '100px' }}
+            >
+              <Option value="d">Дней</Option>
+              <Option value="h">Часов</Option>
+              <Option value="m">Минут</Option>
+            </Select>
+          </div>
         </Form.Item>
-
-        <Form.Item className="ModalFormItem" name="status" label="Статус" valuePropName="checked">
-          <Radio.Group>
-            <Radio value={true}>Активен</Radio>
-            <Radio value={false}>Неактивен</Radio>
-          </Radio.Group>
-        </Form.Item>
-
-        {/* Динамическая часть формы */}
-        {triggerType === 'time_expiration' && (
-          <>
-            <Form.Item className="ModalFormItem" 
-              name="interval"
-              rules={[{ required: true }]}
-            >
-              <Select className='ModalFormField' placeholder="Интервал времени *">
-                <Option value="days">Дни</Option>
-                <Option value="hours">Часы</Option>
-                <Option value="minutes">Минуты</Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item className="ModalFormItem" 
-              name="timeValue"
-              rules={[{ required: true }]}
-            >
-              <InputNumber min={1} className='ModalFormField' placeholder="Значение"/>
-            </Form.Item>
-
-            <Form.Item className="ModalFormItem" 
-              name="timeField"
-            >
-              <Input placeholder="Поле с датой (опционально)" className='ModalFormField' />
-            </Form.Item>
-          </>
-        )}
-
-        {triggerType === 'status_check' && (
-          <Form.Item className="ModalFormItem" 
-            name="targetStatus"
-            rules={[{ required: true }]}
-          >
-            <Input placeholder="Целевой статус" className='ModalFormField'/>
-          </Form.Item>
-        )}
-
-        {triggerType === 'field_comparison' && (
-          <>
-            <Form.Item className="ModalFormItem" 
-              name="comparisonField"
-              rules={[{ required: true }]}
-            >
-              <Input placeholder="Поле для сравнения" className='ModalFormField'/>
-            </Form.Item>
-
-            <Form.Item className="ModalFormItem" 
-              name="operator"
-              rules={[{ required: true }]}
-            >
-              <Select className='ModalFormField' placeholder="Оператор">
-                <Option value="==">Равно</Option>
-                <Option value="!=">Не равно</Option>
-                <Option value=">">Больше</Option>
-                <Option value="<">Меньше</Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item className="ModalFormItem" 
-              name="comparisonValue"
-              rules={[{ required: true }]}
-            >
-              <Input placeholder="Значение для сравнения" className='ModalFormField'/>
-            </Form.Item>
-          </>
-        )}
       </Form>
     </Modal>
   );

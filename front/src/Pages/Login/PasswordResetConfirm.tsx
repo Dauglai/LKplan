@@ -4,18 +4,40 @@ import { Form, Input, Button, message } from 'antd';
 import { usePasswordResetConfirmMutation } from 'Features/Auth/api/authApiSlice';
 import 'Styles/pages/Auth.scss';
 
+/**
+ * Компонент для подтверждения сброса пароля пользователя.
+ * Позволяет пользователю установить новый пароль после перехода по ссылке сброса.
+ * Включает валидацию пароля и обработку токена сброса.
+ * 
+ * @component
+ * @example
+ * // Пример использования (обычно вызывается по ссылке из email):
+ * // Пользователь переходит по ссылке вида /password-reset-confirm?token=abc123
+ * <PasswordResetConfirm />
+ * 
+ * @returns {JSX.Element} Форма для ввода нового пароля с валидацией.
+ */
 export default function PasswordResetConfirm(): JSX.Element {
   const [form] = Form.useForm();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  // Токен сброса пароля из query-параметров URL
   const token = searchParams.get('token');
+  // Мутация для подтверждения сброса пароля
   const [resetPassword, { isLoading }] = usePasswordResetConfirmMutation();
 
+  // Установка заголовка страницы
   useEffect(() => {
     document.title = 'Сброс пароля - MeetPoint';
   }, []);
 
+  /**
+   * Валидатор пароля, проверяющий сложность.
+   * @param {any} _ - Неиспользуемый параметр (требуется antd Form)
+   * @param {string} value - Значение пароля для валидации
+   * @returns {Promise} Promise, который разрешается при успехе или отклоняется с сообщением об ошибке
+   */
   const passwordValidator = (_: any, value: string) => {
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!#$%&()*+./:;=>?@[\]^`{|}~']).{8,}$/;
     if (!value) return Promise.reject('Введите пароль');
@@ -27,6 +49,11 @@ export default function PasswordResetConfirm(): JSX.Element {
     return Promise.resolve();
   };
 
+  /**
+   * Обработчик отправки формы сброса пароля.
+   * @param {Object} values - Значения формы
+   * @param {string} values.password - Новый пароль пользователя
+   */
   const onFinish = async (values: { password: string }) => {
     if (!token) {
       message.error('Токен сброса не найден');

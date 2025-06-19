@@ -1,57 +1,67 @@
-import React, { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { UserRolesProvider } from 'Features/context/UserRolesContext.tsx';
-//import 'react-app-polyfill/ie11';
-//import 'react-app-polyfill/stable';
+import React, { StrictMode } from 'react'; // Базовые React-импорты
+import { createRoot } from 'react-dom/client'; // Рендеринг React-приложения
+import { BrowserRouter, Route, Routes } from 'react-router-dom'; // Маршрутизация
+import { Provider } from 'react-redux'; // Redux Provider
+import { UserRolesProvider } from 'Features/context/UserRolesContext.tsx'; // Контекст ролей пользователя
+import './index.css'; // Глобальные стили
 
-import './index.css';
+import App from './App.tsx'; // Главный компонент приложения
+import { store } from '../model/store.ts'; // Redux store
 
-import App from './App.tsx';
-import { store } from '../model/store.ts';
+import Layout from 'Shared/ui/layout/layout.tsx'; // Основной layout
+import RequireAuth from 'Shared/ui/requireAuth.tsx'; // HOC для авторизации
+import { RequireRole } from 'Shared/ui/RequireRole.tsx'; // HOC для проверки ролей
+import { NotificationProvider } from 'Components/Common/Notification/Notification.tsx'; // Уведомления
 
-import Layout from 'Shared/ui/layout/layout.tsx';
-import RequireAuth from 'Shared/ui/requireAuth.tsx';
-import { RequireRole } from 'Shared/ui/RequireRole.tsx';
-import { NotificationProvider } from 'Components/Common/Notification/Notification.tsx';
+// Импорты страниц
+import Login from 'Pages/Login/Login.tsx'; // Страница входа
+import Register from 'Pages/Register/Register.tsx'; // Страница регистрации
+import Profile from 'Pages/Profile/Profile.tsx'; // Профиль пользователя
+import RequestsManagement from 'Pages/RequestsList/RequestsManagement.tsx'; // Управление заявками
+import Tasks from 'Pages/Tasks/Tasks.tsx'; // Задачи проекта
+import { ConfigProvider } from 'antd'; // Ant Design провайдер
+import EventsManagement from 'Pages/EventsList/EventsManagement.tsx'; // Управление событиями
+import ProjectsManagement from 'Pages/ProjectsList/ProjectsManagement.tsx'; // Управление проектами
+import DirectionsManagement from 'Pages/DirectionsList/DirectionsManagement.tsx'; // Управление направлениями
+import SetupDirectionForm from 'Pages/DirectionForm/SetupDirectionForm.tsx'; // Форма направления
+import TeamsManagement from 'Pages/TeamsList/TeamsManagement.tsx'; // Управление командами
+import EventPage from 'Pages/Event/EventPage.tsx'; // Страница события
+import EventForm from 'Pages/EventsList/EventForm/EventForm.tsx'; // Форма события
+import EventSetupSummary from 'Pages/Event/EventSetupSummary.tsx'; // Итоги настройки
+import StagesPage from 'Pages/StagesPage/StagesPage.tsx'; // Страница этапов
+import ProjectPage from 'Pages/Project/ProjectPage.tsx'; // Страница проекта
+import ProjectForm from 'Pages/ProjectForm/SetupProjectForm.tsx'; // Форма проекта
+import TeamPage from 'Pages/Team/TeamPage.tsx'; // Страница команды
+import UsersProfilePage from 'Pages/UsersProfile/UsersProfilePage.tsx'; // Профиль другого пользователя
+import EmailVerifiedPage from 'Pages/Register/EmailVerified.tsx'; // Подтверждение email
+import PasswordResetRequest from 'Pages/Login/PasswordResetRequest.tsx'; // Запрос сброса пароля
+import PasswordResetConfirm from 'Pages/Login/PasswordResetConfirm.tsx'; // Подтверждение сброса пароля
+import KanbanPage from 'Pages/KanbanPage/KanbanPage.tsx'; // Kanban доска
+import TeamCreationPage from 'Pages/Team/TeamCreate/TeamCreationPage.tsx'; // Создание команды
+import GanttPage from 'Pages/Tasks/Gant/GanttPage.tsx'; // Диаграмма Ганта
 
-import Login from 'Pages/Login/Login.tsx';
-import Register from 'Pages/Register/Register.tsx';
-import Profile from 'Pages/Profile/Profile.tsx';
-import RequestsManagement from 'Pages/RequestsList/RequestsManagement.tsx';
-import Tasks from 'Pages/Tasks/Tasks.tsx';
-import { ConfigProvider } from 'antd';
-import EventsManagement from 'Pages/EventsList/EventsManagement.tsx';
-import ProjectsManagement from 'Pages/ProjectsList/ProjectsManagement.tsx';
-import DirectionsManagement from 'Pages/DirectionsList/DirectionsManagement.tsx';
-import SetupDirectionForm from 'Pages/DirectionForm/SetupDirectionForm.tsx';
-import TeamsManagement from 'Pages/TeamsList/TeamsManagement.tsx';
-import EventPage from 'Pages/Event/EventPage.tsx';
-import EventForm from 'Pages/EventsList/EventForm/EventForm.tsx';
-import EventSetupSummary from 'Pages/Event/EventSetupSummary.tsx';
-import StagesPage from 'Pages/StagesPage/StagesPage.tsx';
-import ProjectPage from 'Pages/Project/ProjectPage.tsx';
-import ProjectForm from 'Pages/ProjectForm/SetupProjectForm.tsx';
-import TeamPage from 'Pages/Team/TeamPage.tsx';
-import UsersProfilePage from 'Pages/UsersProfile/UsersProfilePage.tsx';
-import EmailVerifiedPage from 'Pages/Register/EmailVerified.tsx';
-import PasswordResetRequest from 'Pages/Login/PasswordResetRequest.tsx';
-import PasswordResetConfirm from 'Pages/Login/PasswordResetConfirm.tsx';
-import KanbanPage from 'Pages/KanbanPage/KanbanPage.tsx';
-import TeamCreationPage from 'Pages/Team/TeamCreate/TeamCreationPage.tsx';
-import GanttPage from 'Pages/Tasks/Gant/GanttPage.tsx';
-
+/**
+ * Тема Ant Design для кастомизации компонентов
+ */
 const theme = {
   token: {
-    colorPrimary: '#FED201',
-    colorTextBase: '#424242',
-    colorTextLightSolid: '#424242',
-    controlHeightLG: '51px',
-    fontSizeLG: '24px',
+    colorPrimary: '#FED201', // Основной цвет
+    colorTextBase: '#424242', // Базовый цвет текста
+    colorTextLightSolid: '#424242', // Цвет текста на светлом фоне
+    controlHeightLG: '51px', // Высота больших контролов
+    fontSizeLG: '24px', // Размер большого шрифта
   },
 };
 
+/**
+ * Точка входа в приложение
+ * Инициализирует React-приложение с настройками:
+ * - Redux store
+ * - Контекст ролей пользователя
+ * - Систему уведомлений
+ * - Маршрутизацию
+ * - Ant Design тему
+ */
 createRoot(document.getElementById('root')!).render(
   //<StrictMode>
     <ConfigProvider theme={theme}>
@@ -69,7 +79,7 @@ createRoot(document.getElementById('root')!).render(
                   <Route path="/password-reset/confirm" element={<PasswordResetConfirm />} />
                   <Route path="/" element={<RequireAuth />}>
 
-                  {/* Доступ только организатору */}
+                  {/* Маршруты только для организатора */}
                     <Route element={<RequireRole allowedRoles={['organizer']} />}>
                       <Route path="/requests" element={<RequestsManagement />} /> 
                       <Route path="/event-setup" element={<EventForm />} />
@@ -80,11 +90,11 @@ createRoot(document.getElementById('root')!).render(
                       <Route path="/event-setup-save" element={<EventSetupSummary />} />
                     </Route>
 
-                    {/* Доступ только практикантам */}
+                    {/* Маршруты только для практикантов */}
                     <Route element={<RequireRole allowedRoles={['projectant']} />}>
                     </Route>
 
-                    {/* Общие маршруты */}
+                    {/* Общие маршруты для авторизованных */}
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/profile/:id" element={<UsersProfilePage />} />
                     <Route path="/events" element={<EventsManagement />} />

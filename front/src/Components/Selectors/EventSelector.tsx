@@ -1,23 +1,43 @@
-import { Event, useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
-import { Select, Spin } from 'antd';
-import "Styles/FormSelectorStyle.scss";
+import { Event, useGetEventsQuery } from 'Features/ApiSlices/eventSlice'; // Тип Event и API-запрос мероприятий
+import { Select, Spin } from 'antd'; // Компоненты Ant Design
+import "Styles/FormSelectorStyle.scss"; // Стили компонента
 
-const { Option } = Select;
+const { Option } = Select; // Деструктуризация Option из Select
 
+/**
+ * Интерфейс пропсов компонента EventSelector.
+ * 
+ * @property {Event | number | null} [selectedEvent] - Выбранное мероприятие (может быть объектом, ID или null).
+ * @property {(event: Event) => void} onChange - Колбэк при изменении выбора мероприятия.
+ */
 interface EventSelectorProps {
   selectedEvent?: Event | number | null;
   onChange: (event: Event) => void;
 }
 
+/**
+ * Компонент выбора мероприятия из списка.
+ * Загружает список мероприятий с сервера и предоставляет интерфейс для выбора.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <EventSelector
+ *   selectedEvent={currentEvent}
+ *   onChange={(event) => setCurrentEvent(event)}
+ * />
+ *
+ * @param {EventSelectorProps} props - Пропсы компонента.
+ * @returns {JSX.Element} Выпадающий список мероприятий или состояние загрузки/ошибки.
+ */
 export default function EventSelector({
   selectedEvent,
   onChange,
 }: EventSelectorProps): JSX.Element {
-  
-  const { data: events, isLoading } = useGetEventsQuery(); // получаем список меропряитий с сервера
+  const { data: events, isLoading } = useGetEventsQuery(); // Получаем список мероприятий с сервера
 
   if (isLoading) {
-    return <Spin />; //если идет загрузка мероприятий показываем компонент Spin
+    return <Spin />;
   }
 
   if (!events || events.length === 0) {

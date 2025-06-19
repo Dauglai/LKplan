@@ -1,5 +1,8 @@
 import { apiSlice} from 'App/api/apiSlice.ts';
 
+/**
+ * Интерфейс для представления данных специализаций практикантов.
+ */
 export interface Specialization {
   id: number;
   name: string;

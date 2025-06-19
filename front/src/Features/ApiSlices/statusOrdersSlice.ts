@@ -1,5 +1,8 @@
 import { apiSlice } from 'App/api/apiSlice.ts';
 
+/**
+ * Интерфейс для представления данных о порядку статусов меропряитий.
+ */
 export interface StatusOrder {
   id: number;
   number: number; // Позиция в списке

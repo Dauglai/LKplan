@@ -4,9 +4,11 @@ import { Event } from './eventSlice';
 import { Project } from './projectSlice';
 import { Direction } from './directionSlice';
 import { Team } from './teamSlice';
-import { Result } from 'Features/ApiSlices/resultApiSlice.ts';
-import { User } from './userSlice';
 
+/**
+ * Интерфейс для представления данных заявок
+ * Используется для описания структуры объектов заявлений в системе.
+ */
 export interface Application {
   id: number;
   user: number; 

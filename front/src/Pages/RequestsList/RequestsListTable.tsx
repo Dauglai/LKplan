@@ -11,8 +11,9 @@ import ListTable from 'Components/Sections/ListTable';
 import MagnifierIcon from 'assets/icons/magnifier.svg?react';
 import { useGetEventsQuery } from 'Features/ApiSlices/eventSlice';
 import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
-import { ChangeStatusModal } from "Components/PageComponents/ChangeStatusModal";
 import dayjs from 'dayjs';
+import { StatusApp, useGetStatusesAppQuery } from 'Features/ApiSlices/statusAppSlice';
+import { StatusOrder, useGetStatusOrdersQuery } from 'Features/ApiSlices/statusOrdersSlice';
 
 
 
@@ -20,42 +21,120 @@ interface RequestsListTableProps {
     requests: Application[];
     onSelectRequests?: (request: Application[]) => void;
     onOpenStatusModal?: (requests: Application[]) => void;
+    showCompleted?: boolean;
 }
 
+/**
+ * Табличный компонент для отображения списка заявок с возможностью выбора,
+ * изменения статуса и удаления. Поддерживает фильтрацию по завершенным заявкам.
+ * Интегрирует данные проектов, мероприятий, команд и статусов.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <RequestsListTable
+ *   requests={filteredRequests}
+ *   onSelectRequests={handleSelection}
+ *   onOpenStatusModal={openStatusChangeModal}
+ *   showCompleted={true}
+ * />
+ *
+ * @param {Object} props - Пропсы компонента.
+ * @param {Application[]} props.requests - Массив заявок для отображения.
+ * @param {function} [props.onSelectRequests] - Коллбэк при выборе заявок.
+ * @param {function} [props.onOpenStatusModal] - Коллбэк открытия модалки статусов.
+ * @param {boolean} [props.showCompleted] - Флаг отображения завершенных заявок.
+ *
+ * @returns {JSX.Element} Таблица с заявками и инструментами управления.
+ */
 export default function RequestsListTable({ 
     requests, 
     onSelectRequests, 
-    onOpenStatusModal
+    onOpenStatusModal,
+    showCompleted
 }: RequestsListTableProps): JSX.Element {
-    const { data: projects = []} = useGetProjectsQuery(); // Получение списка проектов с сервера.
-    const { data: events = [] } = useGetEventsQuery();
-    const { data: teams = [] } = useGetTeamsQuery();
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedRequest, setSelectedRequest] = useState<Application | null>(null);
-    const [deleteRequest] = useDeleteApplicationMutation();
-    const { showNotification } = useNotification();
+    const { data: projects = [] } = useGetProjectsQuery(); // Данные проектов для связи с заявками
+    const { data: events = [] } = useGetEventsQuery(); // Данные мероприятий для отображения
+    const { data: teams = [] } = useGetTeamsQuery(); // Данные команд участников
+    const { data: allStatuses = [] } = useGetStatusesAppQuery(); // Все возможные статусы заявок
+    const { data: statusOrders = [] } = useGetStatusOrdersQuery(); // Порядок статусов
+    
+    const [isModalOpen, setIsModalOpen] = useState(false); // Состояние видимости модального окна
+    const [selectedRequest, setSelectedRequest] = useState<Application | null>(null); // Выбранная заявка
+    const [deleteRequest] = useDeleteApplicationMutation(); // Мутация удаления заявки
+    const { showNotification } = useNotification(); // Хук для уведомлений
 
-    const enrichedRequests = useMemo(() => {
-        return requests.map(request => {
-          const project = projects.find(p => p.project_id === request.project);
-          const event = events.find(e => e.event_id === request.event?.id);
-          const team = teams.find(t => t.id === request.team);
-          const date_sub = dayjs(request.date_end).format('DD.MM.YYYY');
-          const time_sub = dayjs(request.date_end).format('HH:mm');
-          const datetime_sub = request.date_end;
-
-      
-          return {
-            ...request,
-            project,
-            event,
-            team,
-            date_sub,
-            time_sub,
-            datetime_sub
-          };
+    // Определяем последние положительные статусы для каждого мероприятия
+    const lastPositiveStatuses = useMemo(() => {
+        const result: Record<number, StatusApp> = {}; // event_id -> status
+        
+        // Группируем порядки статусов по мероприятиям
+        const statusOrdersByEvent: Record<number, StatusOrder[]> = {};
+        statusOrders.forEach(order => {
+            if (!statusOrdersByEvent[order.event]) {
+                statusOrdersByEvent[order.event] = [];
+            }
+            statusOrdersByEvent[order.event].push(order);
         });
-      }, [requests, projects, events, teams]);
+
+        // Для каждого мероприятия находим последний положительный статус
+        Object.entries(statusOrdersByEvent).forEach(([eventId, orders]) => {
+            const sortedOrders = [...orders].sort((a, b) => b.number - a.number);
+            const lastPositive = sortedOrders.find(order => {
+                const status = allStatuses.find(s => s.id === order.status);
+                return status?.is_positive;
+            });
+            
+            if (lastPositive) {
+                const status = allStatuses.find(s => s.id === lastPositive.status);
+                if (status) {
+                    result[Number(eventId)] = status;
+                }
+            }
+        });
+
+        return result;
+    }, [allStatuses, statusOrders]);
+
+    // Фильтруем и обогащаем заявки
+    const enrichedRequests = useMemo(() => {
+        return requests
+            .filter(request => {
+                if (showCompleted || !request.event?.id) return true;
+                const lastPositiveStatus = lastPositiveStatuses[request.event.id];
+                return !lastPositiveStatus || request.status.id !== lastPositiveStatus.id;
+            })
+            .map(request => {
+                const project = projects.find(p => p.project_id === request.project);
+                const event = events.find(e => e.event_id === request.event?.id);
+                const team = teams.find(t => t.id === request.team);
+                const date_sub = dayjs(request.date_sub).format('DD.MM.YYYY');
+                const time_sub = dayjs(request.date_sub).format('HH:mm');
+                const datetime_sub = request.date_sub;
+                
+                // Определяем цвет статуса
+                let statusColor = 'blue'; // по умолчанию
+                if (request.event?.id) {
+                    const lastPositiveStatus = lastPositiveStatuses[request.event.id];
+                    if (lastPositiveStatus && request.status.id === lastPositiveStatus.id) {
+                        statusColor = 'green';
+                    } else if (!request.status.is_positive) {
+                        statusColor = 'red';
+                    }
+                }
+
+                return {
+                    ...request,
+                    project,
+                    event,
+                    team,
+                    date_sub,
+                    time_sub,
+                    datetime_sub,
+                    _statusColor: statusColor
+                };
+            });
+    }, [requests, projects, events, teams, lastPositiveStatuses, showCompleted]);
 
     const handleDelete = async (id: number) => {
         await deleteRequest(id);
@@ -115,13 +194,15 @@ export default function RequestsListTable({
         },          
         {
             header: 'Статус',
-            render: (request: Application) => (
+            render: (request: Application & { _statusColor?: string }) => (
                 <span
-                    className="HiglightCell"
+                    className={`HiglightCell ${request._statusColor || 'blue'}`}
                     onClick={() => onOpenStatusModal?.([request])}
-                    style={{ cursor: 'pointer'}}
+                    style={{ cursor: 'pointer' }}
                     title="Изменить статус"
-                >{request.status.name}</span>
+                >
+                    {request.status.name}
+                </span>
             ),
             sortKey: 'status.name',
             autoFilters: true,

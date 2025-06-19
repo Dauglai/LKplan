@@ -1,32 +1,44 @@
-import React, { useState } from 'react';
-import { useNotification } from 'Components/Common/Notification/Notification';
-import 'Styles/FormStyle.scss';
-import { useNavigate } from "react-router-dom";
-import ChevronRightIcon from 'assets/icons/chevron-right.svg?react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addDirection, updateDirections, removeDirection } from 'Features/store/eventSetupSlice';
-import BackButton from 'Components/Common/BackButton/BackButton';
-import NameInputField from 'Components/Forms/NameInputField';
-import DescriptionInputField from 'Components/Forms/DescriptionInputField.tsx';
-import "Styles/FormSelectorStyle.scss";
-import CloseIcon from 'assets/icons/close.svg?react';
-import UserSelector from 'Components/Selectors/UserSelector';
-import { Direction } from 'Features/ApiSlices/directionSlice';
-import SideStepNavigator from 'Components/Sections/SideStepNavigator';
+import React, { useState } from 'react'; // Основные хуки React
+import { useNotification } from 'Components/Common/Notification/Notification'; // Уведомления
+import 'Styles/FormStyle.scss'; // Основные стили форм
+import { useNavigate } from "react-router-dom"; // Навигация
+import ChevronRightIcon from 'assets/icons/chevron-right.svg?react'; // Иконка стрелки вправо
+import { useDispatch, useSelector } from 'react-redux'; // Redux хуки
+import { addDirection, updateDirections, removeDirection } from 'Features/store/eventSetupSlice'; // Экшены для направлений
+import BackButton from 'Components/Common/BackButton/BackButton'; // Кнопка назад
+import NameInputField from 'Components/Forms/NameInputField'; // Поле ввода названия
+import DescriptionInputField from 'Components/Forms/DescriptionInputField.tsx'; // Поле ввода описания
+import "Styles/FormSelectorStyle.scss"; // Стили селекторов
+import CloseIcon from 'assets/icons/close.svg?react'; // Иконка закрытия
+import UserSelector from 'Components/Selectors/UserSelector'; // Селектор пользователей
+import { Direction } from 'Features/ApiSlices/directionSlice'; // Типы направлений
+import SideStepNavigator from 'Components/Sections/SideStepNavigator'; // Навигатор шагов
 
 interface FormErrors {
   name?: string;
   leader_id?: string;
 }
 
+/**
+ * Форма настройки направлений мероприятия.
+ * Позволяет добавлять, редактировать и удалять направления мероприятия.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <SetupDirectionForm />
+ *
+ * @returns {JSX.Element} Форма управления направлениями мероприятия.
+ */
 export default function SetupDirectionForm(): JSX.Element {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [editingDirectionId, setEditingDirectionId] = useState<string | null>(null);
-  const { stepEvent, stepDirections } = useSelector((state: any) => state.event);
-  const { showNotification } = useNotification();
-  const [errors, setErrors] = useState<FormErrors>({});
+  const dispatch = useDispatch(); // Redux dispatch
+  const navigate = useNavigate(); // Хук навигации
+  const [editingDirectionId, setEditingDirectionId] = useState<string | null>(null); // ID редактируемого направления
+  const { stepEvent, stepDirections } = useSelector((state: any) => state.event); // Данные из хранилища
+  const { showNotification } = useNotification(); // Хук уведомлений
+  const [errors, setErrors] = useState<FormErrors>({}); // Ошибки валидации
 
+  // Состояние формы нового направления
   const [newDirection, setNewDirection] = useState({
     name: '',
     description: '',
@@ -34,6 +46,10 @@ export default function SetupDirectionForm(): JSX.Element {
     event: stepEvent?.id || null,
   });
 
+  /**
+   * Обработчик начала редактирования направления.
+   * @param {Direction} direction - Данные направления для редактирования
+   */
   const handleEditDirection = (direction: Direction) => {
     setNewDirection({
       name: direction.name,
@@ -44,17 +60,29 @@ export default function SetupDirectionForm(): JSX.Element {
     setEditingDirectionId(direction.id);
   };
 
+  /**
+   * Обработчик изменения полей ввода.
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - Событие изменения
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewDirection((prev) => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
+  /**
+   * Обработчик изменения куратора направления.
+   * @param {number | null} userId - ID выбранного пользователя
+   */
   const handleCuratorChange = (userId: number | null) => {
     setNewDirection((prev) => ({ ...prev, leader_id: userId }));
     setErrors(prev => ({ ...prev, leader_id: undefined }));
   };
 
+  /**
+   * Валидация формы.
+   * @returns {boolean} Результат валидации (true - валидно)
+   */
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
     
@@ -62,42 +90,50 @@ export default function SetupDirectionForm(): JSX.Element {
       newErrors.name = "Название направления обязательно";
     }
     
-    if (!newDirection.leader_id) {
-      newErrors.leader_id = "Руководитель обязателен";
-    }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-
+  /**
+   * Обработчик отправки формы.
+   * @param {React.FormEvent} e - Событие формы
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
-      showNotification("Пожалуйста, заполните все обязательные поля", "error");
+      showNotification("Пожалуйста, заполните обязательные поля", "error");
       return;
     }
-  
+
+    const directionData = {
+      ...newDirection,
+      leader_id: newDirection.leader_id || undefined
+    };
+
     if (editingDirectionId) {
       const updatedDirections = stepDirections.directions.map((dir) =>
-        dir.id === editingDirectionId ? { ...dir, ...newDirection, id: editingDirectionId } : dir
+        dir.id === editingDirectionId ? { ...dir, ...directionData, id: editingDirectionId } : dir
       );
       dispatch(updateDirections(updatedDirections));
-      showNotification('Направление обновлено!', 'success');
     } else {
-      dispatch(addDirection(newDirection));
-      showNotification('Направление добавлено локально!', 'success');
+      dispatch(addDirection(directionData));
     }
-  
+
+    // Сброс формы
     setNewDirection({ name: '', description: '', leader_id: null, event: stepEvent?.id });
     setEditingDirectionId(null);
   };
 
+  /** Переход к следующему шагу */
   const handleNextStep = () => {
     navigate('/projects-setup');
   };
 
+  /**
+   * Удаление направления.
+   * @param {string} id - ID направления для удаления
+   */
   const handleRemoveDirection = (id: string) => {
     dispatch(removeDirection(id));
   };
@@ -135,7 +171,7 @@ export default function SetupDirectionForm(): JSX.Element {
           <UserSelector
             selectedUserId={newDirection.leader_id}
             onChange={handleCuratorChange}
-            label="Добавить руководителя *"
+            label="Добавить руководителя"
             error={errors.leader_id}
           />
 

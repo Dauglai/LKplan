@@ -1,42 +1,53 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { useGetEventByIdQuery, useDeleteEventMutation  } from 'Features/ApiSlices/eventSlice';
-import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice';
-import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice';
-//import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
-import BackButton from "Components/Common/BackButton/BackButton";
-import 'Styles/pages/common/InfoPageStyle.scss';
-import 'Styles/pages/EventPage.scss';
-import { List } from 'antd';
-import { useEffect, useState } from 'react';
-import { useNotification } from 'Components/Common/Notification/Notification';
-import { useUserRoles } from 'Features/context/UserRolesContext';
+import { useParams, useNavigate } from 'react-router-dom'; // Хуки маршрутизации
+import { useGetEventByIdQuery, useDeleteEventMutation } from 'Features/ApiSlices/eventSlice'; // API мероприятий
+import { useGetDirectionsQuery } from 'Features/ApiSlices/directionSlice'; // API направлений
+import { useGetProjectsQuery } from 'Features/ApiSlices/projectSlice'; // API проектов
+import BackButton from "Components/Common/BackButton/BackButton"; // Кнопка "Назад"
+import 'Styles/pages/common/InfoPageStyle.scss'; // Общие стили страниц
+import 'Styles/pages/EventPage.scss'; // Стили страницы мероприятия
+import { List } from 'antd'; // Компоненты Ant Design
+import { useEffect, useState } from 'react'; // Хуки React
+import { useNotification } from 'Components/Common/Notification/Notification'; // Уведомления
+import { useUserRoles } from 'Features/context/UserRolesContext'; // Контекст ролей пользователя
+import { Collapse, Button } from 'antd'; // Компоненты Ant Design
+import { useGetUserQuery } from 'Features/ApiSlices/userSlice'; // API пользователя
+import { Application, useCreateApplicationMutation } from 'Features/ApiSlices/applicationSlice'; // API заявок
+import RequestForm from 'Pages/Request/RequestForm'; // Форма заявки
+import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice'; // API команд
 
-import { Collapse, Button } from 'antd';
-import { useGetUserQuery } from 'Features/ApiSlices/userSlice';
-import { Application, useCreateApplicationMutation } from 'Features/ApiSlices/applicationSlice';
-import RequestForm from 'Pages/Request/RequestForm';
-import { useGetTeamsQuery } from 'Features/ApiSlices/teamSlice';
+const { Panel } = Collapse; // Компонент панели Collapse
 
-const { Panel } = Collapse;
-
-
+/**
+ * Страница мероприятия с подробной информацией о событии.
+ * Отображает данные мероприятия, направления, проекты и позволяет подавать заявки.
+ * 
+ * @component
+ * @example
+ * // Пример использования через маршрутизацию:
+ * <Route path="/events/:id" element={<EventPage />} />
+ *
+ * @returns {JSX.Element} Страница мероприятия с детальной информацией.
+ */
 export default function EventPage(): JSX.Element {
-    const { id } = useParams<{ id: string }>();
-    const eventId = Number(id);
-    const { data: user, isLoading: userLoading, error: userError } = useGetUserQuery();
-    const { showNotification } = useNotification();
-    const navigate = useNavigate();
-    const { hasPermission } = useUserRoles();
-  
+    const { id } = useParams<{ id: string }>(); // Получение ID мероприятия из URL
+    const eventId = Number(id); // Конвертация ID в число
+    const { data: user, isLoading: userLoading, error: userError } = useGetUserQuery(); // Данные текущего пользователя
+    const { showNotification } = useNotification(); // Хук уведомлений
+    const navigate = useNavigate(); // Хук навигации
+    const { hasPermission } = useUserRoles(); // Проверка прав пользователя
+
+    // Запросы данных
     const { data: event, isLoading: eventLoading, error: eventError } = useGetEventByIdQuery(eventId);
     const { data: directions, isLoading: directionsLoading, error: directionsError } = useGetDirectionsQuery();
     const { data: projects, isLoading: projectsLoading, error: projectsError } = useGetProjectsQuery();
     const { data: teams, isLoading: teamsLoading, error: teamsError } = useGetTeamsQuery();
-  
+
+    // Мутации
     const [createApplication, { isLoading: isSubmitting }] = useCreateApplicationMutation();
     const [deleteEvent] = useDeleteEventMutation();
-    const [localApplication, setLocalApplication] = useState<Application | null>(null);
-  
+    const [localApplication, setLocalApplication] = useState<Application | null>(null); // Локальное состояние заявки
+
+    // Установка заголовка страницы
     useEffect(() => {
       if (event) {
         document.title = `${event.name} - MeetPoint`;
@@ -44,16 +55,23 @@ export default function EventPage(): JSX.Element {
         document.title = `Страница мероприятия - MeetPoint`;
       }
     }, [event]);
-  
+
+    // Поиск существующей заявки пользователя
     const existingApplication = event?.applications?.find(app => 
-      app.user?.user_id === user.user_id
+      app.user?.user_id === user?.user_id
     );  
-  
+
+    // Определение заявки для отображения
     const applicationToShow = localApplication || existingApplication;
-  
+
+    // Поиск выбранного проекта и команды
     const selectedProject = projects?.find(p => p.project_id === applicationToShow?.project);
     const selectedTeam = teams?.find(t => t.id === applicationToShow?.team);
-  
+
+    /**
+     * Обработчик отправки заявки.
+     * @param {Object} requestData - Данные заявки
+     */
     const handleSubmit = async (requestData: any) => {
       try {
         const createdApplication = await createApplication(requestData).unwrap();
@@ -65,6 +83,9 @@ export default function EventPage(): JSX.Element {
       }
     };
 
+    /**
+     * Обработчик удаления мероприятия.
+     */
     const handleDeleteEvent = async () => {
       try {
         await deleteEvent(eventId).unwrap();
@@ -75,17 +96,17 @@ export default function EventPage(): JSX.Element {
         showNotification(`Ошибка при удалении мероприятия: ${error.status}`, 'error');
       }
     };
-  
+
+    // Состояние загрузки
     if (eventLoading || directionsLoading || projectsLoading || userLoading || teamsLoading) {
       return <div>Загрузка...</div>;
     }
-  
+
+    // Состояние ошибки
     if (eventError || directionsError || projectsError || userError) {
       return <div>Ошибка загрузки данных</div>;
     }
 
-    console.log(event)
-  
     return (
       <div className="EventInfoPage InfoPage">
         <div className="EventInfoHeader ListsHeaderPanel HeaderPanel">

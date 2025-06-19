@@ -68,7 +68,13 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
     : undefined;
 
   if (filteredEvents.length === 0) {
-    return <span className="NullMessage">Мероприятия не найдены</span>;
+    return (
+        <div className={`empty-message ${hasRole("projectant") ? "for-projectant" : ""}`}>
+            {hasRole("projectant") 
+                ? "В данный момент нет доступных мероприятий для подачи заявки"
+                : "Мероприятия не найдены"}
+        </div>
+    );
   }
 
   // Колонки для таблицы

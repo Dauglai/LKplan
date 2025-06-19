@@ -1,5 +1,9 @@
 import { apiSlice} from 'App/api/apiSlice.ts';
 
+/**
+ * Интерфейс для представления данных пользователей.
+ * Используется для описания структуры объектов пользователей в системе.
+ */
 export interface User {
   user_id: number;
   telegram: string;

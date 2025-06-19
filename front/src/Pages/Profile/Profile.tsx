@@ -1,24 +1,37 @@
-import { useEffect, useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { useGetUserQuery, useUpdateUserMutation } from 'Features/ApiSlices/userSlice';
-import { useNotification } from 'Components/Common/Notification/Notification';
-import { getInitials } from 'Features/utils/getInitials';
-import 'Styles/FormStyle.scss'
-import './Profile.scss';
-import { Input, Button, Form, InputNumber, Skeleton, Typography} from 'antd';
+import { useEffect, useState } from 'react'; // Базовые хуки React
+import { useGetUserQuery, useUpdateUserMutation } from 'Features/ApiSlices/userSlice'; // RTK Query запросы
+import { useNotification } from 'Components/Common/Notification/Notification'; // Хук уведомлений
+import 'Styles/FormStyle.scss'; // Общие стили форм
+import './Profile.scss'; // Стили профиля
+import { Input, Button, Form, InputNumber, Skeleton, Typography } from 'antd'; // UI компоненты Ant Design
 
-const { Text } = Typography;
+const { Text } = Typography; // Компонент текста для отображения данных
 
+/**
+ * Компонент профиля пользователя с возможностью просмотра и редактирования данных.
+ * Отображает информацию о пользователе и позволяет переключаться между режимами просмотра и редактирования.
+ * 
+ * @component
+ * @example
+ * // Пример использования:
+ * <Profile />
+ * 
+ * @returns {JSX.Element} Карточка профиля пользователя с кнопками редактирования/отмены/сохранения
+ */
 export default function Profile(): JSX.Element {
-  const { data: user, isLoading } = useGetUserQuery();
-  const [updateUser] = useUpdateUserMutation();
-  const [isEditing, setIsEditing] = useState(false);
-  const [form] = Form.useForm();
-  const { showNotification } = useNotification();
+  const { data: user, isLoading } = useGetUserQuery(); // Запрос данных пользователя
+  const [updateUser] = useUpdateUserMutation(); // Мутация для обновления данных пользователя
+  const [isEditing, setIsEditing] = useState(false); // Состояние режима редактирования
+  const [form] = Form.useForm(); // Хук формы Ant Design
+  const { showNotification } = useNotification(); // Хук для показа уведомлений
 
   // Инициализация формы и сохранение начальных значений
   const [initialValues, setInitialValues] = useState(null);
 
+  /**
+   * Эффект для инициализации формы данными пользователя
+   * Собирает полное имя из отдельных полей и устанавливает значения формы
+   */
   useEffect(() => {
     if (user) {
       const values = {
@@ -30,9 +43,14 @@ export default function Profile(): JSX.Element {
     }
   }, [user, form]);
 
+  /**
+   * Обработчик отправки формы редактирования профиля
+   * Разбивает полное имя на составляющие и отправляет обновленные данные на сервер
+   */
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      // Разделение полного имени на фамилию, имя и отчество
       const [surname, name, ...patronymicParts] = values.fullName.split(' ');
       
       await updateUser({
@@ -55,15 +73,27 @@ export default function Profile(): JSX.Element {
     }
   };
 
+  /**
+   * Обработчик отмены редактирования
+   * Восстанавливает предыдущие значения формы и выходит из режима редактирования
+   */
   const handleCancel = () => {
     form.setFieldsValue(initialValues);
     setIsEditing(false);
   };
 
+  // Загрузочный скелет при загрузке данных
   if (isLoading || !user) {
     return <div className="ProfileContainer"><Skeleton active /></div>;
   }
 
+  /**
+   * Вспомогательная функция для рендеринга полей формы/профиля
+   * @param {string} label - Подпись поля
+   * @param {string} name - Имя поля в форме
+   * @param {boolean} isEmail - Флаг, указывающий что поле содержит email
+   * @returns {JSX.Element} Элемент поля в зависимости от режима (редактирование/просмотр)
+   */
   const renderField = (label, name, isEmail = false) => {
     if (isEditing) {
       return (

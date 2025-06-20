@@ -7,15 +7,20 @@ import UniversalInput from "Components/Common/UniversalInput";
 import 'Styles/components/PageComponents/HeaderPanelStyle.scss';
 import { Permission } from "Features/ApiSlices/roleSlice";
 import { useUserRoles } from "Features/context/UserRolesContext";
+import { Switch } from "antd";
 
 interface ListsHeaderProps {
-  title: string;
-  onSearch: (search: string) => void;
-  PageOptions?: PageOption[];
-  searchPlaceholder?: string;
-  link?: string;
-  permission?: Permission;
-  onAddClick?: () => void;
+    title: string;
+    onSearch: (search: string) => void;
+    PageOptions?: PageOption[];
+    searchPlaceholder?: string;
+    link?: string;
+    permission?: Permission;
+    onAddClick?: () => void;
+    showSwitch?: boolean;
+    switchChecked?: boolean;
+    onSwitchChange?: () => void;
+    switchLabel?: string;
 }
 
 /**
@@ -51,6 +56,10 @@ export default function ListsHeaderPanel({
     link,
     onAddClick,
     permission,
+    showSwitch = false,
+    switchChecked = false,
+    onSwitchChange,
+    switchLabel = "",
     }: ListsHeaderProps): JSX.Element {
     const [search, setSearch] = useState(""); // Локальное состояние строки поиска
     const navigate = useNavigate(); // Навигация по маршрутам
@@ -91,6 +100,18 @@ export default function ListsHeaderPanel({
         </div>
 
         <div className="RightHeaderPanel">
+
+            <div className="table-controls">
+                {showSwitch && hasRole("organizer") && (
+                    <>
+                        <Switch 
+                            checked={switchChecked}
+                            onChange={onSwitchChange}
+                        />
+                        <span>{switchLabel}</span>
+                    </>
+                )}
+            </div>
             <UniversalInput
                 value={search}
                 onChange={handleSearch}

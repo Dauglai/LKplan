@@ -1,5 +1,5 @@
 import { Event } from "Features/ApiSlices/eventSlice";
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useUserRoles } from "Features/context/UserRolesContext";
 import { useNavigate, Link } from "react-router-dom";
 import { useDeleteEventMutation } from "Features/ApiSlices/eventSlice";
@@ -9,6 +9,7 @@ import ListTable from "Components/Sections/ListTable";
 
 interface EventsTableProps {
   events: Event[];
+  showActiveOnly?: boolean;
 }
 
 /**
@@ -27,7 +28,7 @@ interface EventsTableProps {
  * @returns {JSX.Element} Компонент для отображения списка мероприятий.
  */
 
-export default function EventsListTable({ events }: EventsTableProps): JSX.Element {
+export default function EventsListTable({ events, showActiveOnly = false }: EventsTableProps): JSX.Element {
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState<number | null>(null); // Состояние для отслеживания открытого меню действий
   const [deleteEvent] = useDeleteEventMutation(); // Мутация для удаления мероприятия
@@ -49,23 +50,65 @@ export default function EventsListTable({ events }: EventsTableProps): JSX.Eleme
     setOpenMenu(null);
   };
 
+  /**
+   * Вспомогательная функция для определения активного мероприятия.
+   * Отправляет запрос на удаление и отображает уведомление.
+   * @param {number} id - ID мероприятия.
+   */
+  const isEventActive = (event: Event): boolean => {
+    const now = new Date();
+    const endDate = event.end ? new Date(event.end) : null;
+    
+    // Если есть дата окончания и она в прошлом - мероприятие неактивно
+    if (endDate && endDate < now) return false;
+    
+    // Если статус явно указывает на завершение
+    if (event.stage === "Мероприятие завершено") return false;
+    
+    // Статусы, которые считаем активными
+    const activeStatuses = [
+      "Набор участников",
+      "Формирование команд",
+      "Проведение мероприятия",
+      "Редактирование"
+    ];
+    
+    return activeStatuses.includes(event.stage);
+  };
 
-  const filteredEvents = hasRole("projectant") 
-    ? events.filter(event => event.stage === "Набор участников") 
-    : events;
+
+  const filteredEvents = useMemo(() => {
+    let result = [...events];
+    
+    if (hasRole("projectant")) {
+      // Для проектантов показываем только мероприятия, где открыт набор
+      result = result.filter(event => event.stage === "Набор участников");
+    } else if (!showActiveOnly) {
+      // Для организаторов: если showActiveOnly=false, показываем все
+      return result;
+    }
+    
+    // Фильтруем по активности (для организаторов при showActiveOnly=true)
+    return result.filter(isEventActive);
+  }, [events, hasRole, showActiveOnly]);
 
   const defaultSort = hasRole("organizer") 
-    ? { 
-        key: "start" as const, 
-        direction: "asc" as const,
-        // Дополнительная логика для завершённых мероприятий
-        customSort: (a: Event, b: Event) => {
-          if (a.stage === "Мероприятие завершено" && b.stage !== "Мероприятие завершено") return 1;
-          if (a.stage !== "Мероприятие завершено" && b.stage === "Мероприятие завершено") return -1;
-          return new Date(a.start).getTime() - new Date(b.start).getTime();
-        }
+  ? { 
+      key: "start" as const, 
+      direction: "asc" as const,
+      customSort: (a: Event, b: Event) => {
+        // Сначала активные, потом неактивные
+        const aActive = isEventActive(a);
+        const bActive = isEventActive(b);
+        
+        if (aActive && !bActive) return -1;
+        if (!aActive && bActive) return 1;
+        
+        // Затем сортируем по дате начала
+        return new Date(a.start).getTime() - new Date(b.start).getTime();
       }
-    : undefined;
+    }
+  : undefined;
 
   if (filteredEvents.length === 0) {
     return (

@@ -21,6 +21,7 @@ import { normalizeSearchQuery, filterItemsBySearch } from "Features/utils/search
 export default function EventsManagement(): JSX.Element {
   const { data: events = [], isLoading } = useGetEventsQuery(); // Получение списка мероприятий с сервера.
   const [search, setSearch] = useState(""); // Состояние для хранения строки поиска.
+  const [showActiveOnly, setShowActiveOnly] = useState(true); // По умолчанию показываем только активные
 
 
   useEffect(() => {
@@ -56,10 +57,17 @@ export default function EventsManagement(): JSX.Element {
         PageOptions={CRMPageOptions}
         link="/event-setup"
         permission="create_event"
+        showSwitch={true}
+        switchChecked={!showActiveOnly}
+        onSwitchChange={() => setShowActiveOnly(!showActiveOnly)}
+        switchLabel="Показать неактивные"
       />
 
       {/* Таблица с мероприятиями */}
-      <EventsListTable events={filteredEvents}/>
+      <EventsListTable 
+        events={filteredEvents}
+        showActiveOnly={showActiveOnly}
+      />
     </div>
   );
 };

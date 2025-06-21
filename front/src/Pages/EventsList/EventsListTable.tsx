@@ -68,7 +68,6 @@ export default function EventsListTable({ events, showActiveOnly = false }: Even
     // Статусы, которые считаем активными
     const activeStatuses = [
       "Набор участников",
-      "Формирование команд",
       "Проведение мероприятия",
       "Редактирование"
     ];

@@ -135,8 +135,8 @@ export default function RequestsKanban({
                 project,
                 event,
                 team,
-                date_sub: dayjs(request.date_end).format('DD.MM.YYYY'),
-                time_sub: dayjs(request.date_end).format('HH:mm')
+                date_sub: dayjs(request.date_sub).format('DD.MM.YYYY'),
+                time_sub: dayjs(request.date_sub).format('HH:mm')
             };
         });
     }, [localRequests, projects, events, teams]);

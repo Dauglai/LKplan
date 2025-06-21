@@ -42,12 +42,38 @@ export default function EventForm(): JSX.Element {
     skip: !eventId,
   });
   const { data: allProjects = [] } = useGetProjectsQuery();
-  const { data: eventStatuses } = useGetStatusesAppQuery();
-  const { data: eventStatusOrders } = useGetStatusOrdersByEventQuery(eventId!, {
+  const { data: eventStatuses, isSuccess: isStatusesSuccess } = useGetStatusesAppQuery();
+  const { data: eventStatusOrders, isSuccess: isStatusOrdersSuccess } = useGetStatusOrdersByEventQuery(eventId!, {
     skip: !eventId,
   });
   const hasInitialized = useRef(false);
 
+  // Добавляем эффект для отслеживания загрузки статусов
+  useEffect(() => {
+    if (eventId && isStatusesSuccess && isStatusOrdersSuccess && eventStatuses && eventStatusOrders) {
+      const sortedStatusOrders = [...eventStatusOrders]
+        .sort((a, b) => a.number - b.number)
+        .filter(order => order.event === eventId);
+
+      const orderedStatuses = sortedStatusOrders
+        .map(order => {
+          const status = eventStatuses.find((s: StatusApp) => s.id === order.status);
+          return status ? {
+            id: status.id,
+            name: status.name,
+            description: status.description,
+            is_positive: status.is_positive
+          } : null;
+        })
+        .filter((status): status is StatusApp => status !== null);
+
+      if (orderedStatuses.length > 0) {
+        dispatch(updateStatuses(orderedStatuses));
+      }
+    }
+  }, [eventId, isStatusesSuccess, isStatusOrdersSuccess, eventStatuses, eventStatusOrders, dispatch]);
+
+  // Основной эффект для инициализации события
   useEffect(() => {
     if (eventId && isEventSuccess && eventData && !hasInitialized.current && allProjects.length > 0) {
       if (editingEventId === eventId) return;
@@ -91,33 +117,9 @@ export default function EventForm(): JSX.Element {
       }));
       dispatch(updateProjects(resultsProjects));
 
-      // 4. Обрабатываем статусы (если данные загружены)
-      if (eventStatuses && eventStatusOrders && eventId) {
-        const sortedStatusOrders = [...eventStatusOrders]
-          .sort((a, b) => a.number - b.number)
-          .filter(order => order.event === eventId);
-
-        const orderedStatuses = sortedStatusOrders
-          .map(order => {
-            const status = eventStatuses.find((s: StatusApp) => s.id === order.status);
-            return status ? {
-              id: status.id,
-              name: status.name,
-              description: status.description,
-              is_positive: status.is_positive
-            } : null;
-          })
-          .filter((status): status is StatusApp => status !== null); // Более строгая проверка типа
-
-        if (orderedStatuses.length > 0) {
-          dispatch(updateStatuses(orderedStatuses));
-        }
-      }
-
       // 5. Устанавливаем флаг редактирования
       dispatch(setEditingEventId(eventId));
       hasInitialized.current = true;
-
     } else if (!eventId && !stepEvent) {
       // Сброс состояния для нового мероприятия
       dispatch(updateEvent({
@@ -129,16 +131,14 @@ export default function EventForm(): JSX.Element {
         end_app: '',
         specializations: [],
       }));
-      dispatch(updateDirections( [] ));
-      dispatch(updateProjects( [] ));
-      dispatch(updateStatuses( [] ));
+      dispatch(updateDirections([]));
+      dispatch(updateProjects([]));
+      dispatch(updateStatuses([]));
     }
   }, [
     isEventSuccess, 
     eventData, 
     allProjects, 
-    eventStatuses, 
-    eventStatusOrders, 
     eventId, 
     dispatch,
     editingEventId,

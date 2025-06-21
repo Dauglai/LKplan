@@ -165,7 +165,7 @@ export default function RequestsManagement(): JSX.Element {
                     checked={showCompletedRequests}
                     onChange={setShowCompletedRequests}
                     />
-                  <span>Показать завершённые</span>
+                  <span>Показать завершенные</span>
                 </div>
             )}
             

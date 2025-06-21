@@ -383,44 +383,51 @@ const EventSetupSummary = () => {
         )}
 
         <div className="FormStage">
-          {stepStatuses?.statuses?.length > 0 ? (
-            <>
-              <h3>Созданные статусы:</h3>
-              <ul className="SelectedList StatusesList">
-                {stepStatuses.statuses.map((status, index) => (
-                  <li
-                    key={status.id}
-                    className={`SelectedListItem ${status.is_positive ? 'positive' : 'negative'}`}
-                  >
-                    {index + 1}. {status.name} {status.description ? `(${status.description})` : ""}
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <div style={{ 
-              color: '#ff4d4f', 
-              fontSize: '16px',
-              fontWeight: '500',
-              marginBottom: '20px'
-            }}>
-              Для успешного создания мероприятия необходимо добавить хотя бы один статус
-            </div>
-          )}
-        </div>
+        {/* Показываем список статусов, если они есть */}
+        {stepStatuses?.statuses?.length > 0 && (
+          <>
+            <h3>Созданные статусы:</h3>
+            <ul className="SelectedList StatusesList">
+              {stepStatuses.statuses.map((status, index) => (
+                <li
+                  key={status.id}
+                  className={`SelectedListItem ${status.is_positive ? 'positive' : 'negative'}`}
+                >
+                  {index + 1}. {status.name} {status.description ? `(${status.description})` : ""}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        
+        {/* Предупреждение показываем ТОЛЬКО при создании нового мероприятия */}
+        {!editingEventId && stepStatuses?.statuses?.length === 0 && (
+          <div style={{ 
+            color: '#ff4d4f', 
+            fontSize: '16px',
+            fontWeight: '500',
+            marginBottom: '20px'
+          }}>
+            Для успешного создания мероприятия необходимо добавить хотя бы один статус
+          </div>
+        )}
+      </div>
 
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {status && <p>{status}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {status && <p>{status}</p>}
 
-        <div className="FormButtons">
-          <button 
-            className="primary-btn" 
-            onClick={handleSave} 
-            disabled={loading || stepStatuses?.statuses?.length === 0}
-          >
-            {loading ? 'Сохраняем...' : 'Сохранить'}
-          </button>
-        </div>
+      <div className="FormButtons">
+        <button 
+          className="primary-btn" 
+          onClick={handleSave} 
+          disabled={
+            loading || 
+            (!editingEventId && stepStatuses?.statuses?.length === 0) // Блокируем только при создании, если нет статусов
+          }
+        >
+          {loading ? 'Сохраняем...' : 'Сохранить'}
+        </button>
+      </div>
       </div>
     </div>
   );

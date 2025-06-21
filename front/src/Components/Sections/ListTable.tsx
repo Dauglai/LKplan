@@ -105,9 +105,6 @@ export default function ListTable<T>({ data, columns, onSelectRows, defaultSort 
     customSort: defaultSort?.customSort, // Кастомная сортировка
   });
 
-  const [currentPage, setCurrentPage] = useState(1); // Текущая страница
-  const [pageSize, setPageSize] = useState(10); // Количество элементов на странице
-
   /**
    * Получает значение из объекта по пути
    * @param {any} obj - Исходный объект
@@ -118,21 +115,31 @@ export default function ListTable<T>({ data, columns, onSelectRows, defaultSort 
     return path.split('.').reduce((acc, part) => acc?.[part], obj);
   };
 
-  // Сортировка данных с учетом кастомной функции
+  // Создаем отсортированную копию массива данных (без мутации исходного)
   const sortedData = [...data].sort((a, b) => {
-    if (!sortConfig.key) return 0;
+      // Если не указан ключ сортировки - элементы остаются на своих местах
+      if (!sortConfig.key) return 0;
 
-    if (sortConfig.customSort) {
-      return sortConfig.customSort(a, b);
-    }
+      // Если есть кастомная функция сортировки - используем ее
+      if (sortConfig.customSort) {
+          return sortConfig.customSort(a, b);
+      }
 
-    const aValue = getValue(a, sortConfig.key);
-    const bValue = getValue(b, sortConfig.key);
+      // Получаем значения для сравнения из объектов по ключу сортировки
+      // getValue поддерживает вложенные свойства (например, 'user.name')
+      const aValue = getValue(a, sortConfig.key);
+      const bValue = getValue(b, sortConfig.key);
 
-    if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-    return 0;
+      // Сравнение значений с учетом направления сортировки:
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      
+      // Если значения равны - порядок не меняется
+      return 0;
   });
+
+  const [currentPage, setCurrentPage] = useState(1); // Текущая страница
+  const [pageSize, setPageSize] = useState(10); // Количество элементов на странице
 
   // Данные для текущей страницы
   const paginatedData = sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -222,7 +229,7 @@ export default function ListTable<T>({ data, columns, onSelectRows, defaultSort 
         dataSource={paginatedData}
         columns={tableColumns}
         rowKey={(record, index) => index.toString()}
-        pagination={false} // Выключаем пагинацию на уровне таблицы
+        pagination={false}
         className="UniversalListTable"
         showSorterTooltip={false}
         rowSelection={rowSelection}

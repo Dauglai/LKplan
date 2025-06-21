@@ -11,5 +11,6 @@
   "gitlens.hovers.currentLine.enabled": true,
   "gitlens.hovers.currentLine.details": true,
   "gitlens.views.showCurrentBranchOnTop": true,
-  "gitlens.hovers.currentLine.changes": true
+  "gitlens.hovers.currentLine.changes": true,
+  "typescript.validate.enable": false
 }

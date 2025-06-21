@@ -35,12 +35,17 @@ export default function EventPage(): JSX.Element {
     const { showNotification } = useNotification(); // Хук уведомлений
     const navigate = useNavigate(); // Хук навигации
     const { hasPermission } = useUserRoles(); // Проверка прав пользователя
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Запросы данных
     const { data: event, isLoading: eventLoading, error: eventError } = useGetEventByIdQuery(eventId);
+    const { refetch: refetchEvent } = useGetEventByIdQuery(eventId);
     const { data: directions, isLoading: directionsLoading, error: directionsError } = useGetDirectionsQuery();
     const { data: projects, isLoading: projectsLoading, error: projectsError } = useGetProjectsQuery();
     const { data: teams, isLoading: teamsLoading, error: teamsError } = useGetTeamsQuery();
+    const { refetch: refetchDirections } = useGetDirectionsQuery();
+    const { refetch: refetchProjects } = useGetProjectsQuery();
+    const { refetch: refetchTeams } = useGetTeamsQuery();
 
     // Мутации
     const [createApplication, { isLoading: isSubmitting }] = useCreateApplicationMutation();
@@ -74,12 +79,17 @@ export default function EventPage(): JSX.Element {
      */
     const handleSubmit = async (requestData: any) => {
       try {
+        setIsRefreshing(true);
         const createdApplication = await createApplication(requestData).unwrap();
         showNotification('Заявка успешно отправлена!', 'success');
         setLocalApplication(createdApplication);
+        await refetchEvent();
+        await Promise.all([refetchDirections(), refetchProjects(), refetchTeams()]);
       } catch (error) {
         console.error('Ошибка отправки заявки:', error);
         showNotification(`Ошибка при отправке заявки: ${error.status} ${error.stage}`, 'error');
+      } finally {
+        setIsRefreshing(false);
       }
     };
 
@@ -157,58 +167,63 @@ export default function EventPage(): JSX.Element {
   
           {hasPermission('submit_application') && (
             event.stage === 'Редактирование' ? (
-              <div className="FormContainer RequestFormContainer">
-                <h3 className='MessageHeader'>Мероприятие в подготовке</h3>
-                <p>Приём заявок ещё не начался</p>
-              </div>
-            ) : event.stage === 'Набор участников' ? (
-              applicationToShow ? (
-                <List
-                  header={<h3>Вы уже подали заявку</h3>}
-                  className="FormContainer RequestFormContainer"
-                  dataSource={[
-                    { label: 'Статус', value: applicationToShow.status.name },
-                    { label: 'Направление', value: applicationToShow.direction?.name || "—" },
-                    { label: 'Проект', value: selectedProject?.name || "—" },
-                    { label: 'Команда', value: selectedTeam?.name || "—" },
-                    { label: 'Специализация', value: applicationToShow.specialization?.name || "—" },
-                    { label: 'Сообщение', value: applicationToShow.message || "—" },
-                    { label: 'Ответ', value: applicationToShow.comment || "—" },
-                  ]}
-                  renderItem={(item) => (
-                    <List.Item>
-                      <strong>{item.label}:</strong> {item.value}
-                    </List.Item>
-                  )}
-                />
-              ) : (
-                <RequestForm
-                  event={event}
-                  userId={user.user_id}
-                  onSubmit={handleSubmit}
-                />
-              )
-            ) : (
-              <div className="FormContainer RequestFormContainer">
-                {event.stage === 'Формирование команд' || event.stage === 'Проведение мероприятия' ? (
-                  <>
-                    <h3 className='MessageHeader'>Приём заявок закрыт</h3>
-                    <p>Мероприятие находится на этапе "{event.stage}"</p>
-                  </>
-                ) : event.stage === 'Мероприятие завершено' ? (
-                  <>
-                    <h3 className='MessageHeader'>Мероприятие завершено</h3>
-                    <p>Это мероприятие уже завершилось</p>
-                  </>
+                <div className="FormContainer RequestFormContainer">
+                    <h3 className='MessageHeader'>Мероприятие в подготовке</h3>
+                    <p>Приём заявок ещё не начался</p>
+                </div>
+            ) : event.stage === 'Набор участников' && new Date() <= new Date(event.end_app) ? (
+                applicationToShow ? (
+                    <List
+                      header={<h3>Вы уже подали заявку</h3>}
+                      className="FormContainer RequestFormContainer"
+                      loading={isRefreshing}
+                      dataSource={[
+                        { label: 'Статус', value: applicationToShow?.status?.name || "—" },
+                        { label: 'Направление', value: applicationToShow?.direction?.name || selectedProject?.directionSet?.name || "—" },
+                        { label: 'Проект', value: selectedProject?.name || "—" },
+                        { label: 'Команда', value: selectedTeam?.name || "—" },
+                        { label: 'Специализация', value: applicationToShow?.specialization?.name || "—" },
+                        { label: 'Сообщение', value: applicationToShow?.message || "—" },
+                        { label: 'Ответ', value: applicationToShow?.comment || "—" },
+                      ]}
+                      renderItem={(item) => (
+                        <List.Item>
+                          <strong>{item.label}:</strong> {item.value}
+                        </List.Item>
+                      )}
+                    />
                 ) : (
-                  <>
-                    <h3 className='MessageHeader'>Мероприятие не доступно</h3>
-                    <p>Текущий статус мероприятия: "{event.stage}"</p>
-                  </>
-                )}
-              </div>
+                    <RequestForm
+                        event={event}
+                        userId={user.user_id}
+                        onSubmit={handleSubmit}
+                    />
+                )
+            ) : (
+                <div className="FormContainer RequestFormContainer">
+                    {event.stage === 'Проведение мероприятия' || new Date() > new Date(event.end_app) ? (
+                        <>
+                            <h3 className='MessageHeader'>Приём заявок закрыт</h3>
+                            <p>
+                                {new Date() > new Date(event.end_app) 
+                                    ? "Срок приёма заявок истёк" 
+                                    : `Мероприятие находится на этапе "${event.stage}"`}
+                            </p>
+                        </>
+                    ) : event.stage === 'Мероприятие завершено' ? (
+                        <>
+                            <h3 className='MessageHeader'>Мероприятие завершено</h3>
+                            <p>Это мероприятие уже завершилось</p>
+                        </>
+                    ) : (
+                        <>
+                            <h3 className='MessageHeader'>Мероприятие не доступно</h3>
+                            <p>Текущий статус мероприятия: "{event.stage}"</p>
+                        </>
+                    )}
+                </div>
             )
-          )}
+        )}
         </div>
       </div>
     );
